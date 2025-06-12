@@ -14,17 +14,17 @@ import {
 
 const router = express.Router();
 
-router.post("/create/disease", createDisease);
-router.get("/read/disease/:id", getAllDiseases);
-router.put("/update/disease/:id", updateDisease);
-router.delete("/delete/disease/:id", deleteDisease);
-router.post("/create/disease-record", createDiseaseRecord);
-router.put("/update/disease-record/:id", updateDiseaseRecord);
-router.get("/read/disease-records", getAllDiseaseRecords);
+router.post("/disease", createDisease);
+router.get("/diseases", getAllDiseases);
+router.put("/disease/:id", updateDisease);
+router.delete("/disease/:id", deleteDisease);
+router.post("/disease-record", createDiseaseRecord);
+router.put("/disease-record/:id", updateDiseaseRecord);
+router.get("/disease-records", getAllDiseaseRecords);
 router.get(
-  "/read/disease-records/:student_id/:disease_category",
+  "/disease-records/:student_id/:disease_category",
   getDiseaseRecordsByCategory
 );
-router.delete("/delete/disease-record/:id", deleteDiseaseRecord);
+router.delete("/disease-record/:id", deleteDiseaseRecord);
 
 export default router;
