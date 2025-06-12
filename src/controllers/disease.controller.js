@@ -7,7 +7,9 @@ export async function createDisease(req, res) {
     req.body;
 
   if (!name || vaccine_need === undefined || dose_quantity === undefined) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -30,7 +32,9 @@ export async function createDisease(req, res) {
       .json({ message: "Disease created", data: result.rows[0] });
   } catch (error) {
     console.error("Error creating disease:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -41,7 +45,9 @@ export async function getAllDiseases(req, res) {
     return res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching diseases:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -52,7 +58,9 @@ export async function updateDisease(req, res) {
     req.body;
 
   if (!name || vaccine_need === undefined || dose_quantity === undefined) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -77,7 +85,9 @@ export async function updateDisease(req, res) {
     const result = await query(updateQuery, values);
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Disease not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease not found" });
     }
 
     return res
@@ -85,7 +95,9 @@ export async function updateDisease(req, res) {
       .json({ message: "Disease updated", data: result.rows[0] });
   } catch (error) {
     console.error("Error updating disease:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -98,7 +110,9 @@ export async function deleteDisease(req, res) {
     const result = await query(deleteQuery, [id]);
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Disease not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease not found" });
     }
 
     return res
@@ -106,7 +120,9 @@ export async function deleteDisease(req, res) {
       .json({ message: "Disease deleted", data: result.rows[0] });
   } catch (error) {
     console.error("Error deleting disease:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -127,7 +143,9 @@ export async function createDiseaseRecord(req, res) {
   } = req.body;
 
   if (!student_id || !disease_id || !detect_date) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -137,7 +155,9 @@ export async function createDiseaseRecord(req, res) {
       [student_id]
     );
     if (studentCheckQuery.rowCount === 0) {
-      return res.status(404).json({ error: "Student not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Student not found" });
     }
 
     // Check if the disease exists
@@ -146,7 +166,9 @@ export async function createDiseaseRecord(req, res) {
       [disease_id]
     );
     if (diseaseCheckQuery.rowCount === 0) {
-      return res.status(404).json({ error: "Disease not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease not found" });
     }
 
     const insertQuery = `
@@ -174,7 +196,9 @@ export async function createDiseaseRecord(req, res) {
       .json({ message: "Disease record created", data: result.rows[0] });
   } catch (error) {
     console.error("Error creating disease record:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -223,7 +247,9 @@ export async function updateDiseaseRecord(req, res) {
     const result = await query(updateQuery, values);
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Disease record not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease record not found" });
     }
 
     return res
@@ -231,7 +257,9 @@ export async function updateDiseaseRecord(req, res) {
       .json({ message: "Disease record updated", data: result.rows[0] });
   } catch (error) {
     console.error("Error updating disease record:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -249,7 +277,9 @@ export async function getAllDiseaseRecords(req, res) {
     return res.status(200).json({ data: result.rows });
   } catch (error) {
     console.error("Error fetching disease records:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -264,7 +294,9 @@ export async function getDiseaseRecordsByCategory(req, res) {
       [student_id]
     );
     if (studentCheckQuery.rowCount === 0) {
-      return res.status(404).json({ error: "Student not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Student not found" });
     }
 
     // Check if the disease category is valid
@@ -274,7 +306,9 @@ export async function getDiseaseRecordsByCategory(req, res) {
       "Bệnh thông thường",
     ];
     if (!validCategories.includes(disease_category)) {
-      return res.status(400).json({ error: "Invalid disease category" });
+      return res
+        .status(400)
+        .json({ error: true, message: "Invalid disease category" });
     }
 
     const selectQuery = `
@@ -288,7 +322,9 @@ export async function getDiseaseRecordsByCategory(req, res) {
     return res.status(200).json({ data: result.rows });
   } catch (error) {
     console.error("Error fetching disease records by category:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -301,7 +337,9 @@ export async function deleteDiseaseRecord(req, res) {
     const result = await query(deleteQuery, [id]);
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Disease record not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease record not found" });
     }
 
     return res
@@ -309,6 +347,8 @@ export async function deleteDiseaseRecord(req, res) {
       .json({ message: "Disease record deleted", data: result.rows[0] });
   } catch (error) {
     console.error("Error deleting disease record:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }

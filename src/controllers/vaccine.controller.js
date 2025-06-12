@@ -7,7 +7,9 @@ export async function createVaccine(req, res) {
   const { name, description } = req.body;
 
   if (!name || !description) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -17,7 +19,9 @@ export async function createVaccine(req, res) {
     ]);
     const existing = vaccines.rows[0];
     if (existing) {
-      return res.status(409).json({ error: `Vaccine ${name} already exists` });
+      return res
+        .status(409)
+        .json({ error: true, message: `Vaccine ${name} already exists` });
     }
 
     //Extract disease_name from description
@@ -28,7 +32,10 @@ export async function createVaccine(req, res) {
     if (!disease_match || !disease_match[1]) {
       return res
         .status(400)
-        .json({ error: "Cannot extract disease name from description" });
+        .json({
+          error: true,
+          message: "Cannot extract disease name from description",
+        });
     }
 
     //Match disease_id from disease_name
@@ -40,7 +47,10 @@ export async function createVaccine(req, res) {
       console.error("Cannot find disease ID from disease name:", disease_name);
       return res
         .status(400)
-        .json({ error: "Cannot find disease ID from disease name" });
+        .json({
+          error: true,
+          message: "Cannot find disease ID from disease name",
+        });
     }
 
     const disease_id = diseases.rows[0].id;
@@ -58,7 +68,9 @@ export async function createVaccine(req, res) {
       .json({ message: "Vaccine created", data: result.rows[0] });
   } catch (error) {
     console.error("Error creating vaccine:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 export async function getAllVaccines(req, res) {}
@@ -68,7 +80,9 @@ export async function createCampaign(req, res) {
   const { vaccine_id, description, location, start_date, end_date } = req.body;
 
   if (!vaccine_id || !description || !start_date || !end_date) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -77,7 +91,9 @@ export async function createCampaign(req, res) {
       vaccine_id,
     ]);
     if (vaccines.rows.length === 0) {
-      return res.status(404).json({ error: "Vaccine not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Vaccine not found" });
     }
 
     // Check if campaign already exists for the same vaccine and date range
@@ -90,7 +106,8 @@ export async function createCampaign(req, res) {
     );
     if (existingCampaigns.rows.length > 0) {
       return res.status(409).json({
-        error: "Campaign already exists",
+        error: true,
+        message: "Campaign already exists",
       });
     }
 
@@ -114,7 +131,9 @@ export async function createCampaign(req, res) {
       .json({ message: "Campaign created", data: result.rows[0] });
   } catch (error) {
     console.error("Error creating campaign:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 export async function getAllCampaigns(req, res) {}
@@ -126,7 +145,9 @@ export async function createRegisterRequest(req, res) {
   const { campaign_id } = req.body;
 
   if (!campaign_id) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -136,7 +157,9 @@ export async function createRegisterRequest(req, res) {
       [campaign_id]
     );
     if (campaigns.rows.length === 0) {
-      return res.status(404).json({ error: "Campaign not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Campaign not found" });
     }
 
     // Check if campaign is in progress
@@ -147,7 +170,9 @@ export async function createRegisterRequest(req, res) {
     console.log("Start Date:", startDate);
     console.log("End Date:", endDate);
     if (currentDate < startDate || currentDate > endDate) {
-      return res.status(400).json({ error: "Campaign is not in progress" });
+      return res
+        .status(400)
+        .json({ error: true, message: "Campaign is not in progress" });
     }
 
     // Check if registration already exists for the campaign
@@ -158,13 +183,18 @@ export async function createRegisterRequest(req, res) {
     if (existingRegistrations.rows.length > 0) {
       return res
         .status(409)
-        .json({ error: "Registration already exists for the campaign" });
+        .json({
+          error: true,
+          message: "Registration already exists for the campaign",
+        });
     }
 
     // Find vaccine from campaign
     const vaccine_id = campaigns.rows[0].vaccine_id;
     if (!vaccine_id) {
-      return res.status(404).json({ error: "Vaccine not found for campaign" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Vaccine not found for campaign" });
     }
 
     // Find disease from vaccine
@@ -181,7 +211,9 @@ export async function createRegisterRequest(req, res) {
     console.log("Disease:", disease.rows[0]);
 
     if (disease.rows.length === 0) {
-      return res.status(404).json({ error: "Disease not found for vaccine" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease not found for vaccine" });
     }
 
     //Get all students eligible for the campaign
@@ -202,12 +234,16 @@ export async function createRegisterRequest(req, res) {
       (student) => student.dose_received < disease.rows[0].dose_quantity
     );
     if (eligibleStudents.length === 0) {
-      return res.status(404).json({ error: "No eligible students found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "No eligible students found" });
     }
 
     //Create registration requests for eligible students
     if (!eligibleStudents || eligibleStudents.length === 0) {
-      return res.status(404).json({ error: "No eligible students found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "No eligible students found" });
     }
     for (const student of eligibleStudents) {
       await query(
@@ -223,7 +259,9 @@ export async function createRegisterRequest(req, res) {
     });
   } catch (error) {
     console.error("Error creating registration request:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -233,7 +271,9 @@ export async function updateRegisterStatus(req, res) {
   const { is_registered } = req.body;
 
   if (!is_registered || is_registered === undefined) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -243,7 +283,9 @@ export async function updateRegisterStatus(req, res) {
       [id]
     );
     if (registration.rows.length === 0) {
-      return res.status(404).json({ error: "Registration not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Registration not found" });
     }
 
     // Check if campaign is in progress
@@ -252,7 +294,9 @@ export async function updateRegisterStatus(req, res) {
       [registration.rows[0].campaign_id]
     );
     if (campaign.rows.length === 0) {
-      return res.status(404).json({ error: "Campaign not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Campaign not found" });
     }
 
     const currentDate = new Date();
@@ -264,7 +308,8 @@ export async function updateRegisterStatus(req, res) {
       console.log("Start Date:", startDate);
       console.log("End Date:", endDate);
       return res.status(400).json({
-        error: "Cannot update registration status outside campaign dates",
+        error: true,
+        message: "Cannot update registration status outside campaign dates",
       });
     }
 
@@ -280,7 +325,9 @@ export async function updateRegisterStatus(req, res) {
     });
   } catch (error) {
     console.error("Error updating registration status:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -288,7 +335,9 @@ export async function getStudentEligibleForCampaign(req, res) {
   const { campaign_id } = req.params;
 
   if (!campaign_id) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -310,7 +359,9 @@ export async function getStudentEligibleForCampaign(req, res) {
     );
 
     if (eligibleStudents.length === 0) {
-      return res.status(404).json({ error: "No eligible students found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "No eligible students found" });
     }
 
     return res.status(200).json({
@@ -319,7 +370,9 @@ export async function getStudentEligibleForCampaign(req, res) {
     });
   } catch (error) {
     console.error("Error retrieving eligible students:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -337,7 +390,9 @@ export async function createPreVaccinationRecord(req, res) {
     );
     if (campaigns.rows.length === 0) {
       console.log("Campaign not found:", campaign_id);
-      return res.status(404).json({ error: "Campaign not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Campaign not found" });
     }
 
     // Get name of the disease from the vaccine in the campaign
@@ -357,7 +412,9 @@ export async function createPreVaccinationRecord(req, res) {
     );
 
     if (registrations.rows.length === 0) {
-      return res.status(404).json({ error: "No registered students found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "No registered students found" });
     }
 
     // Create pre-vaccination records for each registered student
@@ -381,7 +438,9 @@ export async function createPreVaccinationRecord(req, res) {
     });
   } catch (error) {
     console.error("Error creating pre-vaccination record:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -397,7 +456,9 @@ export async function createVaccinationRecord(req, res) {
     campaign_id,
   } = req.body;
   if (!student_id || !vaccination_date || !name || !status) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required fields" });
   }
 
   try {
@@ -406,7 +467,9 @@ export async function createVaccinationRecord(req, res) {
       student_id,
     ]);
     if (students.rows.length === 0) {
-      return res.status(404).json({ error: "Student not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Student not found" });
     }
 
     // Insert vaccination record into database
@@ -432,7 +495,9 @@ export async function createVaccinationRecord(req, res) {
       .json({ message: "Vaccination record created", data: result.rows[0] });
   } catch (error) {
     console.error("Error creating vaccination record:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -449,7 +514,9 @@ export async function updateVaccinationRecord(req, res) {
       [id]
     );
     if (record.rows.length === 0) {
-      return res.status(404).json({ error: "Vaccination record not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Vaccination record not found" });
     }
 
     // Update vaccination record
@@ -479,7 +546,9 @@ export async function updateVaccinationRecord(req, res) {
     });
   } catch (error) {
     console.error("Error updating vaccination record:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
 
@@ -493,7 +562,9 @@ export async function getVaccinationRecord(req, res) {
       [id]
     );
     if (records.rows.length === 0) {
-      return res.status(404).json({ error: "Vaccination record not found" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Vaccination record not found" });
     }
 
     return res.status(200).json({
@@ -502,6 +573,8 @@ export async function getVaccinationRecord(req, res) {
     });
   } catch (error) {
     console.error("Error retrieving vaccination record:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
   }
 }
