@@ -420,7 +420,6 @@ INSERT INTO vaccine (disease_id, name, description) VALUES
 (5, 'DTP', 'Vaccine phòng bệnh Bạch hầu - loại DTP'),
 (5, 'Infanrix', 'Vaccine phòng bệnh Bạch hầu - loại Infanrix');
 
-  
 --vaccination_campaign
 CREATE TABLE vaccination_campaign (
     id SERIAL PRIMARY KEY,
@@ -434,17 +433,15 @@ CREATE TABLE vaccination_campaign (
 );
 
 INSERT INTO vaccination_campaign (vaccine_id, description, location, start_date, end_date, status) VALUES
-(1, 'Tiêm phòng bệnh Sởi (MVAX)', 'School Medix', '2025-06-15', '2025-06-17', 'completed'),
-(2, 'Tiêm phòng bệnh Sởi (Priorix)', 'School Medix', '2025-06-18', '2025-06-20', 'ongoing'),
-(3, 'Tiêm phòng bệnh Rubella (R-Vac)', 'School Medix', '2025-06-22', '2025-06-24', 'upcoming'),
-(4, 'Tiêm phòng bệnh Thủy đậu (Varivax)', 'School Medix', '2025-06-25', '2025-06-27', 'upcoming'),
-(5, 'Tiêm phòng bệnh Thủy đậu (Varilrix)', 'School Medix', '2025-06-28', '2025-06-30', 'upcoming'),
-(6, 'Tiêm phòng bệnh Viêm gan B (Engerix-B)', 'School Medix', '2025-07-01', '2025-07-03', 'upcoming'),
-(7, 'Tiêm phòng bệnh Viêm gan B (Heplisav-B)', 'School Medix', '2025-07-04', '2025-07-06', 'upcoming'),
-(8, 'Tiêm phòng bệnh Bạch hầu (DTP)', 'School Medix', '2025-07-07', '2025-07-09', 'upcoming'),
-(9, 'Tiêm phòng bệnh Bạch hầu (Infanrix)', 'School Medix', '2025-07-10', '2025-07-12', 'upcoming');
-
-
+(1, 'Tiêm phòng bệnh Sởi (MVAX)', 'School Medix', '2025-06-15', '2025-06-17', 'completed');
+-- (2, 'Tiêm phòng bệnh Sởi (Priorix)', 'School Medix', '2025-06-01', '2025-06-20', 'ongoing');
+-- (3, 'Tiêm phòng bệnh Rubella (R-Vac)', 'School Medix', '2025-06-22', '2025-06-24', 'upcoming'),
+-- (4, 'Tiêm phòng bệnh Thủy đậu (Varivax)', 'School Medix', '2025-06-25', '2025-06-27', 'upcoming'),
+-- (5, 'Tiêm phòng bệnh Thủy đậu (Varilrix)', 'School Medix', '2025-06-28', '2025-06-30', 'upcoming'),
+-- (6, 'Tiêm phòng bệnh Viêm gan B (Engerix-B)', 'School Medix', '2025-07-01', '2025-07-03', 'upcoming'),
+-- (7, 'Tiêm phòng bệnh Viêm gan B (Heplisav-B)', 'School Medix', '2025-07-04', '2025-07-06', 'upcoming'),
+-- (8, 'Tiêm phòng bệnh Bạch hầu (DTP)', 'School Medix', '2025-07-07', '2025-07-09', 'upcoming'),
+-- (9, 'Tiêm phòng bệnh Bạch hầu (Infanrix)', 'School Medix', '2025-07-10', '2025-07-12', 'upcoming');
 
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
@@ -454,13 +451,11 @@ CREATE TABLE vaccination_campaign_register (
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
     submit_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    submit_by UUID NULL, -- parent ID
+    submit_by UUID, -- parent ID
     FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
-);
-
-
+);	
 
 INSERT INTO vaccination_campaign_register (
   campaign_id,
@@ -491,20 +486,23 @@ CREATE TABLE vaccination_record (
     student_id UUID NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
     description TEXT,
+	name TEXT NOT NULL, 
     location VARCHAR(255),
-    vaccination_date DATE NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('completed', 'missed', 'cancelled')),
+    vaccination_date DATE,
+    status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'completed', 'missed', 'cancelled')),
     campaign_id INT, -- NULL nếu không thuộc campaign
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (register_id) REFERENCES vaccination_campaign_register(id),
     FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id)
 );
 
+
 INSERT INTO vaccination_record (
   student_id,
   campaign_id,
   vaccination_date,
   description,
+  name,
   location,
   status
 )
@@ -514,6 +512,7 @@ VALUES
     1,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   ),
@@ -522,6 +521,7 @@ VALUES
     1,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   ),
@@ -530,6 +530,7 @@ VALUES
     1,
     '2025-06-16',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   ),
@@ -538,9 +539,11 @@ VALUES
     1,
     '2025-06-17',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   );
+
 
 -------END FLOW VACCINATION
 
