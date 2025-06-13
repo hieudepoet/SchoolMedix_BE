@@ -7,6 +7,7 @@ import checkUpRoutes from "./checkUp.routes.js";
 import diseaseRoutes from "./disease.routes.js";
 import vaccinationRoutes from "./vaccine.routes.js";
 import classRoutes from "./class.routes.js";
+import dailyHealthRecordRoutes from "./dailyHealthRecord.routes.js";
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use("/", checkUpRoutes);
 router.use("/", diseaseRoutes);
 router.use("/", vaccinationRoutes);
 router.use("/", classRoutes);
+router.use("/", dailyHealthRecordRoutes);
 
 export default router;

@@ -139,10 +139,10 @@ export async function createDiseaseRecord(req, res) {
     admission_date,
     discharge_date,
     cur_status,
-    at_school,
+    create_by,
   } = req.body;
 
-  if (!student_id || !disease_id || !detect_date) {
+  if (!student_id || !disease_id) {
     return res
       .status(400)
       .json({ error: true, message: "Missing required fields" });
@@ -150,29 +150,38 @@ export async function createDiseaseRecord(req, res) {
 
   try {
     // Check if the student exists
-    const studentCheckQuery = await query(
-      "SELECT id FROM student WHERE id = $1;",
-      [student_id]
-    );
-    if (studentCheckQuery.rowCount === 0) {
+    const students = await query("SELECT id FROM student WHERE id = $1;", [
+      student_id,
+    ]);
+    if (students.rowCount === 0) {
       return res
         .status(404)
         .json({ error: true, message: "Student not found" });
     }
 
     // Check if the disease exists
-    const diseaseCheckQuery = await query(
-      "SELECT id FROM disease WHERE id = $1;",
-      [disease_id]
-    );
-    if (diseaseCheckQuery.rowCount === 0) {
+    const diseases = await query("SELECT id FROM disease WHERE id = $1;", [
+      disease_id,
+    ]);
+    if (diseases.rowCount === 0) {
       return res
         .status(404)
         .json({ error: true, message: "Disease not found" });
     }
 
     const insertQuery = `
-        INSERT INTO disease_record (student_id, disease_id, detect_date, cure_date, location_cure, prescription, diagnosis, admission_date, discharge_date, cur_status, at_school)
+        INSERT INTO disease_record (
+          student_id, 
+          disease_id, 
+          detect_date, 
+          cure_date, 
+          location_cure, 
+          prescription,   
+          diagnosis, 
+          admission_date, 
+          discharge_date, 
+          cur_status, 
+          create_by)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *;
         `;
@@ -187,7 +196,7 @@ export async function createDiseaseRecord(req, res) {
       admission_date || null,
       discharge_date || null,
       cur_status || null,
-      at_school || false,
+      create_by || null,
     ];
     const result = await query(insertQuery, values);
 
@@ -218,6 +227,16 @@ export async function updateDiseaseRecord(req, res) {
   } = req.body;
 
   try {
+    // Check if the disease record exists
+    const records = await query(
+      "SELECT id FROM disease_record WHERE id = $1;",
+      [id]
+    );
+    if (records.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease record not found" });
+    }
     const updateQuery = `
         UPDATE disease_record
         SET detect_date = $1,
@@ -241,7 +260,7 @@ export async function updateDiseaseRecord(req, res) {
       admission_date || null,
       discharge_date || null,
       cur_status || null,
-      at_school || false,
+      at_school || null,
       id,
     ];
     const result = await query(updateQuery, values);
@@ -263,11 +282,51 @@ export async function updateDiseaseRecord(req, res) {
   }
 }
 
-// Get all disease records of a student
-export async function getAllDiseaseRecords(req, res) {
-  const { student_id } = req.params;
+// Delete a disease record by ID
+export async function deleteDiseaseRecord(req, res) {
+  const { id } = req.params;
 
   try {
+    const deleteQuery = "DELETE FROM disease_record WHERE id = $1 RETURNING *;";
+    const result = await query(deleteQuery, [id]);
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Disease record not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Disease record deleted", data: result.rows[0] });
+  } catch (error) {
+    console.error("Error deleting disease record:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
+  }
+}
+
+// Get all disease records of a student
+export async function getAllDiseaseRecords(req, res) {
+  const { id } = req.params;
+  const student_id = id;
+  if (!student_id) {
+    return res.status(400).json({ error: true, message: "Missing student ID" });
+  }
+
+  try {
+    // Check if the student exists
+    const studentCheckQuery = await query(
+      "SELECT id FROM student WHERE id = $1;",
+      [student_id]
+    );
+    if (studentCheckQuery.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Student not found" });
+    }
+
     const selectQuery = `
         SELECT * FROM disease_record
         WHERE student_id = $1;
@@ -285,15 +344,15 @@ export async function getAllDiseaseRecords(req, res) {
 
 // Get all disease records of a student by disease_category(Bệnh mãn tính, Bệnh truyền nhiễm, Bệnh thông thường)
 export async function getDiseaseRecordsByCategory(req, res) {
-  const { student_id, disease_category } = req.params;
+  const { id, disease_category } = req.params;
+  const student_id = id;
 
   try {
     // Check if the student exists
-    const studentCheckQuery = await query(
-      "SELECT id FROM student WHERE id = $1;",
-      [student_id]
-    );
-    if (studentCheckQuery.rowCount === 0) {
+    const students = await query("SELECT id FROM student WHERE id = $1;", [
+      student_id,
+    ]);
+    if (students.rowCount === 0) {
       return res
         .status(404)
         .json({ error: true, message: "Student not found" });
@@ -322,31 +381,6 @@ export async function getDiseaseRecordsByCategory(req, res) {
     return res.status(200).json({ data: result.rows });
   } catch (error) {
     console.error("Error fetching disease records by category:", error);
-    return res
-      .status(500)
-      .json({ error: true, message: "Internal server error" });
-  }
-}
-
-// Delete a disease record by ID
-export async function deleteDiseaseRecord(req, res) {
-  const { id } = req.params;
-
-  try {
-    const deleteQuery = "DELETE FROM disease_record WHERE id = $1 RETURNING *;";
-    const result = await query(deleteQuery, [id]);
-
-    if (result.rowCount === 0) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Disease record not found" });
-    }
-
-    return res
-      .status(200)
-      .json({ message: "Disease record deleted", data: result.rows[0] });
-  } catch (error) {
-    console.error("Error deleting disease record:", error);
     return res
       .status(500)
       .json({ error: true, message: "Internal server error" });
