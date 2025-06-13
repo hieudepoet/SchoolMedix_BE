@@ -30,12 +30,10 @@ export async function createVaccine(req, res) {
       console.log("Extracted disease name:", disease_match[1]);
     }
     if (!disease_match || !disease_match[1]) {
-      return res
-        .status(400)
-        .json({
-          error: true,
-          message: "Cannot extract disease name from description",
-        });
+      return res.status(400).json({
+        error: true,
+        message: "Cannot extract disease name from description",
+      });
     }
 
     //Match disease_id from disease_name
@@ -45,12 +43,10 @@ export async function createVaccine(req, res) {
     ]);
     if (!diseases.rows || diseases.rows.length === 0) {
       console.error("Cannot find disease ID from disease name:", disease_name);
-      return res
-        .status(400)
-        .json({
-          error: true,
-          message: "Cannot find disease ID from disease name",
-        });
+      return res.status(400).json({
+        error: true,
+        message: "Cannot find disease ID from disease name",
+      });
     }
 
     const disease_id = diseases.rows[0].id;
@@ -181,12 +177,10 @@ export async function createRegisterRequest(req, res) {
       [campaign_id]
     );
     if (existingRegistrations.rows.length > 0) {
-      return res
-        .status(409)
-        .json({
-          error: true,
-          message: "Registration already exists for the campaign",
-        });
+      return res.status(409).json({
+        error: true,
+        message: "Registration already exists for the campaign",
+      });
     }
 
     // Find vaccine from campaign
@@ -333,7 +327,6 @@ export async function updateRegisterStatus(req, res) {
 
 export async function getStudentEligibleForCampaign(req, res) {
   const { campaign_id } = req.params;
-
   if (!campaign_id) {
     return res
       .status(400)
@@ -379,8 +372,7 @@ export async function getStudentEligibleForCampaign(req, res) {
 // Record
 // Create pre-vaccination record for students who registered for the campaign
 export async function createPreVaccinationRecord(req, res) {
-  const { id } = req.params;
-  const campaign_id = id;
+  const { campaign_id } = req.params;
 
   try {
     // Check if campaign exists
@@ -503,15 +495,15 @@ export async function createVaccinationRecord(req, res) {
 
 // Update vaccination record - keep old content if no new data is passed (null = no change)
 export async function updateVaccinationRecord(req, res) {
-  const { id } = req.params;
+  const { student_id } = req.params;
   const { description, name, location, vaccination_date, campaign_id } =
     req.body;
 
   try {
     // Check if vaccination record exists
     const record = await query(
-      "SELECT * FROM vaccination_record WHERE id = $1",
-      [id]
+      "SELECT * FROM vaccination_record WHERE student_id = $1",
+      [student_id]
     );
     if (record.rows.length === 0) {
       return res

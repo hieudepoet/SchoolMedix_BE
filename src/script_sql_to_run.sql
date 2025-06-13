@@ -400,6 +400,28 @@ INSERT INTO disease (disease_category, name, description, vaccine_need, dose_qua
 ('bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0);
 
 
+--disease_record
+CREATE TABLE disease_record (
+    id SERIAL PRIMARY KEY,
+    student_id UUID NOT NULL,
+    disease_id INT NOT NULL,
+    detect_date DATE,
+    cure_date DATE,
+    location_cure TEXT,
+    prescription TEXT,
+    diagnosis TEXT,
+    admission_date DATE,
+    discharge_date DATE,
+    cur_status TEXT,
+    create_by UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES student(id),
+    FOREIGN KEY (disease_id) REFERENCES disease(id),
+    FOREIGN KEY (create_by) REFERENCES parent(id) 
+);
+
 --vaccine
 CREATE TABLE vaccine (
     id SERIAL PRIMARY KEY,
@@ -500,6 +522,7 @@ CREATE TABLE vaccination_record (
 INSERT INTO vaccination_record (
   student_id,
   campaign_id,
+  register_id,
   vaccination_date,
   description,
   name,
@@ -510,6 +533,7 @@ VALUES
   (
     '550934ca-e6ee-456f-b40c-d7fdc173342b', -- Con Phúc
     1,
+	1,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
@@ -519,6 +543,7 @@ VALUES
   (
     'fc57f7ed-950e-46fb-baa5-7914798e9ae3', -- Con Đạt
     1,
+	2,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
@@ -528,6 +553,7 @@ VALUES
   (
     '1519af26-f341-471b-8471-ab33a061b657', -- Con Tèo
     1,
+	3,
     '2025-06-16',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
@@ -537,6 +563,7 @@ VALUES
   (
     '947d26b6-13ba-47af-9aff-cade2b670d05', -- Con Bê
     1,
+	4,
     '2025-06-17',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
@@ -544,6 +571,20 @@ VALUES
     'completed'
   );
 
-
 -------END FLOW VACCINATION
+
+
+-------FLOW DaiLyHealthRecord
+CREATE TABLE daily_health_record (
+    id SERIAL PRIMARY KEY,
+    student_id UUID NOT NULL,
+    detect_time DATE NOT NULL,
+    record_date DATE NOT NULL,
+    diagnosis TEXT,
+    on_site_treatment TEXT,
+    transferred_to TEXT,
+    items_usage TEXT,
+    FOREIGN KEY (student_id) REFERENCES student(id)
+);
+
 
