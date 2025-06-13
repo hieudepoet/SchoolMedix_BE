@@ -6,7 +6,8 @@ export async function createRequest(req, res) {
             create_by,
             diagnosis,
             schedule_send_date,
-            intake_date,
+            start_intake_date,
+            end_intake_date,
             note,
             request_items
       } = req.body;
@@ -22,8 +23,8 @@ export async function createRequest(req, res) {
       if (!schedule_send_date) {
             return res.status(400).json({ error: true, message: "Thiếu ngày hẹn gửi." });
       }
-      if (!intake_date) {
-            return res.status(400).json({ error: true, message: "Thiếu ngày cho uống thuốc." });
+      if (!start_intake_date || !end_intake_date) {
+            return res.status(400).json({ error: true, message: "Thiếu ngày bắt đầu hoặc ngày kết thúc cho học sinh uống thuốc." });
       }
 
       if (!request_items || !Array.isArray(request_items) || request_items.length === 0) {
