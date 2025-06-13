@@ -267,21 +267,21 @@ CREATE TABLE CheckupRegister (
 );
 
 
-INSERT INTO CheckupRegister (id, campaign_id, student_id, submit_by, reason, status) VALUES
-(1, 2, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám mắt và răng', 'PENDING'),
-(2, 3, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Hỗ trợ tư vấn tâm lý', 'SUBMITTED'),
-(3, 4, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
-(4, 1, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám tổng quát', 'SUBMITTED'),
-(5, 2, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Đăng ký khám mắt định kỳ', 'PENDING'),
-(6, 3, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Tư vấn tâm lý bổ sung', 'SUBMITTED'),
-(7, 4, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Khám sinh dục bổ sung', 'PENDING'),
-(8, 1, '947d26b6-13ba-47af-9aff-cade2b670d05', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám tổng quát lần 2', 'SUBMITTED'),
-(9, 3, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
-(10, 2, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Đăng ký khám mắt', 'SUBMITTED'),
-(11, 1, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám sức khỏe định kỳ', 'CANCELLED'),
-(12, 4, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Khám sinh dục bổ sung', 'SUBMITTED'),
-(13, 2, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Đăng ký khám răng định kỳ', 'SUBMITTED'),
-(14, 3, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Tư vấn tâm lý học sinh', 'SUBMITTED');
+INSERT INTO CheckupRegister ( campaign_id, student_id, submit_by, reason, status) VALUES
+( 2, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám mắt và răng', 'PENDING'),
+( 3, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Hỗ trợ tư vấn tâm lý', 'SUBMITTED'),
+( 4, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
+( 1, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám tổng quát', 'SUBMITTED'),
+( 2, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Đăng ký khám mắt định kỳ', 'PENDING'),
+( 3, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Tư vấn tâm lý bổ sung', 'SUBMITTED'),
+( 4, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Khám sinh dục bổ sung', 'PENDING'),
+( 1, '947d26b6-13ba-47af-9aff-cade2b670d05', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám tổng quát lần 2', 'SUBMITTED'),
+( 3, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
+( 2, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Đăng ký khám mắt', 'SUBMITTED'),
+( 1, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám sức khỏe định kỳ', 'CANCELLED'),
+( 4, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Khám sinh dục bổ sung', 'SUBMITTED'),
+( 2, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Đăng ký khám răng định kỳ', 'SUBMITTED'),
+( 3, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Tư vấn tâm lý học sinh', 'SUBMITTED');
 
 
 create type health_record_status as enum ('WAITING', 'DONE');
