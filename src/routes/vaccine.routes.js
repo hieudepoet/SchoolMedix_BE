@@ -18,13 +18,10 @@ router.post("/vaccine", createVaccine);
 router.post("/campaign", createCampaign);
 router.post("/register-request", createRegisterRequest);
 router.patch("/register-request/:id", updateRegisterStatus);
-router.get(
-  "/student-eligible-for-campaign/:campaignId",
-  getStudentEligibleForCampaign
-);
+router.get("/student-eligible-for-campaign/:id", getStudentEligibleForCampaign);
 router.post("/vaccination-record", createVaccinationRecord);
-router.post("/pre-vaccination-record/:id", createPreVaccinationRecord);
-router.patch("/vaccination-record/:id", updateVaccinationRecord);
+router.post("/pre-vaccination-record/:campaign_id", createPreVaccinationRecord);
+router.patch("/vaccination-record/:student_id", updateVaccinationRecord);
 router.get("/vaccination-record/:id", getVaccinationRecord);
 
 export default router;
