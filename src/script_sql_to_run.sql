@@ -22,20 +22,7 @@ BEGIN
 END $$;
 
 
--- Parent
-CREATE TABLE Parent (
-      id UUID PRIMARY KEY,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL
-);
 
-INSERT INTO parent (id, name, email)
-VALUES
-  ('81705d11-3052-4d70-82f2-1c11e8077dbe', 'Nguyễn Văn Tèo', 'mndkhanh.alt@gmail.com'),
-  ('00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Nguyễn Văn Bê', 'mndkhanh.alt3@gmail.com'),
-  ('3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Hoàng Tấn Đạt', 'dathtse196321@gmail.com'),
-  ('be258789-4fe3-421c-baed-53ef3ed87f3b', 'Phạm Thành Phúc', 'phamthanhqb2005@gmail.com')
-  ;
 
 -- grade
 CREATE TABLE grade (
@@ -72,27 +59,39 @@ INSERT INTO class (grade_id, name) VALUES
 (5, 'lớp 5B');
 
 
---Student
-CREATE TYPE gender_enum AS ENUM ('Nam', 'Nữ');
-CREATE TABLE Student (
-      id UUID PRIMARY KEY,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      age INT CHECK (age > 0),
-      dob DATE,
-      gender gender_enum not null,
-      class_id INT REFERENCES class(id),
-      mom_id UUID REFERENCES parent(id),
-      dad_id UUID REFERENCES parent(id)
+-- Parent
+CREATE TABLE Parent (
+      id serial PRIMARY KEY,
+	  supabase_uid uuid unique not null
 );
+-- start parent id from 100000
+ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
 
-INSERT INTO student (id, name, email, age, dob, gender, class_id, mom_id, dad_id)
+--Student
+CREATE TABLE Student (
+      id serial PRIMARY KEY,
+	  supabase_uid UUID unique not null,
+      class_id INT REFERENCES class(id),
+      mom_id int REFERENCES parent(id),
+      dad_id int REFERENCES parent(id)
+);
+ALTER SEQUENCE student_id_seq RESTART WITH 100000;
+
+INSERT INTO parent (supabase_uid) VALUES
+  ('81705d11-3052-4d70-82f2-1c11e8077dbe'),
+  ('00f7f4c0-4998-4593-b9c4-6b8d74596cd9'),
+  ('3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
+  ('be258789-4fe3-421c-baed-53ef3ed87f3b');
+
+
+INSERT INTO student (supabase_uid, class_id, mom_id, dad_id)
 VALUES
-  ('550934ca-e6ee-456f-b40c-d7fdc173342b', 'Con Phúc', 'toannangcao3000@gmail.com', 12, '2013-09-05', 'Nam', 1, 'be258789-4fe3-421c-baed-53ef3ed87f3b', null),
-  ('fc57f7ed-950e-46fb-baa5-7914798e9ae3', 'Con Đạt', 'dinhviethieu2910@gmail.com', 10, '2013-05-10', 'Nữ', 2, null, '3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
-  ('1519af26-f341-471b-8471-ab33a061b657', 'Con Tèo', 'thuandntse150361@fpt.edu.vn', 9, '2013-03-11', 'Nữ', 2, null, '81705d11-3052-4d70-82f2-1c11e8077dbe'),
-  ('947d26b6-13ba-47af-9aff-cade2b670d05', 'Con  Bê', 'coccamco.fpthcm@gmail.com',11, '2013-05-22', 'Nữ', 2, '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', '81705d11-3052-4d70-82f2-1c11e8077dbe')
+  ('550934ca-e6ee-456f-b40c-d7fdc173342b', 1, 100003, null),
+  ('fc57f7ed-950e-46fb-baa5-7914798e9ae3', 2, null, 100002),
+  ('1519af26-f341-471b-8471-ab33a061b657', 2, null, 100000),
+  ('ab9f1dc3-8b35-4b0c-9327-f677c3247143', 2, 100001, 100000)
   ;
+
 
 -------------------------FLOW SEND MEDICATION REQUEST 
 CREATE TYPE senddrugrequest_status AS ENUM (
@@ -106,54 +105,61 @@ CREATE TYPE senddrugrequest_status AS ENUM (
 
 CREATE TABLE SendDrugRequest (
     id SERIAL PRIMARY KEY,
-	student_id UUID references student(id), 
-	create_by UUID references parent(id),
+	student_id int references student(id), 
+	create_by int references parent(id),
     diagnosis TEXT NOT NULL,
     schedule_send_date DATE,
     receive_date DATE,
-    intake_date DATE,
+    start_intake_date DATE,
+	end_intake_date DATE,
     note TEXT,
-    prescription_file_url VARCHAR(255),
+    prescription_file_url VARCHAR(512),
     status senddrugrequest_status NOT NULL
 );
 
+
 INSERT INTO SendDrugRequest (
-    student_id, create_by, diagnosis, schedule_send_date, receive_date, intake_date,
-    note, prescription_file_url, status
+    student_id, create_by, diagnosis, schedule_send_date, receive_date,
+    start_intake_date, end_intake_date, note, prescription_file_url, status
 ) VALUES 
 (
-    '550934ca-e6ee-456f-b40c-d7fdc173342b', -- student_id
-    'be258789-4fe3-421c-baed-53ef3ed87f3b', -- create_by
-    'Viêm dạ dày cấp',                      -- diagnosis
-    '2025-06-10',                           -- schedule_send_date
-    NULL,                                   -- receive_date
-    NULL,                                   -- intake_date
-    'Cần gửi thuốc sớm',                    -- note
-    'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg', -- prescription_file_url
-    'PROCESSING'                            -- status
+    100000, -- student_id
+    100003, -- create_by
+    'Viêm dạ dày cấp',
+    '2025-06-10',
+    NULL,
+    '2025-06-11',
+    '2025-06-17',
+    'Cần gửi thuốc sớm',
+    'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg',
+    'PROCESSING'
 ),
 (
-    '1519af26-f341-471b-8471-ab33a061b657',
-    '81705d11-3052-4d70-82f2-1c11e8077dbe',
+    100002,
+    100000,
     'TVCĐ',
     '2025-06-09',
     '2025-06-10',
     '2025-06-11',
+    '2025-06-15',
     'Nhà trường giúp cháu uống thuốc đúng giờ',
     'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg',
     'DONE'
 ),
 (
-    'fc57f7ed-950e-46fb-baa5-7914798e9ae3',
-    '3dfa7d35-7f0f-449f-afbf-bb6e420016d2',
+    100001,
+    100002,
     'Nhiễm trùng hô hấp trên cấp/ăn kém',
     '2025-06-08',
     NULL,
-    NULL,
+    '2025-06-09',
+    '2025-06-13',
     'Gia đình muốn gửi thêm thuốc',
     'https://static.tuoitre.vn/tto/i/s626/2011/04/12/2FiN0VCC.jpg',
     'CANCELLED'
 );
+
+
 
 
 CREATE TABLE RequestItem (
@@ -254,8 +260,8 @@ CREATE TYPE register_status AS ENUM (
 CREATE TABLE CheckupRegister (
     id SERIAL PRIMARY KEY,
     campaign_id INT NOT NULL,
-    student_id UUID NOT NULL,
-    submit_by UUID ,
+    student_id int NOT NULL,
+    submit_by int,
     submit_time TIMESTAMP,
     reason TEXT,
     status register_status NOT NULL DEFAULT 'PENDING',
@@ -267,21 +273,21 @@ CREATE TABLE CheckupRegister (
 );
 
 
-INSERT INTO CheckupRegister ( campaign_id, student_id, submit_by, reason, status) VALUES
-( 2, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám mắt và răng', 'PENDING'),
-( 3, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Hỗ trợ tư vấn tâm lý', 'SUBMITTED'),
-( 4, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
-( 1, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám tổng quát', 'SUBMITTED'),
-( 2, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Đăng ký khám mắt định kỳ', 'PENDING'),
-( 3, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Tư vấn tâm lý bổ sung', 'SUBMITTED'),
-( 4, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Khám sinh dục bổ sung', 'PENDING'),
-( 1, '947d26b6-13ba-47af-9aff-cade2b670d05', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám tổng quát lần 2', 'SUBMITTED'),
-( 3, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
-( 2, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Đăng ký khám mắt', 'SUBMITTED'),
-( 1, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám sức khỏe định kỳ', 'CANCELLED'),
-( 4, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Khám sinh dục bổ sung', 'SUBMITTED'),
-( 2, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Đăng ký khám răng định kỳ', 'SUBMITTED'),
-( 3, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Tư vấn tâm lý học sinh', 'SUBMITTED');
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, reason, status) VALUES
+(2, 100001, 100002, 'Đăng ký khám mắt và răng', 'PENDING'),
+(3, 100002, 100000, 'Hỗ trợ tư vấn tâm lý', 'SUBMITTED'),
+(4, 100003, 100001, 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
+(1, 100001, 100002, 'Đăng ký khám tổng quát', 'SUBMITTED'),
+(2, 100002, 100000, 'Đăng ký khám mắt định kỳ', 'PENDING'),
+(3, 100003, 100001, 'Tư vấn tâm lý bổ sung', 'SUBMITTED'),
+(4, 100000, 100003, 'Khám sinh dục bổ sung', 'PENDING'),
+(1, 100003, 100000, 'Khám tổng quát lần 2', 'SUBMITTED'),
+(3, 100000, 100003, 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
+(2, 100003, 100001, 'Đăng ký khám mắt', 'SUBMITTED'),
+(1, 100002, 100000, 'Khám sức khỏe định kỳ', 'CANCELLED'),
+(4, 100001, 100002, 'Khám sinh dục bổ sung', 'SUBMITTED'),
+(2, 100000, 100003, 'Đăng ký khám răng định kỳ', 'SUBMITTED'),
+(3, 100001, 100002, 'Tư vấn tâm lý học sinh', 'SUBMITTED');
 
 
 create type health_record_status as enum ('WAITING', 'DONE');
@@ -447,11 +453,11 @@ INSERT INTO vaccination_campaign (vaccine_id, description, location, start_date,
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
     campaign_id INT NOT NULL,
-    student_id UUID NOT NULL,
+    student_id int NOT NULL,
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
     submit_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    submit_by UUID, -- parent ID
+    submit_by int, -- parent ID
     FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
@@ -466,24 +472,23 @@ INSERT INTO vaccination_campaign_register (
   submit_by
 )
 VALUES
--- Con Phúc: có mom_id
-(1, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 'be258789-4fe3-421c-baed-53ef3ed87f3b'),
+-- Con Phúc (UUID: '550934ca-e6ee-456f-b40c-d7fdc173342b') → student_id = 100000, mom_id = 100003
+(1, 100000, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
 
--- Con Đạt: có dad_id
-(1, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
+-- Con Đạt (UUID: 'fc57f7ed-950e-46fb-baa5-7914798e9ae3') → student_id = 100001, dad_id = 100002
+(1, 100001, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
 
--- Con Tèo: có dad_id
-(1, '1519af26-f341-471b-8471-ab33a061b657', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', '81705d11-3052-4d70-82f2-1c11e8077dbe'),
+-- Con Tèo (UUID: '1519af26-f341-471b-8471-ab33a061b657') → student_id = 100002, dad_id = 100000
+(1, 100002, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
 
--- Con Bê: có mom_id (ưu tiên) và cũng có dad_id
-(1, '947d26b6-13ba-47af-9aff-cade2b670d05', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9');
-
+-- Con Bê (UUID: 'ab9f1dc3-8b35-4b0c-9327-f677c3247143') → student_id = 100003, mom_id = 100001 (ưu tiên)
+(1, 100003, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
 
 
 --vacination_record
 CREATE TABLE vaccination_record (
     id SERIAL PRIMARY KEY,
-    student_id UUID NOT NULL,
+    student_id int NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
     description TEXT,
 	name TEXT NOT NULL, 
@@ -496,7 +501,6 @@ CREATE TABLE vaccination_record (
     FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id)
 );
 
-
 INSERT INTO vaccination_record (
   student_id,
   campaign_id,
@@ -508,42 +512,43 @@ INSERT INTO vaccination_record (
 )
 VALUES
   (
-    '550934ca-e6ee-456f-b40c-d7fdc173342b', -- Con Phúc
+    100000, -- Con Phúc
     1,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-	'Sởi',
+    'Sởi',
     'School Medix',
     'completed'
   ),
   (
-    'fc57f7ed-950e-46fb-baa5-7914798e9ae3', -- Con Đạt
+    100001, -- Con Đạt
     1,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-	'Sởi',
+    'Sởi',
     'School Medix',
     'completed'
   ),
   (
-    '1519af26-f341-471b-8471-ab33a061b657', -- Con Tèo
+    100002, -- Con Tèo
     1,
     '2025-06-16',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-	'Sởi',
+    'Sởi',
     'School Medix',
     'completed'
   ),
   (
-    '947d26b6-13ba-47af-9aff-cade2b670d05', -- Con Bê
+    100003, -- Con Bê
     1,
     '2025-06-17',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-	'Sởi',
+    'Sởi',
     'School Medix',
     'completed'
   );
 
 
 -------END FLOW VACCINATION
+
 
