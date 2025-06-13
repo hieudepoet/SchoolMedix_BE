@@ -6,7 +6,7 @@ import morgan from "morgan";
 import routes from "./routes/index.js";
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 
 app.use(cors()); // Cho phép mọi origin (hoặc cấu hình cụ thể)
 app.use(helmet()); // Bảo mật
