@@ -86,7 +86,7 @@ export async function createNewUserWithRole(req, res) {
  * @param {student array} res 
  * @returns 
  */
-export async function getChildrenOfAParent(req, res) {
+export async function getChildrenIDsOfAParent(req, res) {
       const { parent_id } = req.params;
 
       if (!parent_id) {
@@ -103,7 +103,7 @@ export async function getChildrenOfAParent(req, res) {
             // tiếp theo lấy user_metadata trên supabase thông qua trường supabase_uid của bảng student
 
             if (result.rows.length === 0) {
-                  return res.status(404).json({ error: false, message: "Không tìm thấy học sinh nào ứng với ID phụ huynh này" });
+                  return res.status(404).json({ error: true, message: "Không tìm thấy học sinh nào ứng với ID phụ huynh này" });
             }
 
             // cuối cùng trả về mảng 
@@ -175,6 +175,7 @@ export async function getParentByID(req, res) {
             return res.status(500).json({ error: true, message: "Lỗi server khi lấy phụ huynh" });
       }
 }
+
 
 function generateRandomPassword() {
       const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

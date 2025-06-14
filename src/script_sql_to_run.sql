@@ -81,13 +81,15 @@ INSERT INTO parent (supabase_uid) VALUES
   ('81705d11-3052-4d70-82f2-1c11e8077dbe'),
   ('00f7f4c0-4998-4593-b9c4-6b8d74596cd9'),
   ('3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
-  ('be258789-4fe3-421c-baed-53ef3ed87f3b');
+  ('be258789-4fe3-421c-baed-53ef3ed87f3b')
+
+  ;
 
 
 INSERT INTO student (supabase_uid, class_id, mom_id, dad_id)
 VALUES
   ('550934ca-e6ee-456f-b40c-d7fdc173342b', 1, 100003, null),
-  ('fc57f7ed-950e-46fb-baa5-7914798e9ae3', 2, null, 100002),
+  ('fc57f7ed-950e-46fb-baa5-7914798e9ae3', 2, 100003, 100002),
   ('1519af26-f341-471b-8471-ab33a061b657', 2, null, 100000),
   ('ab9f1dc3-8b35-4b0c-9327-f677c3247143', 2, 100001, 100000)
   ;
