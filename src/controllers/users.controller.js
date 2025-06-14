@@ -155,12 +155,12 @@ export async function getStudentProfileByID(req, res) {
             // Lấy thông tin liên kết
             const result = await query(
                   `SELECT a.id, a.supabase_uid as supabase_student_id, class_id, b.name as class_name, grade_id, c.name as grade_name, mom_id, d.supabase_uid as supabase_mom_uid, dad_id, e.supabase_uid as supabase_dad_uid
-       FROM student a
-       JOIN class b ON a.class_id = b.id
-       JOIN grade c ON b.grade_id = c.id
-       LEFT JOIN parent d ON a.mom_id = d.id
-       LEFT JOIN parent e ON a.dad_id = e.id
-       WHERE a.id = $1`,
+                  FROM student a
+                  JOIN class b ON a.class_id = b.id
+                  JOIN grade c ON b.grade_id = c.id
+                  LEFT JOIN parent d ON a.mom_id = d.id
+                  LEFT JOIN parent e ON a.dad_id = e.id
+                  WHERE a.id = $1`,
                   [student_id]
             );
 
@@ -191,6 +191,65 @@ export async function getStudentProfileByID(req, res) {
             return res.status(500).json({ error: true, message: "Lỗi server khi lấy học sinh" });
       }
 }
+
+/**
+ * 
+ * return all relates to this student
+ * but entry needs to have a supabase_student_uid and check if app_metadata have role is student, if not, return error
+ * 
+ * @param {supabase_student_uid} req 
+ * @param {*} res 
+ * @returns 
+ */
+export async function getStudentProfileByUUID(req, res) {
+      const { supabase_student_uid } = req.params;
+
+      if (!supabase_student_uid) {
+            return res.status(400).json({ error: true, message: "Thiếu supabase UUID học sinh" });
+      }
+
+      try {
+            // Lấy thông tin liên kết
+            const result = await query(
+                  `SELECT a.id, a.supabase_uid as supabase_student_id, class_id, b.name as class_name, grade_id, c.name as grade_name, mom_id, d.supabase_uid as supabase_mom_uid, dad_id, e.supabase_uid as supabase_dad_uid
+                  FROM student a
+                  JOIN class b ON a.class_id = b.id
+                  JOIN grade c ON b.grade_id = c.id
+                  LEFT JOIN parent d ON a.mom_id = d.id
+                  LEFT JOIN parent e ON a.dad_id = e.id
+                  WHERE a.supabase_uid = $1`,
+                  [supabase_student_uid]
+            );
+
+            if (result.rows.length === 0) {
+                  return res.status(404).json({ error: false, message: "Không tìm thấy học sinh với UUID này" });
+            }
+
+            const studentData = result.rows[0];
+
+            // Lấy thông tin hồ sơ từ Supabase Auth
+            const [studentProfile, momProfile, dadProfile] = await Promise.all([
+                  getSupabaseProfileByUUID(studentData.supabase_student_id),
+                  getSupabaseProfileByUUID(studentData.supabase_mom_uid),
+                  getSupabaseProfileByUUID(studentData.supabase_dad_uid)
+            ]);
+
+            const fullData = {
+                  ...studentData,
+                  student_profile: studentProfile,
+                  mom_profile: momProfile,
+                  dad_profile: dadProfile
+            };
+
+            return res.status(200).json({ error: false, message: "Lấy thông tin học sinh thành công", data: fullData });
+
+      } catch (err) {
+            console.error("Lỗi khi lấy thông tin học sinh:", err);
+            return res.status(500).json({ error: true, message: "Lỗi server khi lấy học sinh" });
+      }
+}
+
+
 
 /**
  * 
