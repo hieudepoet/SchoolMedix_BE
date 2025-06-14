@@ -24,6 +24,6 @@ router.post("/vaccination-record", createVaccinationRecord);
 router.post("/pre-vaccination-record/:campaign_id", createPreVaccinationRecord);
 router.patch("/vaccination-record/:student_id", updateVaccinationRecord);
 router.get("/vaccination-record/:id", getVaccinationRecord);
-router.get("/vaccination-records/:id", getVaccinationRecords);
+router.get("/vaccination-records/:student_id", getVaccinationRecords);
 
 export default router;
