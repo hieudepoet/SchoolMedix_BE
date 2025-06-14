@@ -1,17 +1,29 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import { query } from "../config/database.js";
-import { sendWelcomeEmail } from "../services/email/index.js"; // make sure this exports correctly
-// ... (các import giữ nguyên)
+import { sendWelcomeEmail } from "../services/email/index.js";
 
-export async function createParent(req, res) {
-      const { email, name } = req.body;
+
+/**
+ * profile_img_url will be anonymous by default when create user
+ * @param {role, email, name, age, gender, dob, address, phone_number} req 
+ * @param {auth.user object} res 
+ * @returns 
+ */
+export async function createNewUserWithRole(req, res) {
+      const { role, email, name, age, gender, dob, address, phone_number } = req.body;
+      const profile_img_url = "https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg";
+
+      if (!['admin', 'parent', 'nurse', 'student'].includes(user.role)) {
+            return res.status(400).json({ error: true, message: "Role phải là admin, nurse, student hoặc parent. Không thể tạo mới user!" });
+      }
 
       if (!email || !name) {
             return res.status(400).json({ error: true, message: "Thiếu email hoặc tên" });
       }
 
       const password = generateRandomPassword();
-      const role = "parent";
+
+
 
       const { data, error } = await supabaseAdmin.createUser({
             email,
@@ -49,137 +61,6 @@ export async function createParent(req, res) {
       } catch (err) {
             console.warn("⚠️ Email sending failed:", err.message);
       }
-}
-
-export async function createStudent(req, res) {
-      const { email, name, age, dob, gender, class_id, mom_id, dad_id } = req.body;
-
-      if (!email || !name || !age || !dob || !gender || !class_id) {
-            return res.status(400).json({ error: true, message: "Thiếu các trường thông tin cần thiết" });
-      }
-
-      if (mom_id && dad_id && mom_id === dad_id) {
-            return res.status(400).json({ error: true, message: "ID bố và mẹ không được trùng nhau" });
-      }
-
-      const password = generateRandomPassword();
-      const role = "student";
-
-      const { data, error } = await supabaseAdmin.createUser({
-            email,
-            password,
-            app_metadata: { role },
-            user_metadata: { name },
-            email_confirm: true
-      });
-
-      if (error) {
-            console.error("❌ Error creating student in Supabase:", error.message);
-            return res.status(400).json({ error: true, message: `Tạo học sinh thất bại: ${error.message}` });
-      }
-
-      const id = data.user.id;
-      console.log("✅ Created student in Supabase:", id);
-
-      try {
-            const result = await query(
-                  `INSERT INTO student (id, name, email, age, dob, gender, class_id, mom_id, dad_id)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-                  [id, name, email, age, dob, gender, class_id, mom_id || null, dad_id || null]
-            );
-            res.status(201).json({
-                  error: false,
-                  message: "Tạo học sinh thành công",
-                  data: result.rows[0]
-            });
-      } catch (err) {
-            console.error("❌ Database insert error:", err);
-            return res.status(500).json({ error: true, message: "Lỗi khi lưu vào cơ sở dữ liệu" });
-      }
-
-      try {
-            await sendWelcomeEmail(email, name, role, password);
-      } catch (err) {
-            console.warn("⚠️ Email sending failed:", err.message);
-      }
-}
-
-export async function createAdmin(req, res) {
-      const { email, name } = req.body;
-
-      if (!email || !name) {
-            return res.status(400).json({ error: true, message: "Thiếu email hoặc tên" });
-      }
-
-      const password = generateRandomPassword();
-      const role = "admin";
-
-      const { data, error } = await supabaseAdmin.createUser({
-            email,
-            password,
-            app_metadata: { role },
-            user_metadata: { name },
-            email_confirm: true
-      });
-
-      if (error) {
-            console.error("❌ Error creating admin in Supabase:", error.message);
-            return res.status(400).json({ error: true, message: `Tạo admin thất bại: ${error.message}` });
-      }
-
-      const id = data.user.id;
-      console.log("✅ Created admin in Supabase:", id);
-
-      try {
-            await sendWelcomeEmail(email, name, role, password);
-      } catch (err) {
-            console.warn("⚠️ Email sending failed:", err.message);
-      }
-
-      res.status(201).json({
-            error: false,
-            message: "Tạo admin thành công",
-            data: { id, email, name }
-      });
-}
-
-export async function createNurse(req, res) {
-      const { email, name } = req.body;
-
-      if (!email || !name) {
-            return res.status(400).json({ error: true, message: "Thiếu email hoặc tên" });
-      }
-
-      const password = generateRandomPassword();
-      const role = "nurse";
-
-      const { data, error } = await supabaseAdmin.createUser({
-            email,
-            password,
-            app_metadata: { role },
-            user_metadata: { name },
-            email_confirm: true
-      });
-
-      if (error) {
-            console.error("❌ Error creating nurse in Supabase:", error.message);
-            return res.status(400).json({ error: true, message: `Tạo y tá thất bại: ${error.message}` });
-      }
-
-      const id = data.user.id;
-      console.log("✅ Created nurse in Supabase:", id);
-
-      try {
-            await sendWelcomeEmail(email, name, role, password);
-      } catch (err) {
-            console.warn("⚠️ Email sending failed:", err.message);
-      }
-
-      res.status(201).json({
-            error: false,
-            message: "Tạo y tá thành công",
-            data: { id, email, name }
-      });
 }
 
 export async function getChildrenOfAParent(req, res) {
