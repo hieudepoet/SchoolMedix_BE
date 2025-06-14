@@ -13,17 +13,34 @@ export async function createNewUserWithRole(req, res) {
       const { role, email, name, age, gender, dob, address, phone_number } = req.body;
       const profile_img_url = "https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg";
 
+      // check if role is in admin, parent, nurse, student
       if (!['admin', 'parent', 'nurse', 'student'].includes(user.role)) {
             return res.status(400).json({ error: true, message: "Role phải là admin, nurse, student hoặc parent. Không thể tạo mới user!" });
       }
 
-      if (!email || !name) {
-            return res.status(400).json({ error: true, message: "Thiếu email hoặc tên" });
+      if (!email) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
+      }
+      if (!name) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
+      }
+      if (!age) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
+      }
+      if (!gender) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
+      }
+      if (!dob) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
+      }
+      if (!address) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
+      }
+      if (!phone_number) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
       }
 
       const password = generateRandomPassword();
-
-
 
       const { data, error } = await supabaseAdmin.createUser({
             email,
@@ -34,8 +51,8 @@ export async function createNewUserWithRole(req, res) {
       });
 
       if (error) {
-            console.error("❌ Error creating parent:", error.message);
-            return res.status(400).json({ error: true, message: `Tạo phụ huynh thất bại: ${error.message}` });
+            console.error(`❌ Error creating ${role}:`, error.message);
+            return res.status(400).json({ error: true, message: `Tạo ${role} thất bại: ${error.message}` });
       }
 
       console.log("✅ Created parent:", data.user);
@@ -63,6 +80,12 @@ export async function createNewUserWithRole(req, res) {
       }
 }
 
+/**
+ * 
+ * @param {parent_id} req 
+ * @param {student array} res 
+ * @returns 
+ */
 export async function getChildrenOfAParent(req, res) {
       const { parent_id } = req.params;
 
@@ -71,14 +94,19 @@ export async function getChildrenOfAParent(req, res) {
       }
 
       try {
+            // đầu tiên lấy tất cả các con mà có mom_id hoặc dad_id như trên (trong db chỉ lưu mỗi thông tin class_id, mom_id, dad_id thôi, qutrong là user_metadata lưu trên supbase)
             const result = await query(
                   "SELECT * FROM student WHERE mom_id = $1 OR dad_id = $1",
                   [parent_id]
             );
 
+            // tiếp theo lấy user_metadata trên supabase thông qua trường supabase_uid của bảng student
+
             if (result.rows.length === 0) {
-                  return res.status(404).json({ error: false, message: "Không tìm thấy học sinh nào với ID phụ huynh này" });
+                  return res.status(404).json({ error: false, message: "Không tìm thấy học sinh nào ứng với ID phụ huynh này" });
             }
+
+            // cuối cùng trả về mảng 
 
             return res.status(200).json({ error: false, message: "Lấy danh sách học sinh thành công", data: result.rows });
       } catch (err) {
@@ -87,6 +115,12 @@ export async function getChildrenOfAParent(req, res) {
       }
 }
 
+/**
+ * 
+ * @param {student_id} req 
+ * @param {*} res 
+ * @returns 
+ */
 export async function getStudentByID(req, res) {
       const { student_id } = req.params;
 
@@ -111,6 +145,13 @@ export async function getStudentByID(req, res) {
       }
 }
 
+
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 export async function getParentByID(req, res) {
       const { parent_id } = req.params;
 
