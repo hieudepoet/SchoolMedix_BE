@@ -10,6 +10,7 @@ import {
   createPreVaccinationRecord,
   updateVaccinationRecord,
   getVaccinationRecord,
+  getVaccinationRecords,
 } from "../controllers/vaccine.controller.js";
 
 const router = express.Router();
@@ -23,5 +24,6 @@ router.post("/vaccination-record", createVaccinationRecord);
 router.post("/pre-vaccination-record/:campaign_id", createPreVaccinationRecord);
 router.patch("/vaccination-record/:student_id", updateVaccinationRecord);
 router.get("/vaccination-record/:id", getVaccinationRecord);
+router.get("/vaccination-records/:id", getVaccinationRecords);
 
 export default router;

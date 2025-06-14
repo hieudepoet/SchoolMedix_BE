@@ -570,3 +570,31 @@ export async function getVaccinationRecord(req, res) {
       .json({ error: true, message: "Internal server error" });
   }
 }
+
+// Get all vaccination records for a student
+export async function getVaccinationRecords(req, res) {
+  const { student_id } = req.params;
+
+  try {
+    const records = await query(
+      "SELECT * FROM vaccination_record WHERE student_id = $1",
+      [student_id]
+    );
+    if (records.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "No vaccination records found for this student",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Vaccination records retrieved",
+      data: records.rows,
+    });
+  } catch (error) {
+    console.error("Error retrieving vaccination records:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
+  }
+}
