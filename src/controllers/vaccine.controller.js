@@ -1,4 +1,3 @@
-// vaccination.controller.js
 import e from "express";
 import { query } from "../config/database.js";
 

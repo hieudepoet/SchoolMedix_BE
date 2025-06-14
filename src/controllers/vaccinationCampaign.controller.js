@@ -340,14 +340,14 @@ export async function getStudentEligibleForCampaign(req, res) {
       try {
             // Get all students eligible for the campaign
             const studentsList = await query(
-                  `
-      SELECT s.id AS student_id,
-        COUNT(vr.*) FILTER (WHERE vr.name = $1) AS dose_received
-      FROM student s
-      LEFT JOIN vaccination_record vr ON s.id = vr.student_id
-      LEFT JOIN disease d ON vr.name = d.name
-      GROUP BY s.id
-    `,
+            `
+            SELECT s.id AS student_id,
+            COUNT(vr.*) FILTER (WHERE vr.name = $1) AS dose_received
+            FROM student s
+            LEFT JOIN vaccination_record vr ON s.id = vr.student_id
+            LEFT JOIN disease d ON vr.name = d.name
+            GROUP BY s.id
+            `,
                   [disease.rows[0].name]
             );
 
@@ -517,15 +517,15 @@ export async function updateVaccinationRecord(req, res) {
 
             // Update vaccination record
             const updateQuery = `
-        UPDATE vaccination_record
-        SET description = COALESCE($1, description),
-            name = COALESCE($2, name),
-            location = COALESCE($3, location),
-            vaccination_date = COALESCE($4, vaccination_date),
-            campaign_id = COALESCE($5, campaign_id)
-        WHERE id = $6
-        RETURNING *;
-    `;
+            UPDATE vaccination_record
+            SET description = COALESCE($1, description),
+                  name = COALESCE($2, name),
+                  location = COALESCE($3, location),
+                  vaccination_date = COALESCE($4, vaccination_date),
+                  campaign_id = COALESCE($5, campaign_id)
+            WHERE id = $6
+            RETURNING *;
+      `;
 
             const result = await query(updateQuery, [
                   description,
@@ -551,6 +551,12 @@ export async function updateVaccinationRecord(req, res) {
 // Get vaccination record by record ID
 export async function getVaccinationRecord(req, res) {
       const { id } = req.params;
+
+      if (!id) {
+            return res
+                  .status(400)
+                  .json({ error: true, message: "Missing required fields" });
+      }
 
       try {
             const records = await query(
@@ -578,6 +584,12 @@ export async function getVaccinationRecord(req, res) {
 // Get all vaccination records for a student
 export async function getVaccinationRecordsByStudentID(req, res) {
       const { student_id } = req.params;
+
+      if (!student_id) {
+            return res
+                  .status(400)
+                  .json({ error: true, message: "Missing required fields" });
+      }
 
       try {
             const records = await query(

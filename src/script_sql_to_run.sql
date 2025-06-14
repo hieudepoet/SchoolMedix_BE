@@ -555,3 +555,86 @@ VALUES
 -------END FLOW VACCINATION
 
 
+-------FLOW DaiLyHealthRecord
+CREATE TABLE daily_health_record (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL,
+    detect_time DATE NOT NULL,
+    record_date DATE NOT NULL,
+    diagnosis TEXT,
+    on_site_treatment TEXT,
+    transferred_to TEXT,
+    items_usage TEXT,
+    FOREIGN KEY (student_id) REFERENCES student(id)
+);
+
+
+INSERT INTO daily_health_record (
+    student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage
+)
+VALUES 
+-- student_id: 100000
+(100000, '2025-06-05', '2025-06-05', 'Chảy máu cam', 'Nằm nghỉ, nghiêng đầu về trước', NULL, 'Bông gòn'),
+(100000, '2025-06-01', '2025-06-01', 'Đau mắt đỏ', 'Nhỏ mắt Natri Clorid 0.9%', NULL, 'Thuốc nhỏ mắt'),
+
+-- student_id: 100001
+(100001, '2025-06-04', '2025-06-04', 'Ho và sổ mũi', 'Uống thuốc ho thảo dược', NULL, 'Thuốc ho, giấy lau'),
+(100001, '2025-06-02', '2025-06-02', 'Đau răng', 'Súc miệng nước muối, thông báo phụ huynh', NULL, 'Nước muối sinh lý'),
+
+-- student_id: 100002
+(100002, '2025-06-03', '2025-06-03', 'Ngã cầu thang nhẹ', 'Kiểm tra vết thương, theo dõi 15 phút', NULL, 'Băng dán, nước sát khuẩn'),
+(100002, '2025-05-31', '2025-05-31', 'Sốt 38.5°C', 'Đặt khăn lạnh, uống hạ sốt', NULL, 'Paracetamol 250mg'),
+
+-- student_id: 100003
+(100003, '2025-06-06', '2025-06-06', 'Nổi mẩn đỏ toàn thân', 'Thông báo phụ huynh, theo dõi phản ứng', 'Trạm Y tế Phường 3', 'Kem chống ngứa'),
+(100003, '2025-06-03', '2025-06-03', 'Khó tiêu', 'Uống men tiêu hóa', NULL, 'Men tiêu hóa gói');
+-------END FLOW DaiLyHealthRecord
+
+
+-------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
+CREATE TABLE disease_record (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL,
+    disease_id INT NOT NULL,
+    detect_date DATE,
+    cure_date DATE,
+    location_cure TEXT,
+    prescription TEXT,
+    diagnosis TEXT,
+    admission_date DATE,
+    discharge_date DATE,
+    cur_status TEXT,
+    create_by int NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES student(id),
+    FOREIGN KEY (disease_id) REFERENCES disease(id),
+    FOREIGN KEY (create_by) REFERENCES parent(id) 
+);
+
+INSERT INTO disease_record (
+    student_id, disease_id, detect_date, cure_date, location_cure,
+    prescription, diagnosis, admission_date, discharge_date,
+    cur_status, create_by
+)
+VALUES
+-- 100000 - parent_id: 100003
+(100000, 1, '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1',
+ 'Paracetamol', 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-03',
+ 'Đã khỏi', 100003),
+
+-- 100001 - parent_id: 100003
+(100001, 2, '2025-04-10', NULL, 'Tự theo dõi tại nhà',
+ 'Vitamin C', 'Ho và nổi mẩn nhẹ', NULL, NULL,
+ 'Đang theo dõi', 100003),
+
+-- 100002 - parent_id: 100000
+(100002, 1, '2025-03-15', '2025-03-20', 'Phòng khám Nhi',
+ 'Thuốc kháng sinh', 'Sốt, viêm họng', '2025-03-15', '2025-03-18',
+ 'Đã khỏi', 100000),
+
+-- 100003 - parent_id: 100001
+(100003, 2, '2025-02-01', NULL, 'Nhà theo dõi',
+ 'Xông mũi, uống nước nhiều', 'Cảm lạnh nhẹ', NULL, NULL,
+ 'Đang theo dõi', 100001);
