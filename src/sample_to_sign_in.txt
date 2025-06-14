@@ -1,0 +1,25 @@
+ROLE ADMIN:
+1cbb67d3-eaa9-48f4-a577-dcf6bfee9bbb
+mndkhanh@gmail.com
+12345678
+----------------------------
+ROLE NURSE:
+322526ca-3a47-494a-a0fa-4866f0af9477
+mndkhanh3@gmail.com
+nLQKp8#E
+----------------------------
+ROLE PARENT:
+- có 2 con: mẹ Phạm Thành Phúc, con Phạm Thành Kiến, con Hoàng Tấn Tạ Yến
+be258789-4fe3-421c-baed-53ef3ed87f3b
+phamthanhqb2005@gmail.com
+q9xDd^I-
+----------------------------
+ROLE STUDENT:
+- có mẹ only
+550934ca-e6ee-456f-b40c-d7fdc173342b
+toannangcao3000@gmail.com
+RtKg2+=(
+- có cả bố với mẹ
+ab9f1dc3-8b35-4b0c-9327-f677c3247143
+coccamco.fpthcm@gmail.com
+Cs2c=tcr
