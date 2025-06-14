@@ -553,4 +553,17 @@ VALUES
 
 -------END FLOW VACCINATION
 
+-------FLOW DaiLyHealthRecord
+CREATE TABLE daily_health_record (
+    id SERIAL PRIMARY KEY,
+    student_id UUID NOT NULL,
+    detect_time DATE NOT NULL,
+    record_date DATE NOT NULL,
+    diagnosis TEXT,
+    on_site_treatment TEXT,
+    transferred_to TEXT,
+    items_usage TEXT,
+    FOREIGN KEY (student_id) REFERENCES student(id)
+);
+
 
