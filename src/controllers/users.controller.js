@@ -5,40 +5,23 @@ import { sendWelcomeEmail } from "../services/email/index.js";
 
 /**
  * profile_img_url will be anonymous by default when create user
- * @param {role, email, name, age, gender, dob, address, phone_number} req 
- * @param {auth.user object} res 
+ * @param { email, name, age, gender, dob, address, phone_number } req 
+ * @param { auth.user object } res 
  * @returns 
  */
-export async function createNewUserWithRole(req, res) {
-      const { role, email, name, age, gender, dob, address, phone_number } = req.body;
-      const profile_img_url = "https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg";
+export async function createNurse(req, res) {
+      const { email, name, age, gender, dob, address, phone_number } = req.body;
+      const profile_img_url = process.env.DEFAULT_AVATAR_URL;
+      const role = 'nurse';
 
-      // check if role is in admin, parent, nurse, student
-      if (!['admin', 'parent', 'nurse', 'student'].includes(user.role)) {
-            return res.status(400).json({ error: true, message: "Role phải là admin, nurse, student hoặc parent. Không thể tạo mới user!" });
-      }
-
-      if (!email) {
-            return res.status(400).json({ error: true, message: "Thiếu email." });
-      }
-      if (!name) {
-            return res.status(400).json({ error: true, message: "Thiếu email." });
-      }
-      if (!age) {
-            return res.status(400).json({ error: true, message: "Thiếu email." });
-      }
-      if (!gender) {
-            return res.status(400).json({ error: true, message: "Thiếu email." });
-      }
-      if (!dob) {
-            return res.status(400).json({ error: true, message: "Thiếu email." });
-      }
-      if (!address) {
-            return res.status(400).json({ error: true, message: "Thiếu email." });
-      }
-      if (!phone_number) {
-            return res.status(400).json({ error: true, message: "Thiếu email." });
-      }
+      if (!email) return res.status(400).json({ error: true, message: "Thiếu email." });
+      if (!name) return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
+      if (!age) return res.status(400).json({ error: true, message: "Thiếu tuổi." });
+      if (!gender || (gender !== "Nam" && gender !== "Nữ"))
+            return res.status(400).json({ error: true, message: "Giới tính phải là 'Nam' hoặc 'Nữ'." });
+      if (!dob) return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
+      if (!address) return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
+      if (!phone_number) return res.status(400).json({ error: true, message: "Thiếu số điện thoại." });
 
       const password = generateRandomPassword();
 
@@ -46,7 +29,7 @@ export async function createNewUserWithRole(req, res) {
             email,
             password,
             app_metadata: { role },
-            user_metadata: { name },
+            user_metadata: { name, age, gender, dob, address, phone_number, profile_img_url },
             email_confirm: true
       });
 
@@ -55,30 +38,73 @@ export async function createNewUserWithRole(req, res) {
             return res.status(400).json({ error: true, message: `Tạo ${role} thất bại: ${error.message}` });
       }
 
-      console.log("✅ Created parent:", data.user);
-      const id = data.user.id;
-
-      try {
-            const result = await query(
-                  "INSERT INTO parent (id, name, email) VALUES ($1, $2, $3) RETURNING *",
-                  [id, name, email]
-            );
-            res.status(201).json({
-                  error: false,
-                  message: "Tạo phụ huynh thành công",
-                  data: result.rows[0]
-            });
-      } catch (err) {
-            console.error("❌ Database insert error:", err);
-            return res.status(500).json({ error: true, message: "Lỗi khi lưu vào cơ sở dữ liệu" });
-      }
+      console.log("✅ Created nurse:", data.user);
 
       try {
             await sendWelcomeEmail(email, name, role, password);
       } catch (err) {
             console.warn("⚠️ Email sending failed:", err.message);
       }
+
+      return res.status(201).json({
+            error: false,
+            message: "Tạo tài khoản y tá thành công",
+            data: data.user
+      });
 }
+
+/**
+ * profile_img_url will be anonymous by default when create user
+ * @param { email, name, age, gender, dob, address, phone_number } req 
+ * @param { auth.user object } res 
+ * @returns 
+ */
+export async function createAdmin(req, res) {
+      const { email, name, age, gender, dob, address, phone_number } = req.body;
+      const profile_img_url = process.env.DEFAULT_AVATAR_URL;
+      const role = 'admin';
+
+      if (!email) return res.status(400).json({ error: true, message: "Thiếu email." });
+      if (!name) return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
+      if (!age) return res.status(400).json({ error: true, message: "Thiếu tuổi." });
+      if (!gender || (gender !== "Nam" && gender !== "Nữ"))
+            return res.status(400).json({ error: true, message: "Giới tính phải là 'Nam' hoặc 'Nữ'." });
+      if (!dob) return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
+      if (!address) return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
+      if (!phone_number) return res.status(400).json({ error: true, message: "Thiếu số điện thoại." });
+
+      const password = generateRandomPassword();
+
+      const { data, error } = await supabaseAdmin.createUser({
+            email,
+            password,
+            app_metadata: { role },
+            user_metadata: { name, age, gender, dob, address, phone_number, profile_img_url },
+            email_confirm: true
+      });
+
+      if (error) {
+            console.error(`❌ Error creating ${role}:`, error.message);
+            return res.status(400).json({ error: true, message: `Tạo ${role} thất bại: ${error.message}` });
+      }
+
+      console.log("✅ Created admin:", data.user);
+
+      try {
+            await sendWelcomeEmail(email, name, role, password);
+      } catch (err) {
+            console.warn("⚠️ Email sending failed:", err.message);
+            res.return(400).json({ error: true, message: `Tạo ${role} thành công nhưng gửi mail thất bại` });
+      }
+
+      return res.status(201).json({
+            error: false,
+            message: "Tạo tài khoản admin thành công",
+            data: data.user
+      });
+}
+
+
 
 
 /**
