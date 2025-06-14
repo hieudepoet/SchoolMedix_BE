@@ -238,14 +238,17 @@ export async function getCheckupRegisterParent(req, res) {
     }
 }
 
-// Parent nhấn Submit Register truyền vào ID parent
+// Parent nhấn Submit Register truyền vào Register_id
 export async function submitRegister(req, res) {
 
     const { id } = req.params;
-    const { registerId, submit_time, reason, exams } = req.body;
+    const { parent_id, submit_time, reason, exams } = req.body;
     try {
 
-        if (!id || !registerId || !reason) {
+        console.log(parent_id);
+
+
+        if (!id || !parent_id || !reason) {
 
             return res.status(400).json({ error: true, message: "Không có nội dung." });
         }
@@ -254,6 +257,14 @@ export async function submitRegister(req, res) {
             return res.status(400).json({ error: true, message: "Không có exams." });
         }
 
+
+        const result_check = await query('SELECT * FROM checkupregister WHERE id = $1 AND status = $2',[id,'PENDING']);
+
+        if(result_check.rowCount === 0){
+            return res.status(200).json({ error: true, message: "Không có tồn tại Register or đã CANCEL" });
+        }
+
+
         const result_submit = await query(`UPDATE checkupregister
          SET
            reason      = $1,
@@ -261,7 +272,7 @@ export async function submitRegister(req, res) {
            submit_by   = $3,
            submit_time = $4
        WHERE id = $5`,
-            [reason, 'SUBMITTED', id, submit_time, registerId]
+            [reason, 'SUBMITTED', parent_id, submit_time, id]
         );
 
 
@@ -278,7 +289,7 @@ export async function submitRegister(req, res) {
             SET status = $1
             WHERE register_id = $2
             AND spe_exam_id  = $3`,
-                [status, registerId, spe_exam_id]);
+                [status, id, spe_exam_id]);
 
             result_update_speciallis.push(result_update.rows);
         }
@@ -401,7 +412,7 @@ export async function cancelRegister(req, res) {
 
 
 }
-// Nurse or Doctor Update Health cho Student theo Register ID
+// Nurse or Doctor Update Health  Recordcho Student theo Register ID
 export async function updateHealthRecord(req, res) {
     const {
         register_id,
