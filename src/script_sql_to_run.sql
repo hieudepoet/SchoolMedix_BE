@@ -22,7 +22,20 @@ BEGIN
 END $$;
 
 
+-- Parent
+CREATE TABLE Parent (
+      id UUID PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL
+);
 
+INSERT INTO parent (id, name, email)
+VALUES
+  ('81705d11-3052-4d70-82f2-1c11e8077dbe', 'Nguyễn Văn Tèo', 'mndkhanh.alt@gmail.com'),
+  ('00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Nguyễn Văn Bê', 'mndkhanh.alt3@gmail.com'),
+  ('3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Hoàng Tấn Đạt', 'dathtse196321@gmail.com'),
+  ('be258789-4fe3-421c-baed-53ef3ed87f3b', 'Phạm Thành Phúc', 'phamthanhqb2005@gmail.com')
+  ;
 
 -- grade
 CREATE TABLE grade (
@@ -59,41 +72,27 @@ INSERT INTO class (grade_id, name) VALUES
 (5, 'lớp 5B');
 
 
--- Parent
-CREATE TABLE Parent (
-      id serial PRIMARY KEY,
-	  supabase_uid uuid unique not null
-);
--- start parent id from 100000
-ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
-
 --Student
+CREATE TYPE gender_enum AS ENUM ('Nam', 'Nữ');
 CREATE TABLE Student (
-      id serial PRIMARY KEY,
-	  supabase_uid UUID unique not null,
+      id UUID PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      age INT CHECK (age > 0),
+      dob DATE,
+      gender gender_enum not null,
       class_id INT REFERENCES class(id),
-      mom_id int REFERENCES parent(id),
-      dad_id int REFERENCES parent(id)
+      mom_id UUID REFERENCES parent(id),
+      dad_id UUID REFERENCES parent(id)
 );
-ALTER SEQUENCE student_id_seq RESTART WITH 100000;
 
-INSERT INTO parent (supabase_uid) VALUES
-  ('81705d11-3052-4d70-82f2-1c11e8077dbe'),
-  ('00f7f4c0-4998-4593-b9c4-6b8d74596cd9'),
-  ('3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
-  ('be258789-4fe3-421c-baed-53ef3ed87f3b')
-
-  ;
-
-
-INSERT INTO student (supabase_uid, class_id, mom_id, dad_id)
+INSERT INTO student (id, name, email, age, dob, gender, class_id, mom_id, dad_id)
 VALUES
-  ('550934ca-e6ee-456f-b40c-d7fdc173342b', 1, 100003, null),
-  ('fc57f7ed-950e-46fb-baa5-7914798e9ae3', 2, 100003, 100002),
-  ('1519af26-f341-471b-8471-ab33a061b657', 2, null, 100000),
-  ('ab9f1dc3-8b35-4b0c-9327-f677c3247143', 2, 100001, 100000)
+  ('550934ca-e6ee-456f-b40c-d7fdc173342b', 'Con Phúc', 'toannangcao3000@gmail.com', 12, '2013-09-05', 'Nam', 1, 'be258789-4fe3-421c-baed-53ef3ed87f3b', null),
+  ('fc57f7ed-950e-46fb-baa5-7914798e9ae3', 'Con Đạt', 'dinhviethieu2910@gmail.com', 10, '2013-05-10', 'Nữ', 2, null, '3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
+  ('1519af26-f341-471b-8471-ab33a061b657', 'Con Tèo', 'thuandntse150361@fpt.edu.vn', 9, '2013-03-11', 'Nữ', 2, null, '81705d11-3052-4d70-82f2-1c11e8077dbe'),
+  ('947d26b6-13ba-47af-9aff-cade2b670d05', 'Con  Bê', 'coccamco.fpthcm@gmail.com',11, '2013-05-22', 'Nữ', 2, '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', '81705d11-3052-4d70-82f2-1c11e8077dbe')
   ;
-
 
 -------------------------FLOW SEND MEDICATION REQUEST 
 CREATE TYPE senddrugrequest_status AS ENUM (
@@ -107,61 +106,54 @@ CREATE TYPE senddrugrequest_status AS ENUM (
 
 CREATE TABLE SendDrugRequest (
     id SERIAL PRIMARY KEY,
-	student_id int references student(id), 
-	create_by int references parent(id),
+	student_id UUID references student(id), 
+	create_by UUID references parent(id),
     diagnosis TEXT NOT NULL,
     schedule_send_date DATE,
     receive_date DATE,
-    start_intake_date DATE,
-	end_intake_date DATE,
+    intake_date DATE,
     note TEXT,
-    prescription_file_url VARCHAR(512),
+    prescription_file_url VARCHAR(255),
     status senddrugrequest_status NOT NULL
 );
 
-
 INSERT INTO SendDrugRequest (
-    student_id, create_by, diagnosis, schedule_send_date, receive_date,
-    start_intake_date, end_intake_date, note, prescription_file_url, status
+    student_id, create_by, diagnosis, schedule_send_date, receive_date, intake_date,
+    note, prescription_file_url, status
 ) VALUES 
 (
-    100000, -- student_id
-    100003, -- create_by
-    'Viêm dạ dày cấp',
-    '2025-06-10',
-    NULL,
-    '2025-06-11',
-    '2025-06-17',
-    'Cần gửi thuốc sớm',
-    'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg',
-    'PROCESSING'
+    '550934ca-e6ee-456f-b40c-d7fdc173342b', -- student_id
+    'be258789-4fe3-421c-baed-53ef3ed87f3b', -- create_by
+    'Viêm dạ dày cấp',                      -- diagnosis
+    '2025-06-10',                           -- schedule_send_date
+    NULL,                                   -- receive_date
+    NULL,                                   -- intake_date
+    'Cần gửi thuốc sớm',                    -- note
+    'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg', -- prescription_file_url
+    'PROCESSING'                            -- status
 ),
 (
-    100002,
-    100000,
+    '1519af26-f341-471b-8471-ab33a061b657',
+    '81705d11-3052-4d70-82f2-1c11e8077dbe',
     'TVCĐ',
     '2025-06-09',
     '2025-06-10',
     '2025-06-11',
-    '2025-06-15',
     'Nhà trường giúp cháu uống thuốc đúng giờ',
     'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg',
     'DONE'
 ),
 (
-    100001,
-    100002,
+    'fc57f7ed-950e-46fb-baa5-7914798e9ae3',
+    '3dfa7d35-7f0f-449f-afbf-bb6e420016d2',
     'Nhiễm trùng hô hấp trên cấp/ăn kém',
     '2025-06-08',
     NULL,
-    '2025-06-09',
-    '2025-06-13',
+    NULL,
     'Gia đình muốn gửi thêm thuốc',
     'https://static.tuoitre.vn/tto/i/s626/2011/04/12/2FiN0VCC.jpg',
     'CANCELLED'
 );
-
-
 
 
 CREATE TABLE RequestItem (
@@ -262,8 +254,8 @@ CREATE TYPE register_status AS ENUM (
 CREATE TABLE CheckupRegister (
     id SERIAL PRIMARY KEY,
     campaign_id INT NOT NULL,
-    student_id int NOT NULL,
-    submit_by int,
+    student_id UUID NOT NULL,
+    submit_by UUID ,
     submit_time TIMESTAMP,
     reason TEXT,
     status register_status NOT NULL DEFAULT 'PENDING',
@@ -275,21 +267,21 @@ CREATE TABLE CheckupRegister (
 );
 
 
-INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, reason, status) VALUES
-(2, 100001, 100002, 'Đăng ký khám mắt và răng', 'PENDING'),
-(3, 100002, 100000, 'Hỗ trợ tư vấn tâm lý', 'SUBMITTED'),
-(4, 100003, 100001, 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
-(1, 100001, 100002, 'Đăng ký khám tổng quát', 'SUBMITTED'),
-(2, 100002, 100000, 'Đăng ký khám mắt định kỳ', 'PENDING'),
-(3, 100003, 100001, 'Tư vấn tâm lý bổ sung', 'SUBMITTED'),
-(4, 100000, 100003, 'Khám sinh dục bổ sung', 'PENDING'),
-(1, 100003, 100000, 'Khám tổng quát lần 2', 'SUBMITTED'),
-(3, 100000, 100003, 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
-(2, 100003, 100001, 'Đăng ký khám mắt', 'SUBMITTED'),
-(1, 100002, 100000, 'Khám sức khỏe định kỳ', 'CANCELLED'),
-(4, 100001, 100002, 'Khám sinh dục bổ sung', 'SUBMITTED'),
-(2, 100000, 100003, 'Đăng ký khám răng định kỳ', 'SUBMITTED'),
-(3, 100001, 100002, 'Tư vấn tâm lý học sinh', 'SUBMITTED');
+INSERT INTO CheckupRegister (id, campaign_id, student_id, submit_by, reason, status) VALUES
+(160, 2, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám mắt và răng', 'PENDING'),
+(161, 3, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Hỗ trợ tư vấn tâm lý', 'SUBMITTED'),
+(162, 4, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
+(163, 1, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Đăng ký khám tổng quát', 'SUBMITTED'),
+(164, 2, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Đăng ký khám mắt định kỳ', 'PENDING'),
+(165, 3, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Tư vấn tâm lý bổ sung', 'SUBMITTED'),
+(166, 4, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Khám sinh dục bổ sung', 'PENDING'),
+(167, 1, '947d26b6-13ba-47af-9aff-cade2b670d05', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám tổng quát lần 2', 'SUBMITTED'),
+(168, 3, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
+(169, 2, '947d26b6-13ba-47af-9aff-cade2b670d05', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9', 'Đăng ký khám mắt', 'SUBMITTED'),
+(170, 1, '1519af26-f341-471b-8471-ab33a061b657', '81705d11-3052-4d70-82f2-1c11e8077dbe', 'Khám sức khỏe định kỳ', 'CANCELLED'),
+(171, 4, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Khám sinh dục bổ sung', 'SUBMITTED'),
+(172, 2, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'be258789-4fe3-421c-baed-53ef3ed87f3b', 'Đăng ký khám răng định kỳ', 'SUBMITTED'),
+(173, 3, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2', 'Tư vấn tâm lý học sinh', 'SUBMITTED');
 
 
 create type health_record_status as enum ('WAITING', 'DONE');
@@ -323,20 +315,20 @@ INSERT INTO HealthRecord (
     teeth, gums, skin_condition, heart, lungs,
     spine, posture, final_diagnosis, status
 ) VALUES
-(1, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
-(2, '155cm', '42kg', '105/70', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng hơi sâu', 'Bình thường', 'Không có vấn đề', 'Bình thường', 'Bình thường', 'Hơi lệch', 'Tư thế tốt', 'Cần theo dõi tâm lý', 'DONE'),
-(3, '152cm', '41kg', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Bình thường', 'Bình thường', 'Da nhạy cảm', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', 'Tạm hoãn do lý do cá nhân', 'DONE'),
-(4, '149cm', '39kg', '115/75', '9/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Bình thường', 'Bình thường', 'Bình thường', 'Bình thường', 'Khuyến cáo bổ sung dinh dưỡng', 'DONE'),
-(5, '153cm', '43kg', '112/72', '8/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Cao răng nhẹ', 'Bình thường', 'Không tổn thương', 'Tốt', 'Bình thường', 'Bình thường', 'Bình thường', 'Đăng ký khám mắt chuyên sâu', 'DONE'),
-(6, '151cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng đều', 'Bình thường', 'Không có mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Tốt', 'Tư vấn tâm lý định kỳ', 'DONE'),
-(7, '154cm', '42kg', '113/73', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn', 'Tốt', 'Tốt', 'Thẳng', 'Tốt', 'Chờ khám sinh dục', 'DONE'),
-(8, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng', 'Không vấn đề', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
-(9, '156cm', '45kg', '115/75', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng trắng', 'Hồng hào', 'Không tổn thương', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế tốt', 'Tư vấn hỗ trợ tâm lý học đường', 'DONE'),
-(10, '157cm', '46kg', '117/76', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng', 'Không có vấn đề', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế đúng', 'Không có vấn đề sức khỏe', 'DONE'),
-(11, '155cm', '43kg', '113/74', '9/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Sâu răng nhẹ', 'Hồng', 'Da thường', 'Tốt', 'Tốt', 'Hơi cong', 'Cần chỉnh tư thế', 'Cần chăm sóc răng miệng', 'DONE'),
-(12, '149cm', '39kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Tốt', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Chưa cần can thiệp', 'DONE'),
-(13, '152cm', '41kg', '112/72', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không tổn thương', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Sức khỏe học đường ổn định', 'DONE'),
-(14, '154cm', '42kg', '113/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế tốt', 'Tâm lý học sinh tốt', 'DONE');
+(160, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
+(161, '155cm', '42kg', '105/70', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng hơi sâu', 'Bình thường', 'Không có vấn đề', 'Bình thường', 'Bình thường', 'Hơi lệch', 'Tư thế tốt', 'Cần theo dõi tâm lý', 'DONE'),
+(162, '152cm', '41kg', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Bình thường', 'Bình thường', 'Da nhạy cảm', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', 'Tạm hoãn do lý do cá nhân', 'DONE'),
+(163, '149cm', '39kg', '115/75', '9/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Bình thường', 'Bình thường', 'Bình thường', 'Bình thường', 'Khuyến cáo bổ sung dinh dưỡng', 'DONE'),
+(164, '153cm', '43kg', '112/72', '8/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Cao răng nhẹ', 'Bình thường', 'Không tổn thương', 'Tốt', 'Bình thường', 'Bình thường', 'Bình thường', 'Đăng ký khám mắt chuyên sâu', 'DONE'),
+(165, '151cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng đều', 'Bình thường', 'Không có mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Tốt', 'Tư vấn tâm lý định kỳ', 'DONE'),
+(166, '154cm', '42kg', '113/73', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn', 'Tốt', 'Tốt', 'Thẳng', 'Tốt', 'Chờ khám sinh dục', 'DONE'),
+(167, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng', 'Không vấn đề', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
+(168, '156cm', '45kg', '115/75', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng trắng', 'Hồng hào', 'Không tổn thương', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế tốt', 'Tư vấn hỗ trợ tâm lý học đường', 'DONE'),
+(169, '157cm', '46kg', '117/76', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng', 'Không có vấn đề', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế đúng', 'Không có vấn đề sức khỏe', 'DONE'),
+(170, '155cm', '43kg', '113/74', '9/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Sâu răng nhẹ', 'Hồng', 'Da thường', 'Tốt', 'Tốt', 'Hơi cong', 'Cần chỉnh tư thế', 'Cần chăm sóc răng miệng', 'DONE'),
+(171, '149cm', '39kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Tốt', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Chưa cần can thiệp', 'DONE'),
+(172, '152cm', '41kg', '112/72', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không tổn thương', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Sức khỏe học đường ổn định', 'DONE'),
+(173, '154cm', '42kg', '113/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế tốt', 'Tâm lý học sinh tốt', 'DONE');
 
 
 CREATE TYPE specialist_exam_record_status AS ENUM ('CANNOT_ATTACH', 'WAITING', 'DONE');
@@ -360,13 +352,13 @@ INSERT INTO specialistExamRecord (
     diagnosis_paper_url,
 	status
 ) VALUES 
-(4, 1, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf', 'DONE'),
-(4, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf', 'DONE'),
-(4, 3, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', 'DONE'),
+(163, 1, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf', 'DONE'),
+(163, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf', 'DONE'),
+(163, 3, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', 'DONE'),
 
-(8, 1, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf', 'DONE'),
-(8, 2, 'Ổn định', 'Tâm lý ổn định, phản ứng tốt với các tình huống stress', 'http://example.com/doc5.pdf', 'DONE'),
-(8, 3, 'Không có dấu hiệu', 'Tâm thần bình thường, không có biểu hiện bệnh lý', 'http://example.com/doc6.pdf', 'DONE');
+(167, 1, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf', 'DONE'),
+(167, 2, 'Ổn định', 'Tâm lý ổn định, phản ứng tốt với các tình huống stress', 'http://example.com/doc5.pdf', 'DONE'),
+(167, 3, 'Không có dấu hiệu', 'Tâm thần bình thường, không có biểu hiện bệnh lý', 'http://example.com/doc6.pdf', 'DONE');
 
 INSERT INTO specialistExamRecord (
     register_id, 
@@ -376,9 +368,9 @@ INSERT INTO specialistExamRecord (
     diagnosis_paper_url,
 	status
 ) VALUES 
-(12, 1, 'Phát hiện hẹp cổ tử cung', 'Cổ tử cung hẹp, cần theo dõi và điều trị tiếp', 'http://example.com/abnormal_doc1.pdf', 'DONE'),
-(12, 2, 'Lo âu cao', 'Bệnh nhân có dấu hiệu lo âu mức độ trung bình, đề nghị tư vấn tâm lý', 'http://example.com/abnormal_doc2.pdf', 'DONE'),
-(12, 3, 'Biểu hiện loạn thần nhẹ', 'Có biểu hiện rối loạn tâm thần nhẹ, cần theo dõi chặt chẽ', 'http://example.com/abnormal_doc3.pdf', 'DONE');
+(171, 1, 'Phát hiện hẹp cổ tử cung', 'Cổ tử cung hẹp, cần theo dõi và điều trị tiếp', 'http://example.com/abnormal_doc1.pdf', 'DONE'),
+(171, 2, 'Lo âu cao', 'Bệnh nhân có dấu hiệu lo âu mức độ trung bình, đề nghị tư vấn tâm lý', 'http://example.com/abnormal_doc2.pdf', 'DONE'),
+(171, 3, 'Biểu hiện loạn thần nhẹ', 'Có biểu hiện rối loạn tâm thần nhẹ, cần theo dõi chặt chẽ', 'http://example.com/abnormal_doc3.pdf', 'DONE');
 
 
 ----- FLOW VACCINATION CAMPAIGN
@@ -430,6 +422,35 @@ CREATE TABLE disease_record (
     FOREIGN KEY (create_by) REFERENCES parent(id) 
 );
 
+INSERT INTO disease_record (
+    student_id,
+    disease_id,
+    detect_date,
+    cure_date,
+    location_cure,
+    prescription,
+    diagnosis,
+    admission_date,
+    discharge_date,
+    cur_status,
+    create_by
+) VALUES 
+-- Case 1: Sởi - điều trị tại bệnh viện
+('550934ca-e6ee-456f-b40c-d7fdc173342b', 1, '2025-05-02', '2025-05-10', 'Bệnh viện Nhi Đồng 1',
+ 'Paracetamol, nghỉ ngơi', 'Sốt phát ban, nghi sởi', '2025-05-03', '2025-05-09', 'Khỏi', 'be258789-4fe3-421c-baed-53ef3ed87f3b'),
+
+-- Case 2: Cảm lạnh - điều trị tại nhà
+('fc57f7ed-950e-46fb-baa5-7914798e9ae3', 2, '2025-06-01', '2025-06-04', 'Nhà',
+ 'Uống nước ấm, nghỉ ngơi, xịt mũi', 'Cảm lạnh', NULL, NULL, 'Khỏi', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
+
+-- Case 3: Tay chân miệng - đang điều trị
+('1519af26-f341-471b-8471-ab33a061b657', 3, '2025-06-10', NULL, 'Nhà',
+ 'Thuốc sát khuẩn, vệ sinh cá nhân', 'Tay chân miệng thể nhẹ', NULL, NULL, 'Đang điều trị', '81705d11-3052-4d70-82f2-1c11e8077dbe'),
+
+-- Case 4: Viêm họng - điều trị xong
+('947d26b6-13ba-47af-9aff-cade2b670d05', 4, '2025-04-15', '2025-04-20', 'Phòng khám Hoàng Anh',
+ 'Kháng sinh, súc họng nước muối', 'Viêm họng cấp', '2025-04-15', '2025-04-20', 'Khỏi', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9');
+
 
 --vaccine
 CREATE TABLE vaccine (
@@ -478,11 +499,11 @@ INSERT INTO vaccination_campaign (vaccine_id, description, location, start_date,
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
     campaign_id INT NOT NULL,
-    student_id int NOT NULL,
+    student_id UUID NOT NULL,
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
     submit_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    submit_by int, -- parent ID
+    submit_by UUID, -- parent ID
     FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
@@ -497,23 +518,24 @@ INSERT INTO vaccination_campaign_register (
   submit_by
 )
 VALUES
--- Con Phúc (UUID: '550934ca-e6ee-456f-b40c-d7fdc173342b') → student_id = 100000, mom_id = 100003
-(1, 100000, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
+-- Con Phúc: có mom_id
+(1, '550934ca-e6ee-456f-b40c-d7fdc173342b', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 'be258789-4fe3-421c-baed-53ef3ed87f3b'),
 
--- Con Đạt (UUID: 'fc57f7ed-950e-46fb-baa5-7914798e9ae3') → student_id = 100001, dad_id = 100002
-(1, 100001, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
+-- Con Đạt: có dad_id
+(1, 'fc57f7ed-950e-46fb-baa5-7914798e9ae3', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', '3dfa7d35-7f0f-449f-afbf-bb6e420016d2'),
 
--- Con Tèo (UUID: '1519af26-f341-471b-8471-ab33a061b657') → student_id = 100002, dad_id = 100000
-(1, 100002, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
+-- Con Tèo: có dad_id
+(1, '1519af26-f341-471b-8471-ab33a061b657', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', '81705d11-3052-4d70-82f2-1c11e8077dbe'),
 
--- Con Bê (UUID: 'ab9f1dc3-8b35-4b0c-9327-f677c3247143') → student_id = 100003, mom_id = 100001 (ưu tiên)
-(1, 100003, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
+-- Con Bê: có mom_id (ưu tiên) và cũng có dad_id
+(1, '947d26b6-13ba-47af-9aff-cade2b670d05', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', '00f7f4c0-4998-4593-b9c4-6b8d74596cd9');
+
 
 
 --vacination_record
 CREATE TABLE vaccination_record (
     id SERIAL PRIMARY KEY,
-    student_id int NOT NULL,
+    student_id UUID NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
     description TEXT,
 	name TEXT NOT NULL, 
@@ -526,9 +548,11 @@ CREATE TABLE vaccination_record (
     FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id)
 );
 
+
 INSERT INTO vaccination_record (
   student_id,
   campaign_id,
+  register_id,
   vaccination_date,
   description,
   name,
@@ -537,44 +561,48 @@ INSERT INTO vaccination_record (
 )
 VALUES
   (
-    100000, -- Con Phúc
+    '550934ca-e6ee-456f-b40c-d7fdc173342b', -- Con Phúc
     1,
+	1,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   ),
   (
-    100001, -- Con Đạt
+    'fc57f7ed-950e-46fb-baa5-7914798e9ae3', -- Con Đạt
     1,
+	2,
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   ),
   (
-    100002, -- Con Tèo
+    '1519af26-f341-471b-8471-ab33a061b657', -- Con Tèo
     1,
+	3,
     '2025-06-16',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   ),
   (
-    100003, -- Con Bê
+    '947d26b6-13ba-47af-9aff-cade2b670d05', -- Con Bê
     1,
+	4,
     '2025-06-17',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+	'Sởi',
     'School Medix',
     'completed'
   );
 
-
 -------END FLOW VACCINATION
+
 
 -------FLOW DaiLyHealthRecord
 CREATE TABLE daily_health_record (
