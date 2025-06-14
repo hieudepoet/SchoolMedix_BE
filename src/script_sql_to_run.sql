@@ -408,6 +408,29 @@ INSERT INTO disease (disease_category, name, description, vaccine_need, dose_qua
 ('bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0);
 
 
+--disease_record
+CREATE TABLE disease_record (
+    id SERIAL PRIMARY KEY,
+    student_id UUID NOT NULL,
+    disease_id INT NOT NULL,
+    detect_date DATE,
+    cure_date DATE,
+    location_cure TEXT,
+    prescription TEXT,
+    diagnosis TEXT,
+    admission_date DATE,
+    discharge_date DATE,
+    cur_status TEXT,
+    create_by UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES student(id),
+    FOREIGN KEY (disease_id) REFERENCES disease(id),
+    FOREIGN KEY (create_by) REFERENCES parent(id) 
+);
+
+
 --vaccine
 CREATE TABLE vaccine (
     id SERIAL PRIMARY KEY,
