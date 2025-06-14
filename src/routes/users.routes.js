@@ -1,5 +1,5 @@
 import express from 'express';
-import { getStudentProfileByUUID, getChildrenProfilesOfAParent, getParentProfileByID, getStudentProfileByID } from '../controllers/users.controller.js';
+import { getChildrenProfilesOfAParent, getStudentProfileByID } from '../controllers/users.controller.js';
 
 const router = express.Router();
 
@@ -13,8 +13,6 @@ const router = express.Router();
 
 router.get('/parent/:parent_id/student', getChildrenProfilesOfAParent);
 router.get('/student/:student_id', getStudentProfileByID);
-router.get('/student/uuid/:supabase_student_uid', getStudentProfileByUUID);
-router.get('/parent/:parent_id', getParentProfileByID);
 
 
 export default router;

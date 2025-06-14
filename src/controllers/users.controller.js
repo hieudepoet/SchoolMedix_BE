@@ -136,6 +136,7 @@ export async function getChildrenProfilesOfAParent(req, res) {
       }
 }
 
+
 /**
  * 
  * return all relates to this student
@@ -248,49 +249,6 @@ export async function getStudentProfileByUUID(req, res) {
             return res.status(500).json({ error: true, message: "Lỗi server khi lấy học sinh" });
       }
 }
-
-
-
-/**
- * 
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
-export async function getParentProfileByID(req, res) {
-      const { parent_id } = req.params;
-
-      if (!parent_id) {
-            return res.status(400).json({ error: true, message: "Thiếu ID phụ huynh" });
-      }
-
-      try {
-            const result = await query("SELECT * FROM parent WHERE id = $1", [parent_id]);
-
-            if (result.rows.length === 0) {
-                  return res.status(404).json({ error: false, message: "Không tìm thấy phụ huynh với ID này" });
-            }
-
-            const parent = result.rows[0];
-
-            // Lấy thông tin profile từ Supabase nếu có UID
-            const profile = await getSupabaseProfileByUUID(parent.supabase_uid);
-
-            return res.status(200).json({
-                  error: false,
-                  message: "Lấy thông tin phụ huynh thành công",
-                  data: {
-                        ...parent,
-                        profile
-                  }
-            });
-
-      } catch (err) {
-            console.error("Lỗi khi lấy thông tin phụ huynh:", err);
-            return res.status(500).json({ error: true, message: "Lỗi server khi lấy phụ huynh" });
-      }
-}
-
 
 
 function generateRandomPassword() {
