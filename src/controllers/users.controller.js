@@ -80,13 +80,15 @@ export async function createNewUserWithRole(req, res) {
       }
 }
 
+
 /**
+ * Lấy danh sách học sinh là con của một phụ huynh, kèm theo thông tin lớp, khối và profile Supabase
  * 
- * @param {parent_id} req 
- * @param {student array} res 
+ * @param {*} req 
+ * @param {*} res 
  * @returns 
  */
-export async function getChildrenIDsOfAParent(req, res) {
+export async function getChildrenProfilesOfAParent(req, res) {
       const { parent_id } = req.params;
 
       if (!parent_id) {
@@ -94,21 +96,40 @@ export async function getChildrenIDsOfAParent(req, res) {
       }
 
       try {
-            // đầu tiên lấy tất cả các con mà có mom_id hoặc dad_id như trên (trong db chỉ lưu mỗi thông tin class_id, mom_id, dad_id thôi, qutrong là user_metadata lưu trên supbase)
+            // Lấy học sinh kèm thông tin lớp và khối
             const result = await query(
-                  "SELECT * FROM student WHERE mom_id = $1 OR dad_id = $1",
+                  `SELECT 
+          a.*, 
+          b.name as class_name, 
+          b.grade_id, 
+          c.name as grade_name 
+        FROM student a
+        JOIN class b ON a.class_id = b.id
+        JOIN grade c ON b.grade_id = c.id
+        WHERE a.mom_id = $1 OR a.dad_id = $1`,
                   [parent_id]
             );
-
-            // tiếp theo lấy user_metadata trên supabase thông qua trường supabase_uid của bảng student
 
             if (result.rows.length === 0) {
                   return res.status(404).json({ error: true, message: "Không tìm thấy học sinh nào ứng với ID phụ huynh này" });
             }
 
-            // cuối cùng trả về mảng 
+            // Gắn profile từ Supabase
+            const studentsWithProfiles = await Promise.all(
+                  result.rows.map(async (student) => {
+                        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+                        return {
+                              ...student,
+                              profile
+                        };
+                  })
+            );
 
-            return res.status(200).json({ error: false, message: "Lấy danh sách học sinh thành công", data: result.rows });
+            return res.status(200).json({
+                  error: false,
+                  message: "Lấy danh sách học sinh thành công",
+                  data: studentsWithProfiles
+            });
       } catch (err) {
             console.error("Lỗi khi lấy thông tin học sinh:", err);
             return res.status(500).json({ error: true, message: "Lỗi server khi lấy học sinh" });
@@ -117,11 +138,13 @@ export async function getChildrenIDsOfAParent(req, res) {
 
 /**
  * 
+ * return all relates to this student
+ * 
  * @param {student_id} req 
  * @param {*} res 
  * @returns 
  */
-export async function getStudentByID(req, res) {
+export async function getStudentProfileByID(req, res) {
       const { student_id } = req.params;
 
       if (!student_id) {
@@ -129,8 +152,15 @@ export async function getStudentByID(req, res) {
       }
 
       try {
+            // Lấy thông tin liên kết
             const result = await query(
-                  "SELECT * FROM student WHERE id = $1",
+                  `SELECT a.id, a.supabase_uid as supabase_student_id, class_id, b.name as class_name, grade_id, c.name as grade_name, mom_id, d.supabase_uid as supabase_mom_uid, dad_id, e.supabase_uid as supabase_dad_uid
+       FROM student a
+       JOIN class b ON a.class_id = b.id
+       JOIN grade c ON b.grade_id = c.id
+       LEFT JOIN parent d ON a.mom_id = d.id
+       LEFT JOIN parent e ON a.dad_id = e.id
+       WHERE a.id = $1`,
                   [student_id]
             );
 
@@ -138,13 +168,29 @@ export async function getStudentByID(req, res) {
                   return res.status(404).json({ error: false, message: "Không tìm thấy học sinh với ID này" });
             }
 
-            return res.status(200).json({ error: false, message: "Lấy thông tin học sinh thành công", data: result.rows[0] });
+            const studentData = result.rows[0];
+
+            // Lấy thông tin hồ sơ từ Supabase Auth
+            const [studentProfile, momProfile, dadProfile] = await Promise.all([
+                  getSupabaseProfileByUUID(studentData.supabase_student_id),
+                  getSupabaseProfileByUUID(studentData.supabase_mom_uid),
+                  getSupabaseProfileByUUID(studentData.supabase_dad_uid)
+            ]);
+
+            const fullData = {
+                  ...studentData,
+                  student_profile: studentProfile,
+                  mom_profile: momProfile,
+                  dad_profile: dadProfile
+            };
+
+            return res.status(200).json({ error: false, message: "Lấy thông tin học sinh thành công", data: fullData });
+
       } catch (err) {
             console.error("Lỗi khi lấy thông tin học sinh:", err);
             return res.status(500).json({ error: true, message: "Lỗi server khi lấy học sinh" });
       }
 }
-
 
 /**
  * 
@@ -152,7 +198,7 @@ export async function getStudentByID(req, res) {
  * @param {*} res 
  * @returns 
  */
-export async function getParentByID(req, res) {
+export async function getParentProfileByID(req, res) {
       const { parent_id } = req.params;
 
       if (!parent_id) {
@@ -160,21 +206,32 @@ export async function getParentByID(req, res) {
       }
 
       try {
-            const result = await query(
-                  "SELECT * FROM parent WHERE id = $1",
-                  [parent_id]
-            );
+            const result = await query("SELECT * FROM parent WHERE id = $1", [parent_id]);
 
             if (result.rows.length === 0) {
                   return res.status(404).json({ error: false, message: "Không tìm thấy phụ huynh với ID này" });
             }
 
-            return res.status(200).json({ error: false, message: "Lấy thông tin phụ huynh thành công", data: result.rows[0] });
+            const parent = result.rows[0];
+
+            // Lấy thông tin profile từ Supabase nếu có UID
+            const profile = await getSupabaseProfileByUUID(parent.supabase_uid);
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Lấy thông tin phụ huynh thành công",
+                  data: {
+                        ...parent,
+                        profile
+                  }
+            });
+
       } catch (err) {
             console.error("Lỗi khi lấy thông tin phụ huynh:", err);
             return res.status(500).json({ error: true, message: "Lỗi server khi lấy phụ huynh" });
       }
 }
+
 
 
 function generateRandomPassword() {
@@ -198,4 +255,21 @@ function generateRandomPassword() {
       }
 
       return password.sort(() => Math.random() - 0.5).join('');
+}
+
+
+/**
+ * Không tìm thấy thì trả về null
+ * 
+ * @param {*} uid 
+ * @returns 
+ */
+async function getSupabaseProfileByUUID(uid) {
+      try {
+            const { data, error } = await supabaseAdmin.getUserById(uid);
+            if (error || !data?.user) return null;
+            return data.user.user_metadata;
+      } catch {
+            return null;
+      }
 }
