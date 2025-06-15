@@ -24,6 +24,7 @@ export async function getInfoOfClassByID(req, res) {
             res.status(400).json({ error: true, message: "ko co id" });
       }
       try {
+            // lấy thông tin lớp gồm student_number, 
             const result = await query("select c.id, c.name as class_name, g.name as grade_name from class c join grade g on c.grade_id = g.id where c.id = $1", [id]);
             return res.status(200).json({ error: false, data: result.rows });
       } catch (error) {

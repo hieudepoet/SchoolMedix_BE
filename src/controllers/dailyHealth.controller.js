@@ -71,29 +71,37 @@ export const getDailyHealthRecords = async (req, res) => {
 
 // Get all daily health record by student ID
 export const getDailyHealthRecordsByStudentId = async (req, res) => {
-  const { id } = req.params;
+  const { student_id } = req.params;
 
   try {
-    // Check if the student exists
-    const student = await query("SELECT id FROM student WHERE id = $1;", [id]);
-    if (student.rowCount === 0) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Student not found" });
+    const result = await query(
+      `SELECT * FROM daily_health_record 
+       WHERE student_id = $1 
+       ORDER BY record_date DESC;`,
+      [student_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "No daily health records found for this student.",
+      });
     }
 
-    const result = await query(
-      "SELECT * FROM daily_health_record WHERE student_id = $1 ORDER BY record_date DESC;",
-      [id]
-    );
-    return res.status(200).json({ data: result.rows });
+    return res.status(200).json({
+      error: false,
+      message: "Daily health records retrieved successfully.",
+      data: result.rows,
+    });
   } catch (error) {
-    console.error("Error fetching daily health records by student ID:", error);
-    return res
-      .status(500)
-      .json({ error: true, message: "Internal server error" });
+    console.error("Error fetching daily health records:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error.",
+    });
   }
 };
+
 
 // Get a daily health record by ID
 export const getDailyHealthRecordById = async (req, res) => {

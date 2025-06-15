@@ -7,7 +7,7 @@ import checkUpRoutes from "./checkUp.routes.js";
 import diseaseRoutes from "./disease.routes.js";
 import vaccinationRoutes from "./vaccine.routes.js";
 import vaccinationCampaignRoutes from "./vaccinationCampaign.routes.js"
-import classRoutes from "./class.routes.js";
+import classRoutes from "./student.routes.js";
 import dailyHealthRecordRoutes from "./dailyHealthRecord.routes.js";
 
 const router = express.Router();
