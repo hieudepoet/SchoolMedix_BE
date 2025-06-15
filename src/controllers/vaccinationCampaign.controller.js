@@ -770,8 +770,42 @@ export async function startRegistrationForCampaign(req, res) {
 
 export async function closeRegisterByCampaignID(req, res) {
       const { campaign_id } = req.params;
-      
-      return updateCampaignStatus(campaign_id, "UPCOMING", res, "Chiến dịch đã đóng đăng ký và chuẩn bị cho ngày tiêm.");
+      // Get all students who registered for the campaign
+      const registrations = await query(
+            "SELECT * FROM vaccination_campaign_register WHERE campaign_id = $1 AND is_registered = true",
+            [campaign_id]
+      );
+
+      if (registrations.rows.length === 0) {
+            return res
+                  .status(404)
+                  .json({ error: true, message: "No registered students found" });
+      }
+
+      // Create pre-vaccination records for each registered student
+      for (const registration of registrations.rows) {
+            await query(
+                  `INSERT INTO vaccination_record (student_id, vaccine_id, status)
+                        VALUES ($1, $2, 'PENDING')`,
+                  [registration.student_id, vaccine_id]
+            );
+      }
+
+      // Data to return
+      // Fetch all vaccination records for the campaign
+      const vaccinationRecords = await query(
+            `select * from 
+                  vaccination_record rec join vaccination_campaign_register reg on rec.register_id = reg.id
+                  where reg.campaign_id = $1`,
+            [campaign_id]
+      );
+      const update_success = await updateCampaignStatus(campaign_id, "UPCOMING", res, "Chiến dịch đã đóng đăng ký và chuẩn bị cho ngày tiêm.");
+      return res.status(201).json({
+            error: false,
+            message: "Pre-vaccination records created for registered students",
+            data: vaccinationRecords.rows,
+            update_success,
+      });
 }
 
 export async function startCampaign(req, res) {
