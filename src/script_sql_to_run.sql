@@ -380,7 +380,7 @@ INSERT INTO specialistExamRecord (
 --disease
 CREATE TABLE disease (
     id SERIAL PRIMARY KEY,
-    disease_category TEXT,
+    disease_category TEXT CHECK (disease_category IN ('Bệnh mãn tính', 'Bệnh truyền nhiễm')),
     name TEXT NOT NULL,
     description TEXT,
     vaccine_need BOOLEAN,
@@ -392,15 +392,13 @@ INSERT INTO disease (disease_category, name, description, vaccine_need, dose_qua
 ('Bệnh truyền nhiễm', 'Sởi', 'Bệnh truyền nhiễm phổ biến ở trẻ em, có thể gây biến chứng nặng.', true, 2),
 ('Bệnh truyền nhiễm', 'Rubella', 'Gây phát ban và sốt nhẹ, ảnh hưởng đến thai phụ.', true, 1),
 ('Bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân và lây lan mạnh.', true, 2),
+('Bệnh truyền nhiễm', 'Tay chân miệng', 'Tay chân miệng description.', false, 0),
 
 -- Bệnh mãn tính, cần vaccine
 ('Bệnh mãn tính', 'Viêm gan B', 'Bệnh về gan lây qua máu, có thể thành mãn tính.', true, 3),
 ('Bệnh mãn tính', 'Bạch hầu', 'Nhiễm khuẩn nghiêm trọng ảnh hưởng đến hô hấp.', true, 2),
-
--- Không cần vaccine (bệnh nhẹ, không có vaccine)
-(NULL, 'Cảm lạnh thông thường', 'Bệnh nhẹ thường gặp, không có vaccine phòng ngừa.', false, 0),
-(NULL, 'Viêm họng cấp', 'Viêm họng do thay đổi thời tiết, không tiêm vaccine.', false, 0),
-('Bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0);
+('Bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0),
+('Bệnh mãn tính', 'Béo phì', 'Bệnh gây chậm chạp và bệnh nền nguyên nhân của các bệnh khác', false, 0);
 
 
 --vaccine
@@ -620,49 +618,34 @@ VALUES
 
 -------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
 CREATE TABLE disease_record (
-    id SERIAL PRIMARY KEY,
     student_id INT NOT NULL,
     disease_id INT NOT NULL,
+    diagnosis TEXT,
     detect_date DATE,
     cure_date DATE,
     location_cure TEXT,
-    prescription TEXT,
-    diagnosis TEXT,
-    admission_date DATE,
-    discharge_date DATE,
-    cur_status TEXT,
-    create_by int NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_id) REFERENCES student(id),
-    FOREIGN KEY (disease_id) REFERENCES disease(id),
-    FOREIGN KEY (create_by) REFERENCES parent(id) 
+    FOREIGN KEY (disease_id) REFERENCES disease(id)
 );
 
+-- Chèn dữ liệu mẫu cho bảng disease_record
 INSERT INTO disease_record (
-    student_id, disease_id, detect_date, cure_date, location_cure,
-    prescription, diagnosis, admission_date, discharge_date,
-    cur_status, create_by
+    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure
 )
 VALUES
--- 100000 - parent_id: 100003
-(100000, 1, '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1',
- 'Paracetamol', 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-03',
- 'Đã khỏi', 100003),
+-- Các bản ghi đã có
+(100000, 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1'),
+(100001, 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà'),
+(100002, 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi'),
+(100003, 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi'),
 
--- 100001 - parent_id: 100003
-(100001, 2, '2025-04-10', NULL, 'Tự theo dõi tại nhà',
- 'Vitamin C', 'Ho và nổi mẩn nhẹ', NULL, NULL,
- 'Đang theo dõi', 100003),
-
--- 100002 - parent_id: 100000
-(100002, 1, '2025-03-15', '2025-03-20', 'Phòng khám Nhi',
- 'Thuốc kháng sinh', 'Sốt, viêm họng', '2025-03-15', '2025-03-18',
- 'Đã khỏi', 100000),
-
--- 100003 - parent_id: 100001
-(100003, 2, '2025-02-01', NULL, 'Nhà theo dõi',
- 'Xông mũi, uống nước nhiều', 'Cảm lạnh nhẹ', NULL, NULL,
- 'Đang theo dõi', 100001);
-
+-- Bổ sung thêm bản ghi mới cho đa dạng bệnh và học sinh
+(100000, 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1'),
+(100001, 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi'),
+(100002, 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5'),
+(100003, 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa'),
+(100000, 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi'),
+(100001, 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng');
