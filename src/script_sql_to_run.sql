@@ -480,20 +480,21 @@ CREATE TABLE vaccination_campaign (
     location VARCHAR(255),
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('upcoming', 'ongoing', 'completed')),
+    status VARCHAR(50) NOT NULL CHECK (status IN ('PREPARING', 'UPCOMING', 'CANCELLED', 'ONGOING', 'COMPLETED')),
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
 INSERT INTO vaccination_campaign (vaccine_id, description, location, start_date, end_date, status) VALUES
-(1, 'Tiêm phòng bệnh Sởi (MVAX)', 'School Medix', '2025-06-15', '2025-06-17', 'completed');
--- (2, 'Tiêm phòng bệnh Sởi (Priorix)', 'School Medix', '2025-06-01', '2025-06-20', 'ongoing');
--- (3, 'Tiêm phòng bệnh Rubella (R-Vac)', 'School Medix', '2025-06-22', '2025-06-24', 'upcoming'),
--- (4, 'Tiêm phòng bệnh Thủy đậu (Varivax)', 'School Medix', '2025-06-25', '2025-06-27', 'upcoming'),
--- (5, 'Tiêm phòng bệnh Thủy đậu (Varilrix)', 'School Medix', '2025-06-28', '2025-06-30', 'upcoming'),
--- (6, 'Tiêm phòng bệnh Viêm gan B (Engerix-B)', 'School Medix', '2025-07-01', '2025-07-03', 'upcoming'),
--- (7, 'Tiêm phòng bệnh Viêm gan B (Heplisav-B)', 'School Medix', '2025-07-04', '2025-07-06', 'upcoming'),
--- (8, 'Tiêm phòng bệnh Bạch hầu (DTP)', 'School Medix', '2025-07-07', '2025-07-09', 'upcoming'),
--- (9, 'Tiêm phòng bệnh Bạch hầu (Infanrix)', 'School Medix', '2025-07-10', '2025-07-12', 'upcoming');
+(1, 'Tiêm phòng bệnh Sởi (MVAX)', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED'),
+(2, 'Tiêm phòng bệnh Sởi (Priorix)', 'School Medix', '2025-06-01', '2025-06-20', 'PREPARING'),
+(3, 'Tiêm phòng bệnh Rubella (R-Vac)', 'School Medix', '2025-06-22', '2025-06-24', 'CANCELLED'),
+(4, 'Tiêm phòng bệnh Thủy đậu (Varivax)', 'School Medix', '2025-06-25', '2025-06-27', 'PREPARING');
+
+-- (5, 'Tiêm phòng bệnh Thủy đậu (Varilrix)', 'School Medix', '2025-06-28', '2025-06-30', 'UPCOMING'),
+-- (6, 'Tiêm phòng bệnh Viêm gan B (Engerix-B)', 'School Medix', '2025-07-01', '2025-07-03', 'UPCOMING'),
+-- (7, 'Tiêm phòng bệnh Viêm gan B (Heplisav-B)', 'School Medix', '2025-07-04', '2025-07-06', 'UPCOMING'),
+-- (8, 'Tiêm phòng bệnh Bạch hầu (DTP)', 'School Medix', '2025-07-07', '2025-07-09', 'UPCOMING'),
+-- (9, 'Tiêm phòng bệnh Bạch hầu (Infanrix)', 'School Medix', '2025-07-10', '2025-07-12', 'UPCOMING');
 
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
@@ -541,7 +542,7 @@ CREATE TABLE vaccination_record (
 	name TEXT NOT NULL, 
     location VARCHAR(255),
     vaccination_date DATE,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'completed', 'missed', 'cancelled')),
+    status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'MISSED', 'cancelled')),
     campaign_id INT, -- NULL nếu không thuộc campaign
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (register_id) REFERENCES vaccination_campaign_register(id),
@@ -568,7 +569,7 @@ VALUES
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
     'School Medix',
-    'completed'
+    'COMPLETED'
   ),
   (
     'fc57f7ed-950e-46fb-baa5-7914798e9ae3', -- Con Đạt
@@ -578,7 +579,7 @@ VALUES
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
     'School Medix',
-    'completed'
+    'COMPLETED'
   ),
   (
     '1519af26-f341-471b-8471-ab33a061b657', -- Con Tèo
@@ -588,7 +589,7 @@ VALUES
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
     'School Medix',
-    'completed'
+    'COMPLETED'
   ),
   (
     '947d26b6-13ba-47af-9aff-cade2b670d05', -- Con Bê
@@ -598,7 +599,7 @@ VALUES
     'Tiêm vaccine MVAX phòng bệnh Sởi',
 	'Sởi',
     'School Medix',
-    'completed'
+    'COMPLETED'
   );
 
 -------END FLOW VACCINATION
@@ -607,7 +608,7 @@ VALUES
 -------FLOW DaiLyHealthRecord
 CREATE TABLE daily_health_record (
     id SERIAL PRIMARY KEY,
-    student_id UUID NOT NULL,
+    student_id INT NOT NULL,
     detect_time DATE NOT NULL,
     record_date DATE NOT NULL,
     diagnosis TEXT,
@@ -617,4 +618,75 @@ CREATE TABLE daily_health_record (
     FOREIGN KEY (student_id) REFERENCES student(id)
 );
 
+
+
+INSERT INTO daily_health_record (
+    student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage
+)
+VALUES 
+-- student_id: 100000
+(100000, '2025-06-05', '2025-06-05', 'Chảy máu cam', 'Nằm nghỉ, nghiêng đầu về trước', NULL, 'Bông gòn'),
+(100000, '2025-06-01', '2025-06-01', 'Đau mắt đỏ', 'Nhỏ mắt Natri Clorid 0.9%', NULL, 'Thuốc nhỏ mắt'),
+
+-- student_id: 100001
+(100001, '2025-06-04', '2025-06-04', 'Ho và sổ mũi', 'Uống thuốc ho thảo dược', NULL, 'Thuốc ho, giấy lau'),
+(100001, '2025-06-02', '2025-06-02', 'Đau răng', 'Súc miệng nước muối, thông báo phụ huynh', NULL, 'Nước muối sinh lý'),
+
+-- student_id: 100002
+(100002, '2025-06-03', '2025-06-03', 'Ngã cầu thang nhẹ', 'Kiểm tra vết thương, theo dõi 15 phút', NULL, 'Băng dán, nước sát khuẩn'),
+(100002, '2025-05-31', '2025-05-31', 'Sốt 38.5°C', 'Đặt khăn lạnh, uống hạ sốt', NULL, 'Paracetamol 250mg'),
+
+-- student_id: 100003
+(100003, '2025-06-06', '2025-06-06', 'Nổi mẩn đỏ toàn thân', 'Thông báo phụ huynh, theo dõi phản ứng', 'Trạm Y tế Phường 3', 'Kem chống ngứa'),
+(100003, '2025-06-03', '2025-06-03', 'Khó tiêu', 'Uống men tiêu hóa', NULL, 'Men tiêu hóa gói');
+-------END FLOW DaiLyHealthRecord
+
+
+-------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
+CREATE TABLE disease_record (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL,
+    disease_id INT NOT NULL,
+    detect_date DATE,
+    cure_date DATE,
+    location_cure TEXT,
+    prescription TEXT,
+    diagnosis TEXT,
+    admission_date DATE,
+    discharge_date DATE,
+    cur_status TEXT,
+    create_by int NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES student(id),
+    FOREIGN KEY (disease_id) REFERENCES disease(id),
+    FOREIGN KEY (create_by) REFERENCES parent(id) 
+);
+
+INSERT INTO disease_record (
+    student_id, disease_id, detect_date, cure_date, location_cure,
+    prescription, diagnosis, admission_date, discharge_date,
+    cur_status, create_by
+)
+VALUES
+-- 100000 - parent_id: 100003
+(100000, 1, '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1',
+ 'Paracetamol', 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-03',
+ 'Đã khỏi', 100003),
+
+-- 100001 - parent_id: 100003
+(100001, 2, '2025-04-10', NULL, 'Tự theo dõi tại nhà',
+ 'Vitamin C', 'Ho và nổi mẩn nhẹ', NULL, NULL,
+ 'Đang theo dõi', 100003),
+
+-- 100002 - parent_id: 100000
+(100002, 1, '2025-03-15', '2025-03-20', 'Phòng khám Nhi',
+ 'Thuốc kháng sinh', 'Sốt, viêm họng', '2025-03-15', '2025-03-18',
+ 'Đã khỏi', 100000),
+
+-- 100003 - parent_id: 100001
+(100003, 2, '2025-02-01', NULL, 'Nhà theo dõi',
+ 'Xông mũi, uống nước nhiều', 'Cảm lạnh nhẹ', NULL, NULL,
+ 'Đang theo dõi', 100001);
 

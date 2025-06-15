@@ -12,7 +12,7 @@ export const createDailyHealthRecord = async (req, res) => {
   } = req.body;
 
   if (!student_id || !detect_date) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({ error: false, message: "Missing required fields" });
   }
 
   try {
