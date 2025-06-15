@@ -1,5 +1,3 @@
-// vaccination.controller.js
-import e from "express";
 import { query } from "../config/database.js";
 
 
@@ -55,6 +53,14 @@ export async function createCampaign(req, res) {
                   end_date,
                   "PREPARING", // mndkhanh: sai flow, khi tạo ra campaign là PREPARING, (giai đoạn nhận đơn đăng ký)
             ]);
+
+            const campaign_id = result.rows[0].id;
+
+            const register_success = await createRegisterRequest(campaign_id);
+
+            if (!register_success) {
+                  console.log("Internal server error: " + "tạo register thất bại!");
+            }
             return res
                   .status(201)
                   .json({ message: "Campaign created", data: result.rows[0] });
@@ -138,13 +144,9 @@ export async function getCampaignDetailByID(req, res) {
 }
 
 // Register
-export async function createRegisterRequest(req, res) {
-      const { campaign_id } = req.params;
-
+async function createRegisterRequest(campaign_id) {
       if (!campaign_id) {
-            return res
-                  .status(400)
-                  .json({ error: true, message: "Missing required fields" });
+            return false;
       }
 
       try {
@@ -154,9 +156,7 @@ export async function createRegisterRequest(req, res) {
                   [campaign_id]
             );
             if (campaigns.rows.length === 0) {
-                  return res
-                        .status(404)
-                        .json({ error: true, message: "Campaign not found" });
+                  return false;
             }
 
             // SAI FLOW RÙI
@@ -175,9 +175,7 @@ export async function createRegisterRequest(req, res) {
 
             // Check nếu campaign đang trong giai đoạn nhận đơn thì tiếp tục tạo register (status PREPARING), không thì return
             if (campaigns.rows[0].status !== 'PREPARING') {
-                  return res
-                        .status(404)
-                        .json({ error: true, message: "Đã qua giai đoạn chuẩn bị chiến dịch tiêm (PREPARING)!" });
+                  return false;
             }
 
 
@@ -188,18 +186,13 @@ export async function createRegisterRequest(req, res) {
                   [campaign_id]
             );
             if (existingRegistrations.rows.length > 0) {
-                  return res.status(409).json({
-                        error: true,
-                        message: "Registration already exists for the campaign",
-                  });
+                  return false;
             }
 
             // Find vaccine from campaign
             const vaccine_id = campaigns.rows[0].vaccine_id;
             if (!vaccine_id) {
-                  return res
-                        .status(404)
-                        .json({ error: true, message: "Vaccine not found for campaign" });
+                  return false;
             }
 
             // Find disease from vaccine
@@ -216,9 +209,7 @@ export async function createRegisterRequest(req, res) {
             console.log("Disease:", disease.rows[0]);
 
             if (disease.rows.length === 0) {
-                  return res
-                        .status(404)
-                        .json({ error: true, message: "Disease not found for vaccine" });
+                  return false;
             }
 
             //Get all students eligible for the campaign
@@ -226,35 +217,25 @@ export async function createRegisterRequest(req, res) {
             console.log(eligibleStudents);
 
             if (eligibleStudents.length === 0) {
-                  return res
-                        .status(404)
-                        .json({ error: true, message: "No eligible students found" });
+                  return false;
             }
 
             //Create registration requests for eligible students
             if (!eligibleStudents || eligibleStudents.length === 0) {
-                  return res
-                        .status(404)
-                        .json({ error: true, message: "No eligible students found" });
+                  return false;
             }
             for (const student of eligibleStudents) {
                   await query(
                         `INSERT INTO vaccination_campaign_register (campaign_id, student_id, reason, is_registered)
-         VALUES ($1, $2, $3, $4)`,
+                        VALUES ($1, $2, $3, $4)`,
                         [campaign_id, student.student_id, `Auto_gen for ${campaign_id}`, false]
                   );
             }
 
-            return res.status(201).json({
-                  error: false,
-                  message: "Registration requests created for eligible students",
-                  data: eligibleStudents,
-            });
+            return true;
       } catch (error) {
             console.error("Error creating registration request:", error);
-            return res
-                  .status(500)
-                  .json({ error: true, message: "Internal server error" });
+            return false;
       }
 }
 
