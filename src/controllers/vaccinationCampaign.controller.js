@@ -116,7 +116,7 @@ export async function getCampaignDetailByID(req, res) {
             from vaccination_campaign a
             join vaccine b on a.vaccine_id = b.id
 			join vaccine c on a.vaccine_id = c.id
-                        WHERE c.id = $1
+                        WHERE a.id = $1
                         LIMIT 1;
                   `,
                   [campaign_id]
@@ -265,9 +265,9 @@ export async function acceptRegister(req, res) {
                         .json({ error: true, message: "Campaign not found" });
             }
 
-            const currentDate = new Date();
-            const startDate = new Date(campaign.rows[0].start_date);
-            const endDate = new Date(campaign.rows[0].end_date);
+            // const currentDate = new Date();
+            // const startDate = new Date(campaign.rows[0].start_date);
+            // const endDate = new Date(campaign.rows[0].end_date);
 
             // THIS BELOW CODES IS WRONG RELATED TO LOGIC
             // if (currentDate < startDate || currentDate > endDate) {
@@ -674,6 +674,37 @@ export async function getVaccinationRecordsByStudentID(req, res) {
 }
 
 
+export async function getAllRegistersOfAStudentWithCampaignID(req, res) {
+      const { student_id, campaign_id } = req.params;
+
+      // Validate input
+      if (!student_id || !campaign_id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu student_id hoặc campaign_id",
+            });
+      }
+
+      try {
+            const result = await query(`
+      SELECT *
+      FROM vaccination_campaign_register
+      WHERE student_id = $1 AND campaign_id = $2
+    `, [student_id, campaign_id]);
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Lấy danh sách đăng ký thành công",
+                  data: result.rows,
+            });
+      } catch (error) {
+            console.error("Error fetching register info:", error);
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi server khi lấy danh sách đăng ký",
+            });
+      }
+}
 
 async function getStudentEligibleForADiseaseID(disease_id) {
       const sql = `
