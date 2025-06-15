@@ -680,6 +680,9 @@ export async function getHealthRecordStudent(req, res) {
 
         const rs = result.rows[0];
         console.log(rs);
+        if (!rs) {
+            return res.status(400).json({ error: true, message: "Không tìm thấy health record." });
+        }
 
         if (rs.length === 0) {
             return res.status(400).json({ error: true, message: "Không tìm thấy Register." });
