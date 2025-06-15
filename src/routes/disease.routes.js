@@ -30,6 +30,6 @@ router.get(
 );
 
 router.get("/chronic-disease", getAllChronicDisease); // lấy toàn bộ bệnh mãn tính
-router.get("infectious-disease", getAllInfectiousDisease); // lấy toàn bộ bệnh truyền nhiễm
+router.get("/infectious-disease", getAllInfectiousDisease); // lấy toàn bộ bệnh truyền nhiễm
 
 export default router;
