@@ -575,15 +575,15 @@ export async function createVaccinationRecord(req, res) {
 
 // Update vaccination record - keep old content if no new data is passed (null = no change)
 export async function updateVaccinationRecord(req, res) {
-      const { student_id } = req.params;
-      const { description, name, location, vaccination_date, campaign_id } =
+      const { record_id } = req.params;
+      const { description, vaccine_id, location, vaccination_date, status } =
             req.body;
 
       try {
             // Check if vaccination record exists
             const record = await query(
-                  "SELECT * FROM vaccination_record WHERE student_id = $1",
-                  [student_id]
+                  "SELECT * FROM vaccination_record WHERE id = $1",
+                  [record_id]
             );
             if (record.rows.length === 0) {
                   return res
@@ -593,23 +593,23 @@ export async function updateVaccinationRecord(req, res) {
 
             // Update vaccination record
             const updateQuery = `
-            UPDATE vaccination_record
-            SET description = COALESCE($1, description),
-                  name = COALESCE($2, name),
-                  location = COALESCE($3, location),
-                  vaccination_date = COALESCE($4, vaccination_date),
-                  campaign_id = COALESCE($5, campaign_id)
-            WHERE id = $6
-            RETURNING *;
-      `;
+                  UPDATE vaccination_record
+                  SET description = COALESCE($1, description),
+                        vaccine_id = COALESCE($2, vaccine_id),
+                        location = COALESCE($3, location),
+                        vaccination_date = COALESCE($4, vaccination_date),
+                        status = COALESCE($5, status)
+                  WHERE id = $6
+                  RETURNING *;
+            `;
 
             const result = await query(updateQuery, [
                   description,
-                  name,
+                  vaccine_id,
                   location,
                   vaccination_date,
-                  campaign_id,
-                  id,
+                  status,
+                  record_id
             ]);
 
             return res.status(200).json({
