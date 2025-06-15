@@ -280,7 +280,7 @@ export async function acceptRegister(req, res) {
             //       });
             // }
 
-            if (campaign.status !== "PREPARING") {
+            if (campaign.rows[0].status !== "PREPARING") {
                   return res.status(400).json({
                         error: true,
                         message: "Đã hết thời hạn đăng ký!",
@@ -295,7 +295,7 @@ export async function acceptRegister(req, res) {
 
             return res.status(200).json({
                   message: "Registration status updated successfully",
-                  data: { id, is_registered },
+                  data: { id },
             });
       } catch (error) {
             console.error("Error updating registration status:", error);
@@ -356,7 +356,8 @@ export async function refuseRegister(req, res) {
             //       });
             // }
 
-            if (campaign.status !== "PREPARING") {
+            console.log(campaign.rows[0].status);
+            if (campaign.rows[0].status !== "PREPARING") {
                   return res.status(400).json({
                         error: true,
                         message: "Đã hết thời hạn cập nhật đơn!",
@@ -366,10 +367,11 @@ export async function refuseRegister(req, res) {
 
             // Update registration status
             await query(
-                  "UPDATE vaccination_campaign_register SET is_registered = $1, reason = #2 WHERE id = $3",
+                  "UPDATE vaccination_campaign_register SET is_registered = $1, reason = $2 WHERE id = $3",
                   [false, reason, id]
             );
 
+            console.log("here");
             return res.status(200).json({
                   error: false,
                   message: "Registration status updated successfully",
@@ -768,6 +770,7 @@ export async function startRegistrationForCampaign(req, res) {
 
 export async function closeRegisterByCampaignID(req, res) {
       const { campaign_id } = req.params;
+      
       return updateCampaignStatus(campaign_id, "UPCOMING", res, "Chiến dịch đã đóng đăng ký và chuẩn bị cho ngày tiêm.");
 }
 

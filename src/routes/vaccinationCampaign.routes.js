@@ -49,7 +49,7 @@ router.patch("/vaccination-record/:record_id", updateVaccinationRecord);
 
 router.get("/vaccination-record/:id", getVaccinationRecord);
 
-router.get("/student/:student_id/checkup-campaign/:campaign_id/register", getAllRegistersOfAStudentWithCampaignID);
+router.get("/student/:student_id/vaccination-campaign/:campaign_id/register", getAllRegistersOfAStudentWithCampaignID);
 
 
 export default router;
