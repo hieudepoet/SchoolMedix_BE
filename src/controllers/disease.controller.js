@@ -386,3 +386,27 @@ export async function getDiseaseRecordsByCategory(req, res) {
       .json({ error: true, message: "Internal server error" });
   }
 }
+
+
+// Get all diseases in category "Bệnh truyền nhiễm" and need vaccine
+export async function getAllVaccinedDisease(req, res) {
+  try {
+    const result = await query(`
+            SELECT *
+            FROM disease
+            WHERE disease_category = 'Bệnh truyền nhiễm'
+        `);
+
+    return res.status(200).json({
+      error: false,
+      message: "Fetched vaccinated infectious diseases successfully.",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching diseases:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Internal server error.",
+    });
+  }
+}

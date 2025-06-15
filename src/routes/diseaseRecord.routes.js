@@ -7,6 +7,7 @@ import {
 
 const router = express.Router();
 
-router.post('/checkup-campaign', createCampaign);
+router.post('/disease-record', );
+router.post
 
 export default router;

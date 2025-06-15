@@ -383,28 +383,28 @@ INSERT INTO specialistExamRecord (
 ----- FLOW VACCINATION CAMPAIGN
 --disease
 CREATE TABLE disease (
-      id SERIAL PRIMARY KEY,
-	  disease_category TEXT,
-      name TEXT NOT NULL,
-	  description TEXT,
-      vaccine_need BOOLEAN,
-	  dose_quantity INT
+    id SERIAL PRIMARY KEY,
+    disease_category TEXT,
+    name TEXT NOT NULL,
+    description TEXT,
+    vaccine_need BOOLEAN,
+    dose_quantity INT,
+    CHECK (disease_category IN ('Bệnh truyền nhiễm', 'Bệnh mãn tính'))
 );
-
 INSERT INTO disease (disease_category, name, description, vaccine_need, dose_quantity) VALUES
 -- Bệnh truyền nhiễm, cần vaccine
-('bệnh truyền nhiễm', 'Sởi', 'Bệnh truyền nhiễm phổ biến ở trẻ em, có thể gây biến chứng nặng.', true, 2),
-('bệnh truyền nhiễm', 'Rubella', 'Gây phát ban và sốt nhẹ, ảnh hưởng đến thai phụ.', true, 1),
-('bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân và lây lan mạnh.', true, 2),
+('Bệnh truyền nhiễm', 'Sởi', 'Bệnh truyền nhiễm phổ biến ở trẻ em, có thể gây biến chứng nặng.', true, 2),
+('Bệnh truyền nhiễm', 'Rubella', 'Gây phát ban và sốt nhẹ, ảnh hưởng đến thai phụ.', true, 1),
+('Bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân và lây lan mạnh.', true, 2),
 
 -- Bệnh mãn tính, cần vaccine
-('bệnh mãn tính', 'Viêm gan B', 'Bệnh về gan lây qua máu, có thể thành mãn tính.', true, 3),
-('bệnh mãn tính', 'Bạch hầu', 'Nhiễm khuẩn nghiêm trọng ảnh hưởng đến hô hấp.', true, 2),
+('Bệnh mãn tính', 'Viêm gan B', 'Bệnh về gan lây qua máu, có thể thành mãn tính.', true, 3),
+('Bệnh mãn tính', 'Bạch hầu', 'Nhiễm khuẩn nghiêm trọng ảnh hưởng đến hô hấp.', true, 2),
 
 -- Không cần vaccine (bệnh nhẹ, không có vaccine)
 (NULL, 'Cảm lạnh thông thường', 'Bệnh nhẹ thường gặp, không có vaccine phòng ngừa.', false, 0),
 (NULL, 'Viêm họng cấp', 'Viêm họng do thay đổi thời tiết, không tiêm vaccine.', false, 0),
-('bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0);
+('Bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0);
 
 
 --vaccine
