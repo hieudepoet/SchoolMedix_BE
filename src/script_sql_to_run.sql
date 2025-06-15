@@ -23,7 +23,6 @@ END $$;
 
 
 
-
 -- grade
 CREATE TABLE grade (
     id SERIAL PRIMARY KEY,
@@ -455,13 +454,13 @@ INSERT INTO vaccination_campaign (vaccine_id, description, location, start_date,
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
-    campaign_id INT NOT NULL,
     student_id int NOT NULL,
+	campaign_id int not null,
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
-    submit_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    submit_time TIMESTAMP,
     submit_by int, -- parent ID
-    FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
+	FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
@@ -475,16 +474,12 @@ INSERT INTO vaccination_campaign_register (
   submit_by
 )
 VALUES
--- Con Phúc (UUID: '550934ca-e6ee-456f-b40c-d7fdc173342b') → student_id = 100000, mom_id = 100003
 (1, 100000, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
 
--- Con Đạt (UUID: 'fc57f7ed-950e-46fb-baa5-7914798e9ae3') → student_id = 100001, dad_id = 100002
 (1, 100001, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
 
--- Con Tèo (UUID: '1519af26-f341-471b-8471-ab33a061b657') → student_id = 100002, dad_id = 100000
 (1, 100002, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
 
--- Con Bê (UUID: 'ab9f1dc3-8b35-4b0c-9327-f677c3247143') → student_id = 100003, mom_id = 100001 (ưu tiên)
 (1, 100003, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
 
 
@@ -493,60 +488,96 @@ CREATE TABLE vaccination_record (
     id SERIAL PRIMARY KEY,
     student_id int NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
+    -- campaign_id INT, -- NULL nếu không thuộc campaign khỏi lưu cái này cx đc
+    vaccine_id INT, -- khác NULL nếu parent đăng ký tiêm ở chỗ khác mà không thông qua campaign nhà trường
     description TEXT,
-	name TEXT NOT NULL, 
     location VARCHAR(255),
     vaccination_date DATE,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'MISSED', 'cancelled')),
-    campaign_id INT, -- NULL nếu không thuộc campaign
+    status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'MISSED',  'CANCELLED')),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (register_id) REFERENCES vaccination_campaign_register(id),
-    FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id)
+    FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
 INSERT INTO vaccination_record (
   student_id,
-  campaign_id,
+  register_id,
+  vaccine_id,
   vaccination_date,
   description,
-  name,
   location,
   status
 )
 VALUES
   (
-    100000, -- Con Phúc
-    1,
+    100000,
+    1, -- Con Phúc
+    1, -- vaccine_id cho bệnh Sởi
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
     'School Medix',
     'COMPLETED'
   ),
   (
-    100001, -- Con Đạt
-    1,
+      100000,
+    null, -- Con Phúc
+    2, -- vaccine_id cho bệnh Sởi
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+    'School Medix',
+    'CANCELLED'
+  ),
+  (
+      100000,
+    1, -- Con Đạt
+    2,
+    '2025-06-15',
+    'Tiêm vaccine MVAX phòng bệnh Sởi',
     'School Medix',
     'COMPLETED'
   ),
   (
-    100002, -- Con Tèo
+      100002,
+    3, -- Con Tèo
     1,
     '2025-06-16',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
     'School Medix',
     'COMPLETED'
   ),
   (
-    100003, -- Con Bê
-    1,
+      100003,
+    4, -- Con Bê
+    1,      
     '2025-06-17',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+    'School Medix',
+    'COMPLETED'
+  ),
+  (
+      100002,
+    3, -- Con Tèo tiếp tục tiêm Rubella
+    3, -- vaccine_id cho bệnh Rubella
+    '2025-06-20',
+    'Tiêm vaccine Rubella phòng phát ban và sốt nhẹ',
+    'School Medix',
+    'COMPLETED'
+  ),
+  (
+      100001,
+    2, -- Con Đạt hủy lịch tiêm Thủy đậu
+    3,
+    '2025-06-22',
+    'Tiêm vaccine Thủy đậu đã bị hủy do lý do sức khỏe',
+    'School Medix',
+    'CANCELLED'
+  ),
+  (
+      100003,
+    4, -- Con Bê lỡ lịch tiêm Viêm gan B
+    4,
+    '2025-06-25',
+    'Không đến tiêm vaccine Viêm gan B',
     'School Medix',
     'COMPLETED'
   );
@@ -638,3 +669,4 @@ VALUES
 (100003, 2, '2025-02-01', NULL, 'Nhà theo dõi',
  'Xông mũi, uống nước nhiều', 'Cảm lạnh nhẹ', NULL, NULL,
  'Đang theo dõi', 100001);
+
