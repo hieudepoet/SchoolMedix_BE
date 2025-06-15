@@ -4,14 +4,14 @@ import { query } from "../config/database.js";
 export const createDailyHealthRecord = async (req, res) => {
   const {
     student_id,
-    detect_date,
+    detect_time,
     diagnosis,
     on_site_treatment,
     transferred_to,
     items_usage,
   } = req.body;
 
-  if (!student_id || !detect_date) {
+  if (!student_id || !detect_time) {
     return res.status(400).json({ error: false, message: "Missing required fields" });
   }
 
@@ -29,13 +29,13 @@ export const createDailyHealthRecord = async (req, res) => {
     // Insert the daily health record
     const record_date = new Date();
     const insertQuery = `
-           INSERT INTO daily_health_record (student_id, detect_date, record_date, diagnosis, on_site_treatment, transferred_to, items_usage)
+           INSERT INTO daily_health_record (student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *;
         `;
     const values = [
       student_id,
-      detect_date,
+      detect_time,
       record_date,
       diagnosis || null,
       on_site_treatment || null,

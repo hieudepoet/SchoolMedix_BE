@@ -111,8 +111,7 @@ CREATE TABLE SendDrugRequest (
     diagnosis TEXT NOT NULL,
     schedule_send_date DATE,
     receive_date DATE,
-    start_intake_date DATE,
-	end_intake_date DATE,
+    intake_date DATE,
     note TEXT,
     prescription_file_url VARCHAR(512),
     status senddrugrequest_status NOT NULL
@@ -121,7 +120,7 @@ CREATE TABLE SendDrugRequest (
 
 INSERT INTO SendDrugRequest (
     student_id, create_by, diagnosis, schedule_send_date, receive_date,
-    start_intake_date, end_intake_date, note, prescription_file_url, status
+    intake_date, note, prescription_file_url, status
 ) VALUES 
 (
     100000, -- student_id
@@ -130,7 +129,6 @@ INSERT INTO SendDrugRequest (
     '2025-06-10',
     NULL,
     '2025-06-11',
-    '2025-06-17',
     'Cần gửi thuốc sớm',
     'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg',
     'PROCESSING'
@@ -142,7 +140,6 @@ INSERT INTO SendDrugRequest (
     '2025-06-09',
     '2025-06-10',
     '2025-06-11',
-    '2025-06-15',
     'Nhà trường giúp cháu uống thuốc đúng giờ',
     'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg',
     'DONE'
@@ -154,7 +151,6 @@ INSERT INTO SendDrugRequest (
     '2025-06-08',
     NULL,
     '2025-06-09',
-    '2025-06-13',
     'Gia đình muốn gửi thêm thuốc',
     'https://static.tuoitre.vn/tto/i/s626/2011/04/12/2FiN0VCC.jpg',
     'CANCELLED'
