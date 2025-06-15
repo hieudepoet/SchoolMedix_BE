@@ -430,15 +430,16 @@ export async function getStudentEligibleForCampaign(req, res) {
 
             // Lấy danh sách học sinh đủ điều kiện
             const eligibleStudents = await getStudentEligibleForADiseaseID(disease_id);
+            console.log(eligibleStudents);
 
-            if (!eligibleStudents.rows || eligibleStudents.rows.length === 0) {
+            if (!eligibleStudents) {
                   return res.status(404).json({ error: true, message: "No eligible students found" });
             }
 
             return res.status(200).json({
                   error: false,
                   message: "Eligible students retrieved",
-                  data: eligibleStudents.rows,
+                  data: eligibleStudents,
             });
 
       } catch (error) {
