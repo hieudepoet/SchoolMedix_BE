@@ -718,3 +718,58 @@ async function getStudentEligibleForADiseaseID(disease_id) {
       return (await query(sql, [disease_id])).rows;
 
 }
+
+async function updateCampaignStatus(campaign_id, status, res, successMessage) {
+      try {
+            const result = await query(`
+      UPDATE vaccination_campaign
+      SET status = $1
+      WHERE id = $2
+      RETURNING *
+    `, [status, campaign_id]);
+
+            if (result.rowCount === 0) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không tìm thấy chiến dịch tiêm chủng",
+                  });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: successMessage,
+                  data: result.rows[0],
+            });
+      } catch (error) {
+            console.error("Error updating campaign status:", error);
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi server khi cập nhật trạng thái chiến dịch",
+            });
+      }
+}
+
+export async function startRegistrationForCampaign(req, res) {
+      const { campaign_id } = req.params;
+      return updateCampaignStatus(campaign_id, "PREPARING", res, "Chiến dịch đã mở đăng ký!");
+}
+
+export async function closeRegisterByCampaignID(req, res) {
+      const { campaign_id } = req.params;
+      return updateCampaignStatus(campaign_id, "UPCOMING", res, "Chiến dịch đã đóng đăng ký và chuẩn bị cho ngày tiêm.");
+}
+
+export async function startCampaign(req, res) {
+      const { campaign_id } = req.params;
+      return updateCampaignStatus(campaign_id, "ONGOING", res, "Chiến dịch đã bắt đầu, đang tiêm cho học sinh");
+}
+
+export async function completeCampaign(req, res) {
+      const { campaign_id } = req.params;
+      return updateCampaignStatus(campaign_id, "COMPLETED", res, "Chiến dịch đã hoàn thành.");
+}
+
+export async function cancelCampaignByID(req, res) {
+      const { campaign_id } = req.params;
+      return updateCampaignStatus(campaign_id, "CANCELLED", res, "Chiến dịch đã bị hủy");
+}

@@ -12,7 +12,12 @@ import {
   getCampaignDetailByID,
   getVaccinationRecordsByStudentID,
   acceptRegister,
-  refuseRegister
+  refuseRegister,
+  closeRegisterByCampaignID,
+  cancelCampaignByID,
+  startCampaign,
+  completeCampaign,
+  startRegistrationForCampaign
 } from "../controllers/vaccinationCampaign.controller.js";
 
 const router = express.Router();
@@ -21,6 +26,13 @@ router.post("/vaccination-campaign", createCampaign);
 router.get("/vaccination-campaign", getAllCampaigns);
 router.get("/vaccination-campaign/:campaign_id", getCampaignDetailByID);
 router.post("/vaccination-campaign/:campaign_id/register", createRegisterRequest);
+
+router.patch("/vaccination-campaign/:campaign_id/close-register", closeRegisterByCampaignID);
+router.patch("/vaccination-campaign/:campaign_id/cancel", cancelCampaignByID);
+router.patch("/vaccination-campaign/:campaign_id/start", startCampaign);
+router.patch("/vaccination-campaign/:campaign_id/complete", completeCampaign);
+router.patch("/vaccination-campaign/:campaign_id/start-register", startRegistrationForCampaign);
+
 
 router.get("/student/:student_id/vaccination-record", getVaccinationRecordsByStudentID);
 
