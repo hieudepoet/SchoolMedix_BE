@@ -49,3 +49,85 @@ export async function recordDiseaseOfStudent(req, res) {
     });
   }
 }
+
+
+export async function getAllChronicDiseaseRecords(req, res) {
+  try {
+    const result = await query(`
+      SELECT 
+      dr.student_id,
+      dr.disease_id,
+      dr.diagnosis,
+      dr.detect_date,
+      dr.cure_date,
+      dr.location_cure,
+      dr.created_at,
+      dr.updated_at,
+      d.id as disease_id,
+      d.disease_category,
+      d.name AS disease_name,
+      d.description,
+      d.vaccine_need,
+      d.dose_quantity
+      FROM 
+      disease_record dr
+      JOIN 
+      disease d ON dr.disease_id = d.id
+      where disease_category = 'Bệnh mãn tính'
+      order by dr.student_id asc
+    `);
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách tất cả hồ sơ bệnh mãn tính thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching all disease records:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách hồ sơ bệnh",
+    });
+  }
+}
+
+export async function getAllInfectiousDiseaseRecords(req, res) {
+  try {
+    const result = await query(`
+      SELECT 
+      dr.student_id,
+      dr.disease_id,
+      dr.diagnosis,
+      dr.detect_date,
+      dr.cure_date,
+      dr.location_cure,
+      dr.created_at,
+      dr.updated_at,
+      d.id as disease_id,
+      d.disease_category,
+      d.name AS disease_name,
+      d.description,
+      d.vaccine_need,
+      d.dose_quantity
+      FROM 
+      disease_record dr
+      JOIN 
+      disease d ON dr.disease_id = d.id
+      where disease_category = 'Bệnh truyền nhiễm'
+	    order by dr.student_id asc
+    `);
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách tất cả hồ sơ bệnh truyền nhiễm thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching all disease records:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách hồ sơ bệnh truyền nhiễm",
+    });
+  }
+}
+

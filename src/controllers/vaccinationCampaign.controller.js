@@ -905,11 +905,21 @@ export async function getAllRegisteredRecords(req, res) {
       }
       try {
             const records = await query(`
-                  select *
-                  from vaccination_campaign_register reg 
-                  join vaccination_campaign camp on reg.campaign_id = camp.id
-                  join student s on s.id = reg.student_id
-                  where camp.id = $1 and reg.is_registered = true
+                  SELECT 
+                  s.id AS student_id,
+                  s.supabase_uid as supabase_uid,
+                  rec.id AS record_id,
+                  rec.vaccine_id,
+                  rec.status as status,
+                  rec.description as description,
+                  rec.location as location
+                  FROM vaccination_campaign_register reg 
+                  JOIN vaccination_campaign camp ON reg.campaign_id = camp.id
+                  JOIN student s ON s.id = reg.student_id
+                  JOIN vaccination_record rec ON rec.register_id = reg.id
+                  WHERE camp.id = $1 AND reg.is_registered = true;
+
+
             `, [campaign_id]);
 
             if (records.rowCount === 0) {
