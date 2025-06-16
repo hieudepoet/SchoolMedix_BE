@@ -23,7 +23,6 @@ END $$;
 
 
 
-
 -- grade
 CREATE TABLE grade (
     id SERIAL PRIMARY KEY,
@@ -112,8 +111,7 @@ CREATE TABLE SendDrugRequest (
     diagnosis TEXT NOT NULL,
     schedule_send_date DATE,
     receive_date DATE,
-    start_intake_date DATE,
-	end_intake_date DATE,
+    intake_date DATE,
     note TEXT,
     prescription_file_url VARCHAR(512),
     status senddrugrequest_status NOT NULL
@@ -122,7 +120,7 @@ CREATE TABLE SendDrugRequest (
 
 INSERT INTO SendDrugRequest (
     student_id, create_by, diagnosis, schedule_send_date, receive_date,
-    start_intake_date, end_intake_date, note, prescription_file_url, status
+    intake_date, note, prescription_file_url, status
 ) VALUES 
 (
     100000, -- student_id
@@ -131,7 +129,6 @@ INSERT INTO SendDrugRequest (
     '2025-06-10',
     NULL,
     '2025-06-11',
-    '2025-06-17',
     'Cần gửi thuốc sớm',
     'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg',
     'PROCESSING'
@@ -143,7 +140,6 @@ INSERT INTO SendDrugRequest (
     '2025-06-09',
     '2025-06-10',
     '2025-06-11',
-    '2025-06-15',
     'Nhà trường giúp cháu uống thuốc đúng giờ',
     'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg',
     'DONE'
@@ -155,7 +151,6 @@ INSERT INTO SendDrugRequest (
     '2025-06-08',
     NULL,
     '2025-06-09',
-    '2025-06-13',
     'Gia đình muốn gửi thêm thuốc',
     'https://static.tuoitre.vn/tto/i/s626/2011/04/12/2FiN0VCC.jpg',
     'CANCELLED'
@@ -384,28 +379,26 @@ INSERT INTO specialistExamRecord (
 ----- FLOW VACCINATION CAMPAIGN
 --disease
 CREATE TABLE disease (
-      id SERIAL PRIMARY KEY,
-	  disease_category TEXT,
-      name TEXT NOT NULL,
-	  description TEXT,
-      vaccine_need BOOLEAN,
-	  dose_quantity INT
+    id SERIAL PRIMARY KEY,
+    disease_category TEXT CHECK (disease_category IN ('Bệnh mãn tính', 'Bệnh truyền nhiễm')),
+    name TEXT NOT NULL,
+    description TEXT,
+    vaccine_need BOOLEAN,
+    dose_quantity INT,
+    CHECK (disease_category IN ('Bệnh truyền nhiễm', 'Bệnh mãn tính'))
 );
-
 INSERT INTO disease (disease_category, name, description, vaccine_need, dose_quantity) VALUES
 -- Bệnh truyền nhiễm, cần vaccine
-('bệnh truyền nhiễm', 'Sởi', 'Bệnh truyền nhiễm phổ biến ở trẻ em, có thể gây biến chứng nặng.', true, 2),
-('bệnh truyền nhiễm', 'Rubella', 'Gây phát ban và sốt nhẹ, ảnh hưởng đến thai phụ.', true, 1),
-('bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân và lây lan mạnh.', true, 2),
+('Bệnh truyền nhiễm', 'Sởi', 'Bệnh truyền nhiễm phổ biến ở trẻ em, có thể gây biến chứng nặng.', true, 2),
+('Bệnh truyền nhiễm', 'Rubella', 'Gây phát ban và sốt nhẹ, ảnh hưởng đến thai phụ.', true, 1),
+('Bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân và lây lan mạnh.', true, 2),
+('Bệnh truyền nhiễm', 'Tay chân miệng', 'Tay chân miệng description.', false, 0),
 
 -- Bệnh mãn tính, cần vaccine
-('bệnh mãn tính', 'Viêm gan B', 'Bệnh về gan lây qua máu, có thể thành mãn tính.', true, 3),
-('bệnh mãn tính', 'Bạch hầu', 'Nhiễm khuẩn nghiêm trọng ảnh hưởng đến hô hấp.', true, 2),
-
--- Không cần vaccine (bệnh nhẹ, không có vaccine)
-(NULL, 'Cảm lạnh thông thường', 'Bệnh nhẹ thường gặp, không có vaccine phòng ngừa.', false, 0),
-(NULL, 'Viêm họng cấp', 'Viêm họng do thay đổi thời tiết, không tiêm vaccine.', false, 0),
-('bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0);
+('Bệnh mãn tính', 'Viêm gan B', 'Bệnh về gan lây qua máu, có thể thành mãn tính.', true, 3),
+('Bệnh mãn tính', 'Bạch hầu', 'Nhiễm khuẩn nghiêm trọng ảnh hưởng đến hô hấp.', true, 2),
+('Bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0),
+('Bệnh mãn tính', 'Béo phì', 'Bệnh gây chậm chạp và bệnh nền nguyên nhân của các bệnh khác', false, 0);
 
 
 --vaccine
@@ -455,13 +448,13 @@ INSERT INTO vaccination_campaign (vaccine_id, description, location, start_date,
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
-    campaign_id INT NOT NULL,
     student_id int NOT NULL,
+	campaign_id int not null,
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
-    submit_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    submit_time TIMESTAMP,
     submit_by int, -- parent ID
-    FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
+	FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
@@ -475,16 +468,12 @@ INSERT INTO vaccination_campaign_register (
   submit_by
 )
 VALUES
--- Con Phúc (UUID: '550934ca-e6ee-456f-b40c-d7fdc173342b') → student_id = 100000, mom_id = 100003
 (1, 100000, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
 
--- Con Đạt (UUID: 'fc57f7ed-950e-46fb-baa5-7914798e9ae3') → student_id = 100001, dad_id = 100002
 (1, 100001, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
 
--- Con Tèo (UUID: '1519af26-f341-471b-8471-ab33a061b657') → student_id = 100002, dad_id = 100000
 (1, 100002, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
 
--- Con Bê (UUID: 'ab9f1dc3-8b35-4b0c-9327-f677c3247143') → student_id = 100003, mom_id = 100001 (ưu tiên)
 (1, 100003, 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
 
 
@@ -493,60 +482,98 @@ CREATE TABLE vaccination_record (
     id SERIAL PRIMARY KEY,
     student_id int NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
+    -- campaign_id INT, -- NULL nếu không thuộc campaign khỏi lưu cái này cx đc
+    vaccine_id INT, -- khác NULL nếu parent đăng ký tiêm ở chỗ khác mà không thông qua campaign nhà trường
     description TEXT,
-	name TEXT NOT NULL, 
     location VARCHAR(255),
     vaccination_date DATE,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'MISSED', 'cancelled')),
-    campaign_id INT, -- NULL nếu không thuộc campaign
+    status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'MISSED',  'CANCELLED')),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (register_id) REFERENCES vaccination_campaign_register(id),
-    FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id)
+    FOREIGN KEY (vaccine_id) REFERENCES vaccine(id),
+  CONSTRAINT unique_student_vaccine_date UNIQUE (student_id, vaccine_id, register_id)
+
 );
 
 INSERT INTO vaccination_record (
   student_id,
-  campaign_id,
+  register_id,
+  vaccine_id,
   vaccination_date,
   description,
-  name,
   location,
   status
 )
 VALUES
   (
-    100000, -- Con Phúc
-    1,
+    100000,
+    1, -- Con Phúc
+    1, -- vaccine_id cho bệnh Sởi
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
     'School Medix',
     'COMPLETED'
   ),
   (
-    100001, -- Con Đạt
-    1,
+      100000,
+    null, -- Con Phúc
+    2, -- vaccine_id cho bệnh Sởi
     '2025-06-15',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+    'School Medix',
+    'CANCELLED'
+  ),
+  (
+      100000,
+    1, -- Con Đạt
+    2,
+    '2025-06-15',
+    'Tiêm vaccine MVAX phòng bệnh Sởi',
     'School Medix',
     'COMPLETED'
   ),
   (
-    100002, -- Con Tèo
+      100002,
+    3, -- Con Tèo
     1,
     '2025-06-16',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
     'School Medix',
     'COMPLETED'
   ),
   (
-    100003, -- Con Bê
-    1,
+      100003,
+    4, -- Con Bê
+    1,      
     '2025-06-17',
     'Tiêm vaccine MVAX phòng bệnh Sởi',
-    'Sởi',
+    'School Medix',
+    'COMPLETED'
+  ),
+  (
+      100002,
+    3, -- Con Tèo tiếp tục tiêm Rubella
+    3, -- vaccine_id cho bệnh Rubella
+    '2025-06-20',
+    'Tiêm vaccine Rubella phòng phát ban và sốt nhẹ',
+    'School Medix',
+    'COMPLETED'
+  ),
+  (
+      100001,
+    2, -- Con Đạt hủy lịch tiêm Thủy đậu
+    3,
+    '2025-06-22',
+    'Tiêm vaccine Thủy đậu đã bị hủy do lý do sức khỏe',
+    'School Medix',
+    'CANCELLED'
+  ),
+  (
+      100003,
+    4, -- Con Bê lỡ lịch tiêm Viêm gan B
+    4,
+    '2025-06-25',
+    'Không đến tiêm vaccine Viêm gan B',
     'School Medix',
     'COMPLETED'
   );
@@ -593,48 +620,35 @@ VALUES
 
 -------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
 CREATE TABLE disease_record (
-    id SERIAL PRIMARY KEY,
     student_id INT NOT NULL,
     disease_id INT NOT NULL,
+    diagnosis TEXT,
     detect_date DATE,
     cure_date DATE,
     location_cure TEXT,
-    prescription TEXT,
-    diagnosis TEXT,
-    admission_date DATE,
-    discharge_date DATE,
-    cur_status TEXT,
-    create_by int NOT NULL,
+    transferred_to TEXT,
+    status VARCHAR(50) CHECK (status IN ('RECOVERED', 'UNDER_TREATMENT')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (disease_id) REFERENCES disease(id),
-    FOREIGN KEY (create_by) REFERENCES parent(id) 
+    
+    PRIMARY KEY (student_id, disease_id) -- optional: ensure uniqueness per disease per student
 );
 
+
 INSERT INTO disease_record (
-    student_id, disease_id, detect_date, cure_date, location_cure,
-    prescription, diagnosis, admission_date, discharge_date,
-    cur_status, create_by
+    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status
 )
 VALUES
--- 100000 - parent_id: 100003
-(100000, 1, '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1',
- 'Paracetamol', 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-03',
- 'Đã khỏi', 100003),
-
--- 100001 - parent_id: 100003
-(100001, 2, '2025-04-10', NULL, 'Tự theo dõi tại nhà',
- 'Vitamin C', 'Ho và nổi mẩn nhẹ', NULL, NULL,
- 'Đang theo dõi', 100003),
-
--- 100002 - parent_id: 100000
-(100002, 1, '2025-03-15', '2025-03-20', 'Phòng khám Nhi',
- 'Thuốc kháng sinh', 'Sốt, viêm họng', '2025-03-15', '2025-03-18',
- 'Đã khỏi', 100000),
-
--- 100003 - parent_id: 100001
-(100003, 2, '2025-02-01', NULL, 'Nhà theo dõi',
- 'Xông mũi, uống nước nhiều', 'Cảm lạnh nhẹ', NULL, NULL,
- 'Đang theo dõi', 100001);
+(100000, 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED'),
+(100001, 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT'),
+(100002, 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED'),
+(100003, 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
+(100000, 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED'),
+(100001, 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
+(100002, 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT'),
+(100003, 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
+(100000, 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
+(100001, 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');

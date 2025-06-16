@@ -8,6 +8,9 @@ const router = express.Router();
 router.post('/admin', createAdmin);
 router.post('/nurse', createNurse);
 
+// get parent that not have any managed kids in the system
+// get student that not under supervision of any parent
+
 
 
 

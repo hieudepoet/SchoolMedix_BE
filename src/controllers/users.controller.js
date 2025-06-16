@@ -307,7 +307,7 @@ function generateRandomPassword() {
  * @param {*} uid 
  * @returns 
  */
-async function getSupabaseProfileByUUID(uid) {
+export async function getSupabaseProfileByUUID(uid) {
       try {
             const { data, error } = await supabaseAdmin.getUserById(uid);
             if (error || !data?.user) return null;

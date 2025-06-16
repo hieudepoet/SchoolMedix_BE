@@ -46,12 +46,10 @@ export async function createCampaign(req, res) {
 
     } = req.body;
 
-    const register_ids = [];
 
     if (!name || !description || !location || !start_date || !end_date || !Array.isArray(specialist_exam_ids)) {
         return res.status(400).json({ error: true, message: "Thiếu các thông tin cần thiết." });
     }
-
 
     try {
         // STEPT 1: Tạo mới Campaign
@@ -146,12 +144,58 @@ export async function createCampaign(req, res) {
     }
 
 }
+export async function getAllCheckupCampaigns(req, res) {
+    try {
+        // Lấy tất cả các chiến dịch
+        const result_campaigns = await query(`
+            SELECT * FROM CheckupCampaign
+            ORDER BY start_date DESC
+        `);
+
+        const campaigns = result_campaigns.rows;
+
+        if (campaigns.length === 0) {
+            return res.status(200).json({
+                error: false,
+                message: "Không có chiến dịch nào.",
+                data: []
+            });
+        }
+
+        // Lặp qua từng chiến dịch để lấy thông tin SpecialistExam tương ứng
+        for (const campaign of campaigns) {
+            const result_exams = await query(`
+                SELECT s.id, s.name, s.description
+                FROM CampaignContainSpeExam c
+                JOIN SpecialistExamList s ON c.specialist_exam_id = s.id
+                WHERE c.campaign_id = $1
+            `, [campaign.id]);
+
+            campaign.specialist_exams = result_exams.rows;
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: "Lấy danh sách chiến dịch thành công.",
+            data: campaigns
+        });
+
+    } catch (err) {
+        console.error("❌ Error fetching CheckupCampaigns", err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi lấy danh sách CheckupCampaign."
+        });
+    }
+}
 
 
-//Lấy tất cả các CheckUp Register có Status là PENDING của Student theo Parent ID
-export async function getCheckupRegisterParent(req, res) {
-    const { id } = req.params;
-    if (!id) {
+
+
+//Lấy tất cả các CheckUp Register theo parent_id (KHÔNG CẦN PHẢI PENDING)
+export async function getCheckupRegisterByParentID(req, res) {
+    const { parent_id } = req.params;
+    if (!parent_id) {
         return res.status(400).json({ error: true, message: "Thiếu ID Parent." });
     }
 
@@ -160,7 +204,7 @@ export async function getCheckupRegisterParent(req, res) {
         //Lấy tất cả Student có mon_id or dad_id là parent_id
         const result_student = await query(
             `SELECT * FROM Student WHERE mom_id = $1 OR dad_id = $2`,
-            [id, id]
+            [parent_id, parent_id]
         );
 
         //Lấy student_id từ Prent
@@ -173,26 +217,26 @@ export async function getCheckupRegisterParent(req, res) {
             return res.status(400).json({ error: true, message: "Không tìm thấy ID của Student." });
         }
 
-        //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id có status là PENDING
+        //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id
 
         const allRegisters = [];
 
         for (const student_id of student_ids) {
             const result_checkup_register = await query(
                 ` SELECT 
-        r.id AS register_id,
-        r.campaign_id,
-        r.student_id,
-        r.submit_by,
-        r.submit_time,
-        r.reason,
-        r.status,
-        s.spe_exam_id,
-        s.status
-      FROM checkupregister r
-      JOIN specialistexamrecord s ON s.register_id = r.id
-      WHERE r.student_id = $1 AND r.status = $2
-  `, [student_id, 'PENDING']
+                    r.id AS register_id,
+                    r.campaign_id,
+                    r.student_id,
+                    r.submit_by,
+                    r.submit_time,
+                    r.reason,
+                    r.status,
+                    s.spe_exam_id,
+                    s.status
+                FROM checkupregister r
+                JOIN specialistexamrecord s ON s.register_id = r.id
+                WHERE r.student_id = $1
+            `, [student_id]
             );
 
             allRegisters.push(...result_checkup_register.rows);
@@ -238,6 +282,58 @@ export async function getCheckupRegisterParent(req, res) {
     }
 }
 
+//Lấy tất cả các CheckUp Register theo student_id (KHÔNG CẦN PHẢI PENDING)
+export async function getCheckupRegisterByStudentID(req, res) {
+    const { student_id } = req.params;
+    if (!student_id) {
+        return res.status(400).json({ error: true, message: "Thiếu ID Hoc sinh." });
+    }
+
+    try {
+
+        //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id
+
+        const result_checkup_register = await query(
+            ` SELECT 
+                r.id AS register_id,
+                r.campaign_id,
+                r.student_id,
+                r.submit_by,
+                r.submit_time,
+                r.reason,
+                r.status,
+                COALESCE(json_agg(
+                    CASE 
+                        WHEN s.spe_exam_id IS NOT NULL THEN
+                            json_build_object(
+                                'spe_exam_id', s.spe_exam_id,
+                                'status', s.status
+                            )
+                    END
+                ) FILTER (WHERE s.spe_exam_id IS NOT NULL), '[]') AS exams
+            FROM checkupregister r
+            LEFT JOIN specialistexamrecord s ON s.register_id = r.id
+            WHERE r.student_id = $1
+            GROUP BY 
+                r.id, 
+                r.campaign_id, 
+                r.student_id, 
+                r.submit_by, 
+                r.submit_time, 
+                r.reason, 
+                r.status;
+
+            `, [student_id]);
+
+
+        // Trả về
+        return res.status(200).json({ error: false, data: result_checkup_register.rows });
+    } catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res.status(500).json({ error: true, message: "Lỗi server khi Parent nhận Register Form." });
+    }
+}
+
 // Parent nhấn Submit Register truyền vào Register_id
 export async function submitRegister(req, res) {
 
@@ -258,9 +354,9 @@ export async function submitRegister(req, res) {
         }
 
 
-        const result_check = await query('SELECT * FROM checkupregister WHERE id = $1 AND status = $2',[id,'PENDING']);
+        const result_check = await query('SELECT * FROM checkupregister WHERE id = $1 AND status = $2', [id, 'PENDING']);
 
-        if(result_check.rowCount === 0){
+        if (result_check.rowCount === 0) {
             return res.status(200).json({ error: true, message: "Không có tồn tại Register or đã CANCEL" });
         }
 
@@ -414,8 +510,8 @@ export async function cancelRegister(req, res) {
 }
 // Nurse or Doctor Update Health  Recordcho Student theo Register ID
 export async function updateHealthRecord(req, res) {
+    const { register_id } = req.params;
     const {
-        register_id,
         height,
         weight,
         blood_pressure,
@@ -433,7 +529,9 @@ export async function updateHealthRecord(req, res) {
         posture,
         final_diagnosis
 
-    } = req.body
+    } = req.body;
+
+
 
     if (!height || !weight || !blood_pressure || !left_eye || !right_eye || !ear || !nose || !register_id) {
         return res.status(400).json({ error: true, message: "Các chỉ số cơ bản không thể trống." });
@@ -627,15 +725,18 @@ export async function getHealthRecordStudent(req, res) {
             , [student_id, campaign_id]);
 
         const rs = result.rows[0];
-
+        console.log(rs);
+        if (!rs) {
+            return res.status(400).json({ error: true, message: "Không tìm thấy health record." });
+        }
 
         if (rs.length === 0) {
             return res.status(400).json({ error: true, message: "Không tìm thấy Register." });
         }
 
         //Lấy Health Record từ Student
-        const result_check_healthrecord = await query('SELECT * FROM healthrecord WHERE register_id = $1 AND status = $2'
-            , [rs.id, 'DONE']);
+        const result_check_healthrecord = await query('SELECT * FROM healthrecord WHERE register_id = $1'
+            , [rs.id]);
 
         const data = result_check_healthrecord.rows;
 
@@ -649,7 +750,7 @@ export async function getHealthRecordStudent(req, res) {
 
     } catch (err) {
         console.error("❌ Error creating Campaign ", err);
-        return res.status(500).json({ error: true, message: "Lỗi khi tạo  Health Record." });
+        return res.status(500).json({ error: true, message: "Lỗi khi xem Health Record." });
     }
 }
 
