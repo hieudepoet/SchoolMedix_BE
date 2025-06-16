@@ -1,0 +1,102 @@
+1. Declare:
+a. Admin(0/5): 
+- Trang quản lý danh sách user
+- Form tạo mới tài khoản Admin, Nurse 
+- Trang thông tin cá nhân 
+- Trang đổi mật khẩu và cập nhật thông tin cá nhân
+- Tạo mới tài khoản Parent cùng tài khoản Student 
+(Tạo Parent xong có phần thêm con để tạo tài khoản cho Student)
+b. Nurse(0/2):
+- Trang thông tin cá nhân 
+- Trang đổi mật khẩu và cập nhật thông tin cá nhân
+c. Parent(0/3):
+- Danh sách con, cho phép khai báo thông tin (Khai báo thông tin cá nhân của con, Khai báo lịch sử tiêm chủng, Khai báo bệnh).
+- Form khai báo thông tin cá nhân của con.
+- Đổi mật khẩu và cập nhật thông tin cá nhân
+d. Student(0/2):
+- Thông tin cơ bản của phụ huynh
+- Đổi mật khẩu và cập nhật thông tin cá nhân
+
+2. Vaccination (Kế hoạch Tiêm chủng):
+a. Admin(0/7):
+- Trang quản lý vaccine campaign
+- Form thêm mới hoặc update vaccine campaign
+- Trang danh sách những người được gửi register tham gia campaign 
+(sau khi đóng đơn status => accepted hoặc refused => lọc theo danh sách accepted ra danh sách người đồng ý tham gia)
+- Trang theo dõi học sinh có tham gia vào ngày onsite hay không? 
+(Tham gia thì khi tick vào sẽ chuyển tới form update Record)
+- Form update Record.
+- Trang danh sách những record của 1 campaign (có preCreate, sau khi kết thúc campaign) 
+- Trang quản lý danh sách hồ sơ tiêm (có bộ lọc) và hồ sơ tiêm cụ thể của 1 học sinh
+b. Nurse(0/5):
+- Trang danh sách vaccine campaign
+- Trang danh sách những người được gửi register tham gia campaign (sau khi đóng đơn status => accepted hoặc refused => lọc theo danh sách accepted ra danh sách người đồng ý tham gia)
+- Trang theo dõi học sinh có tham gia vào ngày onsite hay không? không được tick có thì xóa preRecord
+- Trang danh sách những record của 1 campaign (có preCreate, sau khi kết thúc campaign, những học sinh được tạo campaign nhưng không tới tham gia có thể xóa đi preRecord) 
+- Trang hồ sơ tiêm vaccine của 1 học sinh
+c. Parent(0/3): 
+- Trang danh sách vaccine campaign (chỉ hiển thị các campaign từ lúc tài khoản phụ huynh được tạo)
+- Trang danh sách khảo sát (cá nhân hieudepoet đề xuất làm lại thành dạng list, sẽ dễ nhìn hơn dạng lưới bây giờ, tất nhiên là theo ý kiến số đông)
+- Trang danh sách record tiêm chủng (lịch sử tiêm chủng) và hồ sơ cụ thể của các con
+d. Student(0/3):
+- Trang danh sách vaccine campaign (chỉ hiển thị các campaign từ lúc tài khoản student được tạo)
+- Trang danh sách khảo sát (chỉ xem, không được can thiệp)
+- Trang danh sách record tiêm chủng (lịch sử tiêm chủng) và hồ sơ cụ thể
+
+3. Vaccine (Quản lý vaccine)
+a. Admin(0/3)
+- Trang quản lý vaccine
+- Form thêm mới hoặc update vaccine
+b. Nurse(0/2)
+- Trang quản lý vaccine
+- Form thêm mới hoặc update vaccine
+c. Parent(0/0)
+d. Student(0/0)
+
+4. DailyHealthRecord (Sự kiện y tế)
+a. Admin(0/1)
+- Trang danh sách và hồ sơ chi tiết DailyHealthRecord (bộ)
+b. Nurse(0/2)
+- Trang quản lý DailyHealthRecord (bộ lọc, thêm, xóa, sửa)
+- Form thêm/update DailyHealthRecord
+c.Parent
+- Trang danh sách DailyHealthRecord (chỉ xem)
+
+5. CheckUp (Kế hoạch Khám định kỳ + Chuyên khoa):
+a. Admin(0/6):
+- Trang quản lý CheckUp campaign ( Close Register, Cancel, DONE)
+- Form thêm mới hoặc update vaccine campaign
+- Trong Campaign có phần chi tiết ( gồm 2 loại Định kỳ và Chuyên khoa là danh sách CheckUp Register cho định kỳ và specialistExamRecord cho chuyên khoa )
+- Trang theo dõi học sinh có tham gia vào ngày onsite hay không? 
+(Tham gia thì khi tick vào sẽ chuyển tới form update Record)
+- Form update Record.
+- Trang danh sách những record của 1 campaign 
+b. Nurse(0/5):
+- Trang danh sách CheckUp campaign
+- Trong Campaign có phần chi tiết 
+( gồm 2 loại Định kỳ và Chuyên khoa là danh sách CheckUp Register cho định kỳ và specialistExamRecord cho chuyên khoa )
+- Trang theo dõi học sinh có tham gia vào ngày onsite hay không? 
+- Trang danh sách những record của 1 campaign theo 2 mục định kỳ và chuyên khoa
+- Trang hồ sơ tiêm Health Record và  specialistExamRecord của 1 học sinh (cho phép Update) 
+c. Parent(0/3): 
+- Trang danh sách CheckUp campaign (chỉ hiển thị các campaign từ lúc tài khoản phụ huynh được tạo)
+- Trang danh sách CheckUpRegister
+- Trang danh sách Health Record và specialistExamRecord cũng là 2 mục Định kỳ và Chuyên Khoa 
+d. Student(0/3):
+- Trang danh sách CheckUp campaign (chỉ hiển thị các campaign từ lúc tài khoản student được tạo)
+- Trang danh sách CheckUp Register(chỉ xem, không được can thiệp)
+- Trang danh sách Health Record và specialistExamRecord cũng là 2 mục Định kỳ và Chuyên Khoa 
+
+6. Quản lý nhắc thuốc
+a.Admin(0/1):
+- Trang quản lý request
+b.Nurse(0/2):
+- Trang quản lý request
+- Trang quản lý lịch uống thuốc
+c.Parent(0/3):
+- Trang quản lý request (từng con)
+- Trang theo dõi lịch uống thuốc
+- Form tạo đơn gửi thuốc
+d.Student(0/2):
+- Trang danh sách request
+- Trang theo dõi lịch uống thuốc

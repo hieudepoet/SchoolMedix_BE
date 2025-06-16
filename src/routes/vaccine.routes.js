@@ -1,7 +1,8 @@
 // routes/vaccination.routes.js
 import express from "express";
 import {
-  createVaccine, getAllVaccines
+  createVaccine,
+  getAllVaccines,
 } from "../controllers/vaccine.controller.js";
 
 const router = express.Router();
