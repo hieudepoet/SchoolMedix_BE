@@ -1,4 +1,5 @@
 import { query } from "../config/database.js";
+import { getStudentProfileByID, getSupabaseProfileByUUID } from "./users.controller.js";
 
 
 // Campaign
@@ -874,6 +875,8 @@ export async function closeRegisterByCampaignID(req, res) {
 }
 
 
+
+
 export async function startCampaign(req, res) {
       const { campaign_id } = req.params;
       return updateCampaignStatus(campaign_id, "ONGOING", res, "Chiến dịch đã bắt đầu, đang tiêm cho học sinh");
@@ -887,4 +890,52 @@ export async function completeCampaign(req, res) {
 export async function cancelCampaignByID(req, res) {
       const { campaign_id } = req.params;
       return updateCampaignStatus(campaign_id, "CANCELLED", res, "Chiến dịch đã bị hủy");
+}
+
+
+
+
+export async function getAllRegisteredRecords(req, res) {
+      const { campaign_id } = req.params;
+      if (!campaign_id) {
+            return res.status(404).json({
+                  error: true,
+                  message: "Không tìm thấy campaing_id trong url",
+            });
+      }
+      try {
+            const records = await query(`
+                  select *
+                  from vaccination_campaign_register reg 
+                  join vaccination_campaign camp on reg.campaign_id = camp.id
+                  join student s on s.id = reg.student_id
+                  where camp.id = $1 and reg.is_registered = true
+            `, [campaign_id]);
+
+            if (records.rowCount === 0) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không tìm thấy record nào cho chiến dịch",
+                  });
+            }
+
+            let final_result = [];
+
+            for (let record of records.rows) {
+                  const student_profile = await getSupabaseProfileByUUID(record.supabase_uid);
+                  final_result.push({ ...record, student_profile })
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "ok",
+                  data: final_result,
+            });
+      } catch (error) {
+            console.error("Error when listing registered record within a campaign:", error);
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi server khi lấy toàn bộ record của học sinh đã đăng ký đồng ý tiêm.",
+            });
+      }
 }
