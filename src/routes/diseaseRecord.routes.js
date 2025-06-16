@@ -4,7 +4,7 @@ import {
         getDiseaseOfStudent,
         getAllInfectiousDiseaseRecords,
         getAllChronicDiseaseRecords,
-        updateDiseaseRecord
+        updateDiseaseRecord,
 }
         from '../controllers/diseaseRecord.controller.js';
 
