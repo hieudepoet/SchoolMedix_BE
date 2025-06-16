@@ -640,6 +640,48 @@ export async function updateVaccinationRecord(req, res) {
       }
 }
 
+// Update vaccination record - keep old content if no new data is passed (null = no change)
+export async function completeRecord(req, res) {
+      const { record_id } = req.params;
+
+      try {
+            // Check if vaccination record exists
+            const record = await query(
+                  "SELECT * FROM vaccination_record WHERE id = $1",
+                  [record_id]
+            );
+            if (record.rows.length === 0) {
+                  return res
+                        .status(404)
+                        .json({ error: true, message: "Vaccination record not found" });
+            }
+
+            // Update vaccination record
+            const updateQuery = `
+                  UPDATE vaccination_record
+                  SET status = 'COMPLETED'
+                  WHERE id = $1
+                  RETURNING *;
+            `;
+
+            const result = await query(updateQuery, [
+                  record_id
+            ]);
+
+            return res.status(200).json({
+                  message: "Vaccination record updated",
+                  data: result.rows[0],
+            });
+      } catch (error) {
+            console.error("Error updating vaccination record:", error);
+            return res
+                  .status(500)
+                  .json({ error: true, message: "Internal server error" });
+      }
+}
+
+
+
 // Get vaccination record by record ID
 export async function getVaccinationRecord(req, res) {
       const { id } = req.params;

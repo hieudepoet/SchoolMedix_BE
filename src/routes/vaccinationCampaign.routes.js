@@ -18,7 +18,8 @@ import {
   completeCampaign,
   startRegistrationForCampaign,
   getAllRegistersOfAStudentWithCampaignID,
-  getAllRegisteredRecords
+  getAllRegisteredRecords,
+  completeRecord
 } from "../controllers/vaccinationCampaign.controller.js";
 
 const router = express.Router();
@@ -47,6 +48,7 @@ router.post("/vaccination-record", createVaccinationRecord);
 router.post("/pre-vaccination-record/:campaign_id", createPreVaccinationRecord);
 
 router.patch("/vaccination-record/:record_id", updateVaccinationRecord);
+router.patch("/vaccination-record/:record_id/complete", completeRecord);
 
 router.get("/vaccination-record/:id", getVaccinationRecord);
 
