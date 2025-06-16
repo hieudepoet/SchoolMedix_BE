@@ -812,7 +812,7 @@ export async function closeRegisterByCampaignID(req, res) {
             for (const registration of registrations.rows) {
                   await query(
                         `INSERT INTO vaccination_record (student_id, vaccine_id, status, register_id)
-                        VALUES ($1, $2, 'PENDING', $3)`,
+                        VALUES ($1, $2, 'PENDING', $3) ON CONFLICT (student_id, vaccine_id, register_id) DO NOTHING`,
                         [registration.student_id, registration.vaccine_id, registration.register_id]
                   );
             }
@@ -837,7 +837,7 @@ export async function closeRegisterByCampaignID(req, res) {
             console.error("Lỗi khi đóng đăng ký chiến dịch:", error);
             return res.status(500).json({
                   error: true,
-                  message: "Lỗi server khi xử lý đóng đăng ký chiến dịch. Có thể mắc lỗi do tạo trùng lặp record.",
+                  message: "Lỗi server khi xử lý đóng đăng ký chiến dịch.",
             });
       }
 }
