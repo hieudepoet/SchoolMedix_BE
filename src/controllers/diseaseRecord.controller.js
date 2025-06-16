@@ -26,26 +26,94 @@ export async function getDiseaseOfStudent(req, res) {
 
 export async function recordDiseaseOfStudent(req, res) {
   const { student_id } = req.params;
-  const { disease_id, diagnosis, detect_date, cure_date, location_cure } = req.body;
+  const {
+    disease_id,
+    diagnosis,
+    detect_date,
+    cure_date,
+    location_cure,
+    transferred_to,
+    status
+  } = req.body;
 
   try {
-    const result = await query(`
+    const result = await query(
+      `
       INSERT INTO disease_record (
-        student_id, disease_id, diagnosis, detect_date, cure_date, location_cure
+        student_id,
+        disease_id,
+        diagnosis,
+        detect_date,
+        cure_date,
+        location_cure,
+        transferred_to,
+        status
       )
-      VALUES ($1, $2, $3, $4, $5, $6) returning *
-    `, [student_id, disease_id, diagnosis, detect_date, cure_date, location_cure]);
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *
+      `,
+      [
+        student_id,
+        disease_id,
+        diagnosis,
+        detect_date,
+        cure_date,
+        location_cure,
+        transferred_to,
+        status
+      ]
+    );
 
     return res.status(201).json({
       error: false,
-      message: "Ghi nhận bệnh cho học sinh thành công",
+      message: 'Ghi nhận bệnh cho học sinh thành công',
       data: result.rows[0]
     });
   } catch (error) {
-    console.error("Error recording disease:", error);
+    console.error('Error recording disease:', error);
     return res.status(500).json({
       error: true,
-      message: "Lỗi server khi ghi nhận bệnh",
+      message: 'Lỗi server khi ghi nhận bệnh',
+    });
+  }
+}
+
+export async function updateDiseaseRecord(req, res) {
+  const { student_id } = req.params;
+  const { disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status } = req.body;
+
+  try {
+    const result = await query(`
+      UPDATE disease_record
+      SET 
+        diagnosis = $1,
+        detect_date = $2,
+        cure_date = $3,
+        location_cure = $4,
+        transferred_to = $5,
+        status = $6,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE student_id = $7 AND disease_id = $8
+      RETURNING *;
+    `, [diagnosis, detect_date, cure_date, location_cure, transferred_to, status, student_id, disease_id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy bản ghi để cập nhật",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật thông tin bệnh thành công",
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error("Error updating disease:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi cập nhật bệnh",
     });
   }
 }

@@ -3,7 +3,8 @@ import {
         recordDiseaseOfStudent,
         getDiseaseOfStudent,
         getAllInfectiousDiseaseRecords,
-        getAllChronicDiseaseRecords
+        getAllChronicDiseaseRecords,
+        updateDiseaseRecord
 }
         from '../controllers/diseaseRecord.controller.js';
 
@@ -13,7 +14,7 @@ router.get("/infectious-record", getAllInfectiousDiseaseRecords) // lấy toàn 
 router.get("/chronic-record", getAllChronicDiseaseRecords) // lấy toàn bộ bệnh mãn tính
 
 router.post('/student/:student_id/disease-record', recordDiseaseOfStudent); // tạo mới bệnh cho cả truyền nhiễm và mãn tính
-// router.patch('/') // add sau
+router.patch('/student/:student_id/disease-record', updateDiseaseRecord); // update disease record
 router.get("/student/:student_id/disease-record", getDiseaseOfStudent); // list toàn bộ bệnh của một học sinh
 
 export default router;

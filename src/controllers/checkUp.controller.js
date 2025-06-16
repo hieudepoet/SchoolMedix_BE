@@ -144,6 +144,52 @@ export async function createCampaign(req, res) {
     }
 
 }
+export async function getAllCheckupCampaigns(req, res) {
+    try {
+        // Lấy tất cả các chiến dịch
+        const result_campaigns = await query(`
+            SELECT * FROM CheckupCampaign
+            ORDER BY start_date DESC
+        `);
+
+        const campaigns = result_campaigns.rows;
+
+        if (campaigns.length === 0) {
+            return res.status(200).json({
+                error: false,
+                message: "Không có chiến dịch nào.",
+                data: []
+            });
+        }
+
+        // Lặp qua từng chiến dịch để lấy thông tin SpecialistExam tương ứng
+        for (const campaign of campaigns) {
+            const result_exams = await query(`
+                SELECT s.id, s.name, s.description
+                FROM CampaignContainSpeExam c
+                JOIN SpecialistExamList s ON c.specialist_exam_id = s.id
+                WHERE c.campaign_id = $1
+            `, [campaign.id]);
+
+            campaign.specialist_exams = result_exams.rows;
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: "Lấy danh sách chiến dịch thành công.",
+            data: campaigns
+        });
+
+    } catch (err) {
+        console.error("❌ Error fetching CheckupCampaigns", err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi lấy danh sách CheckupCampaign."
+        });
+    }
+}
+
+
 
 
 //Lấy tất cả các CheckUp Register theo parent_id (KHÔNG CẦN PHẢI PENDING)

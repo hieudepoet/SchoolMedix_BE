@@ -626,28 +626,30 @@ CREATE TABLE disease_record (
     detect_date DATE,
     cure_date DATE,
     location_cure TEXT,
+    transferred_to TEXT,
+    status VARCHAR(50) CHECK (status IN ('RECOVERED', 'UNDER_TREATMENT')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_id) REFERENCES student(id),
-    FOREIGN KEY (disease_id) REFERENCES disease(id)
+    FOREIGN KEY (disease_id) REFERENCES disease(id),
+    
+    PRIMARY KEY (student_id, disease_id) -- optional: ensure uniqueness per disease per student
 );
 
--- Chèn dữ liệu mẫu cho bảng disease_record
+
 INSERT INTO disease_record (
-    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure
+    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status
 )
 VALUES
--- Các bản ghi đã có
-(100000, 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1'),
-(100001, 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà'),
-(100002, 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi'),
-(100003, 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi'),
+(100000, 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED'),
+(100001, 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT'),
+(100002, 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED'),
+(100003, 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 
--- Bổ sung thêm bản ghi mới cho đa dạng bệnh và học sinh
-(100000, 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1'),
-(100001, 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi'),
-(100002, 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5'),
-(100003, 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa'),
-(100000, 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi'),
-(100001, 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng');
+(100000, 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED'),
+(100001, 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
+(100002, 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT'),
+(100003, 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
+(100000, 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
+(100001, 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
