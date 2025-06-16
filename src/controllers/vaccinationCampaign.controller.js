@@ -396,12 +396,12 @@ export async function getStudentEligibleForCampaign(req, res) {
             // Truy vấn disease_id từ chiến dịch
             const result = await query(
                   `
-      SELECT dis.id AS disease_id
-      FROM vaccination_campaign camp
-      JOIN vaccine vac ON camp.vaccine_id = vac.id
-      JOIN disease dis ON dis.id = vac.disease_id
-      WHERE camp.id = $1
-      `,
+                        SELECT dis.id AS disease_id
+                        FROM vaccination_campaign camp
+                        JOIN vaccine vac ON camp.vaccine_id = vac.id
+                        JOIN disease dis ON dis.id = vac.disease_id
+                        WHERE camp.id = $1
+                  `,
                   [campaign_id]
             );
 
@@ -410,19 +410,50 @@ export async function getStudentEligibleForCampaign(req, res) {
             }
 
             const disease_id = result.rows[0].disease_id;
+            console.log(disease_id);
 
             // Lấy danh sách học sinh đủ điều kiện
-            const eligibleStudents = await getStudentEligibleForADiseaseID(disease_id);
-            console.log(eligibleStudents);
+            const studentCompletedDoses = await query(`
+                  SELECT 
+                  s.id AS student_id,
+                  COALESCE(COUNT(vr.id) FILTER (
+                  WHERE vr.status = 'COMPLETED'
+                  ), 0) AS completed_doses,
+                  d.dose_quantity
+                  FROM student s
+                  CROSS JOIN disease d
+                  LEFT JOIN vaccine v ON v.disease_id = d.id
+                  LEFT JOIN vaccination_record vr 
+                  ON vr.student_id = s.id 
+                  AND vr.vaccine_id = v.id
+                  WHERE d.id = $1
+                  GROUP BY s.id, d.dose_quantity;
+            `, [disease_id])
 
-            if (!eligibleStudents) {
+            console.log(studentCompletedDoses.rows);
+
+            if (studentCompletedDoses.rowCount === 0) {
                   return res.status(404).json({ error: true, message: "No eligible students found" });
+            }
+
+            let completed_doses_and_record = [];
+
+            for (let student of studentCompletedDoses.rows) {
+                  const records = await query(`
+                        select rec.id as record_id, rec.register_id, rec.description, rec.location, rec.vaccination_date, rec.status, vac.name as vaccine_name ,vac.id as vaccine_id,dis.id as disease_id ,dis.name as disease_name 
+                        from vaccination_record rec join vaccine vac on rec.vaccine_id = vac.id
+                        join disease dis on vac.disease_id = dis.id
+                        where student_id = $1 and disease_id = $2
+                  `, [student.student_id, disease_id]);
+                  console.log(student);
+                  console.log(records.rows);
+                  completed_doses_and_record.push({ student_id: student.student_id, completed_doses: student.completed_doses, dose_quantity: student.dose_quantity, records: records.rows });
             }
 
             return res.status(200).json({
                   error: false,
                   message: "Eligible students retrieved",
-                  data: eligibleStudents,
+                  data: completed_doses_and_record,
             });
 
       } catch (error) {
