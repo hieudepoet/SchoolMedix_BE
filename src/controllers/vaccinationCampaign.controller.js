@@ -736,11 +736,11 @@ async function getStudentEligibleForADiseaseID(disease_id) {
 async function updateCampaignStatus(campaign_id, status, res, successMessage) {
       try {
             const result = await query(`
-      UPDATE vaccination_campaign
-      SET status = $1
-      WHERE id = $2
-      RETURNING *
-    `, [status, campaign_id]);
+                  UPDATE vaccination_campaign
+                  SET status = $1
+                  WHERE id = $2
+                  RETURNING *
+            `, [status, campaign_id]);
 
             if (result.rowCount === 0) {
                   return res.status(404).json({
@@ -770,43 +770,71 @@ export async function startRegistrationForCampaign(req, res) {
 
 export async function closeRegisterByCampaignID(req, res) {
       const { campaign_id } = req.params;
-      // Get all students who registered for the campaign
-      const registrations = await query(
-            "SELECT * FROM vaccination_campaign_register WHERE campaign_id = $1 AND is_registered = true",
-            [campaign_id]
-      );
 
-      if (registrations.rows.length === 0) {
-            return res
-                  .status(404)
-                  .json({ error: true, message: "No registered students found" });
-      }
-
-      // Create pre-vaccination records for each registered student
-      for (const registration of registrations.rows) {
-            await query(
-                  `INSERT INTO vaccination_record (student_id, vaccine_id, status)
-                        VALUES ($1, $2, 'PENDING')`,
-                  [registration.student_id, vaccine_id]
+      try {
+            // Lấy danh sách học sinh đã đăng ký thành công cho chiến dịch này
+            const registrations = await query(
+                  `SELECT 
+                  r.student_id, 
+                  c.vaccine_id, 
+                  r.id AS register_id
+                  FROM vaccination_campaign_register r 
+                  JOIN vaccination_campaign c ON r.campaign_id = c.id
+                  WHERE r.campaign_id = $1 AND r.is_registered = true;`,
+                  [campaign_id]
             );
-      }
 
-      // Data to return
-      // Fetch all vaccination records for the campaign
-      const vaccinationRecords = await query(
-            `select * from 
-                  vaccination_record rec join vaccination_campaign_register reg on rec.register_id = reg.id
-                  where reg.campaign_id = $1`,
-            [campaign_id]
-      );
-      const update_success = await updateCampaignStatus(campaign_id, "UPCOMING", res, "Chiến dịch đã đóng đăng ký và chuẩn bị cho ngày tiêm.");
-      return res.status(201).json({
-            error: false,
-            message: "Pre-vaccination records created for registered students",
-            data: vaccinationRecords.rows,
-            update_success,
-      });
+            if (registrations.rows.length === 0) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không có học sinh nào đăng ký cho chiến dịch này.",
+                  });
+            }
+
+
+            // Tạo bản ghi tiền tiêm chủng (PENDING) cho từng học sinh
+            for (const registration of registrations.rows) {
+                  await query(
+                        `INSERT INTO vaccination_record (student_id, vaccine_id, status, register_id)
+         VALUES ($1, $2, 'PENDING', $3)`,
+                        [registration.student_id, registration.vaccine_id, registration.register_id]
+                  );
+            }
+
+            // Lấy tất cả bản ghi tiêm chủng vừa được tạo
+            const vaccinationRecords = await query(
+                  `SELECT * FROM vaccination_record rec
+                  JOIN vaccination_campaign_register reg ON rec.register_id = reg.id
+                  WHERE reg.campaign_id = $1`,
+                  [campaign_id]
+            );
+
+            // Cập nhật trạng thái chiến dịch thành "UPCOMING"
+            const updatedCampaign = await updateCampaignStatus(campaign_id, "UPCOMING");
+
+            if (!updatedCampaign) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không tìm thấy chiến dịch tiêm chủng để cập nhật.",
+                  });
+            }
+
+            return res.status(201).json({
+                  error: false,
+                  message: "Đã đóng đăng ký và tạo bản ghi tiêm chủng chờ xử lý.",
+                  campaign: updatedCampaign,
+                  records: vaccinationRecords.rows,
+            });
+
+      } catch (error) {
+            console.error("Lỗi khi đóng đăng ký chiến dịch:", error);
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi server khi xử lý đóng đăng ký chiến dịch.",
+            });
+      }
 }
+
 
 export async function startCampaign(req, res) {
       const { campaign_id } = req.params;
