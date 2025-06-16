@@ -772,6 +772,22 @@ export async function closeRegisterByCampaignID(req, res) {
       const { campaign_id } = req.params;
 
       try {
+            // tạo trạng thái chiến dịch
+            const updatedCampaign = await query(`
+                  UPDATE vaccination_campaign
+                  SET status = 'UPCOMING'
+                  WHERE id = $1
+                  RETURNING *
+            `, [campaign_id]);
+
+            if (updatedCampaign.rowCount === 0) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Cập nhật trạng thái cho chiến dịch thành UPCOMING không thành công!",
+                  });
+            }
+
+
             // Lấy danh sách học sinh đã đăng ký thành công cho chiến dịch này
             const registrations = await query(
                   `SELECT 
@@ -796,7 +812,7 @@ export async function closeRegisterByCampaignID(req, res) {
             for (const registration of registrations.rows) {
                   await query(
                         `INSERT INTO vaccination_record (student_id, vaccine_id, status, register_id)
-         VALUES ($1, $2, 'PENDING', $3)`,
+                        VALUES ($1, $2, 'PENDING', $3)`,
                         [registration.student_id, registration.vaccine_id, registration.register_id]
                   );
             }
@@ -809,20 +825,11 @@ export async function closeRegisterByCampaignID(req, res) {
                   [campaign_id]
             );
 
-            // Cập nhật trạng thái chiến dịch thành "UPCOMING"
-            const updatedCampaign = await updateCampaignStatus(campaign_id, "UPCOMING");
-
-            if (!updatedCampaign) {
-                  return res.status(404).json({
-                        error: true,
-                        message: "Không tìm thấy chiến dịch tiêm chủng để cập nhật.",
-                  });
-            }
 
             return res.status(201).json({
                   error: false,
                   message: "Đã đóng đăng ký và tạo bản ghi tiêm chủng chờ xử lý.",
-                  campaign: updatedCampaign,
+                  campaign: updatedCampaign.rows,
                   records: vaccinationRecords.rows,
             });
 
@@ -830,7 +837,7 @@ export async function closeRegisterByCampaignID(req, res) {
             console.error("Lỗi khi đóng đăng ký chiến dịch:", error);
             return res.status(500).json({
                   error: true,
-                  message: "Lỗi server khi xử lý đóng đăng ký chiến dịch.",
+                  message: "Lỗi server khi xử lý đóng đăng ký chiến dịch. Có thể mắc lỗi do tạo trùng lặp record.",
             });
       }
 }

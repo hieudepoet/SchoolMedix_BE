@@ -490,7 +490,9 @@ CREATE TABLE vaccination_record (
     status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'MISSED',  'CANCELLED')),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (register_id) REFERENCES vaccination_campaign_register(id),
-    FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
+    FOREIGN KEY (vaccine_id) REFERENCES vaccine(id),
+  CONSTRAINT unique_student_vaccine_date UNIQUE (student_id, vaccine_id, register_id)
+
 );
 
 INSERT INTO vaccination_record (
