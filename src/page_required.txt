@@ -65,12 +65,13 @@ c.Parent
 5. CheckUp (Kế hoạch Khám định kỳ + Chuyên khoa):
 a. Admin(0/6):
 - Trang quản lý CheckUp campaign ( Close Register, Cancel, DONE)
-- Form thêm mới hoặc update vaccine campaign
+- Form thêm mới hoặc update CheckUp campaign ---> đã có API tạo mới Campaign
 - Trong Campaign có phần chi tiết ( gồm 2 loại Định kỳ và Chuyên khoa là danh sách CheckUp Register cho định kỳ và specialistExamRecord cho chuyên khoa )
+---> đã có API lấy tất cả DS Register theo Campain_id
 - Trang theo dõi học sinh có tham gia vào ngày onsite hay không? 
 (Tham gia thì khi tick vào sẽ chuyển tới form update Record)
 - Form update Record.
-- Trang danh sách những record của 1 campaign 
+- Trang danh sách những record của 1 campaign  --> đã có API lấy tất cả Record của Định kỳ và Chuyên khoa
 b. Nurse(0/5):
 - Trang danh sách CheckUp campaign
 - Trong Campaign có phần chi tiết 
