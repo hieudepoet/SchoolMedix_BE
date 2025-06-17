@@ -198,12 +198,9 @@ CREATE TABLE CheckupCampaign (
 );
 
 INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, status) VALUES
-('Khám sức khỏe định kỳ học sinh năm 2025', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2025-09-01', '2025-09-10', 'PREPARING'),
-('Định kỳ + Khám mắt và răng học sinh', 'Khám chuyên sâu về mắt và răng, phối hợp với phòng khám chuyên khoa. Thời gian dự kiến: 8h sáng ngày 5/10/25', 'sân trường', '2025-10-05', '2025-10-12', 'UPCOMING'),
-('Khám tâm lý học đường', 'Tư vấn và hỗ trợ tâm lý cho học sinh cần thiết', 'sân trường', '2025-08-15', '2025-08-20', 'ONGOING'),
-('Khám sinh dục tuổi dậy thì', 'Khám và tư vấn sinh dục cho học sinh tuổi dậy thì với sự đồng ý của phụ huynh', 'Trường THCS GHI', '2025-07-01', '2025-07-05', 'DONE'),
-('Chiến dịch khám tổng quát', 'Chiến dịch khám tổng quát bị hủy do điều kiện thời tiết', 'nhà đa năng', '2025-11-01', '2025-11-10', 'CANCELLED');
-
+('Khám sức khỏe định kỳ học sinh năm 2025', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2025-09-01', '2025-09-10', 'CANCELLED'),
+('Định kỳ + Khám mắt và răng học sinh', 'Khám chuyên sâu về mắt và răng, phối hợp với phòng khám chuyên khoa. Thời gian dự kiến: 8h sáng ngày 5/10/25', 'sân trường', '2025-10-05', '2025-10-12', 'DONE'),
+('Khám tâm lý học đường', 'Tư vấn và hỗ trợ tâm lý cho học sinh cần thiết', 'sân trường', '2025-08-15', '2025-08-20', 'PREPARING');
 
 CREATE TABLE SpecialistExamList (
 	id serial primary key,
@@ -225,27 +222,17 @@ CREATE TABLE CampaignContainSpeExam (
     FOREIGN KEY (specialist_exam_id) REFERENCES SpecialistExamList(id) ON DELETE CASCADE
 );
 
--- Ví dụ gán các loại khám cho chiến dịch khám sức khỏe định kỳ năm 2025 (id = 1)
 INSERT INTO CampaignContainSpeExam (campaign_id, specialist_exam_id) VALUES
 (1, 1), -- Khám sinh dục
-(1, 2), -- Khám tâm lý
 (1, 3); -- Khám tâm thần
 
--- Gán loại khám mắt và răng cho chiến dịch thứ 2 (id = 2)
+
 INSERT INTO CampaignContainSpeExam (campaign_id, specialist_exam_id) VALUES
 (2, 2); -- Khám tâm lý (ví dụ, hoặc bạn có thể thêm các chuyên khoa khác nếu có)
 
--- Gán khám tâm lý cho chiến dịch thứ 3 (id = 3)
-INSERT INTO CampaignContainSpeExam (campaign_id, specialist_exam_id) VALUES
-(3, 2);
 
--- Gán khám sinh dục cho chiến dịch thứ 4 (id = 4)
 INSERT INTO CampaignContainSpeExam (campaign_id, specialist_exam_id) VALUES
-(4, 1);
-
--- Chiến dịch thứ 5 (id = 5) có khám xâm lấn
-INSERT INTO CampaignContainSpeExam (campaign_id, specialist_exam_id) VALUES
-(5, 4);
+(3, 4);
 
 
 CREATE TYPE register_status AS ENUM (
@@ -271,23 +258,21 @@ CREATE TABLE CheckupRegister (
 
 
 INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, reason, status) VALUES
-(2, 100001, 100002, 'Đăng ký khám mắt và răng', 'PENDING'),
-(3, 100002, 100000, 'Hỗ trợ tư vấn tâm lý', 'SUBMITTED'),
-(4, 100003, 100001, 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
-(1, 100001, 100002, 'Đăng ký khám tổng quát', 'SUBMITTED'),
-(2, 100002, 100000, 'Đăng ký khám mắt định kỳ', 'PENDING'),
-(3, 100003, 100001, 'Tư vấn tâm lý bổ sung', 'SUBMITTED'),
-(4, 100000, 100003, 'Khám sinh dục bổ sung', 'PENDING'),
-(1, 100003, 100000, 'Khám tổng quát lần 2', 'SUBMITTED'),
+(1, 100000, 100002, 'Đăng ký khám mắt và răng', 'CANCELLED'),
+(1, 100001, 100000, 'Hỗ trợ tư vấn tâm lý', 'CANCELLED'),
+(1, 100002, 100001, 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
+(1, 100003, 100002, 'Đăng ký khám tổng quát', 'CANCELLED'),
+(2, 100000, 100000, 'Đăng ký khám mắt định kỳ', 'PENDING'),
+(2, 100001, 100001, 'Tư vấn tâm lý bổ sung', 'PENDING'),
+(2, 100002, 100003, 'Khám sinh dục bổ sung', 'SUBMITTED'),
+(2, 100003, 100000, 'Khám tổng quát lần 2', 'SUBMITTED'),
 (3, 100000, 100003, 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
-(2, 100003, 100001, 'Đăng ký khám mắt', 'SUBMITTED'),
-(1, 100002, 100000, 'Khám sức khỏe định kỳ', 'CANCELLED'),
-(4, 100001, 100002, 'Khám sinh dục bổ sung', 'SUBMITTED'),
-(2, 100000, 100003, 'Đăng ký khám răng định kỳ', 'SUBMITTED'),
-(3, 100001, 100002, 'Tư vấn tâm lý học sinh', 'SUBMITTED');
+(3, 100001, 100001, 'Đăng ký khám mắt', 'SUBMITTED'),
+(3, 100002, 100000, 'Khám sức khỏe định kỳ', 'SUBMITTED'),
+(3, 100003, 100002, 'Khám sinh dục bổ sung', 'SUBMITTED');
 
 
-create type health_record_status as enum ('WAITING', 'DONE');
+create type health_record_status as enum ('CANCELLED','WAITING', 'DONE');
 CREATE TABLE HealthRecord (
     id SERIAL PRIMARY KEY,
     register_id INT UNIQUE REFERENCES CheckupRegister(id) ON DELETE CASCADE,
@@ -312,26 +297,29 @@ CREATE TABLE HealthRecord (
 	status health_record_status NOT NULL DEFAULT 'WAITING'
 );
 
+INSERT INTO HealthRecord (register_id, status) VALUES 
+(1,'CANCELLED'),
+(2,'CANCELLED'),
+(3,'CANCELLED'),
+(4,'CANCELLED');
+
+
 INSERT INTO HealthRecord (
     register_id, height, weight, blood_pressure,
     left_eye, right_eye, ear, nose, throat,
     teeth, gums, skin_condition, heart, lungs,
     spine, posture, final_diagnosis, status
 ) VALUES
-(1, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
-(2, '155cm', '42kg', '105/70', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng hơi sâu', 'Bình thường', 'Không có vấn đề', 'Bình thường', 'Bình thường', 'Hơi lệch', 'Tư thế tốt', 'Cần theo dõi tâm lý', 'DONE'),
-(3, '152cm', '41kg', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Bình thường', 'Bình thường', 'Da nhạy cảm', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', 'Tạm hoãn do lý do cá nhân', 'DONE'),
-(4, '149cm', '39kg', '115/75', '9/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Bình thường', 'Bình thường', 'Bình thường', 'Bình thường', 'Khuyến cáo bổ sung dinh dưỡng', 'DONE'),
-(5, '153cm', '43kg', '112/72', '8/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Cao răng nhẹ', 'Bình thường', 'Không tổn thương', 'Tốt', 'Bình thường', 'Bình thường', 'Bình thường', 'Đăng ký khám mắt chuyên sâu', 'DONE'),
-(6, '151cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng đều', 'Bình thường', 'Không có mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Tốt', 'Tư vấn tâm lý định kỳ', 'DONE'),
-(7, '154cm', '42kg', '113/73', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn', 'Tốt', 'Tốt', 'Thẳng', 'Tốt', 'Chờ khám sinh dục', 'DONE'),
-(8, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng', 'Không vấn đề', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
-(9, '156cm', '45kg', '115/75', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng trắng', 'Hồng hào', 'Không tổn thương', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế tốt', 'Tư vấn hỗ trợ tâm lý học đường', 'DONE'),
-(10, '157cm', '46kg', '117/76', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng', 'Không có vấn đề', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế đúng', 'Không có vấn đề sức khỏe', 'DONE'),
-(11, '155cm', '43kg', '113/74', '9/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Sâu răng nhẹ', 'Hồng', 'Da thường', 'Tốt', 'Tốt', 'Hơi cong', 'Cần chỉnh tư thế', 'Cần chăm sóc răng miệng', 'DONE'),
-(12, '149cm', '39kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Tốt', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Chưa cần can thiệp', 'DONE'),
-(13, '152cm', '41kg', '112/72', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không tổn thương', 'Tốt', 'Tốt', 'Bình thường', 'Bình thường', 'Sức khỏe học đường ổn định', 'DONE'),
-(14, '154cm', '42kg', '113/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Tốt', 'Tốt', 'Thẳng', 'Tư thế tốt', 'Tâm lý học sinh tốt', 'DONE');
+(5, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
+(6, '155cm', '42kg', '105/70', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng hơi sâu', 'Bình thường', 'Không có vấn đề', 'Bình thường', 'Bình thường', 'Hơi lệch', 'Tư thế tốt', 'Cần theo dõi tâm lý', 'DONE'),
+(7, '152cm', '41kg', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Bình thường', 'Bình thường', 'Da nhạy cảm', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', 'Tạm hoãn do lý do cá nhân', 'DONE'),
+(8, '149cm', '39kg', '115/75', '9/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Bình thường', 'Bình thường', 'Bình thường', 'Bình thường', 'Khuyến cáo bổ sung dinh dưỡng', 'DONE');
+
+INSERT INTO HealthRecord (register_id, status) VALUES 
+(9,'WAITING'),
+(10,'WAITING'),
+(11,'WAITING'),
+(12,'WAITING');
 
 
 CREATE TYPE specialist_exam_record_status AS ENUM ('CANNOT_ATTACH', 'WAITING', 'DONE');
@@ -347,21 +335,16 @@ CREATE TABLE specialistExamRecord (
     FOREIGN KEY (spe_exam_id) REFERENCES SpecialistExamList(id)
 );
 
-INSERT INTO specialistExamRecord (
-    register_id, 
-    spe_exam_id,
-    result,
-    diagnosis,
-    diagnosis_paper_url,
-	status
-) VALUES 
-(4, 1, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf', 'DONE'),
-(4, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf', 'DONE'),
-(4, 3, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', 'DONE'),
+INSERT INTO specialistExamRecord (register_id,spe_exam_id) VALUES 
+(1,1),
+(1,3),
+(2,1),
+(2,3),
+(3,1),
+(3,3),
+(4,1),
+(4,3);
 
-(8, 1, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf', 'DONE'),
-(8, 2, 'Ổn định', 'Tâm lý ổn định, phản ứng tốt với các tình huống stress', 'http://example.com/doc5.pdf', 'DONE'),
-(8, 3, 'Không có dấu hiệu', 'Tâm thần bình thường, không có biểu hiện bệnh lý', 'http://example.com/doc6.pdf', 'DONE');
 
 INSERT INTO specialistExamRecord (
     register_id, 
@@ -371,10 +354,16 @@ INSERT INTO specialistExamRecord (
     diagnosis_paper_url,
 	status
 ) VALUES 
-(12, 1, 'Phát hiện hẹp cổ tử cung', 'Cổ tử cung hẹp, cần theo dõi và điều trị tiếp', 'http://example.com/abnormal_doc1.pdf', 'DONE'),
-(12, 2, 'Lo âu cao', 'Bệnh nhân có dấu hiệu lo âu mức độ trung bình, đề nghị tư vấn tâm lý', 'http://example.com/abnormal_doc2.pdf', 'DONE'),
-(12, 3, 'Biểu hiện loạn thần nhẹ', 'Có biểu hiện rối loạn tâm thần nhẹ, cần theo dõi chặt chẽ', 'http://example.com/abnormal_doc3.pdf', 'DONE');
+(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf', 'DONE'),
+(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf', 'DONE'),
+(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', 'DONE'),
+(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf', 'DONE');
 
+INSERT INTO specialistExamRecord (register_id,spe_exam_id,status) VALUES 
+(9,4,'WAITING'),
+(10,4,'WAITING'),
+(11,4,'WAITING'),
+(12,4,'WAITING');
 
 ----- FLOW VACCINATION CAMPAIGN
 --disease
@@ -652,3 +641,5 @@ VALUES
 (100003, 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
 (100000, 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 (100001, 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
+(100001, 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
+

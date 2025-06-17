@@ -200,6 +200,11 @@ export async function getCheckupRegisterByParentID(req, res) {
     }
 
     try {
+        const result_check = await query('SELECT * FROM parent WHERE id = $1',[parent_id]);
+
+        if(result_check.rowCount===0){
+             return res.status(400).json({ error: true, message: "Không tìm thấy ID của Parent." });
+        }
 
         //Lấy tất cả Student có mon_id or dad_id là parent_id
         const result_student = await query(
@@ -243,9 +248,7 @@ export async function getCheckupRegisterByParentID(req, res) {
 
         }
 
-        if (allRegisters.length <= 0) {
-            return res.status(200).json({ error: false, message: 'Không có CheckUp Register' })
-        }
+       
 
         // 3. Group by register_id
         const mapByRegister = {};
@@ -289,45 +292,66 @@ export async function getCheckupRegisterByStudentID(req, res) {
         return res.status(400).json({ error: true, message: "Thiếu ID Hoc sinh." });
     }
 
+   
+
     try {
 
         //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id
+          
+         const result_checkup_register = await query(
+                ` SELECT 
+                    r.id AS register_id,
+                    r.campaign_id,
+                    r.student_id,
+                    r.submit_by,
+                    r.submit_time,
+                    r.reason,
+                    r.status,
+                    s.spe_exam_id,
+                    s.status
+                FROM checkupregister r
+                JOIN specialistexamrecord s ON s.register_id = r.id
+                WHERE r.student_id = $1
+            `, [student_id]
+            );
+           
+            const result = result_checkup_register.rows;
 
-        const result_checkup_register = await query(
-            ` SELECT 
-                r.id AS register_id,
-                r.campaign_id,
-                r.student_id,
-                r.submit_by,
-                r.submit_time,
-                r.reason,
-                r.status,
-                COALESCE(json_agg(
-                    CASE 
-                        WHEN s.spe_exam_id IS NOT NULL THEN
-                            json_build_object(
-                                'spe_exam_id', s.spe_exam_id,
-                                'status', s.status
-                            )
-                    END
-                ) FILTER (WHERE s.spe_exam_id IS NOT NULL), '[]') AS exams
-            FROM checkupregister r
-            LEFT JOIN specialistexamrecord s ON s.register_id = r.id
-            WHERE r.student_id = $1
-            GROUP BY 
-                r.id, 
-                r.campaign_id, 
-                r.student_id, 
-                r.submit_by, 
-                r.submit_time, 
-                r.reason, 
-                r.status;
+            if(result.length===0){
+                 return res.status(200).json({ error: false, message:"Không có Register" });
+            }
 
-            `, [student_id]);
+            const mapByRegister = {};
+        for (const row of result) {
+            const id = row.result.register_id;
+            if (!mapByRegister[id]) {
+                // Khởi tạo lần đầu
+                mapByRegister[id] = {
+                    register_id: row.register_id,
+                    campaign_id: row.campaign_id,
+                    student_id: row.student_id,
+                    submit_by: row.submit_by,
+                    submit_time: row.submit_time,
+                    reason: row.reason,
+                    status: row.status,
+                    exams: []
+                };
+            }
+            // Đẩy exam vào mảng
+            mapByRegister[id].exams.push({
+                spe_exam_id: row.spe_exam_id,
+                status: row.status
+            });
+        }
+
+        // Chuyển về array
+        const mergedRegisters = Object.values(mapByRegister);
+
+
 
 
         // Trả về
-        return res.status(200).json({ error: false, data: result_checkup_register.rows });
+        return res.status(200).json({ error: false, data: mergedRegisters });
     } catch (err) {
         console.error("❌ Error creating Campaign ", err);
         return res.status(500).json({ error: true, message: "Lỗi server khi Parent nhận Register Form." });
@@ -752,5 +776,8 @@ export async function getHealthRecordStudent(req, res) {
         console.error("❌ Error creating Campaign ", err);
         return res.status(500).json({ error: true, message: "Lỗi khi xem Health Record." });
     }
-}
+} 
+
+
+
 
