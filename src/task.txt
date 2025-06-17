@@ -24,11 +24,6 @@ CHECKUP
 -Xem được các Campaign
 -Update Health Record cho Student 
 
-
-
-
-
-
 1. CheckUp (Kế hoạch Khám định kỳ + Chuyên khoa):
 a. Admin(0/6):
 - Trang quản lý CheckUp campaign ( Close Register, Cancel, DONE)

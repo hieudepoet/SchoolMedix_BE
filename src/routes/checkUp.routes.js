@@ -10,14 +10,23 @@ import {
         getHealthRecordParent,
         getHealthRecordStudent,
         getCheckupRegisterByStudentID,
-        getAllCheckupCampaigns
+        getAllCheckupCampaigns,
+        getALLHealthRecord,
+        getALLRegisterByCampaignID,
+        getALLSpeciaListExamRecord
 }
         from '../controllers/checkUp.controller.js';
 
 const router = express.Router();
 
+//Admin
 router.post('/checkup-campaign', createCampaign); // admin tạo campaign
-router.get('/checkup-campaign', getAllCheckupCampaigns);
+router.get('/checkup-campaign', getAllCheckupCampaigns); // lấy tất cả DS campaign
+router.get('/health-record',getALLHealthRecord);// Lấy tất cả DS Health Record có status DONE
+router.get('/special-record',getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE
+router.get('/checkup-register/:id',getALLRegisterByCampaignID);//Lấy tất cả các CheckUp register cần tuyền vào id là campaign_id 
+
+
 
 router.get('/parent/:parent_id/checkup-register', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get('/student/:student_id/checkup-register', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
