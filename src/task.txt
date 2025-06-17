@@ -1,0 +1,50 @@
+CHECKUP
+
+1.Admin 
+- Tạo CheckUp campign :
+    +Step 1: Tạo mới CheckUp campign status => PREPARING
+    +Step 2: Tạo mới Campagincontainsspeexam từ CheckUp campign_id mới vừa tạo và lấy các specialist_exam_ids (Các id bệnh chuyên khoa)
+    +Step 3: Tạo mới CheckUp Register với Status => PENDING
+    +Step 4: Tạo Health Record và specialistExamRecord cho tất cả các Student (specialistExamRecord với status default là CANNOT_ATTACH chưa tích, WAITING khi parent tích vào xác nhận tham gia khám chuyên khoa đó , DONE khi khám xong và có record )
+-Quản lý Campign :
+    +Xem tất cả Campign gồm status và chi tiết (DS sinh viên tham gia và Register status chia làm 2 phần Khám tổng quát và Khám chuyên khoa) 
+    +Đóng CheckUpRegister, CheckUp Campaign status => UPCOMING
+    +Cancel Campign , CheckUp Campaign status => CANCELLED, CheckUpRegister status => CANCELLED
+    +Đánh dấu hoàn thành Campaign , CheckUp Campaign status => DONE
+    +Update Register (khi mà Parent submit CheckUp Register xong nhưng muốn thay đổi thì liên hệ với admin để update )
+
+
+2.Parent 
+-Xem được trang CheckUp ( gồm các Campign và các Register )
+-Submit CheckUp Register status từ PENDING => SUBMITTED
+-Xem được Health Record của từng Campaign
+
+
+3.Nurse
+-Xem được các Campaign
+-Update Health Record cho Student 
+
+1. CheckUp (Kế hoạch Khám định kỳ + Chuyên khoa):
+a. Admin(0/6):
+- Trang quản lý CheckUp campaign ( Close Register, Cancel, DONE)
+- Form thêm mới hoặc update vaccine campaign
+- Trong Campaign có phần chi tiết ( gồm 2 loại Định kỳ và Chuyên khoa là danh sách CheckUp Register cho định kỳ và specialistExamRecord cho chuyên khoa )
+- Trang theo dõi học sinh có tham gia vào ngày onsite hay không? 
+(Tham gia thì khi tick vào sẽ chuyển tới form update Record)
+- Form update Record.
+- Trang danh sách những record của 1 campaign 
+b. Nurse(0/5):
+- Trang danh sách CheckUp campaign
+- Trong Campaign có phần chi tiết ( gồm 2 loại Định kỳ và Chuyên khoa là danh sách CheckUp Register cho định kỳ và specialistExamRecord cho chuyên khoa )
+- Trang theo dõi học sinh có tham gia vào ngày onsite hay không? 
+- Trang danh sách những record của 1 campaign theo 2 mục định kỳ và chuyên khoa
+- Trang hồ sơ tiêm Health Record và  specialistExamRecord của 1 học sinh (cho phép Update) 
+c. Parent(0/3): 
+- Trang danh sách CheckUp campaign (chỉ hiển thị các campaign từ lúc tài khoản phụ huynh được tạo)
+- Trang danh sách CheckUpRegister
+- Trang danh sách Health Record và specialistExamRecord cũng là 2 mục Định kỳ và Chuyên Khoa 
+d. Student(0/3):
+- Trang danh sách CheckUp campaign (chỉ hiển thị các campaign từ lúc tài khoản student được tạo)
+- Trang danh sách CheckUp Register(chỉ xem, không được can thiệp)
+- Trang danh sách Health Record và specialistExamRecord cũng là 2 mục Định kỳ và Chuyên Khoa 
+
