@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import { query } from "../config/database.js";
 import { sendWelcomeEmail } from "../services/email/index.js";
+import { generateRandomPassword } from "../utils/index.js";
 
 
 /**
@@ -276,29 +277,6 @@ export async function getStudentProfileByUUID(req, res) {
       }
 }
 
-
-function generateRandomPassword() {
-      const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-      const numbers = '0123456789';
-      const special = '!#$%';
-
-      const allChars = uppercase + lowercase + numbers + special;
-      const getRandom = (chars) => chars[Math.floor(Math.random() * chars.length)];
-
-      let password = [
-            getRandom(uppercase),
-            getRandom(lowercase),
-            getRandom(numbers),
-            getRandom(special),
-      ];
-
-      for (let i = 0; i < 4; i++) {
-            password.push(getRandom(allChars));
-      }
-
-      return password.sort(() => Math.random() - 0.5).join('');
-}
 
 
 /**

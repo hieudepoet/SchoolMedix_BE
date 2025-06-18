@@ -878,6 +878,26 @@ export async function closeRegisterByCampaignID(req, res) {
   const { campaign_id } = req.params;
 
   try {
+    // Lấy danh sách học sinh đã đăng ký thành công cho chiến dịch này
+    const registrations = await query(
+      `SELECT 
+                  r.student_id, 
+                  c.vaccine_id, 
+                  r.id AS register_id
+                  FROM vaccination_campaign_register r 
+                  JOIN vaccination_campaign c ON r.campaign_id = c.id
+                  WHERE r.campaign_id = $1 AND r.is_registered = true;`,
+      [campaign_id]
+    );
+
+    if (registrations.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không có học sinh nào đăng ký cho chiến dịch này.",
+      });
+    }
+
+
     // tạo trạng thái chiến dịch
     const updatedCampaign = await query(
       `
@@ -897,24 +917,7 @@ export async function closeRegisterByCampaignID(req, res) {
       });
     }
 
-    // Lấy danh sách học sinh đã đăng ký thành công cho chiến dịch này
-    const registrations = await query(
-      `SELECT 
-                  r.student_id, 
-                  c.vaccine_id, 
-                  r.id AS register_id
-                  FROM vaccination_campaign_register r 
-                  JOIN vaccination_campaign c ON r.campaign_id = c.id
-                  WHERE r.campaign_id = $1 AND r.is_registered = true;`,
-      [campaign_id]
-    );
 
-    if (registrations.rows.length === 0) {
-      return res.status(404).json({
-        error: true,
-        message: "Không có học sinh nào đăng ký cho chiến dịch này.",
-      });
-    }
 
     // Tạo bản ghi tiền tiêm chủng (PENDING) cho từng học sinh
     for (const registration of registrations.rows) {
