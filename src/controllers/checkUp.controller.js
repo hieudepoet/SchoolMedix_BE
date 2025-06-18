@@ -198,7 +198,7 @@ export async function getALLHealthRecord(req, res) {
 export async function getALLSpeciaListExamRecord(req, res) {
     try {
         const result = await query('SELECT * FROM specialistexamrecord WHERE status = $1', ['DONE']);
-        
+
         if (result.rowCount === 0) {
             return res.status(400).json({ error: true, message: "không lấy được SpeciaListExamRecord." });
         }
@@ -553,6 +553,7 @@ export async function cancelRegister(req, res) {
             return res.status(400).json({ error: true, message: "Không tìm thấy id Campaign ." });
         }
 
+
         //Cập nhật trạng thái Cancel cho CheckUpCampaign
         const result = await query(
             'UPDATE CheckupCampaign SET status = $1 WHERE id = $2',
@@ -563,10 +564,19 @@ export async function cancelRegister(req, res) {
             'UPDATE checkupregister SET status = $1 WHERE campaign_id = $2',
             ['CANCELLED', id]
         );
+        //Lấy checkup register id từ campaign_id
+       
 
+        const result_checkup_register_id = await query('SELECT * FROM checkupregister WHERE campaign_id = $1', [id]);
 
+        const rs = result_checkup_register_id.rows.map(r => r.id);
 
-
+        //Cập nhật trạng thái cho Health Record
+       
+        for (const register_id of rs) {
+           const result_health_record = await query('UPDATE healthrecord SET status = $1 WHERE register_id = $2', ['CANCELLED', register_id]);
+        }
+ 
         if (result.rowCount === 0 || result_checkup_register.rowCount === 0) {
             return res.status(400).json({ error: true, message: "CANCEL không thành công." });
         } else return res.status(200).json({ error: false, message: 'CANCEL thành công' });
