@@ -5,13 +5,6 @@ import {
   getAllDiseases,
   updateDisease,
   deleteDisease,
-  createDiseaseRecord,
-  updateDiseaseRecord,
-  deleteDiseaseRecord,
-  getAllDiseaseRecords,
-  getDiseaseRecordsByCategory,
-  getAllChronicDisease,
-  getAllInfectiousDisease,
 } from "../controllers/disease.controller.js";
 
 const router = express.Router();
@@ -20,16 +13,5 @@ router.post("/disease", createDisease);
 router.get("/diseases", getAllDiseases);
 router.put("/disease/:id", updateDisease);
 router.delete("/disease/:id", deleteDisease);
-router.post("/disease-record", createDiseaseRecord);
-router.put("/disease-record/:id", updateDiseaseRecord);
-router.delete("/disease-record/:id", deleteDiseaseRecord);
-router.get("/disease-records/:id", getAllDiseaseRecords);
-router.get(
-  "/disease-records/:id/:disease_category",
-  getDiseaseRecordsByCategory
-);
-
-router.get("/chronic-disease", getAllChronicDisease); // lấy toàn bộ bệnh mãn tính
-router.get("/infectious-disease", getAllInfectiousDisease); // lấy toàn bộ bệnh truyền nhiễm
 
 export default router;
