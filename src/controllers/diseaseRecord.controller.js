@@ -1,14 +1,18 @@
 import { query } from "../config/database.js";
+import { getSupabaseProfileByUUID } from "./users.controller.js";
 
 export async function getDiseaseOfStudent(req, res) {
   const { student_id } = req.params;
   try {
-    const result = await query(`
+    const result = await query(
+      `
       SELECT dr.*, d.name AS disease_name
       FROM disease_record dr
       JOIN disease d ON dr.disease_id = d.id
       WHERE dr.student_id = $1
-    `, [student_id]);
+    `,
+      [student_id]
+    );
 
     return res.status(200).json({
       error: false,
@@ -24,7 +28,7 @@ export async function getDiseaseOfStudent(req, res) {
   }
 }
 
-export async function recordDiseaseOfStudent(req, res) {
+export async function createDiseaseRecord(req, res) {
   const { student_id } = req.params;
   const {
     disease_id,
@@ -33,7 +37,7 @@ export async function recordDiseaseOfStudent(req, res) {
     cure_date,
     location_cure,
     transferred_to,
-    status
+    status,
   } = req.body;
 
   try {
@@ -60,30 +64,39 @@ export async function recordDiseaseOfStudent(req, res) {
         cure_date,
         location_cure,
         transferred_to,
-        status
+        status,
       ]
     );
 
     return res.status(201).json({
       error: false,
-      message: 'Ghi nhận bệnh cho học sinh thành công',
-      data: result.rows[0]
+      message: "Ghi nhận bệnh cho học sinh thành công",
+      data: result.rows[0],
     });
   } catch (error) {
-    console.error('Error recording disease:', error);
+    console.error("Error recording disease:", error);
     return res.status(500).json({
       error: true,
-      message: 'Lỗi server khi ghi nhận bệnh',
+      message: "Lỗi server khi ghi nhận bệnh",
     });
   }
 }
 
 export async function updateDiseaseRecord(req, res) {
   const { student_id } = req.params;
-  const { disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status } = req.body;
+  const {
+    disease_id,
+    diagnosis,
+    detect_date,
+    cure_date,
+    location_cure,
+    transferred_to,
+    status,
+  } = req.body;
 
   try {
-    const result = await query(`
+    const result = await query(
+      `
       UPDATE disease_record
       SET 
         diagnosis = $1,
@@ -95,7 +108,18 @@ export async function updateDiseaseRecord(req, res) {
         updated_at = CURRENT_TIMESTAMP
       WHERE student_id = $7 AND disease_id = $8
       RETURNING *;
-    `, [diagnosis, detect_date, cure_date, location_cure, transferred_to, status, student_id, disease_id]);
+    `,
+      [
+        diagnosis,
+        detect_date,
+        cure_date,
+        location_cure,
+        transferred_to,
+        status,
+        student_id,
+        disease_id,
+      ]
+    );
 
     if (result.rowCount === 0) {
       return res.status(404).json({
@@ -107,7 +131,7 @@ export async function updateDiseaseRecord(req, res) {
     return res.status(200).json({
       error: false,
       message: "Cập nhật thông tin bệnh thành công",
-      data: result.rows[0]
+      data: result.rows[0],
     });
   } catch (error) {
     console.error("Error updating disease:", error);
@@ -118,37 +142,53 @@ export async function updateDiseaseRecord(req, res) {
   }
 }
 
-
 export async function getAllChronicDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
-      dr.student_id,
-      dr.disease_id,
-      dr.diagnosis,
-      dr.detect_date,
-      dr.cure_date,
-      dr.location_cure,
-      dr.created_at,
-      dr.updated_at,
-      d.id as disease_id,
-      d.disease_category,
-      d.name AS disease_name,
-      d.description,
-      d.vaccine_need,
-      d.dose_quantity
+        dr.student_id,
+        dr.disease_id,
+        dr.diagnosis,
+        dr.detect_date,
+        dr.cure_date,
+        dr.location_cure,
+        dr.created_at,
+        dr.updated_at,
+        d.id as disease_id,
+        d.disease_category,
+        d.name AS disease_name,
+        d.description,
+        d.vaccine_need,
+        d.dose_quantity,
+        s.supabase_uid,
+        c.name as class_name
       FROM 
-      disease_record dr
+        disease_record dr
       JOIN 
-      disease d ON dr.disease_id = d.id
-      where disease_category = 'Bệnh mãn tính'
-      order by dr.student_id asc
+        disease d ON dr.disease_id = d.id
+      JOIN 
+        student s ON dr.student_id = s.id
+      JOIN 
+        class c ON s.class_id = c.id
+      WHERE d.disease_category = 'Bệnh mãn tính'
+      ORDER BY dr.student_id ASC
     `);
+
+    // Gắn profile từ Supabase
+    const studentsWithProfiles = await Promise.all(
+      result.rows.map(async (student) => {
+        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        return {
+          ...student,
+          profile,
+        };
+      })
+    );
 
     return res.status(200).json({
       error: false,
-      message: "Lấy danh sách tất cả hồ sơ bệnh mãn tính thành công",
-      data: result.rows,
+      message: "Lấy danh sách tất cả hồ sơ bệnh thành công",
+      data: studentsWithProfiles,
     });
   } catch (error) {
     console.error("Error fetching all disease records:", error);
@@ -163,32 +203,49 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
-      dr.student_id,
-      dr.disease_id,
-      dr.diagnosis,
-      dr.detect_date,
-      dr.cure_date,
-      dr.location_cure,
-      dr.created_at,
-      dr.updated_at,
-      d.id as disease_id,
-      d.disease_category,
-      d.name AS disease_name,
-      d.description,
-      d.vaccine_need,
-      d.dose_quantity
+        dr.student_id,
+        dr.disease_id,
+        dr.diagnosis,
+        dr.detect_date,
+        dr.cure_date,
+        dr.location_cure,
+        dr.created_at,
+        dr.updated_at,
+        d.id as disease_id,
+        d.disease_category,
+        d.name AS disease_name,
+        d.description,
+        d.vaccine_need,
+        d.dose_quantity,
+        s.supabase_uid,
+        c.name as class_name
       FROM 
-      disease_record dr
+        disease_record dr
       JOIN 
-      disease d ON dr.disease_id = d.id
-      where disease_category = 'Bệnh truyền nhiễm'
-	    order by dr.student_id asc
+        disease d ON dr.disease_id = d.id
+      JOIN 
+        student s ON dr.student_id = s.id
+      JOIN 
+        class c ON s.class_id = c.id
+      WHERE d.disease_category = 'Bệnh truyền nhiễm'
+      ORDER BY dr.student_id ASC
     `);
+
+    // Gắn profile từ Supabase
+    const studentsWithProfiles = await Promise.all(
+      result.rows.map(async (student) => {
+        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        return {
+          ...student,
+          profile,
+        };
+      })
+    );
 
     return res.status(200).json({
       error: false,
-      message: "Lấy danh sách tất cả hồ sơ bệnh truyền nhiễm thành công",
-      data: result.rows,
+      message: "Lấy danh sách tất cả hồ sơ bệnh thành công",
+      data: studentsWithProfiles,
     });
   } catch (error) {
     console.error("Error fetching all disease records:", error);
@@ -199,3 +256,59 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
   }
 }
 
+// Lấy tất cả record bệnh trong database for (Admin) + tên học sinh + lớp
+export async function getAllDiseaseRecords(req, res) {
+  try {
+    const result = await query(`
+      SELECT 
+        dr.student_id,
+        dr.disease_id,
+        dr.diagnosis,
+        dr.detect_date,
+        dr.cure_date,
+        dr.location_cure,
+        dr.created_at,
+        dr.updated_at,
+        d.id as disease_id,
+        d.disease_category,
+        d.name AS disease_name,
+        d.description,
+        d.vaccine_need,
+        d.dose_quantity,
+        s.supabase_uid,
+        c.name as class_name
+      FROM 
+        disease_record dr
+      JOIN 
+        disease d ON dr.disease_id = d.id
+      JOIN 
+        student s ON dr.student_id = s.id
+      JOIN 
+        class c ON s.class_id = c.id
+      ORDER BY dr.student_id ASC
+    `);
+
+    // Gắn profile từ Supabase
+    const studentsWithProfiles = await Promise.all(
+      result.rows.map(async (student) => {
+        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        return {
+          ...student,
+          profile,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách tất cả hồ sơ bệnh thành công",
+      data: studentsWithProfiles,
+    });
+  } catch (error) {
+    console.error("Error fetching all disease records:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách hồ sơ bệnh",
+    });
+  }
+}
