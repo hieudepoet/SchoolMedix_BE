@@ -1,21 +1,34 @@
 1. Declare:
 a. Admin(0/5): 
-- Trang quản lý danh sách user
-- Form tạo mới tài khoản Admin, Nurse 
+- Trang list toàn bộ user theo role Admin, Nurse, Parent, Student (đối với Student thì thêm sort theo lớp, khối) có các nút ứng với các trang sau:
++ Show info cá nhân: (đối với parent thì show thêm thông tin con, đối với student thì show thêm thông tin phụ huynh, lớp, khối...)
++ Edit thông tin cá nhân: (đối với parent thì select thêm thông tin con (yêu cầu có trước học sinh đó)).
++ Trang tạo mới user cho nurse/admin
+
 - Trang thông tin cá nhân 
 - Trang đổi mật khẩu và cập nhật thông tin cá nhân
-- Tạo mới tài khoản Parent cùng tài khoản Student 
+- Tạo mới tài khoản Parent cùng tài khoản Student
 (Tạo Parent xong có phần thêm con để tạo tài khoản cho Student)
+
 b. Nurse(0/2):
 - Trang thông tin cá nhân 
 - Trang đổi mật khẩu và cập nhật thông tin cá nhân
+
+
 c. Parent(0/3):
 - Danh sách con, cho phép khai báo thông tin (Khai báo thông tin cá nhân của con, Khai báo lịch sử tiêm chủng, Khai báo bệnh).
 - Form khai báo thông tin cá nhân của con.
 - Đổi mật khẩu và cập nhật thông tin cá nhân
+
+
 d. Student(0/2):
 - Thông tin cơ bản của phụ huynh
 - Đổi mật khẩu và cập nhật thông tin cá nhân
+
+**NOTE**
+- Trang cập nhật thông tin cá nhân của all role không được cập nhật email
+- Muốn cập nhật email thì làm cập nhật trên trang admin
+- Không có email thì tài khoản đó ko đăng nhập được vào hệ thống, phải đăng ký với system bằng cách nào đó
 
 2. Vaccination (Kế hoạch Tiêm chủng):
 a. Admin(0/7):
@@ -65,13 +78,12 @@ c.Parent
 5. CheckUp (Kế hoạch Khám định kỳ + Chuyên khoa):
 a. Admin(0/6):
 - Trang quản lý CheckUp campaign ( Close Register, Cancel, DONE)
-- Form thêm mới hoặc update CheckUp campaign ---> đã có API tạo mới Campaign
+- Form thêm mới hoặc update vaccine campaign
 - Trong Campaign có phần chi tiết ( gồm 2 loại Định kỳ và Chuyên khoa là danh sách CheckUp Register cho định kỳ và specialistExamRecord cho chuyên khoa )
----> đã có API lấy tất cả DS Register theo Campain_id
 - Trang theo dõi học sinh có tham gia vào ngày onsite hay không? 
 (Tham gia thì khi tick vào sẽ chuyển tới form update Record)
 - Form update Record.
-- Trang danh sách những record của 1 campaign  --> đã có API lấy tất cả Record của Định kỳ và Chuyên khoa
+- Trang danh sách những record của 1 campaign 
 b. Nurse(0/5):
 - Trang danh sách CheckUp campaign
 - Trong Campaign có phần chi tiết 
