@@ -825,6 +825,14 @@ export async function getHealthRecordStudent(req, res) {
     }
 }
 
+export async function findHealthRecordByStudentName(params) {
+    
+    try{
 
+    }catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res.status(500).json({ error: true, message: "Lỗi khi xem Health Record." });
+    }
+}
 
 
