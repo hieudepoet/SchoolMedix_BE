@@ -23,7 +23,7 @@ d. Student(0/2): (chỉ xem thông tin)
 
 **NOTE**
 - Trang cập nhật thông tin cá nhân của all role không được cập nhật name, id, role, dob, gender, class, grade... Muốn cập nhật các trường nêu trên thì làm cập nhật trên trang admin phần edit.
-- Trang edit cá nhân cho parent và parent cập nhật cho con chỉ được phép cập nhật address, phone_number, profile_img_url.
+- Trang edit cá nhân cho parent và parent cập nhật cho con chỉ được phép cập nhật email, phone_number, profile_img_url.
 - Student chỉ được xem thông tin, không được cập nhật thông tin cá nhân. Có thể đổi mật khẩu.
 - Mỗi USER có thể không cần có email. Không có email thì tài khoản đó ko đăng nhập được vào hệ thống, phải đăng ký với system bằng cách nào đó (gửi khảo sát giấy cho nhà trường trước chẳng hạn). Nhà trường có thể thu thập email sau. Sau đó, nhà trường cập nhật lại email.
 - Mỗi email một role
