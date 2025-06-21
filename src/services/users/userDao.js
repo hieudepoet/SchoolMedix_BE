@@ -243,6 +243,139 @@ WHERE s.id = $1;
   return result.rows[0];
 }
 
+export async function getProfileOfAdminByUUID(supabase_uid) {
+  const result = await query(
+    `SELECT * FROM admin WHERE supabase_uid = $1`,
+    [supabase_uid]
+  );
+  return result.rows[0];
+}
+
+export async function getProfileOfNurseByUUID(supabase_uid) {
+  const result = await query(
+    `SELECT * FROM nurse WHERE supabase_uid = $1`,
+    [supabase_uid]
+  );
+  return result.rows[0];
+}
+
+export async function getProfileOfParentByUUID(supabase_uid) {
+  const result = await query(
+    `SELECT 
+      row_to_json(p_with_students) AS parent_profile
+    FROM (
+      SELECT 
+        p.id,
+        p.supabase_uid,
+        p.email,
+        p.name,
+        p.dob,
+        DATE_PART('year', AGE(p.dob)) AS age,
+        p.gender,
+        p.address,
+        p.phone_number,
+        p.profile_img_url,
+        p.email_confirmed,
+
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', s.id,
+              'supabase_uid', s.supabase_uid,
+              'email', s.email,
+              'name', s.name,
+              'age', DATE_PART('year', AGE(s.dob)),
+              'dob', s.dob,
+              'gender', s.gender,
+              'address', s.address,
+              'phone_number', s.phone_number,
+              'profile_img_url', s.profile_img_url,
+              'year_of_enrollment', s.year_of_enrollment,
+              'email_confirmed', s.email_confirmed,
+              'class_id', c.id,
+              'class_name', c.name
+            )
+          ) FILTER (WHERE s.id IS NOT NULL),
+          '[]'
+        ) AS students
+
+      FROM parent p
+      LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
+      LEFT JOIN class c ON c.id = s.class_id
+      WHERE p.supabase_uid = $1
+      GROUP BY p.id
+    ) p_with_students;`,
+    [supabase_uid]
+  );
+
+  return result.rows[0];
+}
+
+export async function getProfileOfStudentByUUID(supabase_uid) {
+  const result = await query(
+    `SELECT json_build_object(
+      'id', s.id,
+      'supabase_uid', s.supabase_uid,
+      'email', s.email,
+      'name', s.name,
+      'dob', s.dob,
+      'age', DATE_PART('year', AGE(s.dob)),
+      'gender', s.gender,
+      'address', s.address,
+      'phone_number', s.phone_number,
+      'profile_img_url', s.profile_img_url,
+      'year_of_enrollment', s.year_of_enrollment,
+      'email_confirmed', s.email_confirmed,
+      'class_id', s.class_id,
+      'class_name', c.name,
+
+      'mom_profile', CASE
+        WHEN s.mom_id IS NOT NULL THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'gender', m.gender,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed
+        )
+        ELSE NULL
+      END,
+
+      'dad_profile', CASE
+        WHEN s.dad_id IS NOT NULL THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'gender', d.gender,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed
+        )
+        ELSE NULL
+      END
+    ) AS student_profile
+    FROM student s
+    LEFT JOIN parent m ON m.id = s.mom_id
+    LEFT JOIN parent d ON d.id = s.dad_id
+    JOIN class c ON c.id = s.class_id
+    WHERE s.supabase_uid = $1;
+    `,
+    [supabase_uid]
+  );
+
+  return result.rows[0];
+}
+
+
 export async function getAllAdmins() {
   const result = await query('SELECT * FROM admin ORDER BY id');
   return result.rows;
@@ -396,4 +529,34 @@ export async function removeDadByStudentId(student_id) {
     [student_id]
   );
   return result.rows;
+}
+
+
+export async function confirmEmailFor(role, supabase_id, id) {
+  const result = await query(`
+    update ${role}
+    set email_confirmed = true
+    where supabase_id = $1 or id = $2
+    returning *
+    `, [supabase_id, id]);
+  return result.rows[0];
+}
+
+export async function unconfirmEmail(role, supabase_id, id) {
+  const result = await query(`
+    update ${role}
+    set email_confirmed = false
+    where supabase_id = $1 or id = $2
+    returning *
+    `, [supabase_id, id]);
+  return result.rows[0];
+}
+
+export async function getProfileByUUID(role) {
+  let user = null;
+  switch(role) {
+    case "admin": user = getProfileOfAdminByID
+  }
+  
+  return result.rows[0]
 }
