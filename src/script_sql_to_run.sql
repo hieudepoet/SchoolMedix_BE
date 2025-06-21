@@ -60,16 +60,34 @@ INSERT INTO class (grade_id, name) VALUES
 
 -- Parent
 CREATE TABLE Parent (
-      id serial PRIMARY KEY,
-	  supabase_uid uuid unique not null
+  id SERIAL PRIMARY KEY,
+  supabase_uid UUID UNIQUE,
+  email VARCHAR(255) UNIQUE,
+  name VARCHAR(255),
+  age INT,
+  dob DATE,
+  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')),
+  address TEXT,
+  phone_number VARCHAR(20),
+  profile_img_url TEXT
 );
+
 -- start parent id from 100000
 ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
 
 --Student
 CREATE TABLE Student (
       id serial PRIMARY KEY,
-	  supabase_uid UUID unique not null,
+	  supabase_uid UUID unique,
+      email VARCHAR(255) UNIQUE,
+  name VARCHAR(255),
+  age INT,
+  dob DATE,
+  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')),
+  address TEXT,
+  phone_number VARCHAR(20),
+  profile_img_url TEXT
+    
       class_id INT REFERENCES class(id),
       mom_id int REFERENCES parent(id),
       dad_id int REFERENCES parent(id)
