@@ -1,5 +1,5 @@
 import express from 'express';
-import { createNurse, createAdmin, createParent, createStudent, getChildrenProfilesOfAParent, getStudentProfileByID } from '../controllers/users.controller.js';
+import { createNurse, createAdmin, createParent, createStudent } from '../controllers/users.controller.js';
 
 const router = express.Router();
 
@@ -14,8 +14,8 @@ router.post('/nurse', createNurse);
 
 
 
-router.get('/parent/:parent_id/student', getChildrenProfilesOfAParent); // contains only array of their children's profiles
-router.get('/student/:student_id', getStudentProfileByID);
+// router.get('/parent/:parent_id/student', getParentProfileByID); // contains only array of their children's profiles
+// router.get('/student/:student_id', getStudentProfileByID);
 
 
 export default router;

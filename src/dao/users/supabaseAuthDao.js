@@ -17,3 +17,7 @@ export async function createUserWithRole(email, password, role) {
 
     return data.user.id; // trả về uuid
 }
+
+export async function signInWithPassAndEmail() {
+
+}
