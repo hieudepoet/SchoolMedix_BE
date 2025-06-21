@@ -3,12 +3,12 @@ import {
     insertNurse,
     insertParent,
     insertStudent,
-} from "../../dao/index.js";
+} from "./userDao.js";
 
 import { sendWelcomeEmail } from "../email/index.js";
 
-import { createUserWithRole } from "../../dao/index.js";
-import { generateRandomPassword } from "../../utils/index.js";
+import { createUserWithRole } from "./supabaseAuthDao.js";
+import { generateRandomPassword } from "./userUtils.js";
 
 export async function createNewAdmin(
     email,
@@ -137,3 +137,4 @@ export async function createNewStudent(
 
     return addedUser;
 }
+

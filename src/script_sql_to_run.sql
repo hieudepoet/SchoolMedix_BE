@@ -161,7 +161,7 @@ INSERT INTO parent (
 ) VALUES
   (
     'be258789-4fe3-421c-baed-53ef3ed87f3b',
-    'khanh@example.com',
+    'phamthanhqb2005@gmail.com',
     'Mai Nguyễn Duy Khánh',
     '1989-03-10',
     'Nam',
@@ -172,7 +172,7 @@ INSERT INTO parent (
   ),
   (
     '3dfa7d35-7f0f-449f-afbf-bb6e420016d2',
-    'hieu@example.com',
+    'dathtse196321@gmail.com',
     'Đinh Việt Hiếu',
     '1974-03-10',
     'Nam',
@@ -183,7 +183,7 @@ INSERT INTO parent (
   ),
   (
     '00f7f4c0-4998-4593-b9c4-6b8d74596cd9',
-    'dat@example.com',
+    'mndkhanh.alt3@gmail.com',
     'Hoàng Tấn Đạt',
     '1980-05-09',
     'Nam',
@@ -194,7 +194,7 @@ INSERT INTO parent (
   ),
   (
     '81705d11-3052-4d70-82f2-1c11e8077dbe',
-    'phuc@example.com',
+    'mndkhanh.alt@gmail.com',
     'Phạm Thành Phúc',
     '1985-05-22',
     'Nam',
