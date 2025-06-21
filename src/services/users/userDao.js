@@ -373,8 +373,8 @@ export async function linkParentsAndStudents(mom_id, dad_id, student_ids) {
   const result = await query(`
     UPDATE student
     SET
-      mom_id = $1,
-      dad_id = $2
+      mom_id = COALESCE($1, mom_id),
+      dad_id = COALESCE($2, dad_id)
     WHERE id = ANY($3::text[])
     RETURNING id, mom_id, dad_id
   `, [mom_id, dad_id, student_ids]);
@@ -382,4 +382,18 @@ export async function linkParentsAndStudents(mom_id, dad_id, student_ids) {
   return result.rows;
 }
 
+export async function removeMomByStudentId(student_id) {
+  const result = await query(
+    `UPDATE student SET mom_id = NULL WHERE id = $1 RETURNING id, mom_id`,
+    [student_id]
+  );
+  return result.rows;
+}
 
+export async function removeDadByStudentId(student_id) {
+  const result = await query(
+    `UPDATE student SET dad_id = NULL WHERE id = $1 RETURNING id, dad_id`,
+    [student_id]
+  );
+  return result.rows;
+}

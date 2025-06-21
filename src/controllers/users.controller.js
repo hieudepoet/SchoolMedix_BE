@@ -7,6 +7,8 @@ import {
       getAllParents,
       getAllStudents,
       linkParentsAndStudents,
+      removeDadByStudentId,
+      removeMomByStudentId
 
 } from "../services/index.js";
 
@@ -350,6 +352,7 @@ export async function getStudentProfileByID(req, res) {
                   .json({ error: true, message: "Lỗi server khi lấy học sinh" });
       }
 }
+
 export async function listAdmins(req, res) {
       try {
             const admins = await getAllAdmins();
@@ -401,6 +404,54 @@ export async function assignParents(req, res) {
             res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}` });
       }
 }
+
+
+export async function removeMomFromStudent(req, res) {
+      const { student_id } = req.params;
+      if (!student_id) {
+            return res.status(400).json({ error: true, message: "Thiếu student_id" });
+      }
+
+      try {
+            const result = await removeMomByStudentId(student_id);
+            if (result.rowCount === 0) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy học sinh" });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Đã xoá mom_id khỏi học sinh",
+                  data: result
+            });
+      } catch (err) {
+            console.error("Lỗi khi xoá mom:", err);
+            return res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+export async function removeDadFromStudent(req, res) {
+      const { student_id } = req.params;
+      if (!student_id) {
+            return res.status(400).json({ error: true, message: "Thiếu student_id" });
+      }
+
+      try {
+            const result = await removeDadByStudentId(student_id);
+            if (result.rowCount === 0) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy học sinh" });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Đã xoá dad_id khỏi học sinh",
+                  data: result
+            });
+      } catch (err) {
+            console.error("Lỗi khi xoá dad:", err);
+            return res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
 
 
 export async function getStudentProfileByUUID(req, res) {
