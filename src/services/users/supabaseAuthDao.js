@@ -15,11 +15,11 @@ export async function createUserWithRole(email, password, role) {
         throw new Error("Tạo user trên supabase auth thất bại: " + error.message);
     }
 
-    return data.user.id; // trả về uuid
+    return data.user.id;
 }
 
 export async function signInWithPassAndEmail() {
-    
+
 }
 
 

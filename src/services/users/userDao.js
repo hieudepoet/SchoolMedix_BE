@@ -242,3 +242,144 @@ WHERE s.id = $1;
 `, [student_id]);
   return result.rows[0];
 }
+
+export async function getAllAdmins() {
+  const result = await query('SELECT * FROM admin ORDER BY id');
+  return result.rows;
+}
+
+export async function getAllNurses() {
+  const result = await query('SELECT * FROM nurse ORDER BY id');
+  return result.rows;
+}
+
+export async function getAllParents() {
+  const result = await query(`
+    SELECT 
+      row_to_json(p_with_students) AS parent_profile
+    FROM (
+      SELECT 
+        p.id,
+        p.supabase_uid,
+        p.email,
+        p.name,
+        p.dob,
+        DATE_PART('year', AGE(p.dob)) AS age,
+        p.gender,
+        p.address,
+        p.phone_number,
+        p.profile_img_url,
+        p.email_confirmed,
+
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', s.id,
+              'supabase_uid', s.supabase_uid,
+              'email', s.email,
+              'name', s.name,
+              'age', DATE_PART('year', AGE(s.dob)),
+              'dob', s.dob,
+              'gender', s.gender,
+              'address', s.address,
+              'phone_number', s.phone_number,
+              'profile_img_url', s.profile_img_url,
+              'year_of_enrollment', s.year_of_enrollment,
+              'email_confirmed', s.email_confirmed,
+              'class_id', c.id,
+              'class_name', c.name
+            )
+          ) FILTER (WHERE s.id IS NOT NULL),
+          '[]'
+        ) AS students
+
+      FROM parent p
+      LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
+      LEFT JOIN class c ON c.id = s.class_id
+      GROUP BY p.id
+    ) p_with_students
+  `);
+
+  return result.rows.map(row => row.parent_profile);
+}
+
+export async function getAllStudents() {
+  const result = await query(`
+    SELECT json_build_object(
+      'id', s.id,
+      'supabase_uid', s.supabase_uid,
+      'email', s.email,
+      'name', s.name,
+      'dob', s.dob,
+      'age', DATE_PART('year', AGE(s.dob)),
+      'gender', s.gender,
+      'address', s.address,
+      'phone_number', s.phone_number,
+      'profile_img_url', s.profile_img_url,
+      'year_of_enrollment', s.year_of_enrollment,
+      'email_confirmed', s.email_confirmed,
+      'class_id', c.id,
+      'class_name', c.name,
+
+      'mom_profile', CASE
+        WHEN s.mom_id IS NOT NULL THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'gender', m.gender,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed
+        )
+        ELSE NULL
+      END,
+
+      'dad_profile', CASE
+        WHEN s.dad_id IS NOT NULL THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'gender', d.gender,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed
+        )
+        ELSE NULL
+      END
+    ) AS student_profile
+    FROM student s
+    LEFT JOIN parent m ON m.id = s.mom_id
+    LEFT JOIN parent d ON d.id = s.dad_id
+    LEFT JOIN class c ON c.id = s.class_id
+    ORDER BY s.id;
+  `);
+
+  return result.rows.map(row => row.student_profile);
+}
+
+export async function linkParentsAndStudents(mom_id, dad_id, student_ids) {
+  if (!Array.isArray(student_ids) || student_ids.length === 0) {
+    throw new Error("Danh sách học sinh không hợp lệ.");
+  }
+
+  const result = await query(`
+    UPDATE student
+    SET
+      mom_id = $1,
+      dad_id = $2
+    WHERE id = ANY($3::text[])
+    RETURNING id, mom_id, dad_id
+  `, [mom_id, dad_id, student_ids]);
+
+  return result.rows;
+}
+
+

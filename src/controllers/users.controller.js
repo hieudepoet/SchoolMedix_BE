@@ -1,6 +1,14 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import { query } from "../config/database.js";
-import { createNewAdmin, createNewNurse, createNewParent, createNewStudent, getProfileOfAdminByID, getProfileOfNurseByID, getProfileOfParentByID, getProfileOfStudentByID } from "../services/index.js";
+import {
+      createNewAdmin, createNewNurse, createNewParent, createNewStudent, getProfileOfAdminByID, getProfileOfNurseByID, getProfileOfParentByID, getProfileOfStudentByID,
+      getAllAdmins,
+      getAllNurses,
+      getAllParents,
+      getAllStudents,
+      linkParentsAndStudents,
+
+} from "../services/index.js";
 
 export async function createAdmin(req, res) {
       try {
@@ -340,6 +348,57 @@ export async function getStudentProfileByID(req, res) {
             return res
                   .status(500)
                   .json({ error: true, message: "Lỗi server khi lấy học sinh" });
+      }
+}
+export async function listAdmins(req, res) {
+      try {
+            const admins = await getAllAdmins();
+            res.status(200).json({ error: false, data: admins });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách quản trị viên:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+export async function listNurses(req, res) {
+      try {
+            const nurses = await getAllNurses();
+            res.status(200).json({ error: false, data: nurses });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách y tá:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+export async function listParents(req, res) {
+      try {
+            const parents = await getAllParents();
+            res.status(200).json({ error: false, data: parents });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách phụ huynh:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+export async function listStudents(req, res) {
+      try {
+            const students = await getAllStudents();
+            res.status(200).json({ error: false, data: students });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách học sinh:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+export async function assignParents(req, res) {
+      const { mom_id, dad_id, student_ids } = req.body;
+
+      try {
+            const updated = await linkParentsAndStudents(mom_id, dad_id, student_ids);
+            res.status(200).json({ error: false, data: updated });
+      } catch (err) {
+            console.error("Lỗi khi liên kết phụ huynh và học sinh:", err);
+            res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}` });
       }
 }
 
