@@ -1,3 +1,5 @@
+import { query } from "../../config/database.js";
+
 export async function generateStudentCode(year) {
     const yy = String(year).slice(-2);
 
