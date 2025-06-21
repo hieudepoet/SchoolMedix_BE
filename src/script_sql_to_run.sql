@@ -63,13 +63,13 @@ CREATE TABLE Admin (
   id SERIAL PRIMARY KEY,
   supabase_uid UUID UNIQUE,
   email VARCHAR(255) UNIQUE,
-  name VARCHAR(255),
-  dob DATE,
-  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')),
-  address TEXT,
+  name VARCHAR(255) not null,
+  dob DATE not null,
+  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')) not null,
+  address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
-  email_confirmed BOOLEAN DEFAULT false
+  email_confirmed BOOLEAN DEFAULT false not null
 );
 -- start admin id from 100000
 ALTER SEQUENCE admin_id_seq RESTART WITH 100000;
@@ -103,13 +103,13 @@ CREATE TABLE Nurse (
   id SERIAL PRIMARY KEY,
   supabase_uid UUID UNIQUE,
   email VARCHAR(255) UNIQUE,
-  name VARCHAR(255),
-  dob DATE,
-  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')),
-  address TEXT,
+  name VARCHAR(255) not null,
+  dob DATE not null,
+  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')) not null,
+  address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
-  email_confirmed BOOLEAN DEFAULT false
+  email_confirmed BOOLEAN DEFAULT false not null
 );
 -- start nurse id from 100000
 ALTER SEQUENCE nurse_id_seq RESTART WITH 100000;
@@ -144,13 +144,13 @@ CREATE TABLE Parent (
   id SERIAL PRIMARY KEY,
   supabase_uid UUID UNIQUE,
   email VARCHAR(255) UNIQUE,
-  name VARCHAR(255),
-  dob DATE,
-  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')),
-  address TEXT,
+  name VARCHAR(255) not null,
+  dob DATE not null,
+  gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')) not null,
+  address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
-  email_confirmed BOOLEAN DEFAULT false
+  email_confirmed BOOLEAN DEFAULT false not null
 );
 
 -- start parent id from 100000
@@ -217,15 +217,15 @@ CREATE TABLE Student (
       id varchar(10) PRIMARY KEY,
 	  supabase_uid UUID unique,
       email VARCHAR(255) UNIQUE,
-        name VARCHAR(255),
-        dob DATE,
-        gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')),
-        address TEXT,
+        name VARCHAR(255) not null,
+        dob DATE not null,
+        gender VARCHAR(10) CHECK (gender IN ('Nam', 'Nữ')) not null,
+        address TEXT not null,
         phone_number VARCHAR(20),
         profile_img_url TEXT,
         year_of_enrollment int not null,
-        email_confirmed BOOLEAN DEFAULT false,
-      class_id INT REFERENCES class(id),
+        email_confirmed BOOLEAN DEFAULT false not null,
+      class_id INT REFERENCES class(id) not null,
       mom_id int REFERENCES parent(id),
       dad_id int REFERENCES parent(id)
 );

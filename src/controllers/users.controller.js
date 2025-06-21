@@ -1,159 +1,236 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import { query } from "../config/database.js";
-import { sendWelcomeEmail } from "../services/email/index.js";
-import { generateRandomPassword } from "../utils/index.js";
+import { createNewAdmin, createNewNurse, createNewParent, createNewStudent } from "../services/index.js";
 
-/**
- * profile_img_url will be anonymous by default when create user
- * @param { email, name, age, gender, dob, address, phone_number } req
- * @param { auth.user object } res
- * @returns
- */
-export async function createNurse(req, res) {
-  const { email, name, age, gender, dob, address, phone_number } = req.body;
-  const profile_img_url = process.env.DEFAULT_AVATAR_URL;
-  const role = "nurse";
-
-  if (!email)
-    return res.status(400).json({ error: true, message: "Thiếu email." });
-  if (!name)
-    return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
-  if (!age)
-    return res.status(400).json({ error: true, message: "Thiếu tuổi." });
-  if (!gender || (gender !== "Nam" && gender !== "Nữ"))
-    return res
-      .status(400)
-      .json({ error: true, message: "Giới tính phải là 'Nam' hoặc 'Nữ'." });
-  if (!dob)
-    return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
-  if (!address)
-    return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
-  if (!phone_number)
-    return res
-      .status(400)
-      .json({ error: true, message: "Thiếu số điện thoại." });
-
-  const password = generateRandomPassword();
-
-  const { data, error } = await supabaseAdmin.createUser({
-    email,
-    password,
-    app_metadata: { role },
-    user_metadata: {
-      name,
-      age,
-      gender,
-      dob,
-      address,
-      phone_number,
-      profile_img_url,
-    },
-    email_confirm: true,
-  });
-
-  if (error) {
-    console.error(`❌ Error creating ${role}:`, error.message);
-    return res
-      .status(400)
-      .json({ error: true, message: `Tạo ${role} thất bại: ${error.message}` });
-  }
-
-  console.log("✅ Created nurse:", data.user);
-
-  try {
-    await sendWelcomeEmail(email, name, role, password);
-  } catch (err) {
-    console.warn("⚠️ Email sending failed:", err.message);
-  }
-
-  return res.status(201).json({
-    error: false,
-    message: "Tạo tài khoản y tá thành công",
-    data: data.user,
-  });
-}
-
-/**
- * profile_img_url will be anonymous by default when create user
- * @param { email, name, age, gender, dob, address, phone_number } req
- * @param { auth.user object } res
- * @returns
- */
 export async function createAdmin(req, res) {
-  const { email, name, age, gender, dob, address, phone_number } = req.body;
-  const profile_img_url = process.env.DEFAULT_AVATAR_URL;
-  const role = "admin";
-
-  if (!email)
-    return res.status(400).json({ error: true, message: "Thiếu email." });
-  if (!name)
-    return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
-  if (!age)
-    return res.status(400).json({ error: true, message: "Thiếu tuổi." });
-  if (!gender || (gender !== "Nam" && gender !== "Nữ"))
-    return res
-      .status(400)
-      .json({ error: true, message: "Giới tính phải là 'Nam' hoặc 'Nữ'." });
-  if (!dob)
-    return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
-  if (!address)
-    return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
-  if (!phone_number)
-    return res
-      .status(400)
-      .json({ error: true, message: "Thiếu số điện thoại." });
-
-  const password = generateRandomPassword();
-
-  const { data, error } = await supabaseAdmin.createUser({
-    email,
-    password,
-    app_metadata: { role },
-    user_metadata: {
+  try {
+    const {
+      email,
       name,
-      age,
-      gender,
       dob,
+      gender,
       address,
       phone_number,
       profile_img_url,
-    },
-    email_confirm: true,
-  });
+    } = req.body;
 
-  if (error) {
-    console.error(`❌ Error creating ${role}:`, error.message);
-    return res
-      .status(400)
-      .json({ error: true, message: `Tạo ${role} thất bại: ${error.message}` });
-  }
+    // Validate bắt buộc
+    if (!name) {
+      return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
+    }
+    if (!dob) {
+      return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
+    }
+    if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+      return res.status(400).json({
+        error: true,
+        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+      });
+    }
+    if (!address) {
+      return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
+    }
 
-  console.log("✅ Created admin:", data.user);
+    const newAdmin = await createNewAdmin(
+      email,
+      name,
+      dob,
+      gender,
+      address,
+      phone_number,
+      profile_img_url || process.env.DEFAULT_AVATAR_URL
+    );
 
-  try {
-    await sendWelcomeEmail(email, name, role, password);
+    return res.status(201).json({
+      error: false,
+      message: "Tạo tài khoản admin thành công",
+      data: newAdmin,
+    });
   } catch (err) {
-    console.warn("⚠️ Email sending failed:", err.message);
-    res.return(400).json({
+    console.error("❌ Lỗi khi tạo admin:", err.message);
+    return res.status(500).json({
       error: true,
-      message: `Tạo ${role} thành công nhưng gửi mail thất bại`,
+      message: err.message
     });
   }
-
-  return res.status(201).json({
-    error: false,
-    message: "Tạo tài khoản admin thành công",
-    data: data.user,
-  });
 }
 
-/**
- * Lấy danh sách học sinh là con của một phụ huynh, kèm theo thông tin lớp, khối và profile Supabase
- *
- * @param {*} req
- * @param {*} res
- * @returns
- */
+export async function createNurse(req, res) {
+  try {
+    const {
+      email,
+      name,
+      dob,
+      gender,
+      address,
+      phone_number,
+      profile_img_url,
+    } = req.body;
+
+    // Validate bắt buộc
+    if (!name) {
+      return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
+    }
+    if (!dob) {
+      return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
+    }
+    if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+      return res.status(400).json({
+        error: true,
+        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+      });
+    }
+    if (!address) {
+      return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
+    }
+
+    const newNurse = await createNewNurse(
+      email,
+      name,
+      dob,
+      gender,
+      address,
+      phone_number,
+      profile_img_url
+    );
+
+    return res.status(201).json({
+      error: false,
+      message: "Tạo tài khoản nurse thành công",
+      data: newNurse,
+    });
+  } catch (err) {
+    console.error("❌ Lỗi khi tạo nurse:", err.message);
+    return res.status(500).json({
+      error: true,
+      message: err.message
+    });
+  }
+}
+
+export async function createParent(req, res) {
+  try {
+    const {
+      email,
+      name,
+      dob,
+      gender,
+      address,
+      phone_number,
+      profile_img_url,
+    } = req.body;
+
+    // Validate bắt buộc
+    if (!name) {
+      return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
+    }
+    if (!dob) {
+      return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
+    }
+    if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+      return res.status(400).json({
+        error: true,
+        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+      });
+    }
+    if (!address) {
+      return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
+    }
+
+    const newNurse = await createNewParent(
+      email,
+      name,
+      dob,
+      gender,
+      address,
+      phone_number,
+      profile_img_url
+    );
+
+    return res.status(201).json({
+      error: false,
+      message: "Tạo tài khoản parent thành công",
+      data: newNurse,
+    });
+  } catch (err) {
+    console.error("❌ Lỗi khi tạo parent:", err.message);
+    return res.status(500).json({
+      error: true,
+      message: err.message
+    });
+  }
+}
+
+export async function createStudent(req, res) {
+  try {
+    const {
+      email,
+      name,
+      dob,
+      gender,
+      address,
+      phone_number,
+      profile_img_url,
+      class_id,
+      year_of_enrollment,
+      mom_id,
+      dad_id
+    } = req.body;
+
+    // Validate bắt buộc
+    if (!name) {
+      return res.status(400).json({ error: true, message: "Thiếu họ và tên." });
+    }
+    if (!dob) {
+      return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
+    }
+    if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+      return res.status(400).json({
+        error: true,
+        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+      });
+    }
+    if (!address) {
+      return res.status(400).json({ error: true, message: "Thiếu địa chỉ." });
+    }
+    if (!year_of_enrollment) {
+      return res.status(400).json({ error: true, message: "Thiếu năm bắt đầu niên khóa." });
+    }
+    if (!class_id) {
+      return res.status(400).json({ error: true, message: "Thiếu id lớp." });
+    }
+
+
+    const newStudent = await createNewStudent(
+      email,
+      name,
+      dob,
+      gender,
+      address,
+      phone_number,
+      profile_img_url,
+      class_id,
+      year_of_enrollment,
+      mom_id,
+      dad_id
+    );
+
+    return res.status(201).json({
+      error: false,
+      message: "Tạo tài khoản student thành công",
+      data: newStudent,
+    });
+  } catch (err) {
+    console.error("❌ Lỗi khi tạo student:", err.message);
+    return res.status(500).json({
+      error: true,
+      message: err.message
+    });
+  }
+}
+
+
+
 export async function getChildrenProfilesOfAParent(req, res) {
   const { parent_id } = req.params;
 
