@@ -1048,3 +1048,80 @@ export async function getAllRegisteredRecords(req, res) {
     });
   }
 }
+
+
+export async function getCompletedDosesMergedByDisease(req, res) {
+  const { student_id } = req.params;
+
+  try {
+    // 1. Lấy thông tin học sinh và lớp
+    const studentQuery = await query(`
+      SELECT s.id AS student_id, s.name AS student_name, s.class_id, c.name AS class_name
+      FROM student s
+      JOIN class c ON s.class_id = c.id
+      WHERE s.id = $1
+    `, [student_id]);
+
+    if (studentQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Không tìm thấy học sinh" });
+    }
+
+    const studentInfo = studentQuery.rows[0];
+
+    // 2. Lấy danh sách bệnh, số liều đã tiêm (COMPLETED), và tổng số liều cần tiêm
+    const dosesQuery = await query(`
+      SELECT 
+        d.id AS disease_id,
+        d.name AS disease_name,
+        COUNT(vr.id) AS completed_doses,
+        d.dose_quantity
+      FROM disease d
+      LEFT JOIN vaccine v ON d.id = v.disease_id
+      LEFT JOIN vaccination_record vr 
+        ON vr.vaccine_id = v.id 
+        AND vr.student_id = $1 
+        AND vr.status = 'COMPLETED'
+      where d.vaccine_need = true
+      GROUP BY d.id, d.name, d.dose_quantity
+      ORDER BY d.id
+    `, [student_id]);
+
+    res.json({
+      student_id: studentInfo.student_id,
+      student_name: studentInfo.student_name,
+      class_id: studentInfo.class_id,
+      class_name: studentInfo.class_name,
+      diseases: dosesQuery.rows,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: "Lỗi khi lấy thông tin", detail: err.message });
+  }
+}
+
+
+
+export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
+  const { student_id, disease_id } = req.params;
+
+  try {
+    const { rows } = await query(`
+      SELECT
+        vr.id,
+        vr.vaccine_id,
+        v.name AS vaccine_name,
+        vr.vaccination_date,
+        vr.description,
+        vr.location,
+        vr.status
+      FROM vaccination_record vr
+      JOIN vaccine v ON vr.vaccine_id = v.id
+      WHERE vr.student_id = $1 AND v.disease_id = $2
+      ORDER BY vr.vaccination_date
+    `, [student_id, disease_id]);
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: "Lỗi khi lấy lịch sử tiêm chủng theo bệnh", detail: err.message });
+  }
+}

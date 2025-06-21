@@ -1,4 +1,4 @@
-import { transporter } from '../mailerConfig.js';
+import { transporter } from '../../../config/mailer.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 
 export async function sendWelcomeEmail(emailTo, name, role, password) {
-      const templatePath = path.resolve(__dirname, 'templates', 'welcomeEmail.html');
+      const templatePath = path.resolve(__dirname, '../templates', 'welcomeEmail.html');
       console.log("Using template path:", templatePath);
 
       const template = fs.readFileSync(templatePath, 'utf8');

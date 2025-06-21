@@ -1,0 +1,1 @@
+import { insertAdmin, insertNurse, insertParent, insertStudent } from "../../dao/index.js";
