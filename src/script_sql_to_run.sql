@@ -480,7 +480,7 @@ CREATE TABLE vaccination_record (
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (register_id) REFERENCES vaccination_campaign_register(id),
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id),
-  CONSTRAINT unique_student_vaccine_date UNIQUE (student_id, vaccine_id, register_id)
+    CONSTRAINT unique_student_vaccine_date UNIQUE (student_id, vaccine_id, register_id)
 
 );
 

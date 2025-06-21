@@ -6,7 +6,7 @@ import {
   createVaccinationRecord,
   createPreVaccinationRecord,
   updateVaccinationRecord,
-  getVaccinationRecord,
+  getVaccinationRecordByID,
   getAllCampaigns,
   getCampaignDetailByID,
   getVaccinationRecordsByStudentID,
@@ -60,7 +60,7 @@ router.post("/pre-vaccination-record/:campaign_id", createPreVaccinationRecord);
 router.patch("/vaccination-record/:record_id", updateVaccinationRecord);
 router.patch("/vaccination-record/:record_id/complete", completeRecord);
 
-router.get("/vaccination-record/:id", getVaccinationRecord);
+router.get("/vaccination-record/:id", getVaccinationRecordByID);
 
 router.get(
   "/student/:student_id/vaccination-campaign/:campaign_id/register",
