@@ -6,7 +6,8 @@ export async function createRequest(req, res) {
             create_by,
             diagnosis,
             schedule_send_date,
-            intake_date,
+            start_intake_date,
+            end_intake_date,
             note,
             request_items
       } = req.body;
@@ -22,8 +23,8 @@ export async function createRequest(req, res) {
       if (!schedule_send_date) {
             return res.status(400).json({ error: true, message: "Thiếu ngày hẹn gửi." });
       }
-      if (!intake_date) {
-            return res.status(400).json({ error: true, message: "Thiếu ngày cho học sinh uống thuốc." });
+      if (!start_intake_date || !end_intake_date) {
+            return res.status(400).json({ error: true, message: "Thiếu ngày bắt đầu hoặc ngày kết thúc cho học sinh uống thuốc." });
       }
 
       if (!request_items || !Array.isArray(request_items) || request_items.length === 0) {
@@ -36,10 +37,10 @@ export async function createRequest(req, res) {
             // Step 1: insert SendDrugRequest
             result = await query(
                   `INSERT INTO SendDrugRequest 
-          (student_id, create_by, diagnosis, schedule_send_date, intake_date, note, status)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          (student_id, create_by, diagnosis, schedule_send_date, start_intake_date, end_intake_date, note, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           RETURNING *`,
-                  [student_id, create_by, diagnosis, schedule_send_date, intake_date, note || null, 'PROCESSING']
+                  [student_id, create_by, diagnosis, schedule_send_date, start_intake_date, end_intake_date, note || null, 'PROCESSING']
             );
 
             const sendDrugRequest = result.rows[0];

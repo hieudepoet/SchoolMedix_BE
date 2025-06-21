@@ -28,10 +28,18 @@ router.get('/checkup-register/:id',getALLRegisterByCampaignID);//Lấy tất c�
 router.patch('/checkup-register/:id/close', closeRegister);// Amdin đóng form Register
 router.patch('/checkup-register/:id/cancel', cancelRegister) //Admin cancel form Register
 
+router.patch('/checkup-register/:id/close', closeRegister);// Amdin đóng form Register
+router.patch('/checkup-register/:id/cancel', cancelRegister) //Admin cancel form Register
 
 
 router.get('/parent/:parent_id/checkup-register', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get('/student/:student_id/checkup-register', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
+
+
+//Parent
+router.patch('/checkup-register/:id/submit', submitRegister);// Parent submit form Register
+
+router.patch('/checkup-register/:id/submit', submitRegister);// Parent nhập form Register
 
 
 //Parent

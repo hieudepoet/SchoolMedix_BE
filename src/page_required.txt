@@ -1,21 +1,45 @@
 1. Declare:
-a. Admin(0/5): 
-- Trang quản lý danh sách user
-- Form tạo mới tài khoản Admin, Nurse 
+a. Admin(0/3): 
+- Trang list toàn bộ user theo role Admin, Nurse, Parent, Student (đối với Student thì thêm sort theo lớp, khối) có các nút ứng với các trang sau:
++ Show info cá nhân: (đối với parent thì show thêm thông tin con, đối với student thì show thêm thông tin phụ huynh, lớp, khối...)
++ Edit thông tin cá nhân: đối với parent thì select thêm thông tin con (yêu cầu có trước học sinh đó nhớ chọn parent với vai trò là cha hay mẹ) hoặc cũng có thể trong trang edit của student có thể add parent (yêu cầu có parent trước đó).
++ Trang tạo mới user cho nurse/admin
 - Trang thông tin cá nhân 
-- Trang đổi mật khẩu và cập nhật thông tin cá nhân
-- Tạo mới tài khoản Parent cùng tài khoản Student 
-(Tạo Parent xong có phần thêm con để tạo tài khoản cho Student)
+- Trang đổi mật khẩu và cập nhật thông tin cá nhân (Được phép cập nhật toàn bộ các trường)
+
 b. Nurse(0/2):
 - Trang thông tin cá nhân 
-- Trang đổi mật khẩu và cập nhật thông tin cá nhân
+- Trang đổi mật khẩu và cập nhật thông tin cá nhân (Được phép cập nhật toàn bộ các trường)
+
 c. Parent(0/3):
-- Danh sách con, cho phép khai báo thông tin (Khai báo thông tin cá nhân của con, Khai báo lịch sử tiêm chủng, Khai báo bệnh).
-- Form khai báo thông tin cá nhân của con.
-- Đổi mật khẩu và cập nhật thông tin cá nhân
-d. Student(0/2):
-- Thông tin cơ bản của phụ huynh
-- Đổi mật khẩu và cập nhật thông tin cá nhân
+- Trang thông tin cá nhân 
+- Trang xem danh sách các con và cập nhật thông tin cho con (Chỉ được phép cập nhật trường email để con đăng nhập xem thông tin, trường phone_number và trường profile_img_url)
+- Đổi mật khẩu và cập nhật thông tin cá nhân (Chỉ được phép cập nhật trường email, phone_number, profile_img_url)
+
+d. Student(0/2): (chỉ xem thông tin)
+- Xem thông tin cá nhân và thông tin cơ bản của phụ huynh
+- Đổi mật khẩu. (Chỉ có parent mới được phép cập nhật thông tin cho con)
+
+
+**NOTE**
+- Trang cập nhật thông tin cá nhân của all role không được cập nhật name, id, role, dob, gender, class, grade... Muốn cập nhật các trường nêu trên thì làm cập nhật trên trang admin phần edit.
+- Trang edit cá nhân cho parent và parent cập nhật cho con chỉ được phép cập nhật email, phone_number, profile_img_url.
+- Student chỉ được xem thông tin, không được cập nhật thông tin cá nhân. Có thể đổi mật khẩu.
+- Mỗi USER có thể không cần có email. Không có email thì tài khoản đó ko đăng nhập được vào hệ thống, phải đăng ký với system bằng cách nào đó (gửi khảo sát giấy cho nhà trường trước chẳng hạn). Nhà trường có thể thu thập email sau. Sau đó, nhà trường cập nhật lại email.
+- Mỗi email một role
+- Thống nhất lưu profile info chỉ dưới DB (supabase auth chỉ dùng để lưu biến role (trong app_metadata))
+- ID của PARENT, NURSE, ADMIN thì cứ tăng dần từ 100000, còn của STUDENT thì 2 số đầu là năm bắt đầu niên khóa (gồm tổng 6 số). VD: 250001, 210094, 210999...
+
+
+1'. Phần quản lý bệnh mãn tính, truyền nhiễm, quản lý lịch sử tiêm chủng (thêm mũi tiêm, thêm bệnh,...)
+a. Admin: (0/0)
+b. Nurse: (0/0)
+c. Parent: (0/2)
+- Trang khai báo bệnh cho con.
+- Trang khai báo lịch sử tiêm chủng cho con.
+d. Student: (0/0)
+
+
 
 2. Vaccination (Kế hoạch Tiêm chủng):
 a. Admin(0/7):
