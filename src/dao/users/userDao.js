@@ -122,3 +122,12 @@ export async function insertStudent(
   return result.rows[0];
 }
 
+export async function getProfileOfStudentByID() { //
+
+
+}
+
+export async function getProfileOfStudentByUUID() { //
+
+
+}
