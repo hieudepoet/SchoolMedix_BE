@@ -7,6 +7,8 @@ import {
       getAllNurses,
       getAllParents,
       getAllStudents,
+      getAllStudentsByClassID,
+      getAllStudentsByGradeID,
       linkParentsAndStudents,
       removeDadByStudentId,
       removeMomByStudentId,
@@ -399,12 +401,40 @@ export async function listStudents(req, res) {
       }
 }
 
+
 export async function listStudentsByClass(req, res) {
       const { class_id } = req.params;
+
       if (!class_id) {
-            return res.status(200).json({ error: true, message: "Thiếu id lớp." });
+            return res.status(400).json({ error: true, message: "Thiếu id lớp." });
+      }
+
+      try {
+            const students = await getAllStudentsByClassID(class_id);
+            res.status(200).json({ error: false, data: students });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách học sinh theo lớp:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
       }
 }
+
+export async function listStudentsByGrade(req, res) {
+      const { grade_id } = req.params;
+
+      if (!grade_id) {
+            return res.status(400).json({ error: true, message: "Thiếu id khối." });
+      }
+
+      try {
+            const students = await getAllStudentsByGradeID(grade_id);
+            res.status(200).json({ error: false, data: students });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách học sinh theo khối:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+
 
 export async function assignParents(req, res) {
       const { mom_id, dad_id, student_ids } = req.body;
