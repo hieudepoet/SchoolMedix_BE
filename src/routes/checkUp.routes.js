@@ -18,7 +18,9 @@ import {
         UpdateCheckinSpecialRecord,
         getHealthRecordParentDetails,
         getSpecialRecordParent,
-        getSpecialRecordParentDetails
+        getSpecialRecordParentDetails,
+        startCampaig,
+        finishCampaign
 }
         from '../controllers/checkUp.controller.js';
 
@@ -37,6 +39,9 @@ router.get('/checkup-campaign', getAllCheckupCampaigns); // lấy tất cả DS 
 router.patch('/checkup-register/:id/close', closeRegister);// Amdin đóng form Register
 router.patch('/checkup-register/:id/cancel', cancelRegister) //Admin cancel form Register
 
+
+router.patch('/checkup-campaign-start',startCampaig); // Admin start campaign ( status : ONGOING) truyền vào body campaign_id
+router.patch('/checkup-campaign-finish',finishCampaign); //Admin finish Campaign ( status : DONE) truyền vào body campaign_id
 
 
 
