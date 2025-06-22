@@ -242,78 +242,82 @@ WHERE s.id = $1;
 `, [student_id]);
   return result.rows[0];
 }
-
+// Admin
 export async function getProfileOfAdminByUUID(supabase_uid) {
   const result = await query(
-    `SELECT * FROM admin WHERE supabase_uid = $1`,
+    `SELECT 'admin' AS role, * FROM admin WHERE supabase_uid = $1`,
     [supabase_uid]
   );
   return result.rows[0];
 }
 
+// Nurse
 export async function getProfileOfNurseByUUID(supabase_uid) {
   const result = await query(
-    `SELECT * FROM nurse WHERE supabase_uid = $1`,
+    `SELECT 'nurse' AS role, * FROM nurse WHERE supabase_uid = $1`,
     [supabase_uid]
   );
   return result.rows[0];
 }
 
+// Parent
 export async function getProfileOfParentByUUID(supabase_uid) {
   const result = await query(
     `SELECT 
-  p_with_students.*
-FROM (
-  SELECT 
-    p.id,
-    p.supabase_uid,
-    p.email,
-    p.name,
-    p.dob,
-    DATE_PART('year', AGE(p.dob)) AS age,
-    p.gender,
-    p.address,
-    p.phone_number,
-    p.profile_img_url,
-    p.email_confirmed,
+    'parent' AS role,
+    p_with_students.*
+  FROM (
+    SELECT 
+      p.id,
+      p.supabase_uid,
+      p.email,
+      p.name,
+      p.dob,
+      DATE_PART('year', AGE(p.dob)) AS age,
+      p.gender,
+      p.address,
+      p.phone_number,
+      p.profile_img_url,
+      p.email_confirmed,
 
-    COALESCE(
-      json_agg(
-        json_build_object(
-          'id', s.id,
-          'supabase_uid', s.supabase_uid,
-          'email', s.email,
-          'name', s.name,
-          'age', DATE_PART('year', AGE(s.dob)),
-          'dob', s.dob,
-          'gender', s.gender,
-          'address', s.address,
-          'phone_number', s.phone_number,
-          'profile_img_url', s.profile_img_url,
-          'year_of_enrollment', s.year_of_enrollment,
-          'email_confirmed', s.email_confirmed,
-          'class_id', c.id,
-          'class_name', c.name
-        )
-      ) FILTER (WHERE s.id IS NOT NULL),
-      '[]'
-    ) AS students
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', s.id,
+            'supabase_uid', s.supabase_uid,
+            'email', s.email,
+            'name', s.name,
+            'age', DATE_PART('year', AGE(s.dob)),
+            'dob', s.dob,
+            'gender', s.gender,
+            'address', s.address,
+            'phone_number', s.phone_number,
+            'profile_img_url', s.profile_img_url,
+            'year_of_enrollment', s.year_of_enrollment,
+            'email_confirmed', s.email_confirmed,
+            'class_id', c.id,
+            'class_name', c.name
+          )
+        ) FILTER (WHERE s.id IS NOT NULL),
+        '[]'
+      ) AS students
 
-  FROM parent p
-  LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
-  LEFT JOIN class c ON c.id = s.class_id
-  WHERE p.supabase_uid = $1
-  GROUP BY p.id
-) p_with_students;`,
+    FROM parent p
+    LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
+    LEFT JOIN class c ON c.id = s.class_id
+    WHERE p.supabase_uid = $1
+    GROUP BY p.id
+  ) p_with_students;`,
     [supabase_uid]
   );
-
   return result.rows[0];
 }
 
+// Student
 export async function getProfileOfStudentByUUID(supabase_uid) {
   const result = await query(
-    `  SELECT 
+    `SELECT 
+      'student' AS role,
       s.id,
       s.supabase_uid,
       s.email,
@@ -367,11 +371,9 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
     LEFT JOIN parent m ON m.id = s.mom_id
     LEFT JOIN parent d ON d.id = s.dad_id
     JOIN class c ON c.id = s.class_id
-    WHERE s.supabase_uid = $1;
-    `,
+    WHERE s.supabase_uid = $1;`,
     [supabase_uid]
   );
-
   return result.rows[0];
 }
 
