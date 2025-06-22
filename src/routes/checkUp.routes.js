@@ -13,27 +13,43 @@ import {
         getAllCheckupCampaigns,
         getALLHealthRecord,
         getALLRegisterByCampaignID,
-        getALLSpeciaListExamRecord
+        getALLSpeciaListExamRecord,
+        UpdateCheckinHealthRecord,
+        UpdateCheckinSpecialRecord
 }
         from '../controllers/checkUp.controller.js';
 
 const router = express.Router();
+//Orther
+router.get('/health-record',getALLHealthRecord);// Lấy tất cả DS Health Record có status DONE 
+router.get('/special-record',getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE
+router.get('/checkup-register/:id',getALLRegisterByCampaignID);//Lấy tất cả các CheckUp register cần tuyền vào campaign_id 
+router.get('/parent/:parent_id/checkup-register', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
+router.get('/student/:student_id/checkup-register', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
+
 
 //Admin
 router.post('/checkup-campaign', createCampaign); // admin tạo campaign
 router.get('/checkup-campaign', getAllCheckupCampaigns); // lấy tất cả DS campaign
-router.get('/health-record',getALLHealthRecord);// Lấy tất cả DS Health Record có status DONE
-router.get('/special-record',getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE
-router.get('/checkup-register/:id',getALLRegisterByCampaignID);//Lấy tất cả các CheckUp register cần tuyền vào id là campaign_id 
-
 router.patch('/checkup-register/:id/close', closeRegister);// Amdin đóng form Register
 router.patch('/checkup-register/:id/cancel', cancelRegister) //Admin cancel form Register
 
 
-router.get('/parent/:parent_id/checkup-register', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
-router.get('/student/:student_id/checkup-register', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
 
-router.patch('/checkup-register/:id/submit', submitRegister);// Parent nhập form Register
+
+//Parent
+router.patch('/checkup-register/:id/submit', submitRegister);// Parent submit form Register
+
+
+
+
+
+//Nurse
+
+//CHECK-IN
+router.patch('/checkup-checkin-health-record',UpdateCheckinHealthRecord);//Nurse Checkin Khám Định kỳ cần truyền vào Student_id và Campain_id trong body
+router.patch('/checkup-checkin-special-record',UpdateCheckinSpecialRecord); //Nurse Checkin Khám Chuyên khoa
+
 
 
 router.patch('/checkup-register/register_id/record', updateHealthRecord) // Doctor or Nurse update Heatlh Record for Student
