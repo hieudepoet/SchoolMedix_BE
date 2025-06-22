@@ -849,11 +849,11 @@ export async function findHealthRecordByStudentName(params) {
 }
 
 //Cần truyền vào student_id và campaign_id
-export async function UpdateCheckedHealthRecord(req, res) {
+export async function UpdateCheckinHealthRecord(req, res) {
     const { student_id, campaign_id } = req.body;
 
     try {
-        
+
         if (!student_id || !campaign_id) {
             return res.status(400).json({ error: true, message: "Không nhận được Student ID or Campaign ID." });
         }
@@ -895,8 +895,74 @@ export async function UpdateCheckedHealthRecord(req, res) {
 
     } catch (err) {
         console.error("❌ Error creating Campaign ", err);
-        return res.status(500).json({ error: true, message: "Lỗi khi xem Health Record." });
+        return res.status(500).json({ error: true, message: "Lỗi khi Check-in." });
     }
 }
 
+//Check in khám chuyên khoa
+export async function UpdateCheckinSpecialRecord(req, res) {
+    const { student_id, campaign_id, spe_exam_id } = req.body;
+    try {
+        
+        if (!student_id || !campaign_id || !spe_exam_id) {
+            return res.status(400).json({ error: true, message: "Không nhận được Student ID or Campaign ID or Special List Exam ID." });
+        }
+
+        const checkStudent = await query('SELECT * FROM student WHERE id = $1', [student_id]);
+
+        if (checkStudent.rowCount === 0) {
+            return res.status(400).json({ error: true, message: "Student ID không tồn tại." });
+        }
+
+        const checkCampaign = await query('SELECT * FROM checkupcampaign WHERE id = $1', [campaign_id]);
+
+        if (checkCampaign.rowCount === 0) {
+            return res.status(400).json({ error: true, message: "Campaign ID không tồn tại." });
+        }
+
+        const checkSpecialExam = await query('SELECT * FROM specialistexamlist WHERE id = $1', [spe_exam_id]);
+
+        if (checkSpecialExam.rowCount === 0) {
+            return res.status(400).json({ error: true, message: "Special List Exam ID không tồn tại." });
+        }
+
+        //Lấy SpecialListExamRecord
+
+        const result = await query(
+            `SELECT ser.*
+            FROM specialistExamRecord ser
+            JOIN CheckupRegister cr ON ser.register_id = cr.id
+            WHERE cr.student_id = $1 AND cr.campaign_id = $2 AND ser.spe_exam_id = $3`,
+            [student_id, campaign_id, spe_exam_id]
+        );
+
+        const result_check = result.rows;
+
+        if (result_check.length === 0) {
+            return res.status(400).json({ error: true, message: "Không tìm thấy Record ." });
+        }
+
+        console.log(result_check);
+        //Check-in
+
+        const result_update = await query('UPDATE specialistexamrecord SET is_checked = $1 WHERE register_id = $2 AND spe_exam_id = $3'
+            , [true, result_check[0].register_id, spe_exam_id]);
+
+        if (result_update.rowCount === 0) {
+            return res.status(400).json({ error: true, message: "Cập nhật Health Record thất bại." });
+        }
+
+
+        return res.status(200).json({ error: false, message: "Checkin thành công." });
+
+
+
+        
+
+    } catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res.status(500).json({ error: true, message: "Lỗi khi Lỗi khi Check-in." });
+    }
+
+}
 
