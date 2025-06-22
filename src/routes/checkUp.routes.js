@@ -15,7 +15,13 @@ import {
         getALLRegisterByCampaignID,
         getALLSpeciaListExamRecord,
         UpdateCheckinHealthRecord,
-        UpdateCheckinSpecialRecord
+        UpdateCheckinSpecialRecord,
+        getHealthRecordParentDetails,
+        getSpecialRecordParent,
+        getSpecialRecordParentDetails,
+        startCampaig,
+        finishCampaign,
+        getCampaignDetail
 }
         from '../controllers/checkUp.controller.js';
 
@@ -27,6 +33,7 @@ router.get('/checkup-register/:id',getALLRegisterByCampaignID);//Lấy tất c�
 router.get('/parent/:parent_id/checkup-register', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get('/student/:student_id/checkup-register', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
 
+router.get('/checkup-campaign-detail',getCampaignDetail);//Lấy Campain Detail truyền vào campaign_id (P)
 
 //Admin
 router.post('/checkup-campaign', createCampaign); // admin tạo campaign
@@ -35,11 +42,19 @@ router.patch('/checkup-register/:id/close', closeRegister);// Amdin đóng form 
 router.patch('/checkup-register/:id/cancel', cancelRegister) //Admin cancel form Register
 
 
+router.patch('/checkup-campaign-start',startCampaig); // Admin start campaign ( status : ONGOING) truyền vào body campaign_id
+router.patch('/checkup-campaign-finish',finishCampaign); //Admin finish Campaign ( status : DONE) truyền vào body campaign_id
+
 
 
 //Parent
 router.patch('/checkup-register/:id/submit', submitRegister);// Parent submit form Register
 
+router.get('/checkup-health-record', getHealthRecordParent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
+router.get('/checkup-health-record-detail',getHealthRecordParentDetails);//Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
+
+router.get('/checkup-special-record',getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
+router.get('/checkup-special-record-detail',getSpecialRecordParentDetails); //paretn xem chi tiết Special Record  truyền vào register_id và spe_exam_id
 
 
 
@@ -54,7 +69,6 @@ router.patch('/checkup-checkin-special-record',UpdateCheckinSpecialRecord); //Nu
 
 router.patch('/checkup-register/register_id/record', updateHealthRecord) // Doctor or Nurse update Heatlh Record for Student
 router.get('/checkup-register/student/:id', getCheckupRegisterStudent);  // Student lấy các lịch sử registers
-router.get('/checkup-campaign/:campaign_id/health-record/parent/:parent_id/', getHealthRecordParent); //Parent xem HealthRecord của Student cần truyền vào parent_id và campaign_id
 router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealthRecordStudent);//Student view Health Record
 
 
