@@ -663,6 +663,59 @@ export async function handleUpdatePassword(req, res) {
 }
 
 
+export async function handleConfirmEmailForUser(req, res) {
+      const { role, user_id } = req.params;
+
+      try {
+            const result = await confirmEmailFor(role, user_id);
+
+            if (!result) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không tìm thấy người dùng để xác thực email.",
+                  });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Xác thực email thành công.",
+                  data: result,
+            });
+      } catch (err) {
+            console.error("❌ Lỗi xác thực email:", err.message);
+            return res.status(500).json({
+                  error: true,
+                  message: "Đã xảy ra lỗi khi xác thực email.",
+            });
+      }
+}
+
+export async function handleUnconfirmEmailForUser(req, res) {
+      const { role, user_id } = req.params;
+
+      try {
+            const result = await unconfirmEmailFor(role, user_id);
+
+            if (!result) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không tìm thấy người dùng để hủy xác thực email.",
+                  });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Hủy xác thực email thành công.",
+                  data: result,
+            });
+      } catch (err) {
+            console.error("❌ Lỗi hủy xác thực email:", err.message);
+            return res.status(500).json({
+                  error: true,
+                  message: "Đã xảy ra lỗi khi hủy xác thực email.",
+            });
+      }
+}
 
 
 

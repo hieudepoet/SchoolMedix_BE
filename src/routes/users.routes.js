@@ -6,6 +6,8 @@ import {
       handleUpdatePassword, handleLogIn, handleLogOut,
       editUserInfoByAdmin,
       handleUploadProfileImg,
+      handleConfirmEmailForUser,
+      handleUnconfirmEmailForUser,
 
 
 } from '../controllers/users.controller.js';
@@ -22,11 +24,6 @@ router.post('/nurse', createNurse);
 
 
 router.get("/user/:supabase_uid/role/:role/profile", getUserProfileByUUID);
-
-router.get("/admin/:admin_id", getAdminProfileByID);
-router.get("/nurse/:nurse_id", getNurseProfileByID);
-router.get('/parent/:parent_id', getParentProfileByID); // contains self-info and array of their children's profiles
-router.get('/student/:student_id', getStudentProfileByID); // contains self-info and array of their parent's profiles
 
 router.get("/admin/:admin_id", getAdminProfileByID);
 router.get("/nurse/:nurse_id", getNurseProfileByID);
@@ -88,5 +85,8 @@ router.post("/profile-img", handleUploadProfileImg);
 router.post("/update-password", handleUpdatePassword); // chua
 router.post("/log-in", handleLogIn); // chua
 router.post("/log-out", handleLogOut); // chua
+
+router.patch("/role/:role/user/:user_id/confirm-email", handleConfirmEmailForUser); // lần đăng nhập đầu tiên sẽ xác thực
+router.patch("/role/:role/user/:user_id/unconfirm-email", handleUnconfirmEmailForUser); // nếu đổi email, đổi pass hay gì thì sẽ chuyển về unconfirmed to false
 
 export default router;

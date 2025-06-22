@@ -133,9 +133,7 @@ export async function getProfileOfNurseByID(nurse_id) {
 }
 
 export async function getProfileOfParentByID(parent_id) {
-  const result = await query(`SELECT 
-  row_to_json(p_with_students) AS parent_profile
-FROM (
+  const result = await query(` 
   SELECT 
     p.id,
     p.supabase_uid,
@@ -169,36 +167,36 @@ FROM (
         )
       ) FILTER (WHERE s.id IS NOT NULL),
       '[]'
-    ) AS students
+    ) AS children
 
   FROM parent p
   LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
   LEFT JOIN class c ON c.id = s.class_id
   WHERE p.id = $1
   GROUP BY p.id
-) p_with_students;`, [parent_id]);
+`, [parent_id]);
   return result.rows[0];
 }
 
 export async function getProfileOfStudentByID(student_id) {
   const result = await query(`
-  SELECT json_build_object(
-  'id', s.id,
-  'supabase_uid', s.supabase_uid,
-  'email', s.email,
-  'name', s.name,
-  'dob', s.dob,
-  'age', DATE_PART('year', AGE(s.dob)),
-  'gender', s.gender,
-  'address', s.address,
-  'phone_number', s.phone_number,
-  'profile_img_url', s.profile_img_url,
-  'year_of_enrollment', s.year_of_enrollment,
-  'email_confirmed', s.email_confirmed,
-  'class_id', s.class_id,
-  'class_name', c.name,
+  SELECT 
+  s.id,
+  s.supabase_uid,
+  s.email,
+  s.name,
+  s.dob,
+  DATE_PART('year', AGE(s.dob)) AS age,
+  s.gender,
+  s.address,
+  s.phone_number,
+  s.profile_img_url,
+  s.year_of_enrollment,
+  s.email_confirmed,
+  s.class_id,
+  c.name AS class_name,
 
-  ' mom_profile', CASE
+  CASE
     WHEN s.mom_id IS NOT NULL THEN json_build_object(
       'id', m.id,
       'name', m.name,
@@ -213,9 +211,9 @@ export async function getProfileOfStudentByID(student_id) {
       'email_confirmed', m.email_confirmed
     )
     ELSE NULL
-  END,
+  END AS mom_profile,
 
-  'dad_profile', CASE
+  CASE
     WHEN s.dad_id IS NOT NULL THEN json_build_object(
       'id', d.id,
       'name', d.name,
@@ -230,15 +228,14 @@ export async function getProfileOfStudentByID(student_id) {
       'email_confirmed', d.email_confirmed
     )
     ELSE NULL
-  END
+  END AS dad_profile
 
-
-) AS student_profile
 FROM student s
 LEFT JOIN parent m ON m.id = s.mom_id
 LEFT JOIN parent d ON d.id = s.dad_id
-JOIN class c on c.id = s.class_id
+JOIN class c ON c.id = s.class_id
 WHERE s.id = $1;
+
 `, [student_id]);
   return result.rows[0];
 }

@@ -6,8 +6,7 @@ export async function createRequest(req, res) {
             create_by,
             diagnosis,
             schedule_send_date,
-            start_intake_date,
-            end_intake_date,
+            intake_date,
             note,
             request_items
       } = req.body;
@@ -23,24 +22,22 @@ export async function createRequest(req, res) {
       if (!schedule_send_date) {
             return res.status(400).json({ error: true, message: "Thiếu ngày hẹn gửi." });
       }
-      if (!start_intake_date || !end_intake_date) {
-            return res.status(400).json({ error: true, message: "Thiếu ngày bắt đầu hoặc ngày kết thúc cho học sinh uống thuốc." });
+      if (!intake_date) {
+            return res.status(400).json({ error: true, message: "Thiếu ngày cho học sinh uống thuốc." });
       }
 
       if (!request_items || !Array.isArray(request_items) || request_items.length === 0) {
             return res.status(400).json({ error: true, message: "Thiếu các đơn vị thuốc cần cho học sinh uống." });
       }
 
-      let result;
-
       try {
             // Step 1: insert SendDrugRequest
-            result = await query(
+            const result = await query(
                   `INSERT INTO SendDrugRequest 
-          (student_id, create_by, diagnosis, schedule_send_date, start_intake_date, end_intake_date, note, status)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          (student_id, create_by, diagnosis, schedule_send_date, intake_date, note, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
           RETURNING *`,
-                  [student_id, create_by, diagnosis, schedule_send_date, start_intake_date, end_intake_date, note || null, 'PROCESSING']
+                  [student_id, create_by, diagnosis, schedule_send_date, intake_date, note || null, 'PROCESSING']
             );
 
             const sendDrugRequest = result.rows[0];
@@ -275,7 +272,7 @@ export async function getSendDrugRequestsOfStudent(req, res) {
 export async function listRequests(req, res) {
       try {
             const result = await query(`SELECT 
-                   a.*,
+                   a.*, s.name as student_name, c.name as class_name,
                   json_agg(
                         json_build_object(
                               'name', b.name,
@@ -285,7 +282,9 @@ export async function listRequests(req, res) {
                   ) AS request_items
                   FROM senddrugrequest a
                   LEFT JOIN requestitem b ON a.id = b.request_id
-                  GROUP BY a.id
+				  join student s on s.id = a.student_id
+				  join class c on s.class_id = c.id
+                  GROUP BY a.id, s.name, c.name
                   ORDER BY a.id; `);
             if (result.rows.length === 0) {
                   return res.status(404).json({ error: false, message: "Không có đơn gửi nào." });
