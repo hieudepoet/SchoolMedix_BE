@@ -38,3 +38,4 @@ export function generateRandomPassword() {
 
   return password.sort(() => Math.random() - 0.5).join('');
 }
+

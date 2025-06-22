@@ -3,7 +3,8 @@ import {
       createNurse, createAdmin, createParent, createStudent, getAdminProfileByID, getNurseProfileByID, getParentProfileByID, getStudentProfileByID,
       listAdmins, listNurses, listStudents, listParents,
       assignParents, removeMomFromStudent, removeDadFromStudent,
-      handleUpdatePassword, handleLogIn, handleLogOut
+      handleUpdatePassword, handleLogIn, handleLogOut,
+      editUserInfo
 
 } from '../controllers/users.controller.js';
 
@@ -36,22 +37,25 @@ router.delete("/student/:student_id/mom", removeMomFromStudent); // delete mom
 router.delete("/student/:student_id/dad", removeDadFromStudent); // delete dad
 
 // update thông tin cá nhân
-router.patch("/admin/:admin_id"); //
-router.patch("/nurse/:nurse_id"); //
-router.patch("/student/:student_id"); //
-router.patch("/parent/:parent_id"); //
+router.patch("/admin/:admin_id"); // chua
+router.patch("/nurse/:nurse_id"); // chua
+router.patch("/student/:student_id"); // chua
+router.patch("/parent/:parent_id"); // chua
+
+// update thông tin cá nhân cho các role với admin, được quyền cập nhật all info
+router.patch("/admin/edit-user/"); // chua
 
 
 // delete một user
-router.delete("/admin/:admin_id"); //
-router.delete("/nurse/:nurse_id"); //
-router.delete("/parent/:parent_id"); //
-router.delete("/student/:student_id"); //
+router.delete("/admin/:admin_id"); // chua
+router.delete("/nurse/:nurse_id"); // chua
+router.delete("/parent/:parent_id"); // chua
+router.delete("/student/:student_id"); // chua
 
 
 // handle account: login, logout, reset password,...
-router.post("/update-password", handleUpdatePassword); //
-router.post("/log-in", handleLogIn); //
-router.post("/log-out", handleLogOut); //
+router.post("/update-password", handleUpdatePassword); // chua
+router.post("/log-in", handleLogIn); // chua
+router.post("/log-out", handleLogOut); // chua
 
 export default router;

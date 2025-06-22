@@ -8,7 +8,10 @@ import {
       getAllStudents,
       linkParentsAndStudents,
       removeDadByStudentId,
-      removeMomByStudentId
+      removeMomByStudentId,
+      signInWithPassAndEmail,
+      confirmEmailFor,
+      unconfirmEmailFor
 
 } from "../services/index.js";
 
@@ -452,12 +455,106 @@ export async function removeDadFromStudent(req, res) {
       }
 }
 
-export async function handleLogIn(req, res) {
+export async function editUserInfo(req, res) {
+      const { id, role, updates } = req.body;
 
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID người dùng (supabase_uid hoặc id)."
+            });
+      }
+
+      if (!role) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu vai trò người dùng (admin, nurse, parent, student)."
+            });
+      }
+
+      if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Trường 'updates' phải là một object chứa thông tin cần cập nhật."
+            });
+      }
+
+      if (Object.keys(updates).length === 0) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Không có trường nào để cập nhật."
+            });
+      }
+
+      try {
+            const result = await query(
+                  `UPDATE ${role}
+       SET ${setClause}
+       WHERE supabase_uid = $${keys.length + 1}
+       RETURNING *`,
+                  [...values, supabase_uid]
+            );
+
+            if (result.rows.length === 0) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy người dùng." });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Cập nhật thành công.",
+                  data: result.rows[0]
+            });
+
+      } catch (err) {
+            console.error("Lỗi khi cập nhật thông tin người dùng:", err);
+            return res.status(500).json({ error: true, message: "Lỗi máy chủ." });
+      }
 }
 
+
+export async function handleLogIn(req, res) {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Vui lòng nhập email và mật khẩu.",
+            });
+      }
+
+      try {
+            const result = await signInWithPassAndEmail(email, password);
+
+            const { role, supabase_uid, profile } = result.user;
+            const id = profile?.id;
+
+            if (!id || !role || !supabase_uid) {
+                  return res.status(400).json({
+                        error: true,
+                        message: "Không thể xác định thông tin người dùng.",
+                  });
+            }
+
+            // Đánh dấu đã xác thực email ở bảng ứng với role
+            await confirmEmailFor(role, supabase_uid, id);
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Đăng nhập thành công",
+                  data: result,
+            });
+      } catch (err) {
+            console.error("Login failed:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: err.message || "Đăng nhập thất bại.",
+            });
+      }
+}
+
+
 export async function handleLogOut(req, res) {
-      
+
 }
 
 export async function handleUpdatePassword(req, res) {

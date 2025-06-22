@@ -531,24 +531,89 @@ export async function removeDadByStudentId(student_id) {
   return result.rows;
 }
 
+//---------------------------------------------------- update flow: 
+// this func used to update in the same templates
+export async function updateProfileFor(id, role, updates) {
+  const keys = Object.keys(updates);
+  const values = Object.values(updates);
 
-export async function confirmEmailFor(role, supabase_id, id) {
-  const result = await query(`
-    update ${role}
-    set email_confirmed = true
-    where supabase_id = $1 or id = $2
-    returning *
-    `, [supabase_id, id]);
+  if (keys.length === 0) {
+    throw new Error("Không có dữ liệu để cập nhật.");
+  }
+
+  const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+  const result = await query(
+    `UPDATE ${role}
+       SET ${setClause}
+       WHERE supabase_uid = $${keys.length + 1}
+       RETURNING *`,
+    [...values, id]
+  );
+
   return result.rows[0];
 }
 
-export async function unconfirmEmailFor(role, supabase_id, id) {
+// admin is able to update all
+export async function editUserProfileByAdmin(id, role, updates) {
+  return await updateProfileFor(id, role, updates);
+}
+
+// below is used for self info modification
+// admin nurse can update all
+export async function updateAdminProfile(id, updates) {
+  return await updateProfileFor(id, "admin", updates);
+}
+
+export async function updateNurseProfile(id, updates) {
+  return await updateProfileFor(id, "nurse", updates);
+}
+
+// parent và student chỉ được update email, profile_img_url, phone_number
+export async function updateStudentProfile(id, updates) {
+  const allowedFields = ['email', 'profile_img_url', 'phone_number'];
+  const filteredUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([key]) => allowedFields.includes(key))
+  );
+
+  if (Object.keys(filteredUpdates).length === 0) {
+    throw new Error("Không có trường hợp lệ để cập nhật.");
+  }
+
+  return await updateProfileFor(id, "student", filteredUpdates);
+}
+
+export async function updateParentProfile(id, updates) {
+  const allowedFields = ['email', 'profile_img_url', 'phone_number'];
+  const filteredUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([key]) => allowedFields.includes(key))
+  );
+
+  if (Object.keys(filteredUpdates).length === 0) {
+    throw new Error("Không có trường hợp lệ để cập nhật.");
+  }
+
+  return await updateProfileFor(id, "parent", filteredUpdates);
+}
+
+//---------------------------------------------------- end update flow: 
+
+export async function confirmEmailFor(role, supabase_uid, id) {
+  const result = await query(`
+    update ${role}
+    set email_confirmed = true
+    where supabase_uid = $1 or id = $2
+    returning *
+    `, [supabase_uid, id]);
+  return result.rows[0];
+}
+
+export async function unconfirmEmailFor(role, supabase_uid, id) {
   const result = await query(`
     update ${role}
     set email_confirmed = false
-    where supabase_id = $1 or id = $2
+    where supabase_uid = $1 or id = $2
     returning *
-    `, [supabase_id, id]);
+    `, [supabase_uid, id]);
   return result.rows[0];
 }
 

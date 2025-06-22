@@ -159,6 +159,19 @@ export async function createNewStudent(
     return addedUser;
 }
 
+// update email
+export async function updateEmailForUser(supabase_uid, email) {
+    const { data, error } = await supabaseAdmin.updateUserById(supabase_uid, {
+        email,
+    });
+
+    if (error) {
+        throw new Error(`Lỗi cập nhật email: ${error.message}`);
+    }
+
+    return data;
+}
+
 export async function signInWithPassAndEmail(email, password) {
     const { data, error } = await supabaseClient.signInWithPassword({
         email,
@@ -168,17 +181,14 @@ export async function signInWithPassAndEmail(email, password) {
     if (error) {
         throw new Error(error.message || "Đăng nhập thất bại");
     }
-
     const userInfo = data.user;
-    const role = userInfo.user_metadata?.role;
+    const role = userInfo.app_metadata.role;
     const supabase_uid = userInfo.id;
 
     if (!role) {
         throw new Error("Tài khoản không có role được xác định.");
     }
 
-    // set the email_confirmed in the table match with this user to know he/she is able to log in with their email and password
-    await confirmEmailFor(role, supabase_uid, id);
 
     const profile = await getProfileByUUID(role, supabase_uid);
 
