@@ -16,7 +16,8 @@ import {
       confirmEmailFor,
       unconfirmEmailFor,
       editUserProfileByAdmin,
-      uploadFileToSupabaseStorage
+      uploadFileToSupabaseStorage,
+      getProfileByUUID
 
 } from "../services/index.js";
 
@@ -244,6 +245,27 @@ export async function createStudent(req, res) {
                   error: true,
                   message: err.message
             });
+      }
+}
+
+export async function getUserProfileByUUID(req, res) {
+      const { supabase_uid, role } = req.params;
+
+      if (!supabase_uid) {
+            return res.status(400).json({ error: true, message: "Thiếu supabase_uid!" });
+      }
+
+      try {
+            const profile = await getProfileByUUID(role, supabase_uid);
+
+            if (!profile) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy hồ sơ." });
+            }
+
+            return res.status(200).json({ error: false, data: profile });
+      } catch (err) {
+            console.error("Lỗi khi lấy thông tin user:", err);
+            return res.status(500).json({ error: true, message: "Lỗi server!" });
       }
 }
 

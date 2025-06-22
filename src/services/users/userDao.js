@@ -262,49 +262,49 @@ export async function getProfileOfNurseByUUID(supabase_uid) {
 export async function getProfileOfParentByUUID(supabase_uid) {
   const result = await query(
     `SELECT 
-      row_to_json(p_with_students) AS parent_profile
-    FROM (
-      SELECT 
-        p.id,
-        p.supabase_uid,
-        p.email,
-        p.name,
-        p.dob,
-        DATE_PART('year', AGE(p.dob)) AS age,
-        p.gender,
-        p.address,
-        p.phone_number,
-        p.profile_img_url,
-        p.email_confirmed,
+  p_with_students.*
+FROM (
+  SELECT 
+    p.id,
+    p.supabase_uid,
+    p.email,
+    p.name,
+    p.dob,
+    DATE_PART('year', AGE(p.dob)) AS age,
+    p.gender,
+    p.address,
+    p.phone_number,
+    p.profile_img_url,
+    p.email_confirmed,
 
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', s.id,
-              'supabase_uid', s.supabase_uid,
-              'email', s.email,
-              'name', s.name,
-              'age', DATE_PART('year', AGE(s.dob)),
-              'dob', s.dob,
-              'gender', s.gender,
-              'address', s.address,
-              'phone_number', s.phone_number,
-              'profile_img_url', s.profile_img_url,
-              'year_of_enrollment', s.year_of_enrollment,
-              'email_confirmed', s.email_confirmed,
-              'class_id', c.id,
-              'class_name', c.name
-            )
-          ) FILTER (WHERE s.id IS NOT NULL),
-          '[]'
-        ) AS students
+    COALESCE(
+      json_agg(
+        json_build_object(
+          'id', s.id,
+          'supabase_uid', s.supabase_uid,
+          'email', s.email,
+          'name', s.name,
+          'age', DATE_PART('year', AGE(s.dob)),
+          'dob', s.dob,
+          'gender', s.gender,
+          'address', s.address,
+          'phone_number', s.phone_number,
+          'profile_img_url', s.profile_img_url,
+          'year_of_enrollment', s.year_of_enrollment,
+          'email_confirmed', s.email_confirmed,
+          'class_id', c.id,
+          'class_name', c.name
+        )
+      ) FILTER (WHERE s.id IS NOT NULL),
+      '[]'
+    ) AS students
 
-      FROM parent p
-      LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
-      LEFT JOIN class c ON c.id = s.class_id
-      WHERE p.supabase_uid = $1
-      GROUP BY p.id
-    ) p_with_students;`,
+  FROM parent p
+  LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
+  LEFT JOIN class c ON c.id = s.class_id
+  WHERE p.supabase_uid = $1
+  GROUP BY p.id
+) p_with_students;`,
     [supabase_uid]
   );
 
@@ -313,23 +313,23 @@ export async function getProfileOfParentByUUID(supabase_uid) {
 
 export async function getProfileOfStudentByUUID(supabase_uid) {
   const result = await query(
-    `SELECT json_build_object(
-      'id', s.id,
-      'supabase_uid', s.supabase_uid,
-      'email', s.email,
-      'name', s.name,
-      'dob', s.dob,
-      'age', DATE_PART('year', AGE(s.dob)),
-      'gender', s.gender,
-      'address', s.address,
-      'phone_number', s.phone_number,
-      'profile_img_url', s.profile_img_url,
-      'year_of_enrollment', s.year_of_enrollment,
-      'email_confirmed', s.email_confirmed,
-      'class_id', s.class_id,
-      'class_name', c.name,
+    `  SELECT 
+      s.id,
+      s.supabase_uid,
+      s.email,
+      s.name,
+      s.dob,
+      DATE_PART('year', AGE(s.dob)) AS age,
+      s.gender,
+      s.address,
+      s.phone_number,
+      s.profile_img_url,
+      s.year_of_enrollment,
+      s.email_confirmed,
+      s.class_id,
+      c.name AS class_name,
 
-      'mom_profile', CASE
+      CASE
         WHEN s.mom_id IS NOT NULL THEN json_build_object(
           'id', m.id,
           'name', m.name,
@@ -344,9 +344,9 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
           'email_confirmed', m.email_confirmed
         )
         ELSE NULL
-      END,
+      END AS mom_profile,
 
-      'dad_profile', CASE
+      CASE
         WHEN s.dad_id IS NOT NULL THEN json_build_object(
           'id', d.id,
           'name', d.name,
@@ -361,8 +361,8 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
           'email_confirmed', d.email_confirmed
         )
         ELSE NULL
-      END
-    ) AS student_profile
+      END AS dad_profile
+
     FROM student s
     LEFT JOIN parent m ON m.id = s.mom_id
     LEFT JOIN parent d ON d.id = s.dad_id

@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-      createNurse, createAdmin, createParent, createStudent, getAdminProfileByID, getNurseProfileByID, getParentProfileByID, getStudentProfileByID,
+      createNurse, createAdmin, createParent, createStudent, getAdminProfileByID, getNurseProfileByID, getParentProfileByID, getStudentProfileByID, getUserProfileByUUID,
       listAdmins, listNurses, listStudents, listParents, listStudentsByClass, listStudentsByGrade,
       assignParents, removeMomFromStudent, removeDadFromStudent,
       handleUpdatePassword, handleLogIn, handleLogOut,
@@ -21,6 +21,12 @@ router.post('/nurse', createNurse);
 // get student that not under supervision of any parent
 
 
+router.get("/user/:supabase_uid/role/:role/profile", getUserProfileByUUID);
+
+router.get("/admin/:admin_id", getAdminProfileByID);
+router.get("/nurse/:nurse_id", getNurseProfileByID);
+router.get('/parent/:parent_id', getParentProfileByID); // contains self-info and array of their children's profiles
+router.get('/student/:student_id', getStudentProfileByID); // contains self-info and array of their parent's profiles
 
 router.get("/admin/:admin_id", getAdminProfileByID);
 router.get("/nurse/:nurse_id", getNurseProfileByID);
