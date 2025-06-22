@@ -1,14 +1,23 @@
 import { supabaseAdmin } from "../config/supabase.js";
-import { query } from "../config/database.js";
+import multer from "multer";
+
 import {
       createNewAdmin, createNewNurse, createNewParent, createNewStudent, getProfileOfAdminByID, getProfileOfNurseByID, getProfileOfParentByID, getProfileOfStudentByID,
       getAllAdmins,
       getAllNurses,
       getAllParents,
       getAllStudents,
+      getAllStudentsByClassID,
+      getAllStudentsByGradeID,
       linkParentsAndStudents,
       removeDadByStudentId,
-      removeMomByStudentId
+      removeMomByStudentId,
+      signInWithPassAndEmail,
+      confirmEmailFor,
+      unconfirmEmailFor,
+      editUserProfileByAdmin,
+      uploadFileToSupabaseStorage,
+      getProfileByUUID
 
 } from "../services/index.js";
 
@@ -239,6 +248,27 @@ export async function createStudent(req, res) {
       }
 }
 
+export async function getUserProfileByUUID(req, res) {
+      const { supabase_uid, role } = req.params;
+
+      if (!supabase_uid) {
+            return res.status(400).json({ error: true, message: "Thiếu supabase_uid!" });
+      }
+
+      try {
+            const profile = await getProfileByUUID(role, supabase_uid);
+
+            if (!profile) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy hồ sơ." });
+            }
+
+            return res.status(200).json({ error: false, data: profile });
+      } catch (err) {
+            console.error("Lỗi khi lấy thông tin user:", err);
+            return res.status(500).json({ error: true, message: "Lỗi server!" });
+      }
+}
+
 export async function getAdminProfileByID(req, res) {
       const { admin_id } = req.params;
 
@@ -393,6 +423,41 @@ export async function listStudents(req, res) {
       }
 }
 
+
+export async function listStudentsByClass(req, res) {
+      const { class_id } = req.params;
+
+      if (!class_id) {
+            return res.status(400).json({ error: true, message: "Thiếu id lớp." });
+      }
+
+      try {
+            const students = await getAllStudentsByClassID(class_id);
+            res.status(200).json({ error: false, data: students });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách học sinh theo lớp:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+export async function listStudentsByGrade(req, res) {
+      const { grade_id } = req.params;
+
+      if (!grade_id) {
+            return res.status(400).json({ error: true, message: "Thiếu id khối." });
+      }
+
+      try {
+            const students = await getAllStudentsByGradeID(grade_id);
+            res.status(200).json({ error: false, data: students });
+      } catch (err) {
+            console.error("Lỗi khi lấy danh sách học sinh theo khối:", err);
+            res.status(500).json({ error: true, message: "Lỗi máy chủ" });
+      }
+}
+
+
+
 export async function assignParents(req, res) {
       const { mom_id, dad_id, student_ids } = req.body;
 
@@ -452,79 +517,152 @@ export async function removeDadFromStudent(req, res) {
       }
 }
 
+export async function editUserInfoByAdmin(req, res) {
+      const { id, role, updates } = req.body;
+
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID người dùng."
+            });
+      }
+
+      if (!role) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu vai trò người dùng (admin, nurse, parent, student)."
+            });
+      }
+
+      if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Trường 'updates' phải là một object chứa thông tin cần cập nhật."
+            });
+      }
+
+      if (Object.keys(updates).length === 0) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Không có trường nào để cập nhật."
+            });
+      }
+
+      // khoong cho cập nhật supabase_uid, tự động sinh khi tạo mới tài khoản với email
+      if (updates?.supabase_uid) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Không thể cập nhật trực tiếp supabase_uid (tự động sinh khi tạo mới tài khoản)."
+            });
+      }
+
+      try {
+            // nếu profile chưa đăng ký tài khoản mà cập nhật mới email thì sẽ tạo mới tài khoản (gửi qua mail acc + pass) rồi gắn supabase_uid vào user_profile
+            // nếu profile đăng ký tài khoản rồi mà cập nhật email mới thì gửi lại
+            const result = await editUserProfileByAdmin(id, role, updates);
+
+            if (!result) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy người dùng." });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Cập nhật thành công.",
+                  data: result
+            });
+
+      } catch (err) {
+            console.error("Lỗi khi cập nhật thông tin người dùng:", err);
+            return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
+      }
+}
+
+export async function handleUploadProfileImg(req, res) {
+      const upload = multer({ storage: multer.memoryStorage() }).single('image');
+
+      upload(req, res, async function (err) {
+            if (err) {
+                  return res.status(500).json({ error: true, message: 'Lỗi khi xử lý file.' });
+            }
+
+            const file = req.file;
+
+            if (!file) {
+                  return res.status(400).json({ error: true, message: 'Không có file ảnh nào được upload.' });
+            }
+
+            try {
+                  const fileName = `${Date.now()}-${file.originalname}`;
+
+                  const publicUrl = await uploadFileToSupabaseStorage(file, "avatars", fileName);
+
+                  return res.status(200).json({
+                        error: false,
+                        message: "Upload ảnh thành công",
+                        profile_img_url: publicUrl,
+                  });
+
+            } catch (err) {
+                  console.log(err);
+                  return res.status(500).json({
+                        error: true,
+                        message: `Lỗi hệ thống: ${err.message || err}`,
+                  });
+            }
+      });
+}
+
+
+export async function handleLogIn(req, res) {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Vui lòng nhập email và mật khẩu.",
+            });
+      }
+
+      try {
+            const result = await signInWithPassAndEmail(email, password);
+
+            const { role, supabase_uid, profile } = result.user;
+            const id = profile?.id;
+
+            if (!id || !role || !supabase_uid) {
+                  return res.status(400).json({
+                        error: true,
+                        message: "Không thể xác định thông tin người dùng.",
+                  });
+            }
+
+            // Đánh dấu đã xác thực email ở bảng ứng với role
+            await confirmEmailFor(role, supabase_uid, id);
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Đăng nhập thành công",
+                  data: result,
+            });
+      } catch (err) {
+            console.error("Login failed:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: err.message || "Đăng nhập thất bại.",
+            });
+      }
+}
+
+
+export async function handleLogOut(req, res) {
+
+}
 
 export async function handleUpdatePassword(req, res) {
 
 }
 
 
-export async function getStudentProfileByUUID(req, res) {
-      const { supabase_student_uid } = req.params;
-
-      if (!supabase_student_uid) {
-            return res
-                  .status(400)
-                  .json({ error: true, message: "Thiếu supabase UUID học sinh" });
-      }
-
-      try {
-            // Lấy thông tin liên kết
-            const result = await query(
-                  `SELECT a.id, a.supabase_uid as supabase_student_id, class_id, b.name as class_name, grade_id, c.name as grade_name, mom_id, d.supabase_uid as supabase_mom_uid, dad_id, e.supabase_uid as supabase_dad_uid
-                  FROM student a
-                  JOIN class b ON a.class_id = b.id
-                  JOIN grade c ON b.grade_id = c.id
-                  LEFT JOIN parent d ON a.mom_id = d.id
-                  LEFT JOIN parent e ON a.dad_id = e.id
-                  WHERE a.supabase_uid = $1`,
-                  [supabase_student_uid]
-            );
-
-            if (result.rows.length === 0) {
-                  return res.status(404).json({
-                        error: false,
-                        message: "Không tìm thấy học sinh với UUID này",
-                  });
-            }
-
-            const studentData = result.rows[0];
-
-            // Lấy thông tin hồ sơ từ Supabase Auth
-            const [studentProfile, momProfile, dadProfile] = await Promise.all([
-                  getSupabaseProfileByUUID(studentData.supabase_student_id),
-                  getSupabaseProfileByUUID(studentData.supabase_mom_uid),
-                  getSupabaseProfileByUUID(studentData.supabase_dad_uid),
-            ]);
-
-            const fullData = {
-                  ...studentData,
-                  student_profile: studentProfile,
-                  mom_profile: momProfile,
-                  dad_profile: dadProfile,
-            };
-
-            return res.status(200).json({
-                  error: false,
-                  message: "Lấy thông tin học sinh thành công",
-                  data: fullData,
-            });
-      } catch (err) {
-            console.error("Lỗi khi lấy thông tin học sinh:", err);
-            return res
-                  .status(500)
-                  .json({ error: true, message: "Lỗi server khi lấy học sinh" });
-      }
-}
-
-export async function getSupabaseProfileByUUID(uid) {
-      try {
-            const { data, error } = await supabaseAdmin.getUserById(uid);
-            if (error || !data?.user) return null;
-            return data.user.user_metadata;
-      } catch {
-            return null;
-      }
-}
 
 
 

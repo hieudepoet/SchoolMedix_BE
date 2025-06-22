@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../config/supabase.js";
+import { supabaseClient } from "../../config/supabase.js";
 import {
     insertAdmin,
     insertNurse,
@@ -158,8 +159,35 @@ export async function createNewStudent(
     return addedUser;
 }
 
+// update email
+export async function updateEmailForSupabaseAuthUser(supabase_uid, email) {
+    const { data, error } = await supabaseAdmin.updateUserById(supabase_uid, {
+        email,
+    });
+
+    if (error) {
+        throw new Error(`Lỗi cập nhật email trên supabase auth: ${error.message}`);
+    }
+
+    return data;
+}
+
+export async function createNewPasswordForSupabaseAuthUser(supabase_uid) {
+    const newPass = generateRandomPassword();
+
+    const { error } = await admin.auth.admin.updateUserById(supabase_uid, {
+        password: newPass,
+    });
+
+    if (error) {
+        throw new Error("Không thể cập nhật mật khẩu mới: " + error.message);
+    }
+
+    return newPass;
+}
+
 export async function signInWithPassAndEmail(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.signInWithPassword({
         email,
         password,
     });
@@ -167,17 +195,14 @@ export async function signInWithPassAndEmail(email, password) {
     if (error) {
         throw new Error(error.message || "Đăng nhập thất bại");
     }
-
     const userInfo = data.user;
-    const role = userInfo.user_metadata?.role;
+    const role = userInfo.app_metadata.role;
     const supabase_uid = userInfo.id;
 
     if (!role) {
         throw new Error("Tài khoản không có role được xác định.");
     }
 
-    // set the email_confirmed in the table match with this user to know he/she is able to log in with their email and password
-    await confirmEmailFor(role, supabase_uid, id);
 
     const profile = await getProfileByUUID(role, supabase_uid);
 
@@ -185,23 +210,15 @@ export async function signInWithPassAndEmail(email, password) {
         access_token: data.session.access_token,
         refresh_token: data.session.refresh_token,
         user: {
-            supabase_uid,
-            email: userInfo.email,
-            role,
-            profile
+            ...profile
         }
     };
 }
 
-export async function updatePassword(newPassword, accessToken) {
-    const { data, error } = await supabase.auth.updateUser(
-        {
-            password: newPassword
-        },
-        {
-            accessToken
-        }
-    );
+export async function updatePassword(supabase_uid, newPassword) {
+    const { data, error } = await supabaseAdmin.updateUserById(supabase_uid, {
+        password: newPassword,
+    });
 
     if (error) {
         throw new Error(error.message || 'Cập nhật mật khẩu thất bại.');
@@ -209,5 +226,4 @@ export async function updatePassword(newPassword, accessToken) {
 
     return data;
 }
-
 

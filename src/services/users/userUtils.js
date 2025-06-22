@@ -38,3 +38,24 @@ export function generateRandomPassword() {
 
   return password.sort(() => Math.random() - 0.5).join('');
 }
+
+// this func used to update in the same templates
+export async function updateProfileFor(id, role, updates) {
+  const keys = Object.keys(updates);
+  const values = Object.values(updates);
+
+  if (keys.length === 0) {
+    throw new Error("Không có dữ liệu để cập nhật.");
+  }
+
+  const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+  const result = await query(
+    `UPDATE ${role}
+       SET ${setClause}
+       WHERE id = $1
+       RETURNING *`,
+    [...values, id]
+  );
+
+  return result.rows[0];
+}

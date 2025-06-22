@@ -6,4 +6,5 @@ export * from "./email/index.js"
 export * from "./users/index.js"
 
 
-
+// supabase storage (to save img, file excel, pdf..)
+export * from "./supabase-storage/index.js"

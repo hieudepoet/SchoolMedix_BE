@@ -1,20 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thông tin đăng nhập SchoolMedix</title>
+  </head>
 
-<head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Document</title>
-</head>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333">
+    <p>Xin chào <strong>{{ name }}</strong>,</p>
 
-<body>
-      Xin chào {{ name }}, <br>
-      Bạn được mời đăng nhập vào hệ thống SchoolMedix với vai trò <b>{{ role }}</b>! <br>
-      Email: {{ email }} <br>
-      Password: {{ password }} <br>
+    <p>
+      Bạn đã được tạo tài khoản để truy cập hệ thống
+      <strong>SchoolMedix</strong> với vai trò <strong>{{ role }}</strong>.
+    </p>
 
-      Vì lí do bảo mật, bạn cần đăng nhập và reset password!
+    <p>
+      <b>Thông tin đăng nhập:</b><br />
+      🔹 <b>Email:</b> {{ email }}<br />
+      🔹 <b>Mật khẩu tạm thời:</b> {{ password }}
+    </p>
 
-</body>
-
+    <p>
+      👉 <strong>Vì lý do bảo mật</strong>, bạn cần đăng nhập và thay đổi mật
+      khẩu ngay trong lần sử dụng đầu tiên.
+    </p>
+    <p>
+      Trân trọng,<br />
+      <i>Phòng Y tế Trường học SchoolMedix</i>
+    </p>
+  </body>
 </html>
