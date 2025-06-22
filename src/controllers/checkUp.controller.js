@@ -226,8 +226,13 @@ export async function getALLRegisterByCampaignID(req, res) {
         if (check.rowCount === 0) {
             return res.status(400).json({ error: true, message: "không  tìm được Campaign." });
         }
+        
+        const result = await query(`SELECT c.*,cr.*
+            FROM checkupregister c
+            JOIN checkupcampaign cr ON c.campaign_id = cr.id
+            WHERE cr.id = $1`
+            ,[id]);
 
-        const result = await query('SELECT * FROM checkupregister WHERE campaign_id = $1', [id]);
         if (result.rowCount === 0) {
             return res.status(400).json({ error: true, message: "không lấy được Health Record." });
         }
@@ -1072,7 +1077,7 @@ export async function getListStudentByCampaignAccept(req, res) {
 
 }
 
-export async function startCampaig(req,res) {
+export async function startCampaig(req, res) {
     const { id } = req.body;
 
     try {
@@ -1091,12 +1096,12 @@ export async function startCampaig(req,res) {
 
         const rs = await query(`UPDATE checkupcampaign SET status = $1 WHERE id = $2`, ['ONGOING', id])
 
-        
 
-        if( rs.rowCount === 0){
+
+        if (rs.rowCount === 0) {
             return res.status(400).json({ error: true, message: "Start Campaign không thành công." });
-        } else{
-            return res.status(200).json({error:false,message:"Start Campaign thành công"})
+        } else {
+            return res.status(200).json({ error: false, message: "Start Campaign thành công" })
         }
 
     } catch (err) {
@@ -1105,7 +1110,7 @@ export async function startCampaig(req,res) {
     }
 }
 
-export async function finishCampaign(req,res) {
+export async function finishCampaign(req, res) {
     const { id } = req.body;
 
     try {
@@ -1124,17 +1129,57 @@ export async function finishCampaign(req,res) {
 
         const rs = await query(`UPDATE checkupcampaign SET status = $1 WHERE id = $2`, ['DONE', id])
 
-        
 
-        if( rs.rowCount === 0){
+
+        if (rs.rowCount === 0) {
             return res.status(400).json({ error: true, message: "Finish Campaign không thành công." });
-        } else{
-            return res.status(200).json({error:false,message:"Finish Campaign thành công"})
+        } else {
+            return res.status(200).json({ error: false, message: "Finish Campaign thành công" })
         }
 
     } catch (err) {
         console.error("❌ Error creating Campaign ", err);
         return res.status(500).json({ error: true, message: "Lỗi khi Start Campaign" });
+    }
+
+}
+
+export async function getCampaignDetail(req, res) {
+
+    const { id } = req.body
+    try {
+        if (!id) {
+            return res.status(400).json({ error: true, message: "Không lấy được ID." });
+        }
+
+        const check = await query(`SELECT * FROM checkupcampaign WHERE id = $1`, [id]);
+
+        if (check.rowCount === 0) {
+            return res.status(400).json({ error: true, message: "Campaign ID không tồn tại." });
+        }
+
+
+        //Lấy Campaign Details
+
+        const rs = await query(`SELECT c.id AS campaign_id, c.name AS campaign_name,sel.id, sel.name AS spe_name, sel.description
+            FROM checkupcampaign c
+            JOIN campaigncontainspeexam cp ON cp.campaign_id = c.id
+            JOIN specialistexamlist sel ON sel.id = cp.specialist_exam_id
+            WHERE c.id = 1`
+            ,[id]);
+
+        const result = rs.rows;
+
+        if(rs.rowCount===0){
+            return res.status(400).json({ error: true, message: "Không lấy được Campaign." });
+        } else{
+             return res.status(200).json({ error: false, message: "Lấy Details Campaign thành công" })
+        }
+
+
+    } catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res.status(500).json({ error: true, message: "Lỗi khi lấy Campaign details" });
     }
 
 }
