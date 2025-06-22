@@ -16,13 +16,13 @@ c. Parent(0/3):
 - Trang xem danh sách các con và cập nhật thông tin cho con (Chỉ được phép cập nhật trường email để con đăng nhập xem thông tin, trường phone_number và trường profile_img_url)
 - Đổi mật khẩu và cập nhật thông tin cá nhân (Chỉ được phép cập nhật trường email, phone_number, profile_img_url)
 
-d. Student(0/2): (chỉ xem thông tin)
+d. Student(0/2): (chỉ xem thông tin)      
 - Xem thông tin cá nhân và thông tin cơ bản của phụ huynh
 - Đổi mật khẩu. (Chỉ có parent mới được phép cập nhật thông tin cho con)
 
 
 **NOTE**
-- Trang cập nhật thông tin cá nhân của all role không được cập nhật name, id, role, dob, gender, class, grade... Muốn cập nhật các trường nêu trên thì làm cập nhật trên trang admin phần edit.
+- Trang cập nhật thông tin cá nhân của role parent, student không được cập nhật name, id, role, dob, gender, class, grade... Muốn cập nhật các trường nêu trên thì làm cập nhật trên trang admin phần edit.
 - Trang edit cá nhân cho parent và parent cập nhật cho con chỉ được phép cập nhật email, phone_number, profile_img_url.
 - Student chỉ được xem thông tin, không được cập nhật thông tin cá nhân. Có thể đổi mật khẩu.
 - Mỗi USER có thể không cần có email. Không có email thì tài khoản đó ko đăng nhập được vào hệ thống, phải đăng ký với system bằng cách nào đó (gửi khảo sát giấy cho nhà trường trước chẳng hạn). Nhà trường có thể thu thập email sau. Sau đó, nhà trường cập nhật lại email.

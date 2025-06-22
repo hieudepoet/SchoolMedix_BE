@@ -1,14 +1,34 @@
+import { supabaseAdmin } from "../../config/supabase.js";
 import {
     insertAdmin,
     insertNurse,
     insertParent,
     insertStudent,
-} from "../../dao/index.js";
-
+    getProfileByUUID,
+    confirmEmailFor
+} from "./userDao.js";
 import { sendWelcomeEmail } from "../email/index.js";
+import { generateRandomPassword } from "./userUtils.js";
 
-import { createUserWithRole } from "../../dao/index.js";
-import { generateRandomPassword } from "../../utils/index.js";
+
+
+export async function createSupabaseAuthUserWithRole(email, password, role) {
+    const { data, error } = await supabaseAdmin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {},
+        app_metadata: {
+            role,
+        },
+    });
+
+    if (error) {
+        throw new Error("Tạo user trên supabase auth thất bại: " + error.message);
+    }
+
+    return data.user.id;
+}
 
 export async function createNewAdmin(
     email,
@@ -22,7 +42,7 @@ export async function createNewAdmin(
     let supabase_uid = null;
     if (email) {
         const password = generateRandomPassword();
-        supabase_uid = await createUserWithRole(email, password, "admin");
+        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "admin");
         await sendWelcomeEmail(email, name, "admin", password);
     }
 
@@ -52,7 +72,7 @@ export async function createNewNurse(
     let supabase_uid = null;
     if (email) {
         const password = generateRandomPassword();
-        supabase_uid = await createUserWithRole(email, password, "nurse");
+        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "nurse");
         await sendWelcomeEmail(email, name, "nurse", password);
     }
 
@@ -82,7 +102,7 @@ export async function createNewParent(
     let supabase_uid = null;
     if (email) {
         const password = generateRandomPassword();
-        supabase_uid = await createUserWithRole(email, password, "parent");
+        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "parent");
         await sendWelcomeEmail(email, name, "parent", password);
     }
 
@@ -116,7 +136,7 @@ export async function createNewStudent(
     let supabase_uid = null;
     if (email) {
         const password = generateRandomPassword();
-        supabase_uid = await createUserWithRole(email, password, "student");
+        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "student");
         await sendWelcomeEmail(email, name, "student", password);
     }
 
@@ -137,3 +157,57 @@ export async function createNewStudent(
 
     return addedUser;
 }
+
+export async function signInWithPassAndEmail(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+
+    if (error) {
+        throw new Error(error.message || "Đăng nhập thất bại");
+    }
+
+    const userInfo = data.user;
+    const role = userInfo.user_metadata?.role;
+    const supabase_uid = userInfo.id;
+
+    if (!role) {
+        throw new Error("Tài khoản không có role được xác định.");
+    }
+
+    // set the email_confirmed in the table match with this user to know he/she is able to log in with their email and password
+    await confirmEmailFor(role, supabase_uid, id);
+
+    const profile = await getProfileByUUID(role, supabase_uid);
+
+    return {
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        user: {
+            supabase_uid,
+            email: userInfo.email,
+            role,
+            profile
+        }
+    };
+}
+
+export async function updatePassword(newPassword, accessToken) {
+    const { data, error } = await supabase.auth.updateUser(
+        {
+            password: newPassword
+        },
+        {
+            accessToken
+        }
+    );
+
+    if (error) {
+        throw new Error(error.message || 'Cập nhật mật khẩu thất bại.');
+    }
+
+    return data;
+}
+
+
