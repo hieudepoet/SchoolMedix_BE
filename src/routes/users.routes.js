@@ -4,7 +4,8 @@ import {
       listAdmins, listNurses, listStudents, listParents,
       assignParents, removeMomFromStudent, removeDadFromStudent,
       handleUpdatePassword, handleLogIn, handleLogOut,
-      editUserInfo
+      editUserInfoByAdmin,
+      handelUploadProfileImg
 
 } from '../controllers/users.controller.js';
 
@@ -43,7 +44,7 @@ router.patch("/student/:student_id"); // chua
 router.patch("/parent/:parent_id"); // chua
 
 // update thông tin cá nhân cho các role với admin, được quyền cập nhật all info
-router.patch("/admin/edit-user/"); // chua
+router.patch("/admin/edit-user", editUserInfoByAdmin); // chua
 
 
 // delete một user
@@ -51,6 +52,9 @@ router.delete("/admin/:admin_id"); // chua
 router.delete("/nurse/:nurse_id"); // chua
 router.delete("/parent/:parent_id"); // chua
 router.delete("/student/:student_id"); // chua
+
+// xử lý upload ảnh và trả về profile_img_url, đầu vào là một form data
+router.post("/profile-img", handelUploadProfileImg);
 
 
 // handle account: login, logout, reset password,...

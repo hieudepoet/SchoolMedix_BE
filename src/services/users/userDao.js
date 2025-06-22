@@ -1,5 +1,5 @@
 import { query } from "../../config/database.js";
-import { generateStudentCode } from "./userUtils.js"
+import { generateStudentCode, updateProfileFor } from "./userUtils.js"
 
 export async function insertAdmin(
   supabase_uid = null,
@@ -532,26 +532,6 @@ export async function removeDadByStudentId(student_id) {
 }
 
 //---------------------------------------------------- update flow: 
-// this func used to update in the same templates
-export async function updateProfileFor(id, role, updates) {
-  const keys = Object.keys(updates);
-  const values = Object.values(updates);
-
-  if (keys.length === 0) {
-    throw new Error("Không có dữ liệu để cập nhật.");
-  }
-
-  const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
-  const result = await query(
-    `UPDATE ${role}
-       SET ${setClause}
-       WHERE supabase_uid = $${keys.length + 1}
-       RETURNING *`,
-    [...values, id]
-  );
-
-  return result.rows[0];
-}
 
 // admin is able to update all
 export async function editUserProfileByAdmin(id, role, updates) {
@@ -570,7 +550,7 @@ export async function updateNurseProfile(id, updates) {
 
 // parent và student chỉ được update email, profile_img_url, phone_number
 export async function updateStudentProfile(id, updates) {
-  const allowedFields = ['email', 'profile_img_url', 'phone_number'];
+  const allowedFields = ['email', 'profile_img_url', 'phone_number']; // chỉ được update email, profile_img_url, phone_number
   const filteredUpdates = Object.fromEntries(
     Object.entries(updates).filter(([key]) => allowedFields.includes(key))
   );
@@ -583,7 +563,7 @@ export async function updateStudentProfile(id, updates) {
 }
 
 export async function updateParentProfile(id, updates) {
-  const allowedFields = ['email', 'profile_img_url', 'phone_number'];
+  const allowedFields = ['email', 'profile_img_url', 'phone_number']; // chỉ cho phép update 3 trường này
   const filteredUpdates = Object.fromEntries(
     Object.entries(updates).filter(([key]) => allowedFields.includes(key))
   );

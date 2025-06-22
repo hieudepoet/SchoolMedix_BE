@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../config/supabase.js";
+import multer from "multer";
 import { query } from "../config/database.js";
 import {
       createNewAdmin, createNewNurse, createNewParent, createNewStudent, getProfileOfAdminByID, getProfileOfNurseByID, getProfileOfParentByID, getProfileOfStudentByID,
@@ -11,7 +12,9 @@ import {
       removeMomByStudentId,
       signInWithPassAndEmail,
       confirmEmailFor,
-      unconfirmEmailFor
+      unconfirmEmailFor,
+      editUserProfileByAdmin,
+      uploadFileToSupabaseStorage
 
 } from "../services/index.js";
 
@@ -455,10 +458,10 @@ export async function removeDadFromStudent(req, res) {
       }
 }
 
-export async function editUserInfo(req, res) {
+export async function editUserInfoByAdmin(req, res) {
       const { id, role, updates } = req.body;
 
-      if (!id) {
+      if (!id && !supabase_uid) {
             return res.status(400).json({
                   error: true,
                   message: "Thiếu ID người dùng (supabase_uid hoặc id)."
@@ -487,28 +490,57 @@ export async function editUserInfo(req, res) {
       }
 
       try {
-            const result = await query(
-                  `UPDATE ${role}
-       SET ${setClause}
-       WHERE supabase_uid = $${keys.length + 1}
-       RETURNING *`,
-                  [...values, supabase_uid]
-            );
+            const result = await editUserProfileByAdmin(id, role, updates);
 
-            if (result.rows.length === 0) {
+            if (!result) {
                   return res.status(404).json({ error: true, message: "Không tìm thấy người dùng." });
             }
 
             return res.status(200).json({
                   error: false,
                   message: "Cập nhật thành công.",
-                  data: result.rows[0]
+                  data: result
             });
 
       } catch (err) {
             console.error("Lỗi khi cập nhật thông tin người dùng:", err);
             return res.status(500).json({ error: true, message: "Lỗi máy chủ." });
       }
+}
+
+export async function handelUploadProfileImg(req, res) {
+      const upload = multer({ storage: multer.memoryStorage() }).single('image');
+
+      upload(req, res, async function (err) {
+            if (err) {
+                  return res.status(500).json({ error: true, message: 'Lỗi khi xử lý file.' });
+            }
+
+            const file = req.file;
+
+            if (!file) {
+                  return res.status(400).json({ error: true, message: 'Không có file ảnh nào được upload.' });
+            }
+
+            try {
+                  const fileName = `${Date.now()}-${file.originalname}`;
+
+                  const publicUrl = await uploadFileToSupabaseStorage(file, "avatars", fileName);
+
+                  return res.status(200).json({
+                        error: false,
+                        message: "Upload ảnh thành công",
+                        profile_img_url: publicUrl,
+                  });
+
+            } catch (err) {
+                  console.log(err);
+                  return res.status(500).json({
+                        error: true,
+                        message: `Lỗi hệ thống: ${err.message || err}`,
+                  });
+            }
+      });
 }
 
 

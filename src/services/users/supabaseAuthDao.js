@@ -160,13 +160,13 @@ export async function createNewStudent(
 }
 
 // update email
-export async function updateEmailForUser(supabase_uid, email) {
+export async function updateEmailForSupabaseAuthUser(supabase_uid, email) {
     const { data, error } = await supabaseAdmin.updateUserById(supabase_uid, {
         email,
     });
 
     if (error) {
-        throw new Error(`Lỗi cập nhật email: ${error.message}`);
+        throw new Error(`Lỗi cập nhật email trên supabase auth: ${error.message}`);
     }
 
     return data;
@@ -204,15 +204,10 @@ export async function signInWithPassAndEmail(email, password) {
     };
 }
 
-export async function updatePassword(newPassword, accessToken) {
-    const { data, error } = await supabase.auth.updateUser(
-        {
-            password: newPassword
-        },
-        {
-            accessToken
-        }
-    );
+export async function updatePassword(supabase_uid, newPassword) {
+    const { data, error } = await supabaseAdmin.auth.admin.updateUserById(supabase_uid, {
+        password: newPassword,
+    });
 
     if (error) {
         throw new Error(error.message || 'Cập nhật mật khẩu thất bại.');
@@ -220,5 +215,4 @@ export async function updatePassword(newPassword, accessToken) {
 
     return data;
 }
-
 
