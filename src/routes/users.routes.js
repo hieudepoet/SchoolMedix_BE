@@ -1,8 +1,9 @@
 import express from 'express';
 import {
       createNurse, createAdmin, createParent, createStudent, getAdminProfileByID, getNurseProfileByID, getParentProfileByID, getStudentProfileByID,
-      listAdmins, listNurses, listStudents, listParents, assignParents,
-      removeMomFromStudent, removeDadFromStudent
+      listAdmins, listNurses, listStudents, listParents,
+      assignParents, removeMomFromStudent, removeDadFromStudent,
+      handleUpdatePassword
 
 } from '../controllers/users.controller.js';
 
@@ -34,6 +35,8 @@ router.get("/student", listStudents);
 router.patch('/parent/connect-students', assignParents); // link mom and dad to a list of students
 router.delete("/student/:student_id/mom", removeMomFromStudent); // delete mom 
 router.delete("/student/:student_id/dad", removeDadFromStudent); // delete dad
+
+router.post("/update-password", handleUpdatePassword);
 
 
 export default router;

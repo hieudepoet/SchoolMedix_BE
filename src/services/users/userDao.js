@@ -542,7 +542,7 @@ export async function confirmEmailFor(role, supabase_id, id) {
   return result.rows[0];
 }
 
-export async function unconfirmEmail(role, supabase_id, id) {
+export async function unconfirmEmailFor(role, supabase_id, id) {
   const result = await query(`
     update ${role}
     set email_confirmed = false
@@ -552,11 +552,23 @@ export async function unconfirmEmail(role, supabase_id, id) {
   return result.rows[0];
 }
 
-export async function getProfileByUUID(role) {
-  let user = null;
-  switch(role) {
-    case "admin": user = getProfileOfAdminByID
+export async function getProfileByUUID(role, supabase_uid) {
+  if (!supabase_uid || !role) return null;
+
+  switch (role) {
+    case "admin":
+      return await getProfileOfAdminByUUID(supabase_uid);
+
+    case "nurse":
+      return await getProfileOfNurseByUUID(supabase_uid);
+
+    case "parent":
+      return await getProfileOfParentByUUID(supabase_uid);
+
+    case "student":
+      return await getProfileOfStudentByUUID(supabase_uid);
+
+    default:
+      throw new Error("Role không hợp lệ");
   }
-  
-  return result.rows[0]
 }

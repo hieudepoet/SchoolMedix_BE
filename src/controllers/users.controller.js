@@ -453,6 +453,10 @@ export async function removeDadFromStudent(req, res) {
 }
 
 
+export async function handleUpdatePassword(req, res) {
+
+}
+
 
 export async function getStudentProfileByUUID(req, res) {
       const { supabase_student_uid } = req.params;
