@@ -1,5 +1,6 @@
 import { query } from "../config/database.js";
-import { getSupabaseProfileByUUID } from "./users.controller.js";
+import { getProfileByUUID, getProfileOfStudentByUUID } from "../services/index.js";
+import { getStudentProfileByID } from "./users.controller.js";
 
 export async function getDiseaseRecordsOfStudent(req, res) {
   const { student_id } = req.params;
@@ -41,7 +42,7 @@ export async function getDiseaseRecordsOfStudent(req, res) {
     // Gắn profile từ Supabase
     const studentsWithProfiles = await Promise.all(
       result.rows.map(async (student) => {
-        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
         return {
           ...student,
           profile,
@@ -103,7 +104,7 @@ export async function getChronicDiseaseRecordsOfStudent(req, res) {
     // Gắn profile từ Supabase
     const studentsWithProfiles = await Promise.all(
       result.rows.map(async (student) => {
-        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
         return {
           ...student,
           profile,
@@ -165,7 +166,7 @@ export async function getInfectiousDiseaseRecordsOfStudent(req, res) {
     // Gắn profile từ Supabase
     const studentsWithProfiles = await Promise.all(
       result.rows.map(async (student) => {
-        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
         return {
           ...student,
           profile,
@@ -336,7 +337,7 @@ export async function getAllChronicDiseaseRecords(req, res) {
     // Gắn profile từ Supabase
     const studentsWithProfiles = await Promise.all(
       result.rows.map(async (student) => {
-        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
         return {
           ...student,
           profile,
@@ -393,7 +394,7 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
     // Gắn profile từ Supabase
     const studentsWithProfiles = await Promise.all(
       result.rows.map(async (student) => {
-        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
         return {
           ...student,
           profile,
@@ -450,7 +451,7 @@ export async function getAllDiseaseRecords(req, res) {
     // Gắn profile từ Supabase
     const studentsWithProfiles = await Promise.all(
       result.rows.map(async (student) => {
-        const profile = await getSupabaseProfileByUUID(student.supabase_uid);
+        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
         return {
           ...student,
           profile,

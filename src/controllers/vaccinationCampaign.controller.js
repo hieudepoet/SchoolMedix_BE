@@ -1,8 +1,5 @@
 import { query } from "../config/database.js";
-import {
-  getStudentProfileByID,
-  getSupabaseProfileByUUID,
-} from "./users.controller.js";
+import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Campaign
 export async function createCampaign(req, res) {
@@ -1069,7 +1066,7 @@ export async function getAllRegisteredRecords(req, res) {
     let final_result = [];
 
     for (let record of records.rows) {
-      const student_profile = await getSupabaseProfileByUUID(
+      const student_profile = await getProfileOfStudentByUUID(
         record.supabase_uid
       );
       final_result.push({ ...record, student_profile });

@@ -215,7 +215,7 @@ export async function signInWithPassAndEmail(email, password) {
     };
 }
 
-export async function updatePassword(newPassword) {
+export async function updatePassword(supabase_uid, newPassword) {
     const { data, error } = await supabaseAdmin.updateUserById(supabase_uid, {
         password: newPassword,
     });
