@@ -226,15 +226,17 @@ export async function getALLRegisterByCampaignID(req, res) {
         if (check.rowCount === 0) {
             return res.status(400).json({ error: true, message: "không  tìm được Campaign." });
         }
-        
-        const result = await query(`SELECT c.*,cr.*
+
+        const result = await query(`SELECT c.*,cr.*, s.name as student_name, s.class_id, cla.name as class_name
             FROM checkupregister c
             JOIN checkupcampaign cr ON c.campaign_id = cr.id
+			join student s on s.id = c.student_id
+			join class cla on cla.id = s.class_id
             WHERE cr.id = $1`
-            ,[id]);
+            , [id]);
 
         if (result.rowCount === 0) {
-            return res.status(400).json({ error: true, message: "không lấy được Health Record." });
+            return res.status(400).json({ error: true, message: "không lấy được đơn đăng ký." });
         }
 
         return res.status(200).json({ error: false, data: result.rows });
@@ -1166,14 +1168,14 @@ export async function getCampaignDetail(req, res) {
             JOIN campaigncontainspeexam cp ON cp.campaign_id = c.id
             JOIN specialistexamlist sel ON sel.id = cp.specialist_exam_id
             WHERE c.id = 1`
-            ,[id]);
+            , [id]);
 
         const result = rs.rows;
 
-        if(rs.rowCount===0){
+        if (rs.rowCount === 0) {
             return res.status(400).json({ error: true, message: "Không lấy được Campaign." });
-        } else{
-             return res.status(200).json({ error: false, message: "Lấy Details Campaign thành công" })
+        } else {
+            return res.status(200).json({ error: false, message: "Lấy Details Campaign thành công" })
         }
 
 
