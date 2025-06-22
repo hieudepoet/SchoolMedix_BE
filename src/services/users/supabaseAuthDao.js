@@ -172,6 +172,20 @@ export async function updateEmailForSupabaseAuthUser(supabase_uid, email) {
     return data;
 }
 
+export async function createNewPasswordForSupabaseAuthUser(supabase_uid) {
+    const newPass = generateRandomPassword();
+
+    const { error } = await admin.auth.admin.updateUserById(supabase_uid, {
+        password: newPass,
+    });
+
+    if (error) {
+        throw new Error("Không thể cập nhật mật khẩu mới: " + error.message);
+    }
+
+    return newPass;
+}
+
 export async function signInWithPassAndEmail(email, password) {
     const { data, error } = await supabaseClient.signInWithPassword({
         email,
@@ -196,16 +210,13 @@ export async function signInWithPassAndEmail(email, password) {
         access_token: data.session.access_token,
         refresh_token: data.session.refresh_token,
         user: {
-            supabase_uid,
-            email: userInfo.email,
-            role,
-            profile
+            ...profile
         }
     };
 }
 
-export async function updatePassword(supabase_uid, newPassword) {
-    const { data, error } = await supabaseAdmin.auth.admin.updateUserById(supabase_uid, {
+export async function updatePassword(newPassword) {
+    const { data, error } = await supabaseAdmin.updateUserById(supabase_uid, {
         password: newPassword,
     });
 

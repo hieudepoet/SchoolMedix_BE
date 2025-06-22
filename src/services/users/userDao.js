@@ -498,6 +498,132 @@ export async function getAllStudents() {
   return result.rows.map(row => row.student_profile);
 }
 
+export async function getAllStudentsByClassID(class_id) {
+  const result = await query(`
+    SELECT json_build_object(
+      'id', s.id,
+      'supabase_uid', s.supabase_uid,
+      'email', s.email,
+      'name', s.name,
+      'dob', s.dob,
+      'age', DATE_PART('year', AGE(s.dob)),
+      'gender', s.gender,
+      'address', s.address,
+      'phone_number', s.phone_number,
+      'profile_img_url', s.profile_img_url,
+      'year_of_enrollment', s.year_of_enrollment,
+      'email_confirmed', s.email_confirmed,
+      'class_id', c.id,
+      'class_name', c.name,
+
+      'mom_profile', CASE
+        WHEN s.mom_id IS NOT NULL THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'gender', m.gender,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed
+        )
+        ELSE NULL
+      END,
+
+      'dad_profile', CASE
+        WHEN s.dad_id IS NOT NULL THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'gender', d.gender,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed
+        )
+        ELSE NULL
+      END
+    ) AS student_profile
+    FROM student s
+    LEFT JOIN parent m ON m.id = s.mom_id
+    LEFT JOIN parent d ON d.id = s.dad_id
+    LEFT JOIN class c ON c.id = s.class_id
+    WHERE c.id = $1
+    ORDER BY s.id;
+  `, [class_id]);
+
+  return result.rows.map(row => row.student_profile);
+}
+
+export async function getAllStudentsByGradeID(grade_id) {
+  const result = await query(`
+    SELECT json_build_object(
+      'id', s.id,
+      'supabase_uid', s.supabase_uid,
+      'email', s.email,
+      'name', s.name,
+      'dob', s.dob,
+      'age', DATE_PART('year', AGE(s.dob)),
+      'gender', s.gender,
+      'address', s.address,
+      'phone_number', s.phone_number,
+      'profile_img_url', s.profile_img_url,
+      'year_of_enrollment', s.year_of_enrollment,
+      'email_confirmed', s.email_confirmed,
+      'class_id', c.id,
+      'class_name', c.name,
+
+      'mom_profile', CASE
+        WHEN s.mom_id IS NOT NULL THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'gender', m.gender,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed
+        )
+        ELSE NULL
+      END,
+
+      'dad_profile', CASE
+        WHEN s.dad_id IS NOT NULL THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'gender', d.gender,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed
+        )
+        ELSE NULL
+      END
+    ) AS student_profile
+    FROM student s
+    LEFT JOIN parent m ON m.id = s.mom_id
+    LEFT JOIN parent d ON d.id = s.dad_id
+    LEFT JOIN class c ON c.id = s.class_id
+    WHERE c.grade_id = $1
+    ORDER BY s.id;
+  `, [grade_id]);
+
+  return result.rows.map(row => row.student_profile);
+}
+
 export async function linkParentsAndStudents(mom_id, dad_id, student_ids) {
   if (!Array.isArray(student_ids) || student_ids.length === 0) {
     throw new Error("Danh sách học sinh không hợp lệ.");
@@ -577,23 +703,23 @@ export async function updateParentProfile(id, updates) {
 
 //---------------------------------------------------- end update flow: 
 
-export async function confirmEmailFor(role, supabase_uid, id) {
+export async function confirmEmailFor(role, id) {
   const result = await query(`
     update ${role}
     set email_confirmed = true
-    where supabase_uid = $1 or id = $2
+    where id = $1
     returning *
-    `, [supabase_uid, id]);
+    `, [id]);
   return result.rows[0];
 }
 
-export async function unconfirmEmailFor(role, supabase_uid, id) {
+export async function unconfirmEmailFor(role, id) {
   const result = await query(`
     update ${role}
     set email_confirmed = false
-    where supabase_uid = $1 or id = $2
+    where id = $1
     returning *
-    `, [supabase_uid, id]);
+    `, [id]);
   return result.rows[0];
 }
 
@@ -618,7 +744,26 @@ export async function getProfileByUUID(role, supabase_uid) {
   }
 }
 
+export async function getProfileByID(role, id) {
+  if (!id || !role) return null;
 
+  switch (role) {
+    case "admin":
+      return await getProfileOfAdminByID(id);
+
+    case "nurse":
+      return await getProfileOfNurseByID(id);
+
+    case "parent":
+      return await getProfileOfParentByID(id);
+
+    case "student":
+      return await getProfileOfStudentByID(id);
+
+    default:
+      throw new Error("Role không hợp lệ");
+  }
+}
 
 
 

@@ -399,6 +399,13 @@ export async function listStudents(req, res) {
       }
 }
 
+export async function listStudentsByClass(req, res) {
+      const { class_id } = req.params;
+      if (!class_id) {
+            return res.status(200).json({ error: true, message: "Thiếu id lớp." });
+      }
+}
+
 export async function assignParents(req, res) {
       const { mom_id, dad_id, student_ids } = req.body;
 
@@ -461,10 +468,10 @@ export async function removeDadFromStudent(req, res) {
 export async function editUserInfoByAdmin(req, res) {
       const { id, role, updates } = req.body;
 
-      if (!id && !supabase_uid) {
+      if (!id) {
             return res.status(400).json({
                   error: true,
-                  message: "Thiếu ID người dùng (supabase_uid hoặc id)."
+                  message: "Thiếu ID người dùng."
             });
       }
 
@@ -489,7 +496,17 @@ export async function editUserInfoByAdmin(req, res) {
             });
       }
 
+      // khoong cho cập nhật supabase_uid, tự động sinh khi tạo mới tài khoản với email
+      if (updates?.supabase_uid) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Không thể cập nhật trực tiếp supabase_uid (tự động sinh khi tạo mới tài khoản)."
+            });
+      }
+
       try {
+            // nếu profile chưa đăng ký tài khoản mà cập nhật mới email thì sẽ tạo mới tài khoản (gửi qua mail acc + pass) rồi gắn supabase_uid vào user_profile
+            // nếu profile đăng ký tài khoản rồi mà cập nhật email mới thì gửi lại
             const result = await editUserProfileByAdmin(id, role, updates);
 
             if (!result) {
@@ -504,11 +521,11 @@ export async function editUserInfoByAdmin(req, res) {
 
       } catch (err) {
             console.error("Lỗi khi cập nhật thông tin người dùng:", err);
-            return res.status(500).json({ error: true, message: "Lỗi máy chủ." });
+            return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
       }
 }
 
-export async function handelUploadProfileImg(req, res) {
+export async function handleUploadProfileImg(req, res) {
       const upload = multer({ storage: multer.memoryStorage() }).single('image');
 
       upload(req, res, async function (err) {
