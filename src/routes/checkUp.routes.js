@@ -42,8 +42,8 @@ router.patch('/checkup-campaign/:id/close', closeRegister);// Amdin đóng form 
 router.patch('/checkup-campaign/:id/cancel', cancelRegister) //Admin cancel form Register
 
 
-router.patch('/checkup-campaign/start',startCampaig); // Admin start campaign ( status : ONGOING) truyền vào body campaign_id
-router.patch('/checkup-campaign/finish',finishCampaign); //Admin finish Campaign ( status : DONE) truyền vào body campaign_id
+router.patch('/checkup-campaign/:id/start',startCampaig); // Admin start campaign ( status : ONGOING) truyền vào body campaign_id
+router.patch('/checkup-campaign/:id/finish',finishCampaign); //Admin finish Campaign ( status : DONE) truyền vào body campaign_id
 
 
 
