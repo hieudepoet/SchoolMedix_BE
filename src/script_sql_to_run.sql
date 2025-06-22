@@ -514,6 +514,7 @@ CREATE TABLE HealthRecord (
     posture VARCHAR(100),
 
     final_diagnosis TEXT,
+	is_checked BOOLEAN DEFAULT FALSE,
 	status health_record_status NOT NULL DEFAULT 'WAITING'
 );
 
@@ -528,12 +529,12 @@ INSERT INTO HealthRecord (
     register_id, height, weight, blood_pressure,
     left_eye, right_eye, ear, nose, throat,
     teeth, gums, skin_condition, heart, lungs,
-    spine, posture, final_diagnosis, status
+    spine, posture, final_diagnosis, is_checked,status
 ) VALUES
-(5, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Bình thường', 'Sức khỏe tốt', 'DONE'),
-(6, '155cm', '42kg', '105/70', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng hơi sâu', 'Bình thường', 'Không có vấn đề', 'Bình thường', 'Bình thường', 'Hơi lệch', 'Tư thế tốt', 'Cần theo dõi tâm lý', 'DONE'),
-(7, '152cm', '41kg', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Bình thường', 'Bình thường', 'Da nhạy cảm', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', 'Tạm hoãn do lý do cá nhân', 'DONE'),
-(8, '149cm', '39kg', '115/75', '9/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Bình thường', 'Bình thường', 'Bình thường', 'Bình thường', 'Khuyến cáo bổ sung dinh dưỡng', 'DONE');
+(5, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Bình thường', 'Sức khỏe tốt',TRUE, 'DONE'),
+(6, '155cm', '42kg', '105/70', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng hơi sâu', 'Bình thường', 'Không có vấn đề', 'Bình thường', 'Bình thường', 'Hơi lệch', 'Tư thế tốt', 'Cần theo dõi tâm lý', TRUE,'DONE'),
+(7, '152cm', '41kg', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Bình thường', 'Bình thường', 'Da nhạy cảm', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', 'Tạm hoãn do lý do cá nhân', TRUE,'DONE'),
+(8, '149cm', '39kg', '115/75', '9/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Bình thường', 'Bình thường', 'Bình thường', 'Bình thường', 'Khuyến cáo bổ sung dinh dưỡng',TRUE, 'DONE');
 
 INSERT INTO HealthRecord (register_id, status) VALUES 
 (9,'WAITING'),
@@ -549,6 +550,7 @@ CREATE TABLE specialistExamRecord (
     result TEXT,
     diagnosis TEXT,
     diagnosis_paper_url VARCHAR(255),
+	is_checked BOOLEAN DEFAULT FALSE,
     status specialist_exam_record_status NOT NULL DEFAULT 'CANNOT_ATTACH',
     PRIMARY KEY (register_id, spe_exam_id),
     FOREIGN KEY (register_id) REFERENCES CheckupRegister(id),
@@ -572,12 +574,13 @@ INSERT INTO specialistExamRecord (
     result,
     diagnosis,
     diagnosis_paper_url,
+	is_checked,
 	status
 ) VALUES 
-(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf', 'DONE'),
-(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf', 'DONE'),
-(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', 'DONE'),
-(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf', 'DONE');
+(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf',TRUE, 'DONE'),
+(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf',TRUE, 'DONE'),
+(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', TRUE,'DONE'),
+(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf',TRUE, 'DONE');
 
 INSERT INTO specialistExamRecord (register_id,spe_exam_id,status) VALUES 
 (9,4,'WAITING'),
