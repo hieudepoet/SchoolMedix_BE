@@ -452,6 +452,13 @@ export async function removeDadFromStudent(req, res) {
       }
 }
 
+export async function handleLogIn(req, res) {
+
+}
+
+export async function handleLogOut(req, res) {
+      
+}
 
 export async function handleUpdatePassword(req, res) {
 

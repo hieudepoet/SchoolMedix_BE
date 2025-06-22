@@ -28,7 +28,7 @@ d. Student(0/2): (chỉ xem thông tin)
 - Mỗi USER có thể không cần có email. Không có email thì tài khoản đó ko đăng nhập được vào hệ thống, phải đăng ký với system bằng cách nào đó (gửi khảo sát giấy cho nhà trường trước chẳng hạn). Nhà trường có thể thu thập email sau. Sau đó, nhà trường cập nhật lại email.
 - Mỗi email một role
 - Thống nhất lưu profile info chỉ dưới DB (supabase auth chỉ dùng để lưu biến role (trong app_metadata))
-- ID của PARENT, NURSE, ADMIN thì cứ tăng dần từ 100000, còn của STUDENT thì 2 số đầu là năm bắt đầu niên khóa (gồm tổng 6 số). VD: 250001, 210094, 210999...
+- ID của PARENT, NURSE, ADMIN thì cứ tăng dần từ 100000, còn của STUDENT thì 2 số đầu là năm bắt đầu niên khóa (gồm tổng 6 số). VD: 251001, 251002, 212094, 214999...
 
 
 1'. Phần quản lý bệnh mãn tính, truyền nhiễm, quản lý lịch sử tiêm chủng (thêm mũi tiêm, thêm bệnh,...)

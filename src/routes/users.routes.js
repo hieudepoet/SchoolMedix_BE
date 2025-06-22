@@ -3,7 +3,7 @@ import {
       createNurse, createAdmin, createParent, createStudent, getAdminProfileByID, getNurseProfileByID, getParentProfileByID, getStudentProfileByID,
       listAdmins, listNurses, listStudents, listParents,
       assignParents, removeMomFromStudent, removeDadFromStudent,
-      handleUpdatePassword
+      handleUpdatePassword, handleLogIn, handleLogOut
 
 } from '../controllers/users.controller.js';
 
@@ -24,7 +24,6 @@ router.get("/nurse/:nurse_id", getNurseProfileByID);
 router.get('/parent/:parent_id', getParentProfileByID); // contains self-info and array of their children's profiles
 router.get('/student/:student_id', getStudentProfileByID); // contains self-info and array of their parent's profiles
 
-
 // list all admin, user, or parent,...
 router.get("/admin", listAdmins);
 router.get("/nurse", listNurses);
@@ -36,7 +35,23 @@ router.patch('/parent/connect-students', assignParents); // link mom and dad to 
 router.delete("/student/:student_id/mom", removeMomFromStudent); // delete mom 
 router.delete("/student/:student_id/dad", removeDadFromStudent); // delete dad
 
-router.post("/update-password", handleUpdatePassword);
+// update thông tin cá nhân
+router.patch("/admin/:admin_id"); //
+router.patch("/nurse/:nurse_id"); //
+router.patch("/student/:student_id"); //
+router.patch("/parent/:parent_id"); //
 
+
+// delete một user
+router.delete("/admin/:admin_id"); //
+router.delete("/nurse/:nurse_id"); //
+router.delete("/parent/:parent_id"); //
+router.delete("/student/:student_id"); //
+
+
+// handle account: login, logout, reset password,...
+router.post("/update-password", handleUpdatePassword); //
+router.post("/log-in", handleLogIn); //
+router.post("/log-out", handleLogOut); //
 
 export default router;

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../config/supabase.js";
+import { supabaseClient } from "../../config/supabase.js";
 import {
     insertAdmin,
     insertNurse,
@@ -159,7 +160,7 @@ export async function createNewStudent(
 }
 
 export async function signInWithPassAndEmail(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.signInWithPassword({
         email,
         password,
     });
