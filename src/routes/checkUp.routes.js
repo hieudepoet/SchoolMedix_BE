@@ -15,7 +15,10 @@ import {
         getALLRegisterByCampaignID,
         getALLSpeciaListExamRecord,
         UpdateCheckinHealthRecord,
-        UpdateCheckinSpecialRecord
+        UpdateCheckinSpecialRecord,
+        getHealthRecordParentDetails,
+        getSpecialRecordParent,
+        getSpecialRecordParentDetails
 }
         from '../controllers/checkUp.controller.js';
 
@@ -40,6 +43,11 @@ router.patch('/checkup-register/:id/cancel', cancelRegister) //Admin cancel form
 //Parent
 router.patch('/checkup-register/:id/submit', submitRegister);// Parent submit form Register
 
+router.get('/checkup-health-record', getHealthRecordParent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
+router.get('/checkup-health-record-detail',getHealthRecordParentDetails);//Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
+
+router.get('/checkup-special-record',getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
+router.get('/checkup-special-record-detail',getSpecialRecordParentDetails); //paretn xem chi tiết Special Record  truyền vào register_id và spe_exam_id
 
 
 
@@ -54,7 +62,6 @@ router.patch('/checkup-checkin-special-record',UpdateCheckinSpecialRecord); //Nu
 
 router.patch('/checkup-register/register_id/record', updateHealthRecord) // Doctor or Nurse update Heatlh Record for Student
 router.get('/checkup-register/student/:id', getCheckupRegisterStudent);  // Student lấy các lịch sử registers
-router.get('/checkup-campaign/:campaign_id/health-record/parent/:parent_id/', getHealthRecordParent); //Parent xem HealthRecord của Student cần truyền vào parent_id và campaign_id
 router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealthRecordStudent);//Student view Health Record
 
 
