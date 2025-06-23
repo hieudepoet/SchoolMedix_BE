@@ -24,14 +24,16 @@ import {
         getCampaignDetail,
         getRegisterID,
         getALLHealthRecordOfACampaign,
-        completeAHealthRecordForStudent
+        completeAHealthRecordForStudent,
+        getALLSpeciaListExams,
+        getAllRecordsOfEachSpeExamInACampaign
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
 //Orther
 
-router.get("/health-record", getALLHealthRecord); // Lấy tất cả DS Health Record có status DONE
-router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE
+router.get("/health-record", getALLHealthRecord); // Lấy tất cả DS Health Record có status DONE // bỏ cái check done đi anh ui
+router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE // bỏ cái check done đi anh ui
 router.get("/checkup-register/:id", getALLRegisterByCampaignID); //Lấy tất cả các CheckUp register cần tuyền vào campaign_id
 router.get("/parent/:parent_id/checkup-register", getCheckupRegisterByParentID); //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get(
@@ -77,6 +79,15 @@ router.get("/health-record/campaign/:campaign_id", getALLHealthRecordOfACampaign
 // router.patch("/health-record/:id/cancel", can);
 router.patch("/health-record/:id/done", completeAHealthRecordForStudent);
 // router.patch("/health-record/:id/wait", wait);
+
+
+router.get("/specialist-exam", getALLSpeciaListExams); // lất toàn bộ các chuyên môn khám có sẵn
+
+router.get("/campaign/:campaign_id/specialist-exam/record", getAllRecordsOfEachSpeExamInACampaign); //
+
+
+
+
 
 router.get("/checkup/campaign_id/:campaign_id/student_id/:student_id", getRegisterID);
 
