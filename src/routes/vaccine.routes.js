@@ -8,6 +8,6 @@ import {
 const router = express.Router();
 
 router.post("/vaccine", createVaccine);
-router.get("/vaccines", getAllVaccines);
+router.get("/vaccine", getAllVaccines);
 
 export default router;
