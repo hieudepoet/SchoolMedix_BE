@@ -78,10 +78,12 @@ export async function createCampaign(req, res) {
         );
 
         if (result_campagincontain.rowCount === 0) {
-          return res.status(400).json({
-            error: true,
-            message: "Create Campagincontainsspeexam không thành công.",
-          });
+          return res
+            .status(400)
+            .json({
+              error: true,
+              message: "Create Campagincontainsspeexam không thành công.",
+            });
         }
       }
     }
@@ -100,10 +102,12 @@ export async function createCampaign(req, res) {
       );
 
       if (result_checkup_register.rowCount === 0) {
-        return res.status(400).json({
-          error: true,
-          message: "Create CheckUp Register không thành công.",
-        });
+        return res
+          .status(400)
+          .json({
+            error: true,
+            message: "Create CheckUp Register không thành công.",
+          });
       }
 
       checkup_register.push(result_checkup_register.rows[0]);
@@ -120,10 +124,12 @@ export async function createCampaign(req, res) {
         );
 
         if (result_update_speciallist.rowCount === 0) {
-          return res.status(400).json({
-            error: true,
-            message: "Create Special List Exam Record không thành công.",
-          });
+          return res
+            .status(400)
+            .json({
+              error: true,
+              message: "Create Special List Exam Record không thành công.",
+            });
         }
       }
     }
@@ -136,10 +142,12 @@ export async function createCampaign(req, res) {
         [registerID.id]
       );
       if (result_check_healthrecord.rowCount === 0) {
-        return res.status(400).json({
-          error: true,
-          message: "Create Health Record không thành công.",
-        });
+        return res
+          .status(400)
+          .json({
+            error: true,
+            message: "Create Health Record không thành công.",
+          });
       }
     }
 
@@ -258,9 +266,11 @@ export async function getALLRegisterByCampaignID(req, res) {
     }
 
     const result = await query(
-      `SELECT c.*,cr.*
+      `SELECT c.*,cr.*, s.name as student_name, s.class_id, cla.name as class_name
             FROM checkupregister c
             JOIN checkupcampaign cr ON c.campaign_id = cr.id
+			join student s on s.id = c.student_id
+			join class cla on cla.id = s.class_id
             WHERE cr.id = $1`,
       [id]
     );
@@ -268,7 +278,7 @@ export async function getALLRegisterByCampaignID(req, res) {
     if (result.rowCount === 0) {
       return res
         .status(400)
-        .json({ error: true, message: "không lấy được Health Record." });
+        .json({ error: true, message: "không lấy được đơn đăng ký." });
     }
 
     return res.status(200).json({ error: false, data: result.rows });
@@ -373,10 +383,12 @@ export async function getCheckupRegisterByParentID(req, res) {
     return res.status(200).json({ error: false, data: mergedRegisters });
   } catch (err) {
     console.error("❌ Error creating Campaign ", err);
-    return res.status(500).json({
-      error: true,
-      message: "Lỗi server khi Parent nhận Register Form.",
-    });
+    return res
+      .status(500)
+      .json({
+        error: true,
+        message: "Lỗi server khi Parent nhận Register Form.",
+      });
   }
 }
 
@@ -446,10 +458,12 @@ export async function getCheckupRegisterByStudentID(req, res) {
     return res.status(200).json({ error: false, data: mergedRegisters });
   } catch (err) {
     console.error("❌ Error creating Campaign ", err);
-    return res.status(500).json({
-      error: true,
-      message: "Lỗi server khi Parent nhận Register Form.",
-    });
+    return res
+      .status(500)
+      .json({
+        error: true,
+        message: "Lỗi server khi Parent nhận Register Form.",
+      });
   }
 }
 
@@ -491,7 +505,7 @@ export async function submitRegister(req, res) {
            status      = $2,
            submit_by   = $3,
            submit_time = $4
-            WHERE id = $5`,
+       WHERE id = $5`,
       [reason, "SUBMITTED", parent_id, submit_time, id]
     );
 
@@ -586,10 +600,12 @@ export async function closeRegister(req, res) {
     }
 
     if (result.rowCount === 0 || rs.length < 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Đóng form Register không thành công .",
-      });
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message: "Đóng form Register không thành công .",
+        });
     } else
       return res
         .status(200)
@@ -707,10 +723,12 @@ export async function updateHealthRecord(req, res) {
     );
 
     if (result_check.rowCount === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Không tìm thấy hoặc không Health Record",
-      });
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message: "Không tìm thấy hoặc không Health Record",
+        });
     }
 
     //Step 1: Update Health Record
@@ -763,10 +781,12 @@ export async function updateHealthRecord(req, res) {
     );
 
     if (result.rowCount === 0 || result_checkup_register.rowCount === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Không tìm thấy hoặc không Update được Health record.",
-      });
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message: "Không tìm thấy hoặc không Update được Health record.",
+        });
     } else {
       return res
         .status(200)
@@ -937,10 +957,12 @@ export async function getSpecialRecordParentDetails(req, res) {
 
   try {
     if (!register_id || !spe_exam_id) {
-      return res.status(400).json({
-        error: true,
-        message: "Không nhận được Register ID và Specail Exam ID.",
-      });
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message: "Không nhận được Register ID và Specail Exam ID.",
+        });
     }
 
     const rs = await query(
@@ -999,10 +1021,12 @@ export async function getHealthRecordStudent(req, res) {
     const data = result_check_healthrecord.rows;
 
     if (data.length === 0) {
-      return res.status(200).json({
-        error: false,
-        message: "Không tìm thấy Health Record của Student.",
-      });
+      return res
+        .status(200)
+        .json({
+          error: false,
+          message: "Không tìm thấy Health Record của Student.",
+        });
     } else {
       return res.status(200).json({ error: false, data });
     }
@@ -1026,14 +1050,16 @@ export async function findHealthRecordByStudentName(params) {
 
 //Cần truyền vào student_id và campaign_id
 export async function UpdateCheckinHealthRecord(req, res) {
-  const { student_id, campaign_id } = req.params;
+  const { student_id, campaign_id } = req.body;
 
   try {
     if (!student_id || !campaign_id) {
-      return res.status(400).json({
-        error: true,
-        message: "Không nhận được Student ID or Campaign ID.",
-      });
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message: "Không nhận được Student ID or Campaign ID.",
+        });
     }
 
     const checkStudent = await query("SELECT * FROM student WHERE id = $1", [
@@ -1098,11 +1124,13 @@ export async function UpdateCheckinSpecialRecord(req, res) {
   const { student_id, campaign_id, spe_exam_id } = req.body;
   try {
     if (!student_id || !campaign_id || !spe_exam_id) {
-      return res.status(400).json({
-        error: true,
-        message:
-          "Không nhận được Student ID or Campaign ID or Special List Exam ID.",
-      });
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message:
+            "Không nhận được Student ID or Campaign ID or Special List Exam ID.",
+        });
     }
 
     const checkStudent = await query("SELECT * FROM student WHERE id = $1", [
@@ -1363,61 +1391,61 @@ export async function getCampaignDetail(req, res) {
   }
 }
 
-export async function getRegisterID(req, res) {
-  const { student_id, campaign_id } = req.params;
-  console.log(campaign_id);
+// export async function getRegisterID(req, res) {
+//   const { student_id, campaign_id } = req.params;
+//   console.log(campaign_id);
 
-  try {
-    if (!student_id || !campaign_id) {
-      return res.status(400).json({
-        error: true,
-        message: "Không nhận được Student ID or Campaign ID.",
-      });
-    }
+//   try {
+//     if (!student_id || !campaign_id) {
+//       return res.status(400).json({
+//         error: true,
+//         message: "Không nhận được Student ID or Campaign ID.",
+//       });
+//     }
 
-    const check_student = await query(
-      `SELECT * FROM student 
-                WHERE id = $1`,
-      [student_id]
-    );
+//     const check_student = await query(
+//       `SELECT * FROM student
+//                 WHERE id = $1`,
+//       [student_id]
+//     );
 
-    if (check_student.rowCount === 0) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Student ID không tồn tại" });
-    }
+//     if (check_student.rowCount === 0) {
+//       return res
+//         .status(400)
+//         .json({ error: true, message: "Student ID không tồn tại" });
+//     }
 
-    const check_campaign = await query(
-      `SELECT * FROM checkupcampaign  
-                WHERE id = $1`,
-      [campaign_id]
-    );
+//     const check_campaign = await query(
+//       `SELECT * FROM checkupcampaign
+//                 WHERE id = $1`,
+//       [campaign_id]
+//     );
 
-    if (check_campaign.rowCount === 0) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Campaign ID không tồn tại" });
-    }
+//     if (check_campaign.rowCount === 0) {
+//       return res
+//         .status(400)
+//         .json({ error: true, message: "Campaign ID không tồn tại" });
+//     }
 
-    const rs = await query(
-      `SELECT id
-             FROM checkupregister
-             WHERE student_id = $1 
-             AND campaign_id= $2`,
-      [student_id, campaign_id]
-    );
+//     const rs = await query(
+//       `SELECT id
+//              FROM checkupregister
+//              WHERE student_id = $1
+//              AND campaign_id= $2`,
+//       [student_id, campaign_id]
+//     );
 
-    if (rs.rowCount === 0) {
-      return res
-        .status(200)
-        .json({ error: true, message: "Không tìm thấy Register ID" });
-    } else {
-      return res.status(200).json({ error: true, data: rs.rows[0] });
-    }
-  } catch (err) {
-    console.error("❌ Error creating Campaign ", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi lấy Campaign details" });
-  }
-}
+//     if (rs.rowCount === 0) {
+//       return res
+//         .status(200)
+//         .json({ error: true, message: "Không tìm thấy Register ID" });
+//     } else {
+//       return res.status(200).json({ error: true, data: rs.rows[0] });
+//     }
+//   } catch (err) {
+//     console.error("❌ Error creating Campaign ", err);
+//     return res
+//       .status(500)
+//       .json({ error: true, message: "Lỗi khi lấy Campaign details" });
+//   }
+// }

@@ -26,6 +26,7 @@ import {
 
 const router = express.Router();
 //Orther
+
 router.get("/health-record", getALLHealthRecord); // Lấy tất cả DS Health Record có status DONE
 router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE
 router.get("/checkup-register/:id", getALLRegisterByCampaignID); //Lấy tất cả các CheckUp register cần tuyền vào campaign_id
