@@ -1607,4 +1607,43 @@ GROUP BY spe.id;
         });
     }
 }
+export async function completeARecordForSpeExam(req, res) {
+    const { spe_exam_id, register_id } = req.params;
 
+    if (!spe_exam_id || !register_id) {
+        return res.status(400).json({
+            error: true,
+            message: "Thiếu thông tin spe_exam_id hoặc register_id.",
+        });
+    }
+
+    try {
+        const result = await query(
+            `UPDATE specialistExamRecord
+             SET status = 'DONE', is_checked = TRUE
+             WHERE spe_exam_id = $1 AND register_id = $2
+             RETURNING *`,
+            [spe_exam_id, register_id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "Không tìm thấy bản ghi để cập nhật.",
+            });
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: "Cập nhật trạng thái thành công.",
+            data: result.rows[0],
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi cập nhật bản ghi chuyên khoa.",
+        });
+    }
+}
