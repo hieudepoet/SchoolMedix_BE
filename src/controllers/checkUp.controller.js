@@ -1488,3 +1488,41 @@ where reg.campaign_id = $1`,
         return res.status(500).json({ error: true, message: "Lỗi server" });
     }
 }
+export async function completeAHealthRecordForStudent(req, res) {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({
+            error: true,
+            message: "Không nhận được id khám tổng quát.",
+        });
+    }
+
+    try {
+        const result = await query(
+            `UPDATE healthrecord
+             SET status = 'DONE'
+             WHERE id = $1
+             RETURNING *`,
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(400).json({
+                error: true,
+                message: "Không update được status cho khám tổng quát.",
+            });
+        }
+
+        // ✅ Thêm phản hồi thành công
+        return res.status(200).json({
+            error: false,
+            message: "Cập nhật trạng thái khám tổng quát thành công.",
+            data: result.rows[0],
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: true, message: "Lỗi server" });
+    }
+}

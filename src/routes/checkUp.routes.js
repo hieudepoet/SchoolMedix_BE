@@ -23,7 +23,8 @@ import {
         finishCampaign,
         getCampaignDetail,
         getRegisterID,
-        getALLHealthRecordOfACampaign
+        getALLHealthRecordOfACampaign,
+        completeAHealthRecordForStudent
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
@@ -72,6 +73,10 @@ router.get(
 ); //Student view Health Record
 
 router.get("/health-record/campaign/:campaign_id", getALLHealthRecordOfACampaign); // laasy toafn bo danh sách record tổng quát thuộc về 1 campaign
+// update status for a health record to be in ('CANCELLED','WAITING', 'DONE') may be have CHECKED_IN and MISSED later
+// router.patch("/health-record/:id/cancel", can);
+router.patch("/health-record/:id/done", completeAHealthRecordForStudent);
+// router.patch("/health-record/:id/wait", wait);
 
 router.get("/checkup/campaign_id/:campaign_id/student_id/:student_id", getRegisterID);
 
