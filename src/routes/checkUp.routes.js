@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
         cancelRegister,
         closeRegister,
@@ -30,6 +30,7 @@ import {
 const router = express.Router();
 //Orther
 
+
 router.get('/checkup/campaign_id/:campaign_id/student_id/:student_id',getRegisterID); //Lấy Register ID 
 router.get('/checkup/survey/status',getRegisterStatus);//Lay Register Status
 
@@ -40,31 +41,25 @@ router.get('/checkup-register/:id',getALLRegisterByCampaignID);//Lấy tất c�
 router.get('/checkup-register/parent/:id', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get('/checkup-register/student/:id', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
 
-router.get('/checkup-campaign/detail',getCampaignDetail);//Lấy Campain Detail truyền vào campaign_id (P)
+router.get("/checkup-campaign-detail/:id", getCampaignDetail); //Lấy Campain Detail truyền vào campaign_id (P)
 
 //Admin
-router.post('/checkup-campaign', createCampaign); // admin tạo campaign
-router.get('/checkup-campaign', getAllCheckupCampaigns); // lấy tất cả DS campaign
-router.patch('/checkup-campaign/:id/close', closeRegister);// Amdin đóng form Register
-router.patch('/checkup-campaign/:id/cancel', cancelRegister) //Admin cancel form Register
+router.post("/checkup-campaign", createCampaign); // admin tạo campaign
+router.get("/checkup-campaign", getAllCheckupCampaigns); // lấy tất cả DS campaign
+router.patch("/checkup-campaign/:id/close", closeRegister); // Amdin đóng form Register
+router.patch("/checkup-campaign/:id/cancel", cancelRegister); //Admin cancel form Register
 
-
-router.patch('/checkup-campaign/:id/start',startCampaig); // Admin start campaign ( status : ONGOING) truyền vào  campaign_id
-router.patch('/checkup-campaign/:id/finish',finishCampaign); //Admin finish Campaign ( status : DONE) truyền vào  campaign_id
-
-
+router.patch("/checkup-campaign/:id/start", startCampaig); // Admin start campaign ( status : ONGOING) truyền vào body campaign_id
+router.patch("/checkup-campaign/:id/finish", finishCampaign); //Admin finish Campaign ( status : DONE) truyền vào body campaign_id
 
 //Parent
-router.patch('/checkup-register/:id/submit', submitRegister);// Parent submit form Register
+router.patch("/checkup-register/:id/submit", submitRegister); // Parent submit form Register
 
-router.get('/health-record/:id', getHealthRecordParent); //Parent xem tất cả Health Record của Student truyền vào Student_id
-router.get('/checkup-health-record/detail',getHealthRecordParentDetails);//Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
+router.get("/checkup-health-record", getHealthRecordParent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
+router.get("/checkup-health-record/detail", getHealthRecordParentDetails); //Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
 
-router.get('/special-record/:id',getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào Student_id
-router.get('/checkup-special-record/detail',getSpecialRecordParentDetails); //paretn xem chi tiết Special Record  truyền vào register_id và spe_exam_id
-
-
-
+router.get("/checkup-special-record", getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
+router.get("/checkup-special-record/detail", getSpecialRecordParentDetails); //paretn xem chi tiết Special Record  truyền vào register_id và spe_exam_id
 
 //Nurse
 
