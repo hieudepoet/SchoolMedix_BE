@@ -573,19 +573,12 @@ export async function createVaccinationRecord(req, res) {
     student_id,
     register_id,
     description,
-    disease_id,
     vaccine_id,
     location,
     vaccination_date,
     status,
   } = req.body;
-  if (
-    !student_id ||
-    !vaccination_date ||
-    !disease_id ||
-    !vaccine_id ||
-    !status
-  ) {
+  if (!student_id || !vaccination_date || !vaccine_id || !status) {
     return res
       .status(400)
       .json({ error: true, message: "Missing required fields" });
@@ -604,7 +597,7 @@ export async function createVaccinationRecord(req, res) {
 
     // Insert vaccination record into database
     const insertQuery = `
-                  INSERT INTO vaccination_record (student_id, register_id, description, disease_id, vaccine_id, location, vaccination_date, status)
+                  INSERT INTO vaccination_record (student_id, register_id, description, name, location, vaccination_date, status, campaign_id)
                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                   RETURNING *;
             `;
@@ -613,7 +606,6 @@ export async function createVaccinationRecord(req, res) {
       student_id,
       register_id || null,
       description || null,
-      disease_id,
       vaccine_id,
       location || null,
       vaccination_date,
@@ -1098,20 +1090,18 @@ export async function getAllRegisteredRecords(req, res) {
   }
 }
 
+
 export async function getCompletedDosesMergedByDisease(req, res) {
   const { student_id } = req.params;
 
   try {
     // 1. Lấy thông tin học sinh và lớp
-    const studentQuery = await query(
-      `
+    const studentQuery = await query(`
       SELECT s.id AS student_id, s.name AS student_name, s.class_id, c.name AS class_name
       FROM student s
       JOIN class c ON s.class_id = c.id
       WHERE s.id = $1
-    `,
-      [student_id]
-    );
+    `, [student_id]);
 
     if (studentQuery.rows.length === 0) {
       return res.status(404).json({ error: "Không tìm thấy học sinh" });
@@ -1120,8 +1110,7 @@ export async function getCompletedDosesMergedByDisease(req, res) {
     const studentInfo = studentQuery.rows[0];
 
     // 2. Lấy danh sách bệnh, số liều đã tiêm (COMPLETED), và tổng số liều cần tiêm
-    const dosesQuery = await query(
-      `
+    const dosesQuery = await query(`
       SELECT 
         d.id AS disease_id,
         d.name AS disease_name,
@@ -1136,9 +1125,7 @@ export async function getCompletedDosesMergedByDisease(req, res) {
       where d.vaccine_need = true
       GROUP BY d.id, d.name, d.dose_quantity
       ORDER BY d.id
-    `,
-      [student_id]
-    );
+    `, [student_id]);
 
     res.json({
       student_id: studentInfo.student_id,
@@ -1147,19 +1134,19 @@ export async function getCompletedDosesMergedByDisease(req, res) {
       class_name: studentInfo.class_name,
       diseases: dosesQuery.rows,
     });
+
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Lỗi khi lấy thông tin", detail: err.message });
+    res.status(500).json({ error: "Lỗi khi lấy thông tin", detail: err.message });
   }
 }
+
+
 
 export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
   const { student_id, disease_id } = req.params;
 
   try {
-    const { rows } = await query(
-      `
+    const { rows } = await query(`
       SELECT
         vr.id,
         vr.vaccine_id,
@@ -1172,17 +1159,10 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
       JOIN vaccine v ON vr.vaccine_id = v.id
       WHERE vr.student_id = $1 AND v.disease_id = $2
       ORDER BY vr.vaccination_date
-    `,
-      [student_id, disease_id]
-    );
+    `, [student_id, disease_id]);
 
     res.json(rows);
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        error: "Lỗi khi lấy lịch sử tiêm chủng theo bệnh",
-        detail: err.message,
-      });
+    res.status(500).json({ error: "Lỗi khi lấy lịch sử tiêm chủng theo bệnh", detail: err.message });
   }
 }
