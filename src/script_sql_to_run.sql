@@ -599,31 +599,12 @@ CREATE TABLE disease (
     dose_quantity INT,
     CHECK (disease_category IN ('Bệnh truyền nhiễm', 'Bệnh mãn tính'))
 );
-
 INSERT INTO disease (disease_category, name, description, vaccine_need, dose_quantity) VALUES
-('Bệnh truyền nhiễm', 'Lao', 'Gây tổn thương phổi và các cơ quan, đặc biệt nguy hiểm với trẻ sơ sinh.', true, 1),
-('Bệnh truyền nhiễm', 'Viêm gan B', 'Lây qua máu và dịch cơ thể, có thể chuyển thành mãn tính.', true, 3),
-('Bệnh truyền nhiễm', 'Bạch hầu, Ho gà, Uốn ván', 'Nhóm ba bệnh truyền nhiễm nguy hiểm, thường được tiêm cùng trong một mũi.', true, 3),
-('Bệnh truyền nhiễm', 'Bại liệt', 'Virus tấn công hệ thần kinh, gây liệt vĩnh viễn.', true, 3),
-('Bệnh truyền nhiễm', 'Viêm phổi, viêm màng não mủ do Hib', 'Do vi khuẩn Hib gây ra, ảnh hưởng đường hô hấp và thần kinh.', true, 3),
-('Bệnh truyền nhiễm', 'Tiêu chảy do Rotavirus', 'Gây tiêu chảy cấp nguy hiểm ở trẻ nhỏ.', true, 2),
-('Bệnh truyền nhiễm', 'Viêm phổi, viêm màng não, viêm tai giữa do phế cầu khuẩn', 'Do phế cầu gây ra, ảnh hưởng hô hấp và thần kinh.', true, 3),
-('Bệnh truyền nhiễm', 'Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn nhóm B', 'Do vi khuẩn não mô cầu B, gây tổn thương nặng nề cho trẻ.', true, 2),
-('Bệnh truyền nhiễm', 'Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn B,C', 'Gây bệnh nặng toàn thân, cần tiêm phòng sớm.', true, 2),
-('Bệnh truyền nhiễm', 'Cúm', 'Gây sốt cao, ho và suy hô hấp, đặc biệt ở trẻ nhỏ.', true, 1),
-('Bệnh truyền nhiễm', 'Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn A,C,Y,W-135', 'Các chủng vi khuẩn não mô cầu nguy hiểm, dễ lây lan.', true, 1),
-('Bệnh truyền nhiễm', 'Viêm não Nhật Bản (vắc xin bất hoạt não chuột)', 'Vaccine truyền thống phòng bệnh viêm não Nhật Bản.', true, 2),
-('Bệnh truyền nhiễm', 'Viêm não Nhật Bản (vắc xin bất hoạt tế bào Vero)', 'Dạng vaccine hiện đại hơn phòng viêm não Nhật Bản.', true, 2),
-('Bệnh truyền nhiễm', 'Viêm não Nhật Bản (vắc xin sống giảm độc lực tái tổ hợp)', 'Vaccine sống phòng viêm não Nhật Bản, hiệu quả dài lâu.', true, 1),
-('Bệnh truyền nhiễm', 'Sởi, Quai bị, Rubella (Priorix)', 'Vaccine kết hợp phòng 3 bệnh truyền nhiễm thường gặp.', true, 2),
-('Bệnh truyền nhiễm', 'Sởi, Quai bị, Rubella (MMR II)', 'Vaccine kết hợp MMR II phòng sởi, quai bị, rubella.', true, 2),
-('Bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân, dễ lây lan.', true, 2),
-('Bệnh truyền nhiễm', 'Viêm gan A', 'Lây qua đường tiêu hóa, gây tổn thương gan.', true, 1),
-('Bệnh truyền nhiễm', 'Viêm gan A+B', 'Vaccine kết hợp phòng cả viêm gan A và B.', true, 3),
-('Bệnh truyền nhiễm', 'Thương hàn', 'Gây sốt kéo dài, lây qua thực phẩm nhiễm khuẩn.', true, 1),
-('Bệnh truyền nhiễm', 'Tả', 'Bệnh tiêu chảy cấp tính nguy hiểm do vi khuẩn tả.', true, 2),
-('Bệnh truyền nhiễm', 'Sốt xuất huyết', 'Lây qua muỗi, gây xuất huyết nội tạng nguy hiểm.', true, 1),
-('Bệnh truyền nhiễm', 'Dại', 'Virus dại gây viêm não cấp, luôn tử vong nếu không tiêm kịp thời.', true, 4),
+-- Bệnh truyền nhiễm, cần vaccine
+('Bệnh truyền nhiễm', 'Sởi', 'Bệnh truyền nhiễm phổ biến ở trẻ em, có thể gây biến chứng nặng.', true, 2),
+('Bệnh truyền nhiễm', 'Rubella', 'Gây phát ban và sốt nhẹ, ảnh hưởng đến thai phụ.', true, 1),
+('Bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân và lây lan mạnh.', true, 2),
+('Bệnh truyền nhiễm', 'Tay chân miệng', 'Tay chân miệng description.', false, 0),
 
 -- Bệnh mãn tính, cần vaccine
 ('Bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0),
@@ -948,6 +929,3 @@ VALUES
 ('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
 ('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 ('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
-
-
-

@@ -1,8 +1,4 @@
 import { query } from "../config/database.js";
-import {
-  getProfileByUUID,
-  getProfileOfStudentByUUID,
-} from "../services/index.js";
 
 //Create a new daily health record
 export const createDailyHealthRecord = async (req, res) => {
@@ -16,9 +12,7 @@ export const createDailyHealthRecord = async (req, res) => {
   } = req.body;
 
   if (!student_id || !detect_time) {
-    return res
-      .status(400)
-      .json({ error: false, message: "Missing required fields" });
+    return res.status(400).json({ error: false, message: "Missing required fields" });
   }
 
   try {
@@ -81,11 +75,9 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
 
   try {
     const result = await query(
-      `SELECT *, s.supabase_uid 
-       FROM daily_health_record dhr
-       JOIN student s ON dhr.student_id = s.id
-       WHERE dhr.student_id = $1 
-       ORDER BY dhr.record_date DESC;`,
+      `SELECT * FROM daily_health_record 
+       WHERE student_id = $1 
+       ORDER BY record_date DESC;`,
       [student_id]
     );
 
@@ -96,21 +88,10 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
       });
     }
 
-    // Gắn profile từ Supabase
-    const studentsWithProfiles = await Promise.all(
-      result.rows.map(async (student) => {
-        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
-        return {
-          ...student,
-          profile,
-        };
-      })
-    );
-
     return res.status(200).json({
       error: false,
       message: "Daily health records retrieved successfully.",
-      data: studentsWithProfiles,
+      data: result.rows,
     });
   } catch (error) {
     console.error("Error fetching daily health records:", error);
@@ -120,6 +101,7 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
     });
   }
 };
+
 
 // Get a daily health record by ID
 export const getDailyHealthRecordById = async (req, res) => {
