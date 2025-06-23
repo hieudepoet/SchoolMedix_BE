@@ -1528,6 +1528,7 @@ export async function completeAHealthRecordForStudent(req, res) {
     }
 }
 
+
 export async function getRegisterStatus(req, res) {
     { }
     const { student_id, campaign_id } = req.body;
@@ -1587,3 +1588,86 @@ export async function getRegisterStatus(req, res) {
             .json({ error: true, message: "Lỗi khi lấy Register Status" });
     }
 }
+
+export async function getALLSpeciaListExams(req, res) {
+    try {
+        const result = await query(`
+            SELECT * FROM SpecialistExamList
+        `);
+
+        return res.status(200).json({
+            error: false,
+            message: "Lấy danh sách chuyên khoa khám thành công.",
+            data: result.rows, // ✅ trả về tất cả rows (không phải rows[0])
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi lấy danh sách chuyên khoa khám.",
+        });
+    }
+}
+
+export async function getAllRecordsOfEachSpeExamInACampaign(req, res) {
+    const { campaign_id } = req.params;
+    if (!campaign_id) {
+        return res.status(400).json({
+            error: true,
+            message: "Không nhận được Campaign ID.",
+        });
+    }
+    try {
+        const result = await query(`
+            SELECT 
+  spe.*, 
+  COALESCE(
+    json_agg(
+      jsonb_strip_nulls(
+        jsonb_build_object(
+          'register_id', rec.register_id,
+          'spe_exam_id', rec.spe_exam_id,
+          'result', rec.result,
+          'diagnosis', rec.diagnosis,
+          'diagnosis_paper_url', rec.diagnosis_paper_url,
+          'is_checked', rec.is_checked,
+          'status', rec.status,
+          'student_name', s.name,
+          'class_name', c.name
+        )
+      )
+      ORDER BY rec.register_id
+    ) FILTER (
+      WHERE rec.register_id IS NOT NULL 
+      AND rec.status != 'CANNOT_ATTACH'
+    ),
+    '[]'
+  ) AS records
+FROM campaigncontainspeexam contain
+left JOIN specialistexamlist spe ON spe.id = contain.specialist_exam_id
+LEFT JOIN specialistexamrecord rec ON rec.spe_exam_id = spe.id
+LEFT JOIN checkupregister r ON r.id = rec.register_id
+LEFT JOIN student s ON s.id = r.student_id
+LEFT JOIN class c ON c.id = s.class_id
+WHERE contain.campaign_id = $1
+GROUP BY spe.id;
+
+        `, [campaign_id]);
+
+        return res.status(200).json({
+            error: false,
+            message: "Lấy danh sách record của từng chuyên khoa khám thành công.",
+            data: result.rows, // ✅ trả về tất cả rows (không phải rows[0])
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi lấy danh sách record của chuyên khoa khám.",
+        });
+    }
+}
+
+
