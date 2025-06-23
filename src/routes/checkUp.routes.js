@@ -27,7 +27,8 @@ import {
         getALLHealthRecordOfACampaign,
         completeAHealthRecordForStudent,
         getALLSpeciaListExams,
-        getAllRecordsOfEachSpeExamInACampaign
+        getAllRecordsOfEachSpeExamInACampaign,
+        completeARecordForSpeExam
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
@@ -93,6 +94,12 @@ router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealth
 router.get("/specialist-exam", getALLSpeciaListExams); // lất toàn bộ các chuyên môn khám có sẵn
 
 router.get("/campaign/:campaign_id/specialist-exam/record", getAllRecordsOfEachSpeExamInACampaign); //
+
+
+//upate status for specialist exam record status
+router.patch("/checkup-register/:register_id/specialist-exam/:spe_exam_id/done", completeARecordForSpeExam);
+
+
 
 
 router.get("/checkup/campaign_id/:campaign_id/student_id/:student_id", getRegisterID);
