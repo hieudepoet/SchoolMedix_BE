@@ -265,15 +265,14 @@ export async function getALLRegisterByCampaignID(req, res) {
                 .json({ error: true, message: "không  tìm được Campaign." });
         }
 
-        const result = await query(
-            `SELECT c.*,cr.*, s.name as student_name, s.class_id, cla.name as class_name
+        const result = await query(`
+            SELECT c.id as register_id, c.status as register_status, cr.status as campaign_status, c.*,cr.*, s.name as student_name, s.class_id, cla.name as class_name
             FROM checkupregister c
             JOIN checkupcampaign cr ON c.campaign_id = cr.id
 			join student s on s.id = c.student_id
 			join class cla on cla.id = s.class_id
-            WHERE cr.id = $1`,
-            [id]
-        );
+            WHERE cr.id = $1`
+            , [id]);
 
         if (result.rowCount === 0) {
             return res
