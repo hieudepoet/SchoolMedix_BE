@@ -1,27 +1,27 @@
 import express from "express";
 import {
-  cancelRegister,
-  closeRegister,
-  createCampaign,
-  getCheckupRegisterByParentID,
-  updateHealthRecord,
-  submitRegister,
-  getCheckupRegisterStudent,
-  getHealthRecordParent,
-  getHealthRecordStudent,
-  getCheckupRegisterByStudentID,
-  getAllCheckupCampaigns,
-  getALLHealthRecord,
-  getALLRegisterByCampaignID,
-  getALLSpeciaListExamRecord,
-  UpdateCheckinHealthRecord,
-  UpdateCheckinSpecialRecord,
-  getHealthRecordParentDetails,
-  getSpecialRecordParent,
-  getSpecialRecordParentDetails,
-  startCampaig,
-  finishCampaign,
-  getCampaignDetail,
+        cancelRegister,
+        closeRegister,
+        createCampaign,
+        getCheckupRegisterByParentID,
+        updateHealthRecord,
+        submitRegister,
+        getCheckupRegisterStudent,
+        getHealthRecordParent,
+        getHealthRecordStudent,
+        getCheckupRegisterByStudentID,
+        getAllCheckupCampaigns,
+        getALLHealthRecord,
+        getALLRegisterByCampaignID,
+        getALLSpeciaListExamRecord,
+        UpdateCheckinHealthRecord,
+        UpdateCheckinSpecialRecord,
+        getHealthRecordParentDetails,
+        getSpecialRecordParent,
+        getSpecialRecordParentDetails,
+        startCampaig,
+        finishCampaign,
+        getCampaignDetail,
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
@@ -32,11 +32,11 @@ router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả Sp
 router.get("/checkup-register/:id", getALLRegisterByCampaignID); //Lấy tất cả các CheckUp register cần tuyền vào campaign_id
 router.get("/parent/:parent_id/checkup-register", getCheckupRegisterByParentID); //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get(
-  "/student/:student_id/checkup-register",
-  getCheckupRegisterByStudentID
+        "/student/:student_id/checkup-register",
+        getCheckupRegisterByStudentID
 ); //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id
 
-router.get("/checkup-campaign/detail", getCampaignDetail); //Lấy Campain Detail truyền vào campaign_id (P)
+router.get("/checkup-campaign-detail/:id", getCampaignDetail); //Lấy Campain Detail truyền vào campaign_id (P)
 
 //Admin
 router.post("/checkup-campaign", createCampaign); // admin tạo campaign
@@ -65,8 +65,8 @@ router.patch("/checkup-checkin/special-record", UpdateCheckinSpecialRecord); //N
 router.patch("/checkup/:id/record", updateHealthRecord); // Doctor or Nurse update Heatlh Record for Student
 router.get("/checkup-register/student/:id", getCheckupRegisterStudent); // Student lấy các lịch sử registers
 router.get(
-  "/health-record/campaign/:campaign_id/student/:student_id",
-  getHealthRecordStudent
+        "/health-record/campaign/:campaign_id/student/:student_id",
+        getHealthRecordStudent
 ); //Student view Health Record
 
 export default router;
