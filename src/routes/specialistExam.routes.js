@@ -14,6 +14,8 @@ const router = express.Router();
 
 // delete một chuyên khoa (set is_deleted = true)
 
+// update thông tin của một chuyên khoa 
+
 
 
 export default router;
