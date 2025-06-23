@@ -1,12 +1,12 @@
-import express from "express";
-import {
-        
-} from "../controllers/checkUp.controller.js";
+import express from "express"
+import{ getALLSpeciaListExamRecord } from "../controllers/specialistexam.controller.js";
 
 const router = express.Router();
 
 
 // lấy toàn bộ chuyên khoa
+
+router.get('/special-exam-list',getALLSpeciaListExamRecord);
 
 // lấy info toàn bộ của một chuyên khoa
 
