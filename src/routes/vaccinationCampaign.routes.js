@@ -21,8 +21,7 @@ import {
   getAllRegisteredRecords,
   completeRecord,
   getVaccinationRecordsOfAStudentBasedOnADisease,
-  getCompletedDosesMergedByDisease
-
+  getCompletedDosesMergedByDisease,
 } from "../controllers/vaccinationCampaign.controller.js";
 
 const router = express.Router();
@@ -49,8 +48,14 @@ router.get(
   getVaccinationRecordsByStudentID
 );
 
-router.get("/student/:student_id/completed-doses", getCompletedDosesMergedByDisease);
-router.get("/student/:student_id/disease/:disease_id/vaccination-record", getVaccinationRecordsOfAStudentBasedOnADisease);
+router.get(
+  "/student/:student_id/completed-doses",
+  getCompletedDosesMergedByDisease
+);
+router.get(
+  "/student/:student_id/disease/:disease_id/vaccination-record",
+  getVaccinationRecordsOfAStudentBasedOnADisease
+);
 
 router.patch("/vaccination-register/:id/accept", acceptRegister);
 router.patch("/vaccination-register/:id/refuse", refuseRegister);
