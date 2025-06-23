@@ -1404,6 +1404,7 @@ export async function getCampaignDetail(req, res) {
 }
 
 export async function getRegisterID(req, res) {
+    { }
     const { student_id, campaign_id } = req.params;
     console.log(campaign_id);
 
@@ -1459,5 +1460,31 @@ export async function getRegisterID(req, res) {
         return res
             .status(500)
             .json({ error: true, message: "Lỗi khi lấy Campaign details" });
+    }
+}
+
+export async function getALLHealthRecordOfACampaign(req, res) {
+    const { campaign_id } = req.params;
+    if (!campaign_id) {
+        return res.status(400).json({
+            error: true,
+            message: "Không nhận được Campaign ID.",
+        });
+    }
+
+    try {
+        const result = await query(
+            `select hr.*, stu.name as student_name, clas.name as class_name from HealthRecord hr
+join checkupregister reg on hr.register_id = reg.id
+join student stu on stu.id = reg.student_id
+join class clas on clas.id = stu.class_id
+where reg.campaign_id = $1`,
+            [campaign_id]
+        );
+
+        return res.status(200).json({ error: false, data: result.rows });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: true, message: "Lỗi server" });
     }
 }

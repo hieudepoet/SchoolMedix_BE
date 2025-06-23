@@ -22,7 +22,8 @@ import {
         startCampaig,
         finishCampaign,
         getCampaignDetail,
-        getRegisterID
+        getRegisterID,
+        getALLHealthRecordOfACampaign
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
@@ -69,6 +70,8 @@ router.get(
         "/health-record/campaign/:campaign_id/student/:student_id",
         getHealthRecordStudent
 ); //Student view Health Record
+
+router.get("/health-record/campaign/:campaign_id", getALLHealthRecordOfACampaign); // laasy toafn bo danh sách record tổng quát thuộc về 1 campaign
 
 router.get("/checkup/campaign_id/:campaign_id/student_id/:student_id", getRegisterID);
 
