@@ -1557,46 +1557,31 @@ export async function getAllRecordsOfEachSpeExamInACampaign(req, res) {
         });
     }
     try {
-        const result = await query(`
-            SELECT 
-  spe.*, 
-  COALESCE(
-    json_agg(
-      jsonb_strip_nulls(
-        jsonb_build_object(
-          'register_id', rec.register_id,
-          'spe_exam_id', rec.spe_exam_id,
-          'result', rec.result,
-          'diagnosis', rec.diagnosis,
-          'diagnosis_paper_url', rec.diagnosis_paper_url,
-          'is_checked', rec.is_checked,
-          'status', rec.status,
-          'student_name', s.name,
-          'class_name', c.name
-        )
-      )
-      ORDER BY rec.register_id
-    ) FILTER (
-      WHERE rec.register_id IS NOT NULL 
-      AND rec.status != 'CANNOT_ATTACH'
-    ),
-    '[]'
-  ) AS records
-FROM campaigncontainspeexam contain
-left JOIN specialistexamlist spe ON spe.id = contain.specialist_exam_id
-LEFT JOIN specialistexamrecord rec ON rec.spe_exam_id = spe.id
-LEFT JOIN checkupregister r ON r.id = rec.register_id
-LEFT JOIN student s ON s.id = r.student_id
-LEFT JOIN class c ON c.id = s.class_id
-WHERE contain.campaign_id = $1
-GROUP BY spe.id;
-
+        const contained_exams_res = await query(`
+            select exam.* from checkupcampaign cc
+            join campaigncontainspeexam contain on cc.id = contain.campaign_id
+            join specialistExamList exam on contain.specialist_exam_id = exam.id
+            where campaign_id = $1
         `, [campaign_id]);
-
+        if (!contained_exams_res.rowCount) {
+            return res.status(200).json({
+                error: false,
+                message: "Chiến dịch khám định kỳ không khám chuyên khoa.",
+            });
+        }
+        console.log(contained_exams_res.rows);
+        let final_result = [];
+        const contained_exams = contained_exams_res.rows;
+        for (const exam of contained_exams) {
+            const records_response = await query(`select rec.*, stu.name as student_name, cla.name as class_name from specialistExamRecord rec
+join checkupregister reg on reg.id = rec.register_id join student stu on stu.id = reg.student_id join class cla on cla.id = stu.class_id
+where reg.campaign_id = $1 and spe_exam_id = $2 and rec.status != 'CANNOT_ATTACH'`, [campaign_id, exam.id]);
+            final_result.push({ ...exam, records: records_response.rows });
+        }
         return res.status(200).json({
             error: false,
             message: "Lấy danh sách record của từng chuyên khoa khám thành công.",
-            data: result.rows, // ✅ trả về tất cả rows (không phải rows[0])
+            data: final_result, // ✅ trả về tất cả rows (không phải rows[0])
         });
 
     } catch (err) {
