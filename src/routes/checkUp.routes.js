@@ -22,6 +22,7 @@ import {
         startCampaig,
         finishCampaign,
         getCampaignDetail,
+        getRegisterID
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
@@ -68,5 +69,7 @@ router.get(
         "/health-record/campaign/:campaign_id/student/:student_id",
         getHealthRecordStudent
 ); //Student view Health Record
+
+router.get("/checkup/campaign_id/:campaign_id/student_id/:student_id", getRegisterID);
 
 export default router;
