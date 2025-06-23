@@ -1184,8 +1184,7 @@ export async function getCampaignDetail(req, res) {
 
 export async function getRegisterID(req,res) {
     const{student_id,campaign_id} = req.params;
-    console.log(campaign_id);
-   
+  
     try{
             if(!student_id || !campaign_id){
                  return res.status(400).json({ error: true, message: "Không nhận được Student ID or Campaign ID." });
@@ -1222,7 +1221,53 @@ export async function getRegisterID(req,res) {
 
     }catch (err) {
         console.error("❌ Error creating Campaign ", err);
-        return res.status(500).json({ error: true, message: "Lỗi khi lấy Campaign details" });
+        return res.status(500).json({ error: true, message: "Lỗi khi lấy Register ID." });
+    }
+    
+}
+
+
+export async function getRegisterStatus(req,res) {
+    const{student_id,campaign_id} = req.body;
+   
+
+    try{
+            if(!student_id || !campaign_id){
+                 return res.status(400).json({ error: true, message: "Không nhận được Student ID or Campaign ID." });
+            }
+
+            const check_student = await query(`SELECT * FROM student 
+                WHERE id = $1`
+                ,[student_id]);
+
+           if(check_student.rowCount===0){
+            return res.status(400).json({ error: true, message: "Student ID không tồn tại" });
+           }     
+
+           const check_campaign = await query(`SELECT * FROM checkupcampaign  
+                WHERE id = $1`
+                ,[campaign_id]);
+
+           if(check_campaign.rowCount===0){
+            return res.status(400).json({ error: true, message: "Campaign ID không tồn tại" });
+           }   
+           
+           const rs = await query (`SELECT status
+             FROM checkupregister
+             WHERE student_id = $1 
+             AND campaign_id= $2`
+             ,[student_id,campaign_id]);
+
+             if(rs.rowCount === 0){
+                 return res.status(200).json({ error: true, message: "Không tìm thấy Register ID" });
+             } else{
+                return res.status(200).json({ error: true, data:rs.rows[0] });
+             }
+
+
+    }catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res.status(500).json({ error: true, message: "Lỗi khi lấy Register Status." });
     }
     
 }

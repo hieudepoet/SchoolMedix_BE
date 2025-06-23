@@ -22,7 +22,8 @@ import {
         startCampaig,
         finishCampaign,
         getCampaignDetail,
-        getRegisterID
+        getRegisterID,
+        getRegisterStatus
 }
         from '../controllers/checkUp.controller.js';
 
@@ -30,6 +31,7 @@ const router = express.Router();
 //Orther
 
 router.get('/checkup/campaign_id/:campaign_id/student_id/:student_id',getRegisterID); //Lấy Register ID 
+router.get('/checkup/survey/status',getRegisterStatus);//Lay Register Status
 
 router.get('/health-record',getALLHealthRecord);// Lấy tất cả DS Health Record có status DONE 
 router.get('/special-record',getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE
