@@ -1452,7 +1452,7 @@ export async function getRegisterID(req, res) {
                 .status(200)
                 .json({ error: true, message: "Không tìm thấy Register ID" });
         } else {
-            return res.status(200).json({ error: true, data: rs.rows[0] });
+            return res.status(200).json({ error: false, data: rs.rows[0] });
         }
     } catch (err) {
         console.error("❌ Error creating Campaign ", err);
