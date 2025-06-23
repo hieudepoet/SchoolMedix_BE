@@ -51,6 +51,7 @@ export async function createCampaign(req, res) {
     }
 
     try {
+        console.log("specialist_exam_ids:", specialist_exam_ids);
         // STEPT 1: Tạo mới Campaign
         const result_campaign = await query(
             `INSERT INTO CheckupCampaign 
@@ -61,21 +62,22 @@ export async function createCampaign(req, res) {
         );
 
         const campaign = result_campaign.rows[0]; //Lấy Record đầu tiên trong  ( Phải có RETURNING mới có Record)
-
-        if (result_campaign.rowCount === 0) {
+        console.log("tao campaign: ", campaign);
+        if (campaign === 0) {
             return res
                 .status(400)
                 .json({ error: true, message: "Create Campaign không thành công." });
         }
 
         //STEP 2: Tạo mới campagincontainsspeexam
-
-        if (!Array.isArray(specialist_exam_ids)) {
+        if (Array.isArray(specialist_exam_ids)) {
             for (const exam_id of specialist_exam_ids) {
                 const result_campagincontain = await query(
                     "INSERT INTO CampaignContainSpeExam (campaign_id,specialist_exam_id) VALUES ($1,$2) RETURNING *",
                     [campaign.id, exam_id]
                 );
+
+                console.log("gắn spe exam id vào campaign: ", exam_id);
 
                 if (result_campagincontain.rowCount === 0) {
                     return res
