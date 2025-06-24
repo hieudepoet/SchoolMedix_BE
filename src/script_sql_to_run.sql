@@ -599,12 +599,31 @@ CREATE TABLE disease (
     dose_quantity INT,
     CHECK (disease_category IN ('Bệnh truyền nhiễm', 'Bệnh mãn tính'))
 );
+
 INSERT INTO disease (disease_category, name, description, vaccine_need, dose_quantity) VALUES
--- Bệnh truyền nhiễm, cần vaccine
-('Bệnh truyền nhiễm', 'Sởi', 'Bệnh truyền nhiễm phổ biến ở trẻ em, có thể gây biến chứng nặng.', true, 2),
-('Bệnh truyền nhiễm', 'Rubella', 'Gây phát ban và sốt nhẹ, ảnh hưởng đến thai phụ.', true, 1),
-('Bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân và lây lan mạnh.', true, 2),
-('Bệnh truyền nhiễm', 'Tay chân miệng', 'Tay chân miệng description.', false, 0),
+('Bệnh truyền nhiễm', 'Lao', 'Gây tổn thương phổi và các cơ quan, đặc biệt nguy hiểm với trẻ sơ sinh.', true, 1),
+('Bệnh truyền nhiễm', 'Viêm gan B', 'Lây qua máu và dịch cơ thể, có thể chuyển thành mãn tính.', true, 3),
+('Bệnh truyền nhiễm', 'Bạch hầu, Ho gà, Uốn ván', 'Nhóm ba bệnh truyền nhiễm nguy hiểm, thường được tiêm cùng trong một mũi.', true, 3),
+('Bệnh truyền nhiễm', 'Bại liệt', 'Virus tấn công hệ thần kinh, gây liệt vĩnh viễn.', true, 3),
+('Bệnh truyền nhiễm', 'Viêm phổi, viêm màng não mủ do Hib', 'Do vi khuẩn Hib gây ra, ảnh hưởng đường hô hấp và thần kinh.', true, 3),
+('Bệnh truyền nhiễm', 'Tiêu chảy do Rotavirus', 'Gây tiêu chảy cấp nguy hiểm ở trẻ nhỏ.', true, 2),
+('Bệnh truyền nhiễm', 'Viêm phổi, viêm màng não, viêm tai giữa do phế cầu khuẩn', 'Do phế cầu gây ra, ảnh hưởng hô hấp và thần kinh.', true, 3),
+('Bệnh truyền nhiễm', 'Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn nhóm B', 'Do vi khuẩn não mô cầu B, gây tổn thương nặng nề cho trẻ.', true, 2),
+('Bệnh truyền nhiễm', 'Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn B,C', 'Gây bệnh nặng toàn thân, cần tiêm phòng sớm.', true, 2),
+('Bệnh truyền nhiễm', 'Cúm', 'Gây sốt cao, ho và suy hô hấp, đặc biệt ở trẻ nhỏ.', true, 1),
+('Bệnh truyền nhiễm', 'Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn A,C,Y,W-135', 'Các chủng vi khuẩn não mô cầu nguy hiểm, dễ lây lan.', true, 1),
+('Bệnh truyền nhiễm', 'Viêm não Nhật Bản (vắc xin bất hoạt não chuột)', 'Vaccine truyền thống phòng bệnh viêm não Nhật Bản.', true, 2),
+('Bệnh truyền nhiễm', 'Viêm não Nhật Bản (vắc xin bất hoạt tế bào Vero)', 'Dạng vaccine hiện đại hơn phòng viêm não Nhật Bản.', true, 2),
+('Bệnh truyền nhiễm', 'Viêm não Nhật Bản (vắc xin sống giảm độc lực tái tổ hợp)', 'Vaccine sống phòng viêm não Nhật Bản, hiệu quả dài lâu.', true, 1),
+('Bệnh truyền nhiễm', 'Sởi, Quai bị, Rubella (Priorix)', 'Vaccine kết hợp phòng 3 bệnh truyền nhiễm thường gặp.', true, 2),
+('Bệnh truyền nhiễm', 'Sởi, Quai bị, Rubella (MMR II)', 'Vaccine kết hợp MMR II phòng sởi, quai bị, rubella.', true, 2),
+('Bệnh truyền nhiễm', 'Thủy đậu', 'Gây mụn nước toàn thân, dễ lây lan.', true, 2),
+('Bệnh truyền nhiễm', 'Viêm gan A', 'Lây qua đường tiêu hóa, gây tổn thương gan.', true, 1),
+('Bệnh truyền nhiễm', 'Viêm gan A+B', 'Vaccine kết hợp phòng cả viêm gan A và B.', true, 3),
+('Bệnh truyền nhiễm', 'Thương hàn', 'Gây sốt kéo dài, lây qua thực phẩm nhiễm khuẩn.', true, 1),
+('Bệnh truyền nhiễm', 'Tả', 'Bệnh tiêu chảy cấp tính nguy hiểm do vi khuẩn tả.', true, 2),
+('Bệnh truyền nhiễm', 'Sốt xuất huyết', 'Lây qua muỗi, gây xuất huyết nội tạng nguy hiểm.', true, 1),
+('Bệnh truyền nhiễm', 'Dại', 'Virus dại gây viêm não cấp, luôn tử vong nếu không tiêm kịp thời.', true, 4),
 
 -- Bệnh mãn tính, cần vaccine
 ('Bệnh mãn tính', 'Hen suyễn', 'Bệnh hô hấp mãn tính, kiểm soát bằng thuốc chứ không vaccine.', false, 0),
@@ -705,6 +724,7 @@ INSERT INTO vaccine (disease_id, name, description) VALUES
 --vaccination_campaign
 CREATE TABLE vaccination_campaign (
     id SERIAL PRIMARY KEY,
+	disease_id INT NOT NULL,
     vaccine_id INT NOT NULL,
     description TEXT,
     location VARCHAR(255),
@@ -714,17 +734,11 @@ CREATE TABLE vaccination_campaign (
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
-INSERT INTO vaccination_campaign (vaccine_id, description, location, start_date, end_date, status) VALUES
-(1, 'Tiêm phòng bệnh Sởi (MVAX)', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED'),
-(2, 'Tiêm phòng bệnh Sởi (Priorix)', 'School Medix', '2025-06-01', '2025-06-20', 'PREPARING'),
-(3, 'Tiêm phòng bệnh Rubella (R-Vac)', 'School Medix', '2025-06-22', '2025-06-24', 'CANCELLED'),
-(4, 'Tiêm phòng bệnh Thủy đậu (Varivax)', 'School Medix', '2025-06-25', '2025-06-27', 'PREPARING');
-
--- (5, 'Tiêm phòng bệnh Thủy đậu (Varilrix)', 'School Medix', '2025-06-28', '2025-06-30', 'UPCOMING'),
--- (6, 'Tiêm phòng bệnh Viêm gan B (Engerix-B)', 'School Medix', '2025-07-01', '2025-07-03', 'UPCOMING'),
--- (7, 'Tiêm phòng bệnh Viêm gan B (Heplisav-B)', 'School Medix', '2025-07-04', '2025-07-06', 'UPCOMING'),
--- (8, 'Tiêm phòng bệnh Bạch hầu (DTP)', 'School Medix', '2025-07-07', '2025-07-09', 'UPCOMING'),
--- (9, 'Tiêm phòng bệnh Bạch hầu (Infanrix)', 'School Medix', '2025-07-10', '2025-07-12', 'UPCOMING');
+INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status) VALUES
+(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED'),
+(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-01', '2025-06-20', 'PREPARING'),
+(2, 3, 'Tiêm phòng viêm gan B đơn thành phần', 'School Medix', '2025-06-22', '2025-06-24', 'CANCELLED'),
+(3, 4, 'Tiêm Vaccine 3 trong 1 phòng Bạch hầu - Ho gà - Uốn ván', 'School Medix', '2025-06-25', '2025-06-27', 'PREPARING');
 
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
@@ -761,7 +775,7 @@ CREATE TABLE vaccination_record (
     student_id varchar(10) NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
     -- campaign_id INT, -- NULL nếu không thuộc campaign khỏi lưu cái này cx đc
-	disease_id INT,
+	disease_id INT NOT NULL,
     vaccine_id INT, -- khác NULL nếu parent đăng ký tiêm ở chỗ khác mà không thông qua campaign nhà trường
     description TEXT,
     location VARCHAR(255),
@@ -778,6 +792,7 @@ CREATE TABLE vaccination_record (
 INSERT INTO vaccination_record (
   student_id,
   register_id,
+  disease_id,
   vaccine_id,
   vaccination_date,
   description,
@@ -789,17 +804,19 @@ VALUES
     '211000',
     1,
     1,
+    1,
     '2025-06-15',
-    'Tiêm vaccine MVAX phòng bệnh Sởi',
+    'Tiêm vaccine BCG phòng bệnh Lao',
     'School Medix',
     'COMPLETED'
   ),
   (
     '211000',
-    null,
+    NULL,
     2,
+    3,
     '2025-06-15',
-    'Tiêm vaccine MVAX phòng bệnh Sởi',
+    'Tiêm vaccine Heplisav-B phòng bệnh Viêm gan B',
     'School Medix',
     'CANCELLED'
   ),
@@ -807,8 +824,9 @@ VALUES
     '211000',
     1,
     2,
+    2,
     '2025-06-15',
-    'Tiêm vaccine MVAX phòng bệnh Sởi',
+    'Tiêm vaccine Engerix-B phòng bệnh Viêm gan B',
     'School Medix',
     'COMPLETED'
   ),
@@ -816,8 +834,9 @@ VALUES
     '211002',
     3,
     1,
+    1,
     '2025-06-16',
-    'Tiêm vaccine MVAX phòng bệnh Sởi',
+    'Tiêm vaccine BCG phòng bệnh Lao',
     'School Medix',
     'COMPLETED'
   ),
@@ -825,8 +844,9 @@ VALUES
     '211003',
     4,
     1,
+    1,
     '2025-06-17',
-    'Tiêm vaccine MVAX phòng bệnh Sởi',
+    'Tiêm vaccine BCG phòng bệnh Lao',
     'School Medix',
     'COMPLETED'
   ),
@@ -834,8 +854,9 @@ VALUES
     '211002',
     3,
     3,
+    5,
     '2025-06-20',
-    'Tiêm vaccine Rubella phòng phát ban và sốt nhẹ',
+    'Tiêm vaccine Infanrix Hexa phòng bệnh Bạch hầu, Ho gà, Uốn ván',
     'School Medix',
     'COMPLETED'
   ),
@@ -843,8 +864,9 @@ VALUES
     '211001',
     2,
     3,
+    4,
     '2025-06-22',
-    'Tiêm vaccine Thủy đậu đã bị hủy do lý do sức khỏe',
+    'Tiêm vaccine DTP phòng bệnh Bạch hầu, Ho gà, Uốn ván',
     'School Medix',
     'CANCELLED'
   ),
@@ -852,8 +874,9 @@ VALUES
     '211003',
     4,
     4,
+    7,
     '2025-06-25',
-    'Không đến tiêm vaccine Viêm gan B',
+    'Tiêm vaccine OPV phòng bệnh Bại liệt',
     'School Medix',
     'COMPLETED'
   );

@@ -69,6 +69,7 @@ export async function createVaccine(req, res) {
   }
 }
 
+// Lấy tất cả vaccine (list)
 export async function getAllVaccines(req, res) {
   try {
     const result = await query(`
@@ -93,6 +94,151 @@ export async function getAllVaccines(req, res) {
     return res.status(500).json({
       error: true,
       message: "Lỗi server khi lấy danh sách vaccine",
+    });
+  }
+}
+
+// Lấy thông tin một loại vaccine
+export async function getVaccine(req, res) {
+  const { id } = req.params;
+
+  try {
+    const result = await query(
+      `
+      SELECT 
+        v.id, 
+        v.name, 
+        v.description, 
+        d.id AS disease_id, 
+        d.name AS disease_name
+      FROM vaccine v
+      JOIN disease d ON v.disease_id = d.id
+      WHERE v.id = $1;
+    `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy thông tin vaccine",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy thông tin vaccine thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching vaccines:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy thông tin vaccine",
+    });
+  }
+}
+
+// Cập nhật thông tin vaccine vaccine
+export async function updateVaccine(req, res) {
+  const { id } = req.params;
+  const { disease_id, name, description } = req.body;
+
+  try {
+    const result = await query(
+      `
+        UPDATE vaccine
+        SET
+          disease_id = $1,
+          name = $2,
+          description = $3
+        WHERE id = $4
+      `,
+      [disease_id, name, description, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy thông tin vaccine",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật thông tin vaccine thành công!",
+    });
+  } catch (error) {
+    console.error("Error fetching vaccines:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách vaccine",
+    });
+  }
+}
+
+// Xóa bản ghi vaccine
+export async function deleteVaccine(req, res) {
+  const { id } = req.params;
+
+  try {
+    const result = await query(
+      `
+        DELETE FROM vaccine
+        WHERE id = $1
+      `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy thông tin vaccine",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Xóa thông tin vaccine thành công",
+    });
+  } catch (error) {
+    console.log("Error fetching vaccines:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách vaccine",
+    });
+  }
+}
+
+// Lấy tất cả vaccine của 1 bệnh
+export async function getVaccinesOfDisease(req, res) {
+  const { id } = req.param;
+
+  try {
+    const result = await query(
+      `
+        SELECT * 
+        FROM vaccine
+        WHERE disease.id = $1
+      `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy thông tin vaccine",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy thông tin vaccine thành công",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Error fetching vaccines: ",
     });
   }
 }
