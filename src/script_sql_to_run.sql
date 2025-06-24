@@ -776,8 +776,6 @@ CREATE TABLE vaccination_campaign (
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
-select * from vaccine_disease
-
 INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status) VALUES
 (1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED'),
 (1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-01', '2025-06-20', 'PREPARING'),
