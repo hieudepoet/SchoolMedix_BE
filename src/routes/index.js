@@ -10,6 +10,7 @@ import vaccinationCampaignRoutes from "./vaccinationCampaign.routes.js"
 import studentRoutes from "./student.routes.js";
 import dailyHealthRecordRoutes from "./dailyHealthRecord.routes.js";
 import diseaseRecordRoutes from "./diseaseRecord.routes.js"
+import specialistexam from "./specialistExam.routes.js"
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ router.use("/", vaccinationCampaignRoutes);
 router.use("/", studentRoutes);
 router.use("/", dailyHealthRecordRoutes);
 router.use("/", diseaseRecordRoutes);
+router.use("/",specialistexam);
 
 
 export default router;
