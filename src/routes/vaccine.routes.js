@@ -6,7 +6,7 @@ import {
   getVaccine,
   updateVaccine,
   deleteVaccine,
-  getVaccinesOfDisease,
+  getDiseasesByVaccine,
 } from "../controllers/vaccine.controller.js";
 
 const router = express.Router();
@@ -16,6 +16,6 @@ router.get("/vaccines", getAllVaccines);
 router.get("/vaccine/:id", getVaccine);
 router.patch("/vaccine:id", updateVaccine);
 router.delete("/vaccine:id", deleteVaccine);
-router.get("disease/:id/vaccines", getVaccinesOfDisease);
+router.get("/vaccines/:id/diseases", getDiseasesByVaccine);
 
 export default router;
