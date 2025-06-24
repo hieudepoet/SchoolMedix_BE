@@ -1049,7 +1049,7 @@ export async function getAllRegisteredRecords(req, res) {
         JOIN vaccination_campaign camp ON reg.campaign_id = camp.id
         JOIN student s ON s.id = reg.student_id
         JOIN vaccination_record rec ON rec.register_id = reg.id
-        WHERE camp.id = $1 AND reg.is_registered = true;
+        WHERE camp.id = $1;
             `,
       [campaign_id]
     );
@@ -1166,11 +1166,77 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
       [student_id, disease_id]
     );
 
-    res.json(rows);
+    return res.status(200).json({
+      error: false,
+      message: "Lấy thông tin tiêm chủng thành công",
+    });
   } catch (err) {
     res.status(500).json({
-      error: "Lỗi khi lấy lịch sử tiêm chủng theo bệnh",
-      detail: err.message,
+      error: true,
+      message: "Lỗi khi lấy lịch sử tiêm chủng theo bệnh",
+    });
+  }
+}
+
+export async function getAcceptedRegisteredRecords(req, res) {
+  const { campaign_id } = req.params;
+  if (!campaign_id) {
+    return res.status(404).json({
+      error: true,
+      message: "Không tìm thấy campaing_id trong url",
+    });
+  }
+  try {
+    const records = await query(
+      `
+        SELECT 
+        s.id AS student_id,
+        s.supabase_uid as supabase_uid,
+        rec.id AS record_id,
+        rec.disease_id
+        rec.vaccine_id,
+        rec.status as status,
+        rec.description as description,
+        rec.location as location
+        FROM vaccination_campaign_register reg 
+        JOIN vaccination_campaign camp ON reg.campaign_id = camp.id
+        JOIN student s ON s.id = reg.student_id
+        JOIN vaccination_record rec ON rec.register_id = reg.id
+        WHERE camp.id = $1 AND reg.is_registered = true;
+            `,
+      [campaign_id]
+    );
+
+    if (records.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy record nào cho chiến dịch",
+      });
+    }
+
+    let final_result = [];
+
+    for (let record of records.rows) {
+      const student_profile = await getProfileOfStudentByUUID(
+        record.supabase_uid
+      );
+      final_result.push({ ...record, student_profile });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "ok",
+      data: final_result,
+    });
+  } catch (error) {
+    console.error(
+      "Error when listing registered record within a campaign:",
+      error
+    );
+    return res.status(500).json({
+      error: true,
+      message:
+        "Lỗi server khi lấy toàn bộ record của học sinh đã đăng ký đồng ý tiêm.",
     });
   }
 }
