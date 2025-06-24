@@ -125,3 +125,30 @@ export async function deleteDisease(req, res) {
       .json({ error: true, message: "Internal server error" });
   }
 }
+
+export async function getVaccinesByDisease(req, res) {
+  const { id } = req.params;
+
+  try {
+    const vaccineQuery = `
+      SELECT v.*
+      FROM vaccine v
+      INNER JOIN vaccine_disease vd ON vd.vaccine_id = v.id
+      WHERE vd.disease_id = $1
+    `;
+    const result = await query(vaccineQuery, [id]);
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: true, message: "No vaccines found for this disease" });
+    }
+
+    return res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching vaccines by disease:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
+  }
+}
