@@ -2,7 +2,7 @@ import { query } from "../config/database.js";
 
 export async function getALLSpeciaListExamRecord(req, res) {
   try {
-    const result = await query(`SELECT * FROM specialistexamlist`);
+    const result = await query(`SELECT * FROM specialistexamlist ORDER BY id ASC`);
 
     const rs = result.rows;
 

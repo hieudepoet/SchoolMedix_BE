@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post("/vaccine", createVaccine);
 router.get("/vaccines", getAllVaccines);
-router.patch("/vaccine:id", updateVaccine);
+router.patch("/vaccine/:id", updateVaccine);
 router.delete("/vaccine:id", deleteVaccine);
 router.get("/vaccines/:id/diseases", getDiseasesByVaccine);
 router.get("/vaccine/:id", getVaccine);
