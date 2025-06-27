@@ -35,7 +35,7 @@ export async function createNewAdmin(
     email,
     name,
     dob,
-    gender,
+    isMale,
     address,
     phone_number,
     profile_img_url
@@ -52,7 +52,7 @@ export async function createNewAdmin(
         email,
         name,
         dob,
-        gender,
+        isMale,
         address,
         phone_number,
         profile_img_url
@@ -65,7 +65,7 @@ export async function createNewNurse(
     email,
     name,
     dob,
-    gender,
+    isMale,
     address,
     phone_number,
     profile_img_url
@@ -82,7 +82,7 @@ export async function createNewNurse(
         email,
         name,
         dob,
-        gender,
+        isMale,
         address,
         phone_number,
         profile_img_url
@@ -95,7 +95,7 @@ export async function createNewParent(
     email,
     name,
     dob,
-    gender,
+    isMale,
     address,
     phone_number,
     profile_img_url
@@ -112,7 +112,7 @@ export async function createNewParent(
         email,
         name,
         dob,
-        gender,
+        isMale,
         address,
         phone_number,
         profile_img_url
@@ -125,7 +125,7 @@ export async function createNewStudent(
     email,
     name,
     dob,
-    gender,
+    isMale,
     address,
     phone_number,
     profile_img_url,
@@ -146,7 +146,7 @@ export async function createNewStudent(
         email,
         name,
         dob,
-        gender,
+        isMale,
         address,
         phone_number,
         profile_img_url,

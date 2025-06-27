@@ -65,7 +65,7 @@ CREATE TABLE Admin (
   email VARCHAR(255) UNIQUE,
   name VARCHAR(255) not null,
   dob DATE not null,
-  gender BOOLEAN not null,
+  isMale BOOLEAN not null,
   address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
@@ -79,7 +79,7 @@ INSERT INTO Admin (
   email,
   name,
   dob,
-  gender,
+  isMale,
   address,
   phone_number,
   profile_img_url,
@@ -105,7 +105,7 @@ CREATE TABLE Nurse (
   email VARCHAR(255) UNIQUE,
   name VARCHAR(255) not null,
   dob DATE not null,
-  gender BOOLEAN not null,
+  isMale BOOLEAN not null,
   address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
@@ -119,7 +119,7 @@ INSERT INTO Nurse (
   email,
   name,
   dob,
-  gender,
+  isMale,
   address,
   phone_number,
   profile_img_url,
@@ -146,7 +146,7 @@ CREATE TABLE Parent (
   email VARCHAR(255) UNIQUE,
   name VARCHAR(255) not null,
   dob DATE not null,
-  gender BOOLEAN not null,
+  isMale BOOLEAN not null,
   address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
@@ -157,7 +157,7 @@ CREATE TABLE Parent (
 ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
 
 INSERT INTO parent (
-  supabase_uid, email, name, dob, gender, address, phone_number, profile_img_url, email_confirmed
+  supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, email_confirmed
 ) VALUES
   (
     'be258789-4fe3-421c-baed-53ef3ed87f3b',
@@ -219,7 +219,7 @@ CREATE TABLE Student (
       email VARCHAR(255) UNIQUE,
       name VARCHAR(255) not null,
       dob DATE not null,
-      gender BOOLEAN not null,
+      isMale BOOLEAN not null,
       address TEXT not null,
       phone_number VARCHAR(20),
       profile_img_url TEXT,
@@ -237,7 +237,7 @@ INSERT INTO Student (
   email,
   name,
   dob,
-  gender,
+  isMale,
   address,
   phone_number,
   profile_img_url,
