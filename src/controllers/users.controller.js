@@ -27,7 +27,7 @@ export async function createAdmin(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url,
@@ -40,10 +40,10 @@ export async function createAdmin(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+            if (!isMale) {
                   return res.status(400).json({
                         error: true,
-                        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+                        message: "Thiếu giới tính.",
                   });
             }
             if (!address) {
@@ -54,7 +54,7 @@ export async function createAdmin(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url || process.env.DEFAULT_AVATAR_URL
@@ -80,7 +80,7 @@ export async function createNurse(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url,
@@ -93,10 +93,10 @@ export async function createNurse(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+            if (!isMale) {
                   return res.status(400).json({
                         error: true,
-                        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+                        message: "Thiếu giới tính.",
                   });
             }
             if (!address) {
@@ -107,7 +107,7 @@ export async function createNurse(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url
@@ -133,7 +133,7 @@ export async function createParent(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url,
@@ -146,10 +146,10 @@ export async function createParent(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+            if (!isMale) {
                   return res.status(400).json({
                         error: true,
-                        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+                        message: "Thiếu giới tính.",
                   });
             }
             if (!address) {
@@ -160,7 +160,7 @@ export async function createParent(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url
@@ -186,7 +186,7 @@ export async function createStudent(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url,
@@ -203,10 +203,10 @@ export async function createStudent(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!gender || (gender !== "Nam" && gender !== "Nữ")) {
+            if (!isMale ) {
                   return res.status(400).json({
                         error: true,
-                        message: "Giới tính phải là 'Nam' hoặc 'Nữ'.",
+                        message: "Thiếu giới tính.",
                   });
             }
             if (!address) {
@@ -224,7 +224,7 @@ export async function createStudent(req, res) {
                   email,
                   name,
                   dob,
-                  gender,
+                  isMale,
                   address,
                   phone_number,
                   profile_img_url,

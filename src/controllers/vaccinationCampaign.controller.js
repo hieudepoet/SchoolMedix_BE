@@ -1179,6 +1179,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
   }
 }
 
+
 export async function getAcceptedRegisteredRecords(req, res) {
   const { campaign_id } = req.params;
   if (!campaign_id) {

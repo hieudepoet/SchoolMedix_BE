@@ -6,14 +6,14 @@ export async function insertAdmin(
   email = null,
   name,
   dob,
-  gender,
+  isMale,
   address,
   phone_number = null,
   profile_img_url = process.env.DEFAULT_AVATAR_URL
 ) {
   const result = await query(`
     INSERT INTO Admin (
-      supabase_uid, email, name, dob, gender, address,
+      supabase_uid, email, name, dob, isMale, address,
       phone_number, profile_img_url
     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
     RETURNING *
@@ -22,7 +22,7 @@ export async function insertAdmin(
     email,
     name,
     dob,
-    gender,
+    isMale,
     address,
     phone_number,
     profile_img_url
@@ -35,14 +35,14 @@ export async function insertNurse(
   email = null,
   name,
   dob,
-  gender,
+  isMale,
   address,
   phone_number = null,
   profile_img_url = process.env.DEFAULT_AVATAR_URL
 ) {
   const result = await query(`
     INSERT INTO Nurse (
-      supabase_uid, email, name, dob, gender, address,
+      supabase_uid, email, name, dob, isMale, address,
       phone_number, profile_img_url
     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
     RETURNING *
@@ -51,7 +51,7 @@ export async function insertNurse(
     email,
     name,
     dob,
-    gender,
+    isMale,
     address,
     phone_number,
     profile_img_url
@@ -64,14 +64,14 @@ export async function insertParent(
   email = null,
   name,
   dob,
-  gender,
+  isMale,
   address,
   phone_number = null,
   profile_img_url = process.env.DEFAULT_AVATAR_URL
 ) {
   const result = await query(`
     INSERT INTO Parent (
-      supabase_uid, email, name, dob, gender, address,
+      supabase_uid, email, name, dob, isMale, address,
       phone_number, profile_img_url
     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
     RETURNING *
@@ -80,7 +80,7 @@ export async function insertParent(
     email,
     name,
     dob,
-    gender,
+    isMale,
     address,
     phone_number,
     profile_img_url
@@ -93,7 +93,7 @@ export async function insertStudent(
   email = null,
   name,
   dob,
-  gender,
+  isMale,
   address,
   phone_number = null,
   profile_img_url = process.env.DEFAULT_AVATAR_URL,
@@ -107,7 +107,7 @@ export async function insertStudent(
 
   const result = await query(`
     INSERT INTO Student (
-      id, supabase_uid, email, name, dob, gender, address,
+      id, supabase_uid, email, name, dob, isMale, address,
       phone_number, profile_img_url, year_of_enrollment, class_id, mom_id, dad_id
     ) 
     VALUES (
@@ -115,7 +115,7 @@ export async function insertStudent(
       $8, $9, $10, $11, $12, $13
     ) RETURNING *
   `, [
-    student_id, supabase_uid, email, name, dob, gender, address,
+    student_id, supabase_uid, email, name, dob, isMale, address,
     phone_number, profile_img_url, year_of_enrollment, class_id, mom_id, dad_id
   ]);
 
@@ -141,7 +141,7 @@ export async function getProfileOfParentByID(parent_id) {
     p.name,
     p.dob,
     DATE_PART('year', AGE(p.dob)) AS age,
-    p.gender,
+    p.isMale,
     p.address,
     p.phone_number,
     p.profile_img_url,
@@ -156,7 +156,7 @@ export async function getProfileOfParentByID(parent_id) {
           'name', s.name,
           'age', DATE_PART('year', AGE(s.dob)),
           'dob', s.dob,
-          'gender', s.gender,
+          'isMale', s.isMale,
           'address', s.address,
           'phone_number', s.phone_number,
           'profile_img_url', s.profile_img_url,
@@ -187,7 +187,7 @@ export async function getProfileOfStudentByID(student_id) {
   s.name,
   s.dob,
   DATE_PART('year', AGE(s.dob)) AS age,
-  s.gender,
+  s.isMale,
   s.address,
   s.phone_number,
   s.profile_img_url,
@@ -204,7 +204,7 @@ export async function getProfileOfStudentByID(student_id) {
       'age', DATE_PART('year', AGE(m.dob)),
       'email', m.email,
       'phone_number', m.phone_number,
-      'gender', m.gender,
+      'isMale', m.isMale,
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
@@ -221,7 +221,7 @@ export async function getProfileOfStudentByID(student_id) {
       'age', DATE_PART('year', AGE(d.dob)),
       'email', d.email,
       'phone_number', d.phone_number,
-      'gender', d.gender,
+      'isMale', d.isMale,
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
@@ -271,7 +271,7 @@ export async function getProfileOfParentByUUID(supabase_uid) {
       p.name,
       p.dob,
       DATE_PART('year', AGE(p.dob)) AS age,
-      p.gender,
+      p.isMale,
       p.address,
       p.phone_number,
       p.profile_img_url,
@@ -286,7 +286,7 @@ export async function getProfileOfParentByUUID(supabase_uid) {
             'name', s.name,
             'age', DATE_PART('year', AGE(s.dob)),
             'dob', s.dob,
-            'gender', s.gender,
+            'isMale', s.isMale,
             'address', s.address,
             'phone_number', s.phone_number,
             'profile_img_url', s.profile_img_url,
@@ -321,7 +321,7 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
       s.name,
       s.dob,
       DATE_PART('year', AGE(s.dob)) AS age,
-      s.gender,
+      s.isMale,
       s.address,
       s.phone_number,
       s.profile_img_url,
@@ -338,7 +338,7 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
           'age', DATE_PART('year', AGE(m.dob)),
           'email', m.email,
           'phone_number', m.phone_number,
-          'gender', m.gender,
+          'isMale', m.isMale,
           'address', m.address,
           'profile_img_url', m.profile_img_url,
           'supabase_uid', m.supabase_uid,
@@ -355,7 +355,7 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
           'age', DATE_PART('year', AGE(d.dob)),
           'email', d.email,
           'phone_number', d.phone_number,
-          'gender', d.gender,
+          'isMale', d.isMale,
           'address', d.address,
           'profile_img_url', d.profile_img_url,
           'supabase_uid', d.supabase_uid,
@@ -397,7 +397,7 @@ export async function getAllParents() {
         p.name,
         p.dob,
         DATE_PART('year', AGE(p.dob)) AS age,
-        p.gender,
+        p.isMale,
         p.address,
         p.phone_number,
         p.profile_img_url,
@@ -412,7 +412,7 @@ export async function getAllParents() {
               'name', s.name,
               'age', DATE_PART('year', AGE(s.dob)),
               'dob', s.dob,
-              'gender', s.gender,
+              'isMale', s.isMale,
               'address', s.address,
               'phone_number', s.phone_number,
               'profile_img_url', s.profile_img_url,
@@ -444,7 +444,7 @@ export async function getAllStudents() {
       'name', s.name,
       'dob', s.dob,
       'age', DATE_PART('year', AGE(s.dob)),
-      'gender', s.gender,
+      'isMale', s.isMale,
       'address', s.address,
       'phone_number', s.phone_number,
       'profile_img_url', s.profile_img_url,
@@ -461,7 +461,7 @@ export async function getAllStudents() {
           'age', DATE_PART('year', AGE(m.dob)),
           'email', m.email,
           'phone_number', m.phone_number,
-          'gender', m.gender,
+          'isMale', m.isMale,
           'address', m.address,
           'profile_img_url', m.profile_img_url,
           'supabase_uid', m.supabase_uid,
@@ -478,7 +478,7 @@ export async function getAllStudents() {
           'age', DATE_PART('year', AGE(d.dob)),
           'email', d.email,
           'phone_number', d.phone_number,
-          'gender', d.gender,
+          'isMale', d.isMale,
           'address', d.address,
           'profile_img_url', d.profile_img_url,
           'supabase_uid', d.supabase_uid,
@@ -506,7 +506,7 @@ export async function getAllStudentsByClassID(class_id) {
       'name', s.name,
       'dob', s.dob,
       'age', DATE_PART('year', AGE(s.dob)),
-      'gender', s.gender,
+      'isMale', s.isMale,
       'address', s.address,
       'phone_number', s.phone_number,
       'profile_img_url', s.profile_img_url,
@@ -523,7 +523,7 @@ export async function getAllStudentsByClassID(class_id) {
           'age', DATE_PART('year', AGE(m.dob)),
           'email', m.email,
           'phone_number', m.phone_number,
-          'gender', m.gender,
+          'isMale', m.isMale,
           'address', m.address,
           'profile_img_url', m.profile_img_url,
           'supabase_uid', m.supabase_uid,
@@ -540,7 +540,7 @@ export async function getAllStudentsByClassID(class_id) {
           'age', DATE_PART('year', AGE(d.dob)),
           'email', d.email,
           'phone_number', d.phone_number,
-          'gender', d.gender,
+          'isMale', d.isMale,
           'address', d.address,
           'profile_img_url', d.profile_img_url,
           'supabase_uid', d.supabase_uid,
@@ -569,7 +569,7 @@ export async function getAllStudentsByGradeID(grade_id) {
       'name', s.name,
       'dob', s.dob,
       'age', DATE_PART('year', AGE(s.dob)),
-      'gender', s.gender,
+      'isMale', s.isMale,
       'address', s.address,
       'phone_number', s.phone_number,
       'profile_img_url', s.profile_img_url,
@@ -586,7 +586,7 @@ export async function getAllStudentsByGradeID(grade_id) {
           'age', DATE_PART('year', AGE(m.dob)),
           'email', m.email,
           'phone_number', m.phone_number,
-          'gender', m.gender,
+          'isMale', m.isMale,
           'address', m.address,
           'profile_img_url', m.profile_img_url,
           'supabase_uid', m.supabase_uid,
@@ -603,7 +603,7 @@ export async function getAllStudentsByGradeID(grade_id) {
           'age', DATE_PART('year', AGE(d.dob)),
           'email', d.email,
           'phone_number', d.phone_number,
-          'gender', d.gender,
+          'isMale', d.isMale,
           'address', d.address,
           'profile_img_url', d.profile_img_url,
           'supabase_uid', d.supabase_uid,

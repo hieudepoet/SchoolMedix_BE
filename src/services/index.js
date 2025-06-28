@@ -8,3 +8,7 @@ export * from "./users/index.js"
 
 // supabase storage (to save img, file excel, pdf..)
 export * from "./supabase-storage/index.js"
+
+
+//excel feature
+export * from "./excel/index.js"

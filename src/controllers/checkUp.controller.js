@@ -1220,7 +1220,7 @@ export async function getListStudentByCampaignAccept(req, res) {
         }
 
         const result = await query(
-            `SELECT s.id AS student_id ,cr.id AS register_id, s.email, s.name, s.dob,s.gender,s.phone_number,s.address
+            `SELECT s.id AS student_id ,cr.id AS register_id, s.email, s.name, s.dob,s.isMale,s.phone_number,s.address
     FROM Student s
     JOIN CheckupRegister cr ON s.id = cr.student_id
     WHERE cr.campaign_id = $1
