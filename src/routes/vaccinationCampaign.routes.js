@@ -55,7 +55,7 @@ router.get(
 );
 router.get(
   "/student/:student_id/disease/:disease_id/vaccination-record",
-  getVaccinationRecordsOfAStudentBasedOnADisease
+  getVaccinationRecordsOfAStudentBasedOnADisease // get detail of vaccination records of a student based on a disease
 );
 
 router.patch("/vaccination-register/:id/accept", acceptRegister);
