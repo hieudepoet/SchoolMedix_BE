@@ -1,5 +1,5 @@
 import express from "express"
-import{ createSpecialistExam, getALLSpeciaListExamRecord, getSpecialExam, updateSpecialExam } from "../controllers/specialistexam.controller.js";
+import{ createSpecialistExam, deleteSpecialExam, getALLSpeciaListExamRecord, getSpecialExam, updateSpecialExam } from "../controllers/specialistexam.controller.js";
 
 const router = express.Router();
 
@@ -16,8 +16,8 @@ router.get('/special-exam/:id',getSpecialExam);
 
 router.post('/special-exam',createSpecialistExam);
 
-// delete một chuyên khoa (set is_deleted = true)
-
+// Xóa một chuyên khoa (soft delete)
+router.delete('/special-exam/:id', deleteSpecialExam);
 // update thông tin của một chuyên khoa 
 
 router.patch('/special-exam/:id',updateSpecialExam); // Truyền vào Spe_id
