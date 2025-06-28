@@ -1160,7 +1160,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
         vr.status
       FROM vaccination_record vr
       JOIN vaccine v ON vr.vaccine_id = v.id
-      WHERE vr.student_id = $1 AND v.disease_id = $2
+      WHERE vr.student_id = $1 AND vr.disease_id = $2
       ORDER BY vr.vaccination_date
     `,
       [student_id, disease_id]
@@ -1169,6 +1169,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
     return res.status(200).json({
       error: false,
       message: "Lấy thông tin tiêm chủng thành công",
+      data: rows,
     });
   } catch (err) {
     res.status(500).json({
@@ -1177,6 +1178,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
     });
   }
 }
+
 
 export async function getAcceptedRegisteredRecords(req, res) {
   const { campaign_id } = req.params;
