@@ -29,3 +29,9 @@ export async function sendWelcomeEmail(emailTo, name, role, password) {
 
       console.log("Email sent to", emailTo);
 }
+
+
+
+
+
+
