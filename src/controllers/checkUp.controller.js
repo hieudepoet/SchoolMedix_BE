@@ -240,9 +240,7 @@ export async function getAllCheckupCampaigns(req, res) {
 
 export async function getALLHealthRecord(req, res) {
     try {
-        const result = await query("SELECT * FROM healthrecord WHERE status = $1", [
-            "DONE",
-        ]);
+        const result = await query(`SELECT * FROM healthrecord`);
         if (result.rowCount === 0) {
             return res
                 .status(400)
@@ -261,8 +259,8 @@ export async function getALLHealthRecord(req, res) {
 export async function getALLSpeciaListExamRecord(req, res) {
     try {
         const result = await query(
-            "SELECT * FROM specialistexamrecord WHERE status = $1",
-            ["DONE"]
+            "SELECT * FROM specialistexamrecord",
+            
         );
 
         if (result.rowCount === 0) {
