@@ -17,7 +17,8 @@ import {
       unconfirmEmailFor,
       editUserProfileByAdmin,
       uploadFileToSupabaseStorage,
-      getProfileByUUID
+      getProfileByUUID,
+      deleteAuthUser, deleteUserByID
 
 } from "../services/index.js";
 
@@ -203,7 +204,7 @@ export async function createStudent(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!isMale ) {
+            if (!isMale) {
                   return res.status(400).json({
                         error: true,
                         message: "Thiếu giới tính.",
@@ -660,6 +661,67 @@ export async function handleLogOut(req, res) {
 
 export async function handleUpdatePassword(req, res) {
 
+}
+
+export async function deleteAdmin(req, res) {
+      try {
+            const { admin_id } = req.params;
+
+            // 1. Soft delete trong bảng admin
+            const supabase_uid = await deleteUserByID('admin', admin_id);
+
+            // 2. Xóa khỏi Supabase Auth
+            if (supabase_uid) {
+                  await deleteAuthUser(supabase_uid);
+            }
+
+            return res.status(200).json({ error: false, message: 'Xóa admin thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa admin:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa admin thất bại!" });
+      }
+
+}
+export async function deleteNurse(req, res) {
+      try {
+            const { nurse_id } = req.params;
+
+            const supabase_uid = await deleteUserByID('nurse', nurse_id);
+            if (supabase_uid) await deleteAuthUser(supabase_uid);
+
+            return res.status(200).json({ error: false, message: 'Xóa nurse thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa nurse:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa nurse thất bại!" });
+      }
+}
+
+export async function deleteParent(req, res) {
+      try {
+            const { parent_id } = req.params;
+
+            const supabase_uid = await deleteUserByID('parent', parent_id);
+            if (supabase_uid) await deleteAuthUser(supabase_uid);
+
+            return res.status(200).json({ error: false, message: 'Xóa parent thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa parent:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa parent thất bại!" });
+      }
+}
+
+export async function deleteStudent(req, res) {
+      try {
+            const { student_id } = req.params;
+
+            const supabase_uid = await deleteUserByID('student', student_id);
+            if (supabase_uid) await deleteAuthUser(supabase_uid);
+
+            return res.status(200).json({ error: false, message: 'Xóa student thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa student:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa student thất bại!" });
+      }
 }
 
 

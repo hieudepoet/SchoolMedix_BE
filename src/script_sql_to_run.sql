@@ -670,8 +670,8 @@ CREATE TABLE HealthRecord (
     posture VARCHAR(100),
 
     final_diagnosis TEXT,
-	is_checked BOOLEAN DEFAULT FALSE,
-	status health_record_status NOT NULL DEFAULT 'WAITING'
+	  is_checked BOOLEAN DEFAULT FALSE,
+	  status health_record_status NOT NULL DEFAULT 'WAITING'
 );
 
 INSERT INTO HealthRecord (register_id, status) VALUES 
