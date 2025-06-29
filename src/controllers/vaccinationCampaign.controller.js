@@ -103,7 +103,7 @@ export async function getCampaignDetailByID(req, res) {
   try {
     const result = await query(
       `
-        select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name a.description as description, a.location, a.start_date, a.end_date, a.status
+        select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.description as description, a.location, a.start_date, a.end_date, a.status
         from vaccination_campaign a
         join vaccine b on a.vaccine_id = b.id
         join disease c on a.disease_id = c.id
@@ -181,7 +181,7 @@ async function createRegisterRequest(campaign_id) {
 
     //Get all students eligible for the campaign
     const eligibleStudents = await getStudentEligibleForADiseaseID(
-      disease_id.rows[0].disease_id
+      campaigns.rows[0].disease_id
     );
     console.log(eligibleStudents);
 
@@ -852,24 +852,23 @@ export async function getAllRegistersOfAStudentWithCampaignID(req, res) {
 async function getStudentEligibleForADiseaseID(disease_id) {
   const sql = `
     SELECT 
-      s.id AS student_id,
-      COALESCE(COUNT(vr.id) FILTER (
-        WHERE vr.status = 'COMPLETED'
-      ), 0) AS completed_doses,
-      d.dose_quantity
+        s.id AS student_id,
+        COALESCE(COUNT(vr.id) FILTER (
+            WHERE vr.status = 'COMPLETED'
+        ), 0) AS completed_doses,
+        d.dose_quantity
     FROM student s
-    CROSS JOIN disease d
     LEFT JOIN vaccination_record vr 
-      ON vr.student_id = s.id 
-      AND vr.disease_id = v.id
-    WHERE d.id = $1
+        ON vr.student_id = s.id AND vr.disease_id = $1
+    LEFT JOIN disease d 
+        ON d.id = $2
     GROUP BY s.id, d.dose_quantity
     HAVING COALESCE(COUNT(vr.id) FILTER (
-      WHERE vr.status = 'COMPLETED'
+        WHERE vr.status = 'COMPLETED'
     ), 0) < d.dose_quantity;
   `;
 
-  return (await query(sql, [disease_id])).rows;
+  return (await query(sql, [disease_id, disease_id])).rows;
 }
 
 async function updateCampaignStatus(campaign_id, status, res, successMessage) {
