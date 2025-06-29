@@ -32,7 +32,7 @@ export async function createCampaign(req, res) {
 
     // Insert campaign into database
     const insertQuery = `
-        INSERT INTO vaccination_campaign (diseae_id, vaccine_id, description, location, start_date, end_date, status)
+        INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status)
         VALUES ($7, $1, $2, $3, $4, $5, $6)
         RETURNING *;
     `;
@@ -43,7 +43,7 @@ export async function createCampaign(req, res) {
       location,
       start_date,
       end_date,
-      "PREPARING", // mndkhanh: sai flow, khi tạo ra campaign là PREPARING, (giai đoạn nhận đơn đăng ký)
+      "PREPARING",
       disease_id,
     ]);
 
