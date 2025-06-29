@@ -52,6 +52,16 @@ export async function createCampaign(req, res) {
       console.log("Lỗi: " + error);
     }
 
+    const result = await query(insertQuery, [
+      vaccine_id,
+      description,
+      location,
+      start_date,
+      end_date,
+      "PREPARING",
+      disease_id,
+    ]);
+
     const campaign_id = result.rows[0].id;
 
     const register_success = await createRegisterRequest(campaign_id);
