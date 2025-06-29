@@ -69,7 +69,8 @@ CREATE TABLE Admin (
   address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
-  email_confirmed BOOLEAN DEFAULT false not null
+  email_confirmed BOOLEAN DEFAULT false not null,
+  is_deleted BOOLEAN DEFAULT false not null
 );
 -- start admin id from 100000
 ALTER SEQUENCE admin_id_seq RESTART WITH 100000;
@@ -109,7 +110,8 @@ CREATE TABLE Nurse (
   address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
-  email_confirmed BOOLEAN DEFAULT false not null
+  email_confirmed BOOLEAN DEFAULT false not null,
+  is_deleted BOOLEAN DEFAULT false not null
 );
 -- start nurse id from 100000
 ALTER SEQUENCE nurse_id_seq RESTART WITH 100000;
@@ -150,7 +152,8 @@ CREATE TABLE Parent (
   address TEXT not null,
   phone_number VARCHAR(20),
   profile_img_url TEXT,
-  email_confirmed BOOLEAN DEFAULT false not null
+  email_confirmed BOOLEAN DEFAULT false not null,
+  is_deleted BOOLEAN DEFAULT false not null
 );
 
 -- start parent id from 100000
@@ -225,6 +228,7 @@ CREATE TABLE Student (
       profile_img_url TEXT,
       year_of_enrollment int not null,
       email_confirmed BOOLEAN DEFAULT false not null,
+      is_deleted BOOLEAN DEFAULT false not null,
       class_id INT REFERENCES class(id) not null,
       mom_id int REFERENCES parent(id),
       dad_id int REFERENCES parent(id)

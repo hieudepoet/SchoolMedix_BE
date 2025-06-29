@@ -8,8 +8,8 @@ import {
       handleUploadProfileImg,
       handleConfirmEmailForUser,
       handleUnconfirmEmailForUser,
-
-
+      deleteAdmin, deleteNurse, deleteParent, deleteStudent
+      
 } from '../controllers/users.controller.js';
 
 const router = express.Router();
@@ -59,10 +59,10 @@ router.patch("/admin/edit-user-profile", editUserInfoByAdmin); // chua
 
 
 // delete một user
-router.delete("/admin/:admin_id"); // chua
-router.delete("/nurse/:nurse_id"); // chua
-router.delete("/parent/:parent_id"); // chua
-router.delete("/student/:student_id"); // chua
+router.delete("/admin/:admin_id", deleteAdmin); 
+router.delete("/nurse/:nurse_id", deleteNurse); 
+router.delete("/parent/:parent_id", deleteParent);
+router.delete("/student/:student_id", deleteStudent);
 // note, please do not delete these user:
 /*
     'mndkhanh@gmail.com',
