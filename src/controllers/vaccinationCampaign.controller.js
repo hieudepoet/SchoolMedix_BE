@@ -38,20 +38,6 @@ export async function createCampaign(req, res) {
         RETURNING *;
     `;
 
-    try {
-      const result = await query(insertQuery, [
-        vaccine_id,
-        description,
-        location,
-        start_date,
-        end_date,
-        "PREPARING", // mndkhanh: sai flow, khi tạo ra campaign là PREPARING, (giai đoạn nhận đơn đăng ký)
-        disease_id,
-      ]);
-    } catch (error) {
-      console.log("Lỗi: " + error);
-    }
-
     const result = await query(insertQuery, [
       vaccine_id,
       description,
@@ -64,7 +50,10 @@ export async function createCampaign(req, res) {
 
     const campaign_id = result.rows[0].id;
 
-    const register_success = await createRegisterRequest(campaign_id);
+    const register_success = await createRegisterRequest(
+      campaign_id,
+      disease_id
+    );
 
     if (!register_success) {
       console.log("Internal server error: " + "tạo register thất bại!");
@@ -151,8 +140,9 @@ export async function getCampaignDetailByID(req, res) {
 }
 
 // Register
-async function createRegisterRequest(campaign_id) {
+async function createRegisterRequest(campaign_id, disease_id) {
   if (!campaign_id) {
+    console.log("Không có campaign_id");
     return false;
   }
 
@@ -163,6 +153,7 @@ async function createRegisterRequest(campaign_id) {
       [campaign_id]
     );
     if (campaigns.rows.length === 0) {
+      console.log("Không thấy campaign_id");
       return false;
     }
 
@@ -182,6 +173,7 @@ async function createRegisterRequest(campaign_id) {
 
     // Check nếu campaign đang trong giai đoạn nhận đơn thì tiếp tục tạo register (status PREPARING), không thì return
     if (campaigns.rows[0].status !== "PREPARING") {
+      console.log("Hết hạn");
       return false;
     }
 
@@ -191,13 +183,12 @@ async function createRegisterRequest(campaign_id) {
       [campaign_id]
     );
     if (existingRegistrations.rows.length > 0) {
+      console.log("Đã tạo");
       return false;
     }
 
     //Get all students eligible for the campaign
-    const eligibleStudents = await getStudentEligibleForADiseaseID(
-      disease_id.rows[0].disease_id
-    );
+    const eligibleStudents = await getStudentEligibleForADiseaseID(disease_id);
     console.log(eligibleStudents);
 
     if (eligibleStudents.length === 0) {
@@ -216,6 +207,7 @@ async function createRegisterRequest(campaign_id) {
       );
     }
 
+    console.log("Tạo thành công request");
     return true;
   } catch (error) {
     console.error("Error creating registration request:", error);
@@ -876,7 +868,6 @@ async function getStudentEligibleForADiseaseID(disease_id) {
     CROSS JOIN disease d
     LEFT JOIN vaccination_record vr 
       ON vr.student_id = s.id 
-      AND vr.disease_id = v.id
     WHERE d.id = $1
     GROUP BY s.id, d.dose_quantity
     HAVING COALESCE(COUNT(vr.id) FILTER (
