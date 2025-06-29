@@ -4,7 +4,6 @@ import { getProfileOfStudentByUUID } from "../services/index.js";
 // Campaign
 export async function createCampaign(req, res) {
   const {
-    disease_id,
     vaccine_id,
     description,
     location,
@@ -12,39 +11,43 @@ export async function createCampaign(req, res) {
     end_date,
   } = req.body;
 
-  if (!disease_id || !vaccine_id || !description || !start_date || !end_date) {
+  // Validate required fields (removed disease_id from validation since it will be fetched)
+  if (!vaccine_id || !description || !start_date || !end_date) {
     return res
       .status(400)
       .json({ error: true, message: "Missing required fields" });
   }
 
   try {
-    // Check if vaccine_disease exists
-    const vaccines = await query(
-      "SELECT * FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id = $2",
-      [vaccine_id, disease_id]
+    // Fetch disease_id based on vaccine_id
+    const vaccineDiseaseQuery = await query(
+      "SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1",
+      [vaccine_id]
     );
-    if (vaccines.rows.length === 0) {
+
+    if (vaccineDiseaseQuery.rows.length === 0) {
       return res
         .status(404)
-        .json({ error: true, message: "Vaccine not found" });
+        .json({ error: true, message: "Vaccine not found or no associated disease" });
     }
+
+    const disease_id = vaccineDiseaseQuery.rows[0].disease_id;
 
     // Insert campaign into database
     const insertQuery = `
         INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status)
-        VALUES ($7, $1, $2, $3, $4, $5, $6)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;
     `;
 
     const result = await query(insertQuery, [
+      disease_id,
       vaccine_id,
       description,
       location,
       start_date,
       end_date,
-      "PREPARING",
-      disease_id,
+      "PREPARING", // Campaign starts in PREPARING status
     ]);
 
     const campaign_id = result.rows[0].id;
@@ -54,6 +57,7 @@ export async function createCampaign(req, res) {
     if (!register_success) {
       console.log("Internal server error: " + "tạo register thất bại!");
     }
+
     return res
       .status(201)
       .json({ message: "Campaign created", data: result.rows[0] });
@@ -64,7 +68,6 @@ export async function createCampaign(req, res) {
       .json({ error: true, message: "Internal server error" });
   }
 }
-
 // get all campaigns to see
 export async function getAllCampaigns(req, res) {
   try {
@@ -103,7 +106,7 @@ export async function getCampaignDetailByID(req, res) {
   try {
     const result = await query(
       `
-        select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name a.description as description, a.location, a.start_date, a.end_date, a.status
+        select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.description as description, a.location, a.start_date, a.end_date, a.status
         from vaccination_campaign a
         join vaccine b on a.vaccine_id = b.id
         join disease c on a.disease_id = c.id
@@ -181,7 +184,7 @@ async function createRegisterRequest(campaign_id) {
 
     //Get all students eligible for the campaign
     const eligibleStudents = await getStudentEligibleForADiseaseID(
-      disease_id.rows[0].disease_id
+      campaigns.rows[0].disease_id
     );
     console.log(eligibleStudents);
 
@@ -852,24 +855,23 @@ export async function getAllRegistersOfAStudentWithCampaignID(req, res) {
 async function getStudentEligibleForADiseaseID(disease_id) {
   const sql = `
     SELECT 
-      s.id AS student_id,
-      COALESCE(COUNT(vr.id) FILTER (
-        WHERE vr.status = 'COMPLETED'
-      ), 0) AS completed_doses,
-      d.dose_quantity
+        s.id AS student_id,
+        COALESCE(COUNT(vr.id) FILTER (
+            WHERE vr.status = 'COMPLETED'
+        ), 0) AS completed_doses,
+        d.dose_quantity
     FROM student s
-    CROSS JOIN disease d
     LEFT JOIN vaccination_record vr 
-      ON vr.student_id = s.id 
-      AND vr.disease_id = v.id
-    WHERE d.id = $1
+        ON vr.student_id = s.id AND vr.disease_id = $1
+    LEFT JOIN disease d 
+        ON d.id = $2
     GROUP BY s.id, d.dose_quantity
     HAVING COALESCE(COUNT(vr.id) FILTER (
-      WHERE vr.status = 'COMPLETED'
+        WHERE vr.status = 'COMPLETED'
     ), 0) < d.dose_quantity;
   `;
 
-  return (await query(sql, [disease_id])).rows;
+  return (await query(sql, [disease_id, disease_id])).rows;
 }
 
 async function updateCampaignStatus(campaign_id, status, res, successMessage) {

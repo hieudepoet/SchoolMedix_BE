@@ -1,4 +1,4 @@
-import { supabaseAdmin, admin } from "../../config/supabase.js";
+import { admin } from "../../config/supabase.js";
 
 
 export async function uploadFileToSupabaseStorage(file, bucket, path) {

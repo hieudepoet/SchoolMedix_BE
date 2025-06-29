@@ -664,44 +664,60 @@ export async function editUserProfileByAdmin(id, role, updates) {
 }
 
 // below is used for self info modification
-// admin nurse can update all
 export async function updateAdminProfile(id, updates) {
-  return await updateProfileFor(id, "admin", updates);
-}
-
-export async function updateNurseProfile(id, updates) {
-  return await updateProfileFor(id, "nurse", updates);
-}
-
-// parent và student chỉ được update email, profile_img_url, phone_number
-export async function updateStudentProfile(id, updates) {
-  const allowedFields = ['email', 'profile_img_url', 'phone_number']; // chỉ được update email, profile_img_url, phone_number
+  const allowedFields = ['address', 'profile_img_url', 'phone_number'];
   const filteredUpdates = Object.fromEntries(
     Object.entries(updates).filter(([key]) => allowedFields.includes(key))
   );
 
   if (Object.keys(filteredUpdates).length === 0) {
-    throw new Error("Không có trường hợp lệ để cập nhật.");
+    throw new Error("Chỉ được phép cập nhật trường địa chỉ, ảnh đại diện và số điện thoại.");
+  }
+  return await updateProfileFor(id, "admin", updates);
+}
+
+export async function updateNurseProfile(id, updates) {
+  const allowedFields = ['address', 'profile_img_url', 'phone_number'];
+  const filteredUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([key]) => allowedFields.includes(key))
+  );
+
+  if (Object.keys(filteredUpdates).length === 0) {
+    throw new Error("Chỉ được phép cập nhật trường địa chỉ, ảnh đại diện và số điện thoại.");
+  }
+  return await updateProfileFor(id, "nurse", updates);
+}
+
+// parent và student chỉ được update address, profile_img_url, phone_number
+export async function updateStudentProfile(id, updates) {
+  const allowedFields = ['address', 'profile_img_url', 'phone_number'];
+  const filteredUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([key]) => allowedFields.includes(key))
+  );
+
+  if (Object.keys(filteredUpdates).length === 0) {
+    throw new Error("Chỉ được phép cập nhật trường địa chỉ, ảnh đại diện và số điện thoại.");
   }
 
   return await updateProfileFor(id, "student", filteredUpdates);
 }
 
 export async function updateParentProfile(id, updates) {
-  const allowedFields = ['email', 'profile_img_url', 'phone_number']; // chỉ cho phép update 3 trường này
+  const allowedFields = ['address', 'profile_img_url', 'phone_number'];
   const filteredUpdates = Object.fromEntries(
     Object.entries(updates).filter(([key]) => allowedFields.includes(key))
   );
 
   if (Object.keys(filteredUpdates).length === 0) {
-    throw new Error("Không có trường hợp lệ để cập nhật.");
+    throw new Error("Chỉ được phép cập nhật trường địa chỉ, ảnh đại diện và số điện thoại.");
   }
 
   return await updateProfileFor(id, "parent", filteredUpdates);
 }
 
-//---------------------------------------------------- end update flow: 
 
+
+//---------------------------------------------------- end update flow: 
 export async function confirmEmailFor(role, id) {
   const result = await query(`
     update ${role}
