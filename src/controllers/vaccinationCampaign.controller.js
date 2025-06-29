@@ -25,7 +25,6 @@ export async function createCampaign(req, res) {
       [vaccine_id, disease_id]
     );
     if (vaccines.rows.length === 0) {
-      console.log("Lỗi ở đây 1");
       return res
         .status(404)
         .json({ error: true, message: "Vaccine not found" });
@@ -62,7 +61,6 @@ export async function createCampaign(req, res) {
       .status(201)
       .json({ message: "Campaign created", data: result.rows[0] });
   } catch (error) {
-    console.log("Lỗi ở đây 2");
     console.error("Error creating campaign:", error);
     return res
       .status(500)
@@ -142,7 +140,7 @@ export async function getCampaignDetailByID(req, res) {
 // Register
 async function createRegisterRequest(campaign_id, disease_id) {
   if (!campaign_id) {
-    console.log("Không có campaign_id");
+    console.log("Yêu cầu campaign_id");
     return false;
   }
 
@@ -173,7 +171,7 @@ async function createRegisterRequest(campaign_id, disease_id) {
 
     // Check nếu campaign đang trong giai đoạn nhận đơn thì tiếp tục tạo register (status PREPARING), không thì return
     if (campaigns.rows[0].status !== "PREPARING") {
-      console.log("Hết hạn");
+      console.log("Hết hạn tạo đơn");
       return false;
     }
 
@@ -183,7 +181,7 @@ async function createRegisterRequest(campaign_id, disease_id) {
       [campaign_id]
     );
     if (existingRegistrations.rows.length > 0) {
-      console.log("Đã tạo");
+      console.log("Đã tạo đơn thành công");
       return false;
     }
 
@@ -207,7 +205,7 @@ async function createRegisterRequest(campaign_id, disease_id) {
       );
     }
 
-    console.log("Tạo thành công request");
+    console.log("Bị lỗi khi tạo đơn");
     return true;
   } catch (error) {
     console.error("Error creating registration request:", error);
