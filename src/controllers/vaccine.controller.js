@@ -85,7 +85,7 @@ export async function getAllVaccines(req, res) {
         d.id AS disease_id, 
         d.name AS disease_name
       FROM vaccine v
-      JOIN disease d ON v.disease_id = d.id
+      JOIN disease d ON v.id = d.id
       ORDER BY v.id;
     `);
 
@@ -99,44 +99,6 @@ export async function getAllVaccines(req, res) {
     return res.status(500).json({
       error: true,
       message: "Lỗi server khi lấy danh sách vaccine",
-    });
-  }
-}
-
-// Lấy thông tin một loại vaccine
-export async function getVaccine(req, res) {
-  const { id } = req.params;
-
-  try {
-    const result = await query(
-      `
-      SELECT 
-        v.id, 
-        v.name, 
-        v.description, 
-      FROM vaccine v
-      WHERE v.id = $1;
-    `,
-      [id]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({
-        error: true,
-        message: "Không tìm thấy thông tin vaccine",
-      });
-    }
-
-    return res.status(200).json({
-      error: false,
-      message: "Lấy thông tin vaccine thành công",
-      data: result.rows,
-    });
-  } catch (error) {
-    console.error("Error fetching vaccines:", error);
-    return res.status(500).json({
-      error: true,
-      message: "Lỗi server khi lấy thông tin vaccine",
     });
   }
 }
@@ -207,6 +169,43 @@ export async function deleteVaccine(req, res) {
     return res.status(500).json({
       error: true,
       message: "Lỗi server khi lấy danh sách vaccine",
+    });
+  }
+}
+// Lấy thông tin một loại vaccine
+export async function getVaccine(req, res) {
+  const { id } = req.params;
+
+  try {
+    const result = await query(
+      `
+      SELECT 
+        v.id, 
+        v.name, 
+        v.description, 
+      FROM vaccine v
+      WHERE v.id = $1;
+    `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy thông tin vaccine",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy thông tin vaccine thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching vaccines:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy thông tin vaccine",
     });
   }
 }

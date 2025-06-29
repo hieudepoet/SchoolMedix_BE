@@ -1,1 +1,1 @@
-export * from "./senders/welcomeSender.js"
+export * from "./senders/index.js"

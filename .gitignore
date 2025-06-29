@@ -29,6 +29,7 @@ build/
 
 test.js
 test.html
+test.routes.js
 
 task.txt
 

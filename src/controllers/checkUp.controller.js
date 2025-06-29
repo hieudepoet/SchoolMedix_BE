@@ -1,4 +1,5 @@
 import { query } from "../config/database.js";
+import { sendCheckupRegister } from "../services/email/index.js";
 
 //FC lấy ID student từ Parent
 async function getStudentIdsByParentId(parentId) {
@@ -33,7 +34,6 @@ export async function createCampaign(req, res) {
         location,
         start_date,
         end_date,
-        status, //Default:PREPARING-->UPCOMING-->ONGOING -->DONE or CANCELLED
         specialist_exam_ids, // Admin chon các Special  Exam List
     } = req.body;
 
@@ -90,7 +90,7 @@ export async function createCampaign(req, res) {
             }
         }
 
-        //STEP 3: Tạo CheckUp Register
+        //STEP 3.1: Tạo CheckUp Register
         //Lấy danh sách student
         const result_student = await query(`SELECT * FROM Student`);
         const students = result_student.rows;
@@ -114,6 +114,37 @@ export async function createCampaign(req, res) {
 
             checkup_register.push(result_checkup_register.rows[0]);
         }
+
+
+        //STEP 3.2 Gửi mail cho phụ huynh
+
+        const result_list = await query(`SELECT
+    s.id   AS student_id,
+    s.name AS student_name,
+    mom.id AS mom_id,
+    mom.name AS mom_name,
+    mom.email AS mom_email,
+    dad.id AS dad_id,
+    dad.name AS dad_name,
+    dad.email AS dad_email
+    FROM student s
+    LEFT JOIN parent mom ON s.mom_id = mom.id
+    LEFT JOIN parent dad ON s.dad_id = dad.id`);
+
+        const rs_list = result_list.rows;
+
+        for (const row of rs_list) {
+    // Gửi mail cho mẹ nếu có email (parent_name ,student_name ,campaign_name ,description ,location ,start_date ,start_date,email
+    if (row.mom_email) {
+      await  sendCheckupRegister(row.mom_email,row.student_name,campaign.name,campaign.description,campaign.location,campaign.start_date,campaign.end_date,row.mom_email);
+    }
+    // Gửi mail cho bố nếu có email
+    if (row.dad_email) {
+     await sendCheckupRegister(row.dad_name,row.student_name,campaign.name,campaign.description,campaign.location,campaign.start_date,campaign.end_date,row.dad_email);
+   
+    }
+}
+
 
         // STEP 4 Tạo specialistExamRecord theo từng CheckUp Register và Special List Exam
 
@@ -209,9 +240,7 @@ export async function getAllCheckupCampaigns(req, res) {
 
 export async function getALLHealthRecord(req, res) {
     try {
-        const result = await query("SELECT * FROM healthrecord WHERE status = $1", [
-            "DONE",
-        ]);
+        const result = await query(`SELECT * FROM healthrecord`);
         if (result.rowCount === 0) {
             return res
                 .status(400)
@@ -230,8 +259,8 @@ export async function getALLHealthRecord(req, res) {
 export async function getALLSpeciaListExamRecord(req, res) {
     try {
         const result = await query(
-            "SELECT * FROM specialistexamrecord WHERE status = $1",
-            ["DONE"]
+            "SELECT * FROM specialistexamrecord",
+            
         );
 
         if (result.rowCount === 0) {
@@ -1532,7 +1561,7 @@ export async function completeAHealthRecordForStudent(req, res) {
 export async function getRegisterStatus(req, res) {
     { }
     const { student_id, campaign_id } = req.body;
-    
+
 
     try {
         if (!student_id || !campaign_id) {
