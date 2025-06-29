@@ -1,5 +1,11 @@
 import { query } from "../config/database.js";
 import { sendCheckupRegister } from "../services/email/index.js";
+import { excelToJson } from "../services/excel/importExcel.js";
+import { generatePDFBufferFromHealthRecord } from "../services/pdf/exportPDF.js";
+import { retrieveFileFromSupabaseStorage, uploadFileToSupabaseStorage } from "../services/supabase-storage/index.js"
+import multer from 'multer';
+import exceljs from "exceljs";
+
 
 //FC lấy ID student từ Parent
 async function getStudentIdsByParentId(parentId) {
@@ -134,16 +140,16 @@ export async function createCampaign(req, res) {
         const rs_list = result_list.rows;
 
         for (const row of rs_list) {
-    // Gửi mail cho mẹ nếu có email (parent_name ,student_name ,campaign_name ,description ,location ,start_date ,start_date,email
-    if (row.mom_email) {
-      await  sendCheckupRegister(row.mom_email,row.student_name,campaign.name,campaign.description,campaign.location,campaign.start_date,campaign.end_date,row.mom_email);
-    }
-    // Gửi mail cho bố nếu có email
-    if (row.dad_email) {
-     await sendCheckupRegister(row.dad_name,row.student_name,campaign.name,campaign.description,campaign.location,campaign.start_date,campaign.end_date,row.dad_email);
-   
-    }
-}
+            // Gửi mail cho mẹ nếu có email (parent_name ,student_name ,campaign_name ,description ,location ,start_date ,start_date,email
+            if (row.mom_email) {
+                await sendCheckupRegister(row.mom_email, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.mom_email);
+            }
+            // Gửi mail cho bố nếu có email
+            if (row.dad_email) {
+                await sendCheckupRegister(row.dad_name, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.dad_email);
+
+            }
+        }
 
 
         // STEP 4 Tạo specialistExamRecord theo từng CheckUp Register và Special List Exam
@@ -260,7 +266,7 @@ export async function getALLSpeciaListExamRecord(req, res) {
     try {
         const result = await query(
             "SELECT * FROM specialistexamrecord",
-            
+
         );
 
         if (result.rowCount === 0) {
@@ -1726,3 +1732,175 @@ export async function completeARecordForSpeExam(req, res) {
 
 
 
+export async function handleUploadHealthRecordResult(req, res) {
+    const upload = multer({ storage: multer.memoryStorage() }).single('file');
+
+    upload(req, res, async function (err) {
+        if (err) {
+            return res.status(500).json({ error: true, message: 'Lỗi khi xử lý file.' });
+        }
+
+        const { campaign_id } = req.params;
+        const file = req.file;
+
+        if (!file) {
+            return res.status(400).json({ error: true, message: 'Không có file Excel nào được upload.' });
+        }
+
+        try {
+            const bucket = 'health-record-list-result-excel';
+            const path = `health-records-${campaign_id}.xlsx`;
+
+            // 1. Upload file Excel vào Supabase
+            await uploadFileToSupabaseStorage(file, bucket, path);
+
+            // 2. Lấy lại file từ Supabase (stream)
+            const fileStream = await retrieveFileFromSupabaseStorage(bucket, path);
+
+            // 3. Đọc Excel → JSON
+            const json = await excelToJson(fileStream); // trả về mảng object
+            const header = Object.keys(json[0]);
+
+            let message = "Xử lý file thành công. Các dòng lỗi:";
+            let success = true;
+
+            for (const record of json) {
+                try {
+                    const pdfBuffer = await generatePDFBufferFromHealthRecord(record);
+
+                    const recordId = record[header[0]]; // cột ID đầu tiên
+                    const pdfFile = {
+                        buffer: pdfBuffer,
+                        mimetype: 'application/pdf',
+                    };
+
+                    const publicUrl = await uploadFileToSupabaseStorage(
+                        pdfFile,
+                        'health-record-pdf-result',
+                        `record-${recordId}.pdf`
+                    );
+
+                    const updateRes = await query(
+                        'UPDATE HealthRecord SET record_url = $1 WHERE id = $2',
+                        [publicUrl, recordId]
+                    );
+
+                    if (updateRes.rowCount === 0) {
+                        message += `\n❌ Không tìm thấy record với id ${recordId}`;
+                        success = false;
+                    }
+                } catch (err) {
+                    message += `\n❌ Lỗi xử lý record ID ${record[header[0]]}: ${err.message}`;
+                    success = false;
+                }
+            }
+
+            return res.status(200).json({
+                error: !success,
+                message,
+            });
+        } catch (err) {
+            console.error('❌ Upload thất bại:', err);
+            return res.status(500).json({
+                error: true,
+                message: `Lỗi hệ thống: ${err.message || err}`,
+            });
+        }
+    });
+}
+
+export async function handleRetrieveHealthRecordResultByCampaignID(req, res) {
+    try {
+        const { campaign_id } = req.params;
+        const bucket = 'health-record-list-result-excel';
+        const path = `health-records-${campaign_id}.xlsx`;
+
+        const fileStream = await retrieveFileFromSupabaseStorage(bucket, path);
+
+        // Thiết lập headers để cho phép tải file về
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${path}"`);
+
+        // Truyền file stream về cho client
+        fileStream.pipe(res);
+    } catch (err) {
+        console.error('❌ Lỗi khi tải file:', err.message);
+        return res.status(500).json({
+            error: true,
+            message: `Không thể lấy file: ${err.message || err}`,
+        });
+    }
+}
+
+
+export async function handleRetrieveSampleImportHealthRecordForm(req, res) {
+    try {
+        const { campaign_id } = req.params;
+
+        // 1. Lấy danh sách học sinh từ campaign
+        const { rows } = await query(
+            `SELECT 
+            hr.id, 
+            s.id AS student_id, 
+            s.name AS student_name, 
+            c.name AS class_name,  
+            s.dob AS dob, 
+            CASE 
+                WHEN s.isMale = true THEN 'Nam'
+                ELSE 'Nữ'
+            END AS gender
+            FROM HealthRecord hr
+            JOIN checkupregister register ON register.id = hr.register_id
+            JOIN student s ON s.id = register.student_id
+            JOIN class c ON c.id = s.class_id
+            WHERE campaign_id = $1;`,
+            [campaign_id]
+        );
+
+        if (!rows.length) {
+            return res.status(404).json({ error: true, message: 'Không tìm thấy hồ sơ nào trong chiến dịch này.' });
+        }
+
+        // 2. Tạo workbook Excel
+        const workbook = new exceljs.Workbook();
+        const worksheet = workbook.addWorksheet('Health Record Template');
+
+        // 3. Tạo cột mẫu
+        const headers = [
+            'Mã hồ sơ', 'Mã học sinh', 'Họ tên', 'Ngày sinh', "Lớp", 'Giới tính',
+            'Chiều cao', 'Cân nặng', 'Huyết áp', 'Mắt trái', 'Mắt phải',
+            'Tai', 'Mũi', 'Họng', 'Răng', 'Lợi', 'Da', 'Tim', 'Phổi', 'Cột sống', 'Tư thế'
+        ];
+
+        worksheet.addRow(headers);
+
+        // 4. Thêm dữ liệu mẫu (không có dữ liệu khám)
+        rows.forEach(row => {
+            worksheet.addRow([
+                row.id, row.student_id, row.student_name, row.dob, row.class_name, row.gender,
+                '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+            ]);
+
+        });
+
+        // 5. Gửi về file Excel
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename=health-record-template.xlsx'
+        );
+
+        await workbook.xlsx.write(res); // ghi trực tiếp stream vào response
+        res.end();
+
+    } catch (err) {
+        console.error('❌ Lỗi tạo file mẫu:', err);
+        return res.status(500).json({
+            error: true,
+            message: 'Không thể tạo file mẫu',
+        });
+    }
+}

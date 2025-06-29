@@ -33,5 +33,5 @@ export async function exportExcel(headers = [], rows = [], sheetName = 'Sheet1',
       });
 
       await workbook.xlsx.writeFile(filePath);
-      console.log(`✅ Exported to ${filePath}`);
 }
+

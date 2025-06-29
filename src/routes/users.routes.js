@@ -83,8 +83,6 @@ router.post("/profile-img", handleUploadProfileImg);
 
 // handle account: login, logout, reset password,...
 router.post("/update-password", handleUpdatePassword); // chua
-router.post("/log-in", handleLogIn); // chua
-router.post("/log-out", handleLogOut); // chua
 
 router.patch("/role/:role/user/:user_id/confirm-email", handleConfirmEmailForUser); // lần đăng nhập đầu tiên sẽ xác thực
 router.patch("/role/:role/user/:user_id/unconfirm-email", handleUnconfirmEmailForUser); // nếu đổi email, đổi pass hay gì thì sẽ chuyển về unconfirmed to false
