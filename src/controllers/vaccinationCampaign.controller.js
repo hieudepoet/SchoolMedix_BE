@@ -25,6 +25,7 @@ export async function createCampaign(req, res) {
       [vaccine_id, disease_id]
     );
     if (vaccines.rows.length === 0) {
+      console.log("Lỗi ở đây 1");
       return res
         .status(404)
         .json({ error: true, message: "Vaccine not found" });
@@ -32,20 +33,24 @@ export async function createCampaign(req, res) {
 
     // Insert campaign into database
     const insertQuery = `
-        INSERT INTO vaccination_campaign (diseae_id, vaccine_id, description, location, start_date, end_date, status)
+        INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status)
         VALUES ($7, $1, $2, $3, $4, $5, $6)
         RETURNING *;
     `;
 
-    const result = await query(insertQuery, [
-      vaccine_id,
-      description,
-      location,
-      start_date,
-      end_date,
-      "PREPARING", // mndkhanh: sai flow, khi tạo ra campaign là PREPARING, (giai đoạn nhận đơn đăng ký)
-      disease_id,
-    ]);
+    try {
+      const result = await query(insertQuery, [
+        vaccine_id,
+        description,
+        location,
+        start_date,
+        end_date,
+        "PREPARING", // mndkhanh: sai flow, khi tạo ra campaign là PREPARING, (giai đoạn nhận đơn đăng ký)
+        disease_id,
+      ]);
+    } catch (error) {
+      console.log("Lỗi: " + error);
+    }
 
     const campaign_id = result.rows[0].id;
 
@@ -58,6 +63,7 @@ export async function createCampaign(req, res) {
       .status(201)
       .json({ message: "Campaign created", data: result.rows[0] });
   } catch (error) {
+    console.log("Lỗi ở đây 2");
     console.error("Error creating campaign:", error);
     return res
       .status(500)
@@ -170,7 +176,6 @@ async function createRegisterRequest(campaign_id) {
     }
 
     // Check if registration already exists for the campaign
-    // THIS IS HARD CODE, JUST FINE AT THE DEMO SCOPE, PLS CHANGE LATER
     const existingRegistrations = await query(
       "SELECT * FROM vaccination_campaign_register WHERE campaign_id = $1",
       [campaign_id]
