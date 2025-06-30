@@ -2,5 +2,5 @@
 export * from "./exportExcel.js"
 
 //template
-export * from "./import-template.js"
+export * from "./templates/template-config.js"
 

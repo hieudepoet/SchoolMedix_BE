@@ -14,6 +14,6 @@ router.post("/disease", createDisease);
 router.get("/diseases", getAllDiseases);
 router.put("/disease/:id", updateDisease);
 router.delete("/disease/:id", deleteDisease);
-router.get("disease/:id/vaccines", getVaccinesByDisease);
+router.get("/disease/:id/vaccines", getVaccinesByDisease);
 
 export default router;

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thông tin đăng nhập SchoolMedix</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333">
+    <p>Xin chào <strong>{{ parent_name }}</strong>, phụ huynh của <strong>{{ student_name }}</strong> </p>
+
+    <p>
+        Bạn có 1 phiếu khảo sát đăng ký tham gia chiến dịch khám định kỳ từ:
+        <strong>SchoolMedix</strong> Chiến Dịch:
+    </p>
+
+    <p>
+        <b>Thông tin chiến dịch:</b><br />
+        🔹 <b>Campaign:</b> {{ campaign_name }}<br />
+        🔹 <b>Chi tiết:</b> {{ description }} <br />
+        🔹 <b>Địa điểm:</b> {{ location }} <br />
+        🔹 <b>Thời gian bắt đầu:</b> {{ start_date }} <br />
+        🔹 <b>Thời gian kết thúc:</b> {{ end_date }}
+    </p>
+
+    <p>
+        👉 <strong>Để điền khảo sát vui lòng truy cập<a href="{{ survey_link }}"> tại đây</a></strong>,để tham gia khảo sát!.
+    </p>
+    <p>
+        Trân trọng,<br />
+        <i>Phòng Y tế Trường học SchoolMedix</i>
+    </p>
+</body>
+</html>

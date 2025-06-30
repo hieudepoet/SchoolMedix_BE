@@ -6,7 +6,6 @@ import {
     insertParent,
     insertStudent,
     getProfileByUUID,
-    confirmEmailFor
 } from "./userDao.js";
 import { sendWelcomeEmail } from "../email/index.js";
 import { generateRandomPassword } from "./userUtils.js";
@@ -213,3 +212,13 @@ export async function updatePasswordForUser(supabase_uid, newPassword) {
     return data;
 }
 
+export async function deleteAuthUser(supabase_uid) {
+    const { error } = await supabaseAdmin.deleteUser(supabase_uid);
+
+    if (error) {
+        console.error('❌ Xóa người dùng thất bại:', error.message);
+        throw error;
+    }
+
+    console.log('✅ Đã xóa người dùng khỏi Supabase Auth');
+}

@@ -17,9 +17,18 @@ import {
       unconfirmEmailFor,
       editUserProfileByAdmin,
       uploadFileToSupabaseStorage,
-      getProfileByUUID
+      getProfileByUUID,
+      deleteAuthUser, deleteUserByID
 
 } from "../services/index.js";
+
+import {
+      ADMIN_IMPORT_TEMPLATE,
+      NURSE_IMPORT_TEMPLATE,
+      PARENT_IMPORT_TEMPLATE,
+      STUDENT_IMPORT_TEMPLATE,
+      STUDENT_PARENT_IMPORT_TEMPLATE
+} from "../services/excel/index.js";
 
 export async function createAdmin(req, res) {
       try {
@@ -203,7 +212,7 @@ export async function createStudent(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!isMale ) {
+            if (!isMale) {
                   return res.status(400).json({
                         error: true,
                         message: "Thiếu giới tính.",
@@ -662,6 +671,67 @@ export async function handleUpdatePassword(req, res) {
 
 }
 
+export async function deleteAdmin(req, res) {
+      try {
+            const { admin_id } = req.params;
+
+            // 1. Soft delete trong bảng admin
+            const supabase_uid = await deleteUserByID('admin', admin_id);
+
+            // 2. Xóa khỏi Supabase Auth
+            if (supabase_uid) {
+                  await deleteAuthUser(supabase_uid);
+            }
+
+            return res.status(200).json({ error: false, message: 'Xóa admin thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa admin:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa admin thất bại!" });
+      }
+
+}
+export async function deleteNurse(req, res) {
+      try {
+            const { nurse_id } = req.params;
+
+            const supabase_uid = await deleteUserByID('nurse', nurse_id);
+            if (supabase_uid) await deleteAuthUser(supabase_uid);
+
+            return res.status(200).json({ error: false, message: 'Xóa nurse thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa nurse:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa nurse thất bại!" });
+      }
+}
+
+export async function deleteParent(req, res) {
+      try {
+            const { parent_id } = req.params;
+
+            const supabase_uid = await deleteUserByID('parent', parent_id);
+            if (supabase_uid) await deleteAuthUser(supabase_uid);
+
+            return res.status(200).json({ error: false, message: 'Xóa parent thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa parent:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa parent thất bại!" });
+      }
+}
+
+export async function deleteStudent(req, res) {
+      try {
+            const { student_id } = req.params;
+
+            const supabase_uid = await deleteUserByID('student', student_id);
+            if (supabase_uid) await deleteAuthUser(supabase_uid);
+
+            return res.status(200).json({ error: false, message: 'Xóa student thành công.' });
+      } catch (err) {
+            console.error('❌ Lỗi khi xóa student:', err.message);
+            return res.status(500).json({ error: true, message: "Xóa student thất bại!" });
+      }
+}
+
 
 export async function handleConfirmEmailForUser(req, res) {
       const { role, user_id } = req.params;
@@ -718,4 +788,81 @@ export async function handleUnconfirmEmailForUser(req, res) {
 }
 
 
+
+
+
+export function getAdminTemplate(req, res) {
+      try {
+            res.json({
+                  error: false,
+                  data: ADMIN_IMPORT_TEMPLATE,
+            });
+      } catch (error) {
+            console.error('Lỗi khi lấy admin template:', error);
+            res.status(500).json({
+                  error: true,
+                  message: 'Không thể lấy template admin',
+            });
+      }
+}
+
+export function getNurseTemplate(req, res) {
+      try {
+            res.json({
+                  error: false,
+                  data: NURSE_IMPORT_TEMPLATE,
+            });
+      } catch (error) {
+            console.error('Lỗi khi lấy nurse template:', error);
+            res.status(500).json({
+                  error: true,
+                  message: 'Không thể lấy template nurse',
+            });
+      }
+}
+
+export function getParentTemplate(req, res) {
+      try {
+            res.json({
+                  error: false,
+                  data: PARENT_IMPORT_TEMPLATE,
+            });
+      } catch (error) {
+            console.error('Lỗi khi lấy parent template:', error);
+            res.status(500).json({
+                  error: true,
+                  message: 'Không thể lấy template parent',
+            });
+      }
+}
+
+export function getStudentTemplate(req, res) {
+      try {
+            res.json({
+                  error: false,
+                  data: STUDENT_IMPORT_TEMPLATE,
+            });
+      } catch (error) {
+            console.error('Lỗi khi lấy student template:', error);
+            res.status(500).json({
+                  error: true,
+                  message: 'Không thể lấy template student',
+            });
+      }
+}
+
+export function getStudentParentTemplate(req, res) {
+      try {
+            res.json({
+                  error: false,
+                  data: STUDENT_PARENT_IMPORT_TEMPLATE,
+            });
+      } catch (error) {
+            console.error('Lỗi khi lấy student-parent template:', error);
+            res.status(500).json({
+                  error: true,
+                  message: 'Không thể lấy template student-parent',
+            });
+      }
+}
 

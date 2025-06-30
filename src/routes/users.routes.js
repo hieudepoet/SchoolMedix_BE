@@ -8,7 +8,8 @@ import {
       handleUploadProfileImg,
       handleConfirmEmailForUser,
       handleUnconfirmEmailForUser,
-
+      deleteAdmin, deleteNurse, deleteParent, deleteStudent,
+      getAdminTemplate, getNurseTemplate, getParentTemplate, getStudentTemplate, getStudentParentTemplate
 
 } from '../controllers/users.controller.js';
 
@@ -59,10 +60,10 @@ router.patch("/admin/edit-user-profile", editUserInfoByAdmin); // chua
 
 
 // delete một user
-router.delete("/admin/:admin_id"); // chua
-router.delete("/nurse/:nurse_id"); // chua
-router.delete("/parent/:parent_id"); // chua
-router.delete("/student/:student_id"); // chua
+router.delete("/admin/:admin_id", deleteAdmin);
+router.delete("/nurse/:nurse_id", deleteNurse);
+router.delete("/parent/:parent_id", deleteParent);
+router.delete("/student/:student_id", deleteStudent);
 // note, please do not delete these user:
 /*
     'mndkhanh@gmail.com',
@@ -83,10 +84,26 @@ router.post("/profile-img", handleUploadProfileImg);
 
 // handle account: login, logout, reset password,...
 router.post("/update-password", handleUpdatePassword); // chua
-router.post("/log-in", handleLogIn); // chua
-router.post("/log-out", handleLogOut); // chua
 
 router.patch("/role/:role/user/:user_id/confirm-email", handleConfirmEmailForUser); // lần đăng nhập đầu tiên sẽ xác thực
 router.patch("/role/:role/user/:user_id/unconfirm-email", handleUnconfirmEmailForUser); // nếu đổi email, đổi pass hay gì thì sẽ chuyển về unconfirmed to false
+
+
+// Route cho từng loại template
+router.get("/admin-import-template", getAdminTemplate); // lấy json template các cột cần có
+router.get("/nurse-import-template", getNurseTemplate); // lấy json template các cột cần có
+router.get("/parent-import-template", getParentTemplate);// lấy json template các cột cần có
+router.get("/student-import-template", getStudentTemplate);// lấy json template các cột cần có
+router.get("/student-parent-import-template", getStudentParentTemplate);// lấy json template các cột cần có
+
+router.get("/get-admin-import-sample"); // lấy file excel mẫu để import admin
+
+// route để xuất nhập file excel
+router.get("/download-users"); // lấy toàn bộ admin, nurse, student, parent vào chung 1 file excel chia thành từng sheet
+router.post("/upload-admin-excel");
+router.post("/upload-nurse-excel");
+router.post("/upload-student-parent-excel");
+
+
 
 export default router;

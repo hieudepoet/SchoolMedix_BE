@@ -1,4 +1,11 @@
 import { query } from "../config/database.js";
+import { sendCheckupRegister } from "../services/email/index.js";
+import { excelToJson } from "../services/excel/importExcel.js";
+import { generatePDFBufferFromHealthRecord } from "../services/pdf/exportPDF.js";
+import { retrieveFileFromSupabaseStorage, uploadFileToSupabaseStorage } from "../services/supabase-storage/index.js"
+import multer from 'multer';
+import exceljs from "exceljs";
+
 
 //FC lấy ID student từ Parent
 async function getStudentIdsByParentId(parentId) {
@@ -33,7 +40,6 @@ export async function createCampaign(req, res) {
         location,
         start_date,
         end_date,
-        status, //Default:PREPARING-->UPCOMING-->ONGOING -->DONE or CANCELLED
         specialist_exam_ids, // Admin chon các Special  Exam List
     } = req.body;
 
@@ -90,7 +96,7 @@ export async function createCampaign(req, res) {
             }
         }
 
-        //STEP 3: Tạo CheckUp Register
+        //STEP 3.1: Tạo CheckUp Register
         //Lấy danh sách student
         const result_student = await query(`SELECT * FROM Student`);
         const students = result_student.rows;
@@ -114,6 +120,39 @@ export async function createCampaign(req, res) {
 
             checkup_register.push(result_checkup_register.rows[0]);
         }
+
+
+
+        // DUY KHANH: cái này nên tách riêng ra làm hàm riêng, chứ để đây nó TIMEOUT
+        //     //STEP 3.2 Gửi mail cho phụ huynh
+
+        //     const result_list = await query(`SELECT
+        // s.id   AS student_id,
+        // s.name AS student_name,
+        // mom.id AS mom_id,
+        // mom.name AS mom_name,
+        // mom.email AS mom_email,
+        // dad.id AS dad_id,
+        // dad.name AS dad_name,
+        // dad.email AS dad_email
+        // FROM student s
+        // LEFT JOIN parent mom ON s.mom_id = mom.id
+        // LEFT JOIN parent dad ON s.dad_id = dad.id`);
+
+        //     const rs_list = result_list.rows;
+
+        //     for (const row of rs_list) {
+        //         // Gửi mail cho mẹ nếu có email (parent_name ,student_name ,campaign_name ,description ,location ,start_date ,start_date,email
+        //         if (row.mom_email) {
+        //             await sendCheckupRegister(row.mom_email, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.mom_email);
+        //         }
+        //         // Gửi mail cho bố nếu có email
+        //         if (row.dad_email) {
+        //             await sendCheckupRegister(row.dad_name, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.dad_email);
+
+        //         }
+        //     }
+
 
         // STEP 4 Tạo specialistExamRecord theo từng CheckUp Register và Special List Exam
 
@@ -209,9 +248,7 @@ export async function getAllCheckupCampaigns(req, res) {
 
 export async function getALLHealthRecord(req, res) {
     try {
-        const result = await query("SELECT * FROM healthrecord WHERE status = $1", [
-            "DONE",
-        ]);
+        const result = await query(`SELECT * FROM healthrecord`);
         if (result.rowCount === 0) {
             return res
                 .status(400)
@@ -230,8 +267,8 @@ export async function getALLHealthRecord(req, res) {
 export async function getALLSpeciaListExamRecord(req, res) {
     try {
         const result = await query(
-            "SELECT * FROM specialistexamrecord WHERE status = $1",
-            ["DONE"]
+            "SELECT * FROM specialistexamrecord",
+
         );
 
         if (result.rowCount === 0) {
@@ -815,7 +852,7 @@ export async function getCheckupRegisterStudent(req, res) {
 }
 
 //Parent xem HealthRecord của Student cần truyền vào student id
-export async function getHealthRecordParent(req, res) {
+export async function getHealthRecordsOfAStudent(req, res) {
     const { id } = req.params;
 
     if (!id) {
@@ -837,13 +874,27 @@ export async function getHealthRecordParent(req, res) {
         }
 
         //Lấy HealthRecod từ Student ID
-
         const rs = await query(
-            ` SELECT cr.campaign_id ,hr.id AS health_record_id , hr.register_id,cr.student_id,hr.is_checked,hr.status AS record_status
-
-    FROM HealthRecord hr
-    JOIN CheckupRegister cr ON hr.register_id = cr.id
-    WHERE cr.student_id = $1`,
+            ` SELECT 
+                cr.campaign_id,
+                campaign.name as campaign_name,
+                campaign.description as campaign_description,
+                hr.id AS health_record_id,
+                hr.record_url,
+                hr.register_id,
+                cr.student_id,
+                stu.name as student_name,
+                stu.dob as student_dob,
+                clas.name as class_name,
+                hr.is_checked,
+                hr.status AS record_status
+            FROM HealthRecord hr
+            JOIN CheckupRegister cr ON hr.register_id = cr.id
+            Join student stu on stu.id = cr.student_id
+            join class clas on clas.id = stu.class_id	
+            join checkupcampaign campaign on campaign.id = cr.campaign_id
+            WHERE cr.student_id = $1;
+            `,
             [id]
         );
 
@@ -1532,7 +1583,7 @@ export async function completeAHealthRecordForStudent(req, res) {
 export async function getRegisterStatus(req, res) {
     { }
     const { student_id, campaign_id } = req.body;
-    
+
 
     try {
         if (!student_id || !campaign_id) {
@@ -1697,3 +1748,175 @@ export async function completeARecordForSpeExam(req, res) {
 
 
 
+export async function handleUploadHealthRecordResult(req, res) {
+    const upload = multer({ storage: multer.memoryStorage() }).single('file');
+
+    upload(req, res, async function (err) {
+        if (err) {
+            return res.status(500).json({ error: true, message: 'Lỗi khi xử lý file.' });
+        }
+
+        const { campaign_id } = req.params;
+        const file = req.file;
+
+        if (!file) {
+            return res.status(400).json({ error: true, message: 'Không có file Excel nào được upload.' });
+        }
+
+        try {
+            const bucket = 'health-record-list-result-excel';
+            const path = `health-records-${campaign_id}.xlsx`;
+
+            // 1. Upload file Excel vào Supabase
+            await uploadFileToSupabaseStorage(file, bucket, path);
+
+            // 2. Lấy lại file từ Supabase (stream)
+            const fileStream = await retrieveFileFromSupabaseStorage(bucket, path);
+
+            // 3. Đọc Excel → JSON
+            const json = await excelToJson(fileStream); // trả về mảng object
+            const header = Object.keys(json[0]);
+
+            let message = "Xử lý file thành công!";
+            let success = true;
+
+            for (const record of json) {
+                try {
+                    const pdfBuffer = await generatePDFBufferFromHealthRecord(record);
+
+                    const recordId = record[header[0]]; // cột ID đầu tiên
+                    const pdfFile = {
+                        buffer: pdfBuffer,
+                        mimetype: 'application/pdf',
+                    };
+
+                    const publicUrl = await uploadFileToSupabaseStorage(
+                        pdfFile,
+                        'health-record-pdf-result',
+                        `record-${recordId}.pdf`
+                    );
+
+                    const updateRes = await query(
+                        'UPDATE HealthRecord SET record_url = $1 WHERE id = $2',
+                        [publicUrl, recordId]
+                    );
+
+                    if (updateRes.rowCount === 0) {
+                        message += `\n❌ Không tìm thấy record với id ${recordId}`;
+                        success = false;
+                    }
+                } catch (err) {
+                    message += `\n❌ Lỗi xử lý record ID ${record[header[0]]}: ${err.message}`;
+                    success = false;
+                }
+            }
+
+            return res.status(200).json({
+                error: !success,
+                message,
+            });
+        } catch (err) {
+            console.error('❌ Upload thất bại:', err);
+            return res.status(500).json({
+                error: true,
+                message: `Lỗi hệ thống: ${err.message || err}`,
+            });
+        }
+    });
+}
+
+export async function handleRetrieveHealthRecordResultByCampaignID(req, res) {
+    try {
+        const { campaign_id } = req.params;
+        const bucket = 'health-record-list-result-excel';
+        const path = `health-records-${campaign_id}.xlsx`;
+
+        const fileBuffer = await retrieveFileFromSupabaseStorage(bucket, path);
+
+        // Thiết lập headers để cho phép tải file về
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${path}"`);
+
+        // Gửi file về client
+        res.send(fileBuffer);
+    } catch (err) {
+        console.error('❌ Lỗi khi tải file:', err.message);
+        return res.status(500).json({
+            error: true,
+            message: `Không thể lấy file: ${err.message || err}`,
+        });
+    }
+}
+
+
+export async function handleRetrieveSampleImportHealthRecordForm(req, res) {
+    try {
+        const { campaign_id } = req.params;
+
+        // 1. Lấy danh sách học sinh từ campaign
+        const { rows } = await query(
+            `SELECT 
+            hr.id, 
+            s.id AS student_id, 
+            s.name AS student_name, 
+            c.name AS class_name,  
+            s.dob AS dob, 
+            CASE 
+                WHEN s.isMale = true THEN 'Nam'
+                ELSE 'Nữ'
+            END AS gender
+            FROM HealthRecord hr
+            JOIN checkupregister register ON register.id = hr.register_id
+            JOIN student s ON s.id = register.student_id
+            JOIN class c ON c.id = s.class_id
+            WHERE campaign_id = $1;`,
+            [campaign_id]
+        );
+
+        if (!rows.length) {
+            return res.status(404).json({ error: true, message: 'Không tìm thấy hồ sơ nào trong chiến dịch này.' });
+        }
+
+        // 2. Tạo workbook Excel
+        const workbook = new exceljs.Workbook();
+        const worksheet = workbook.addWorksheet('Health Record Template');
+
+        // 3. Tạo cột mẫu
+        const headers = [
+            'Mã hồ sơ', 'Mã học sinh', 'Họ tên', 'Ngày sinh', "Lớp", 'Giới tính',
+            'Chiều cao', 'Cân nặng', 'Huyết áp', 'Mắt trái', 'Mắt phải',
+            'Tai', 'Mũi', 'Họng', 'Răng', 'Lợi', 'Da', 'Tim', 'Phổi', 'Cột sống', 'Tư thế'
+        ];
+
+        worksheet.addRow(headers);
+
+        // 4. Thêm dữ liệu mẫu (không có dữ liệu khám)
+        rows.forEach(row => {
+            worksheet.addRow([
+                row.id, row.student_id, row.student_name, row.dob, row.class_name, row.gender,
+                '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+            ]);
+
+        });
+
+        // 5. Gửi về file Excel
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename=health-record-template.xlsx'
+        );
+
+        await workbook.xlsx.write(res); // ghi trực tiếp stream vào response
+        res.end();
+
+    } catch (err) {
+        console.error('❌ Lỗi tạo file mẫu:', err);
+        return res.status(500).json({
+            error: true,
+            message: 'Không thể tạo file mẫu',
+        });
+    }
+}

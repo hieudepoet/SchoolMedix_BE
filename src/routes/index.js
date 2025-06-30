@@ -7,11 +7,9 @@ import checkUpRoutes from "./checkUp.routes.js";
 import diseaseRoutes from "./disease.routes.js";
 import vaccinationRoutes from "./vaccine.routes.js";
 import vaccinationCampaignRoutes from "./vaccinationCampaign.routes.js"
-import studentRoutes from "./student.routes.js";
 import dailyHealthRecordRoutes from "./dailyHealthRecord.routes.js";
 import diseaseRecordRoutes from "./diseaseRecord.routes.js"
 import specialistexam from "./specialistExam.routes.js"
-import excelFeatureRoutes from './excel-feature/index.js';
 
 const router = express.Router();
 
@@ -21,11 +19,9 @@ router.use("/", checkUpRoutes);
 router.use("/", diseaseRoutes);
 router.use("/", vaccinationRoutes);
 router.use("/", vaccinationCampaignRoutes);
-router.use("/", studentRoutes);
 router.use("/", dailyHealthRecordRoutes);
 router.use("/", diseaseRecordRoutes);
 router.use("/", specialistexam);
-router.use("/", excelFeatureRoutes);
 
 
 export default router;

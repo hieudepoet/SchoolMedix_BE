@@ -161,7 +161,7 @@ export async function deleteSpecialExam(req, res) {
       return res.status(400).json({ error: true, message: "Chuyên khoa không tồn tại" });
     }
 
-    const rs = await query(`DELETE FROM specialistexamlist WHERE id = $1`, [id]);
+    const rs = await query(`UPDATE pecialistexamlist SET is_deleted = TRUE WHERE id = $1`, [id]);
 
     if (rs.rowCount === 0) {
       return res.status(400).json({ error: true, message: "Xóa không thành công" });

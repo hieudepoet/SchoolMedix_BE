@@ -1,5 +1,5 @@
 
-export const ADMIN_IMPORT_TEMPLATE = {
+export const ADMIN_IMPORT_TEMPLATE = { 
       COLUMN: {
             name: {
                   col_name: "Tên quản trị viên",
@@ -306,3 +306,4 @@ export const STUDENT_PARENT_IMPORT_TEMPLATE = {
       },
 };
 STUDENT_PARENT_IMPORT_TEMPLATE.TOTAL_FIELD_NEEDED = Object.keys(STUDENT_PARENT_IMPORT_TEMPLATE.COLUMN).length;
+
