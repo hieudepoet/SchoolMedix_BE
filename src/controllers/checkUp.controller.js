@@ -7,22 +7,7 @@ import multer from 'multer';
 import exceljs from "exceljs";
 
 
-//FC lấy ID student từ Parent
-async function getStudentIdsByParentId(parentId) {
-    const result_student = await query(
-        `SELECT id FROM Student WHERE mom_id = $1 OR dad_id = $1`,
-        [parentId]
-    );
-    return result_student.rows.map((student) => student.id);
-}
-//FC check ID Parent có tồn tại hay không
-async function checkParentIdExists(parentId) {
-    const result = await query("SELECT * FROM Parent WHERE id = $1", [parentId]);
-    if (result.rowCount === 0) {
-        return false;
-    } else return true;
-}
-//FC check ID Campaign có tồn tại không
+
 
 async function checkCampaignExists(campaignID) {
     const result = await query("SELECT * FROM checkupcampaign  WHERE id = $1", [
@@ -57,14 +42,14 @@ export async function createCampaign(req, res) {
     }
 
     try {
-        console.log("specialist_exam_ids:", specialist_exam_ids);
+
         // STEPT 1: Tạo mới Campaign
         const result_campaign = await query(
             `INSERT INTO CheckupCampaign 
-            (name, description, location, start_date, end_date, status) 
-            VALUES ($1, $2, $3, $4, $5, $6) 
+            (name, description, location, start_date, end_date) 
+            VALUES ($1, $2, $3, $4, $5) 
             RETURNING *`,
-            [name, description, location, start_date, end_date, "PREPARING"]
+            [name, description, location, start_date, end_date]
         );
 
         const campaign = result_campaign.rows[0]; //Lấy Record đầu tiên trong  ( Phải có RETURNING mới có Record)
@@ -96,30 +81,30 @@ export async function createCampaign(req, res) {
             }
         }
 
-        //STEP 3.1: Tạo CheckUp Register
-        //Lấy danh sách student
-        const result_student = await query(`SELECT * FROM Student`);
-        const students = result_student.rows;
-        const checkup_register = [];
-        //Tạo CheckUp Register  và cho từng Student
-        for (const student of students) {
-            const result_checkup_register = await query(
-                `INSERT INTO CheckupRegister (campaign_id, student_id, status)
-                     VALUES ($1, $2, $3)  RETURNING*`,
-                [campaign.id, student.id, "PENDING"]
-            );
+        // //STEP 3.1: Tạo CheckUp Register
+        // //Lấy danh sách student
+        // const result_student = await query(`SELECT * FROM Student`);
+        // const students = result_student.rows;
+        // const checkup_register = [];
+        // //Tạo CheckUp Register  và cho từng Student
+        // for (const student of students) {
+        //     const result_checkup_register = await query(
+        //         `INSERT INTO CheckupRegister (campaign_id, student_id, status)
+        //              VALUES ($1, $2, $3)  RETURNING*`,
+        //         [campaign.id, student.id, "PENDING"]
+        //     );
 
-            if (result_checkup_register.rowCount === 0) {
-                return res
-                    .status(400)
-                    .json({
-                        error: true,
-                        message: "Create CheckUp Register không thành công.",
-                    });
-            }
+        //     if (result_checkup_register.rowCount === 0) {
+        //         return res
+        //             .status(400)
+        //             .json({
+        //                 error: true,
+        //                 message: "Create CheckUp Register không thành công.",
+        //             });
+        //     }
 
-            checkup_register.push(result_checkup_register.rows[0]);
-        }
+        //     checkup_register.push(result_checkup_register.rows[0]);
+        // }
 
 
 
@@ -156,12 +141,138 @@ export async function createCampaign(req, res) {
 
         // STEP 4 Tạo specialistExamRecord theo từng CheckUp Register và Special List Exam
 
+        // for (const registerId of checkup_register) {
+        //     for (const examId of specialist_exam_ids) {
+        //         const result_update_speciallist = await query(
+        //             `INSERT INTO specialistExamRecord (register_id,spe_exam_id,status)
+        //                 VALUES ($1, $2, $3)`,
+        //             [registerId.id, examId, "CANNOT_ATTACH"]
+        //         );
+
+        //         if (result_update_speciallist.rowCount === 0) {
+        //             return res
+        //                 .status(400)
+        //                 .json({
+        //                     error: true,
+        //                     message: "Create Special List Exam Record không thành công.",
+        //                 });
+        //         }
+        //     }
+        // }
+
+        // // STEP 5: Tạo HealthRecord cho từng Register và Student
+
+        // for (const registerID of checkup_register) {
+        //     const result_check_healthrecord = await query(
+        //         `INSERT INTO HealthRecord (register_id) VALUES ($1)`,
+        //         [registerID.id]
+        //     );
+        //     if (result_check_healthrecord.rowCount === 0) {
+        //         return res
+        //             .status(400)
+        //             .json({
+        //                 error: true,
+        //                 message: "Create Health Record không thành công.",
+        //             });
+        //     }
+        // }
+
+        return res
+            .status(200)
+            .json({ error: false, message: "Create Campaign Thành Công" });
+
+    } catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res
+            .status(500)
+            .json({ error: true, message: "Lỗi server khi tạo mới Campaign." });
+    }
+}
+
+
+//Truyền vào ID campaign để gửi Register cho phụ huynh ( Status: PREPARING --> UPCOMING )
+export async function sendRegister(req, res) {
+    const { id } = req.params;
+    try {
+
+        if (!id) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Không nhận được ID.",
+                });
+        }
+
+
+        const check = await query(`SELECT * FROM checkupcampaign
+                                   WHERE id = $1`
+            , [id]);
+
+        if (check.rowCount === 0) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Không tồn tại Campaign ID.",
+                });
+        }
+
+        //Step 1: Lấy tất cả danh sách Student
+        const rs_student = await query(`SELECT * FROM student`);
+        const list = rs_student.rows;
+
+        if (list.length === 0) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Không lấy được danh sách Student.",
+                });
+        }
+        // Step 2: Tạo Register
+
+        const checkup_register = [];
+        for (const student of list) {
+            const result_checkup_register = await query(
+                `INSERT INTO CheckupRegister (campaign_id, student_id, status)
+                     VALUES ($1, $2, $3)  RETURNING*`,
+                [id, student.id, "PENDING"]
+            );
+
+            if (result_checkup_register.rowCount === 0) {
+                return res
+                    .status(400)
+                    .json({
+                        error: true,
+                        message: "Create CheckUp Register không thành công.",
+                    });
+            }
+
+            checkup_register.push(result_checkup_register.rows[0]);
+        }
+
+
+
+        const rs = await query(`SELECT * FROM campaigncontainspeexam 
+                                    WHERE campaign_id = $1`, [id]);
+
+
+        const specialist_exam_ids = rs.rows;
+
+
+
+
+
+
+
+        //Step 3: Tạo specialistExamRecord
         for (const registerId of checkup_register) {
             for (const examId of specialist_exam_ids) {
                 const result_update_speciallist = await query(
                     `INSERT INTO specialistExamRecord (register_id,spe_exam_id,status)
                         VALUES ($1, $2, $3)`,
-                    [registerId.id, examId, "CANNOT_ATTACH"]
+                    [registerId.id, examId.specialist_exam_id, "CANNOT_ATTACH"]
                 );
 
                 if (result_update_speciallist.rowCount === 0) {
@@ -175,7 +286,7 @@ export async function createCampaign(req, res) {
             }
         }
 
-        // STEP 5: Tạo HealthRecord cho từng Register và Student
+        //Step 4: tạo Health Record
 
         for (const registerID of checkup_register) {
             const result_check_healthrecord = await query(
@@ -192,16 +303,169 @@ export async function createCampaign(req, res) {
             }
         }
 
+        //Step 5: Đổi Status Campaign thành PREPARING
+
+        const result = await query(`UPDATE checkupcampaign 
+                                        SET status = $1 WHERE id = $2`, ['PREPARING', id]);
+
+
         return res
             .status(200)
-            .json({ error: false, message: "Create Campaign Thành Công" });
+            .json({ error: false, message: "Gửi Register Thành Công" });
+
+
     } catch (err) {
         console.error("❌ Error creating Campaign ", err);
         return res
             .status(500)
-            .json({ error: true, message: "Lỗi server khi tạo Check Up Campaign." });
+            .json({ error: true, message: "Lỗi server khi gửi Register ." });
     }
 }
+
+//Truyền vào ID campaign để update
+export async function updateCampaign(req, res) {
+
+    const { id } = req.params;
+    const { name, description, location, start_date, end_date, specialist_exam_ids } = req.body;
+
+    try {
+
+        if (
+            !name ||
+            !description ||
+            !location ||
+            !start_date ||
+            !end_date ||
+            !Array.isArray(specialist_exam_ids)
+        ) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Không nhận được dữ liệu.",
+                });
+        }
+
+
+        //Step 1: DELETED campaigncontainspeexam 
+
+        const check_contain = await query(`SELECT * FROM campaigncontainspeexam 
+                                            WHERE campaign_id = $1`, [id]);
+
+        if (!check_contain.rowCount === 0) {
+            const check_delete = await query(`DELETE FROM campaigncontainspeexam
+                                          WHERE campaign_id = $1`, [id]);
+
+            if (check_delete.rowCount === 0) {
+                return res
+                    .status(400)
+                    .json({
+                        error: true,
+                        message: "Không xóa được Campaigncontainspeexam!.",
+                    });
+            }
+        }
+
+        // Step 2: check campaign có tồn tại không
+        const check = await query(`SELECT * FROM checkupcampaign
+                                   WHERE id = $1`
+            , [id]);
+
+        if (check.rowCount === 0) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Không tồn tại Campaign ID.",
+                });
+        }
+        // Step 3: Update lại thông tin campaign
+        const rs = await query(`UPDATE checkupcampaign
+                                SET
+                                 name = $1,
+                                 description = $2,
+                                 location = $3,
+                                 start_date = $4,
+                                 end_date = $5
+                                WHERE id = $6;
+`, [name, description, location, start_date, end_date, id]);
+
+
+        if (rs.rowCount === 0) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Update Campain không thành công!.",
+                });
+        }
+
+        //Step 4: Tạo lại Campaigncontainspeexam
+
+        if (Array.isArray(specialist_exam_ids)) {
+            for (const exam_id of specialist_exam_ids) {
+                const result_campagincontain = await query(
+                    "INSERT INTO CampaignContainSpeExam (campaign_id,specialist_exam_id) VALUES ($1,$2) RETURNING *",
+                    [id, exam_id]
+                );
+
+                console.log("gắn spe exam id vào campaign: ", exam_id);
+
+                if (result_campagincontain.rowCount === 0) {
+                    return res
+                        .status(400)
+                        .json({
+                            error: true,
+                            message: "Create Campagincontainsspeexam không thành công.",
+                        });
+                }
+            }
+        }
+
+
+
+
+        return res
+            .status(200)
+            .json({ error: false, message: "Update Campaign thành công!" });
+
+
+    } catch (err) {
+        console.error("❌ Error Update Campaign ", err);
+        return res
+            .status(500)
+            .json({ error: true, message: "Lỗi server khi Update Campaign." });
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export async function getAllCheckupCampaigns(req, res) {
     try {
         // Lấy tất cả các chiến dịch
@@ -1508,7 +1772,7 @@ export async function startCampaig(req, res) {
                 .json({ error: false, message: "Start Campaign thành công" });
         }
     } catch (err) {
-        console.error("❌ Error creating Campaign ", err);
+        console.error("❌ Error Start Campaign ", err);
         return res
             .status(500)
             .json({ error: true, message: "Lỗi khi Start Campaign" });
