@@ -43,6 +43,9 @@ router.get('/checkup/survey/status', getRegisterStatus);//Lay Register Status
 router.get("/health-record", getALLHealthRecord); // Lấy tất cả DS Health Record có status DONE // bỏ cái check done đi anh ui
 router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả SpeciaListExamRecord có status DONE // bỏ cái check done đi anh ui
 
+router.get("/health-record/campaign/:campaign_id", getALLHealthRecordOfACampaign); // Lấy tất cả DS Health Record có status DONE // bỏ cái check done đi anh ui
+router.patch("/health-record/:id/done", completeAHealthRecordForStudent);
+
 router.get('/checkup-register/:id', getALLRegisterByCampaignID);//Lấy tất cả các CheckUp register cần tuyền vào campaign_id 
 
 router.get('/checkup-register/parent/:id', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
@@ -66,7 +69,7 @@ router.patch("/checkup-campaign/:id/finish", finishCampaign); //Admin finish Cam
 //Parent
 router.patch("/checkup-register/:id/submit", submitRegister); // Parent submit form Register
 
-router.get("/checkup-health-record", getHealthRecordParent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
+router.get("/student/:student_id/checkup-health-record", getHealthRecordParent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
 router.get("/checkup-health-record/detail", getHealthRecordParentDetails); //Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
 
 router.get("/checkup-special-record", getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
