@@ -42,8 +42,8 @@ const router = express.Router();
 //Orther
 
 
-router.post('/checkup/campaign/:id',sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
-router.put('/checkup/campaign/:id',updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
+router.post('/checkup/:campaign/send-register',sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
+router.put('/checkup/:campaign/update-info',updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
 
 
 
