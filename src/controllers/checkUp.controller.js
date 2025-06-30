@@ -851,7 +851,7 @@ export async function getCheckupRegisterStudent(req, res) {
 
 //Parent xem HealthRecord của Student cần truyền vào student id
 export async function getHealthRecordParent(req, res) {
-    const { student_id } = req.params;
+    const { id } = req.params;
 
     if (!id) {
         return res
