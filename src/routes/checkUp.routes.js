@@ -73,7 +73,7 @@ router.patch("/checkup-register/:id/submit", submitRegister); // Parent submit f
 
 router.get("/student/:id/checkup-health-record", getHealthRecordsOfAStudent);
 router.get("/student/:id/specialist-record", getSpecialRecordsOfAStudent);
-router.get("/student:/:id/full-record", getFullHealthAndSpecialRecordsOfAStudent);
+router.get("/student/:id/full-record", getFullHealthAndSpecialRecordsOfAStudent);
 router.get("/checkup-health-record/detail", getHealthRecordParentDetails); //Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
 
 router.get("/checkup-special-record", getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
