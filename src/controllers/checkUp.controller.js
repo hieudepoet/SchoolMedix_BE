@@ -122,34 +122,36 @@ export async function createCampaign(req, res) {
         }
 
 
-        //STEP 3.2 Gửi mail cho phụ huynh
 
-        const result_list = await query(`SELECT
-    s.id   AS student_id,
-    s.name AS student_name,
-    mom.id AS mom_id,
-    mom.name AS mom_name,
-    mom.email AS mom_email,
-    dad.id AS dad_id,
-    dad.name AS dad_name,
-    dad.email AS dad_email
-    FROM student s
-    LEFT JOIN parent mom ON s.mom_id = mom.id
-    LEFT JOIN parent dad ON s.dad_id = dad.id`);
+        // DUY KHANH: cái này nên tách riêng ra làm hàm riêng, chứ để đây nó TIMEOUT
+        //     //STEP 3.2 Gửi mail cho phụ huynh
 
-        const rs_list = result_list.rows;
+        //     const result_list = await query(`SELECT
+        // s.id   AS student_id,
+        // s.name AS student_name,
+        // mom.id AS mom_id,
+        // mom.name AS mom_name,
+        // mom.email AS mom_email,
+        // dad.id AS dad_id,
+        // dad.name AS dad_name,
+        // dad.email AS dad_email
+        // FROM student s
+        // LEFT JOIN parent mom ON s.mom_id = mom.id
+        // LEFT JOIN parent dad ON s.dad_id = dad.id`);
 
-        for (const row of rs_list) {
-            // Gửi mail cho mẹ nếu có email (parent_name ,student_name ,campaign_name ,description ,location ,start_date ,start_date,email
-            if (row.mom_email) {
-                await sendCheckupRegister(row.mom_email, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.mom_email);
-            }
-            // Gửi mail cho bố nếu có email
-            if (row.dad_email) {
-                await sendCheckupRegister(row.dad_name, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.dad_email);
+        //     const rs_list = result_list.rows;
 
-            }
-        }
+        //     for (const row of rs_list) {
+        //         // Gửi mail cho mẹ nếu có email (parent_name ,student_name ,campaign_name ,description ,location ,start_date ,start_date,email
+        //         if (row.mom_email) {
+        //             await sendCheckupRegister(row.mom_email, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.mom_email);
+        //         }
+        //         // Gửi mail cho bố nếu có email
+        //         if (row.dad_email) {
+        //             await sendCheckupRegister(row.dad_name, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.dad_email);
+
+        //         }
+        //     }
 
 
         // STEP 4 Tạo specialistExamRecord theo từng CheckUp Register và Special List Exam
@@ -850,7 +852,7 @@ export async function getCheckupRegisterStudent(req, res) {
 }
 
 //Parent xem HealthRecord của Student cần truyền vào student id
-export async function getHealthRecordParent(req, res) {
+export async function getHealthRecordsOfAStudent(req, res) {
     const { id } = req.params;
 
     if (!id) {
@@ -872,13 +874,27 @@ export async function getHealthRecordParent(req, res) {
         }
 
         //Lấy HealthRecod từ Student ID
-
         const rs = await query(
-            ` SELECT cr.campaign_id ,hr.id AS health_record_id , hr.register_id,cr.student_id,hr.is_checked,hr.status AS record_status
-
-    FROM HealthRecord hr
-    JOIN CheckupRegister cr ON hr.register_id = cr.id
-    WHERE cr.student_id = $1`,
+            ` SELECT 
+                cr.campaign_id,
+                campaign.name as campaign_name,
+                campaign.description as campaign_description,
+                hr.id AS health_record_id,
+                hr.record_url,
+                hr.register_id,
+                cr.student_id,
+                stu.name as student_name,
+                stu.dob as student_dob,
+                clas.name as class_name,
+                hr.is_checked,
+                hr.status AS record_status
+            FROM HealthRecord hr
+            JOIN CheckupRegister cr ON hr.register_id = cr.id
+            Join student stu on stu.id = cr.student_id
+            join class clas on clas.id = stu.class_id	
+            join checkupcampaign campaign on campaign.id = cr.campaign_id
+            WHERE cr.student_id = $1;
+            `,
             [id]
         );
 

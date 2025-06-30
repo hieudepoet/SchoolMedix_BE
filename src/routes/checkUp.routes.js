@@ -7,7 +7,7 @@ import {
         updateHealthRecord,
         submitRegister,
         getCheckupRegisterStudent,
-        getHealthRecordParent,
+        getHealthRecordsOfAStudent,
         getHealthRecordStudent,
         getCheckupRegisterByStudentID,
         getAllCheckupCampaigns,
@@ -69,7 +69,7 @@ router.patch("/checkup-campaign/:id/finish", finishCampaign); //Admin finish Cam
 //Parent
 router.patch("/checkup-register/:id/submit", submitRegister); // Parent submit form Register
 
-router.get("/student/:id/checkup-health-record", getHealthRecordParent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
+router.get("/student/:id/checkup-health-record", getHealthRecordsOfAStudent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
 router.get("/checkup-health-record/detail", getHealthRecordParentDetails); //Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
 
 router.get("/checkup-special-record", getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
