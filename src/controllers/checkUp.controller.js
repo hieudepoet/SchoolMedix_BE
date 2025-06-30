@@ -192,10 +192,11 @@ export async function createCampaign(req, res) {
 
 //Truyền vào ID campaign để gửi Register cho phụ huynh ( Status: PREPARING --> UPCOMING )
 export async function sendRegister(req, res) {
-    const { id } = req.params;
+    const { campaign_id } = req.params;
+    console.log(campaign_id);
     try {
 
-        if (!id) {
+        if (!campaign_id) {
             return res
                 .status(400)
                 .json({
@@ -207,7 +208,7 @@ export async function sendRegister(req, res) {
 
         const check = await query(`SELECT * FROM checkupcampaign
                                    WHERE id = $1`
-            , [id]);
+            , [campaign_id]);
 
         if (check.rowCount === 0) {
             return res
@@ -237,7 +238,7 @@ export async function sendRegister(req, res) {
             const result_checkup_register = await query(
                 `INSERT INTO CheckupRegister (campaign_id, student_id, status)
                      VALUES ($1, $2, $3)  RETURNING*`,
-                [id, student.id, "PENDING"]
+                [campaign_id, student.id, "PENDING"]
             );
 
             if (result_checkup_register.rowCount === 0) {
@@ -255,7 +256,7 @@ export async function sendRegister(req, res) {
 
 
         const rs = await query(`SELECT * FROM campaigncontainspeexam 
-                                    WHERE campaign_id = $1`, [id]);
+                                    WHERE campaign_id = $1`, [campaign_id]);
 
 
         const specialist_exam_ids = rs.rows;
@@ -306,7 +307,7 @@ export async function sendRegister(req, res) {
         //Step 5: Đổi Status Campaign thành PREPARING
 
         const result = await query(`UPDATE checkupcampaign 
-                                        SET status = $1 WHERE id = $2`, ['PREPARING', id]);
+                                        SET status = $1 WHERE id = $2`, ['PREPARING', campaign_id]);
 
 
         return res
@@ -325,7 +326,7 @@ export async function sendRegister(req, res) {
 //Truyền vào ID campaign để update
 export async function updateCampaign(req, res) {
 
-    const { id } = req.params;
+    const { campaign_id } = req.params;
     const { name, description, location, start_date, end_date, specialist_exam_ids } = req.body;
 
     try {
@@ -350,11 +351,13 @@ export async function updateCampaign(req, res) {
         //Step 1: DELETED campaigncontainspeexam 
 
         const check_contain = await query(`SELECT * FROM campaigncontainspeexam 
-                                            WHERE campaign_id = $1`, [id]);
+                                            WHERE campaign_id = $1`, [campaign_id]);
 
-        if (!check_contain.rowCount === 0) {
+
+        if (check_contain.rowCount !== 0) {
             const check_delete = await query(`DELETE FROM campaigncontainspeexam
-                                          WHERE campaign_id = $1`, [id]);
+                                          WHERE campaign_id = $1`, [campaign_id]);
+                     
 
             if (check_delete.rowCount === 0) {
                 return res
@@ -369,7 +372,7 @@ export async function updateCampaign(req, res) {
         // Step 2: check campaign có tồn tại không
         const check = await query(`SELECT * FROM checkupcampaign
                                    WHERE id = $1`
-            , [id]);
+            , [campaign_id]);
 
         if (check.rowCount === 0) {
             return res
@@ -388,7 +391,7 @@ export async function updateCampaign(req, res) {
                                  start_date = $4,
                                  end_date = $5
                                 WHERE id = $6;
-`, [name, description, location, start_date, end_date, id]);
+`, [name, description, location, start_date, end_date, campaign_id]);
 
 
         if (rs.rowCount === 0) {
@@ -406,7 +409,7 @@ export async function updateCampaign(req, res) {
             for (const exam_id of specialist_exam_ids) {
                 const result_campagincontain = await query(
                     "INSERT INTO CampaignContainSpeExam (campaign_id,specialist_exam_id) VALUES ($1,$2) RETURNING *",
-                    [id, exam_id]
+                    [campaign_id, exam_id]
                 );
 
                 console.log("gắn spe exam id vào campaign: ", exam_id);
