@@ -1,5 +1,5 @@
 
-export const ADMIN_IMPORT_TEMPLATE = {
+export const ADMIN_IMPORT_TEMPLATE = { 
       COLUMN: {
             name: {
                   col_name: "Tên quản trị viên",

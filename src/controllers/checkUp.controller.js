@@ -1777,7 +1777,7 @@ export async function handleUploadHealthRecordResult(req, res) {
             const json = await excelToJson(fileStream); // trả về mảng object
             const header = Object.keys(json[0]);
 
-            let message = "Xử lý file thành công. Các dòng lỗi:";
+            let message = "Xử lý file thành công!";
             let success = true;
 
             for (const record of json) {
@@ -1831,14 +1831,14 @@ export async function handleRetrieveHealthRecordResultByCampaignID(req, res) {
         const bucket = 'health-record-list-result-excel';
         const path = `health-records-${campaign_id}.xlsx`;
 
-        const fileStream = await retrieveFileFromSupabaseStorage(bucket, path);
+        const fileBuffer = await retrieveFileFromSupabaseStorage(bucket, path);
 
         // Thiết lập headers để cho phép tải file về
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename="${path}"`);
 
-        // Truyền file stream về cho client
-        fileStream.pipe(res);
+        // Gửi file về client
+        res.send(fileBuffer);
     } catch (err) {
         console.error('❌ Lỗi khi tải file:', err.message);
         return res.status(500).json({

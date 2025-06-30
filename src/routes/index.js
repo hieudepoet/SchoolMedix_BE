@@ -10,7 +10,6 @@ import vaccinationCampaignRoutes from "./vaccinationCampaign.routes.js"
 import dailyHealthRecordRoutes from "./dailyHealthRecord.routes.js";
 import diseaseRecordRoutes from "./diseaseRecord.routes.js"
 import specialistexam from "./specialistExam.routes.js"
-import excelFeatureRoutes from './excel-feature/index.js';
 
 const router = express.Router();
 
@@ -23,7 +22,6 @@ router.use("/", vaccinationCampaignRoutes);
 router.use("/", dailyHealthRecordRoutes);
 router.use("/", diseaseRecordRoutes);
 router.use("/", specialistexam);
-router.use("/", excelFeatureRoutes);
 
 
 export default router;
