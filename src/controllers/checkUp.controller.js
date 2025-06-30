@@ -915,6 +915,89 @@ export async function getHealthRecordsOfAStudent(req, res) {
     }
 }
 
+export async function getSpecialRecordsOfAStudent(req, res) {
+    const { id } = req.params;
+
+    if (!id) {
+        return res
+            .status(400)
+            .json({ error: true, message: "Không Nhận được ID Student." });
+    }
+
+    try {
+        const check_student = await query(`SELECT * FROM student WHERE id = $1`, [
+            id,
+        ]);
+
+        //Check ID Student có tồn tại không
+        if (check_student.rowCount === 0) {
+            return res
+                .status(400)
+                .json({ error: true, message: "Student ID không tồn tại." });
+        }
+
+        //Lấy SpecialistExamRecord từ Student ID
+        const rs = await query(
+            ` SELECT json_build_object(
+  'student_id', s.id,
+  'student_name', s.name,
+  'class_name', c.name,
+  'specialist_exam_records', json_object_agg(
+    r.campaign_id,
+    json_build_object(
+      'campaign_name', r.campaign_name,
+      'campaign_description', r.campaign_description,
+      'records', r.records
+    )
+  )
+) AS student_exam_detail
+FROM student s
+JOIN class c ON c.id = s.class_id
+JOIN (
+    SELECT
+        stu.id AS student_id,
+        camp.id AS campaign_id,
+        camp.name AS campaign_name,
+        camp.description AS campaign_description,
+        json_agg(
+            json_build_object(
+                'spe_exam_id', spe.id,
+                'specialist_name', spe.name
+            )
+        ) AS records
+    FROM student stu
+    JOIN checkupregister reg ON reg.student_id = stu.id
+    JOIN checkupcampaign camp ON camp.id = reg.campaign_id
+    JOIN specialistexamrecord rec ON rec.register_id = reg.id
+    JOIN campaigncontainspeexam contain ON contain.campaign_id = camp.id
+    JOIN specialistexamlist spe ON spe.id = contain.specialist_exam_id
+    WHERE rec.status != 'CANNOT_ATTACH'
+      AND stu.id = '211000'
+    GROUP BY stu.id, camp.id, camp.name, camp.description
+) r ON r.student_id = s.id
+WHERE s.id = $1
+GROUP BY s.id, s.name, c.name;
+            `,
+            [id]
+        );
+
+        if (rs.rowCount === 0) {
+            return res
+                .status(400)
+                .json({ error: true, message: "Không tồn tại Record khám chuyên khoa." });
+        }
+
+        const result = rs.rows;
+
+        return res.status(200).json({ error: false, data: result });
+    } catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res
+            .status(500)
+            .json({ error: true, message: "Lỗi khi lấy danh sách Record." });
+    }
+}
+
 export async function getHealthRecordParentDetails(req, res) {
     const { health_record_id } = req.body;
     try {
