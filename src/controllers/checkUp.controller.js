@@ -962,7 +962,10 @@ JOIN (
         json_agg(
             json_build_object(
                 'spe_exam_id', spe.id,
-                'specialist_name', spe.name
+                'specialist_name', spe.name,
+				'record_status', rec.status,
+				'record_url', rec.diagnosis_paper_url,
+				'is_checked', rec.is_checked
             )
         ) AS records
     FROM student stu
