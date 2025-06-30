@@ -33,11 +33,20 @@ import {
         handleRetrieveHealthRecordResultByCampaignID,
         handleRetrieveSampleImportHealthRecordForm,
         getSpecialRecordsOfAStudent,
-        getFullHealthAndSpecialRecordsOfAStudent
+        getFullHealthAndSpecialRecordsOfAStudent,
+        sendRegister,
+        updateCampaign
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
 //Orther
+
+
+router.post('/checkup/campaign/:id',sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
+router.put('/checkup/campaign/:id',updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
+
+
+
 
 router.get('/checkup/campaign_id/:campaign_id/student_id/:student_id', getRegisterID); //Lấy Register ID 
 router.get('/checkup/survey/status', getRegisterStatus);//Lay Register Status
