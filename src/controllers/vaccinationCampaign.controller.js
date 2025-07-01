@@ -20,12 +20,10 @@ export async function createCampaign(req, res) {
     );
 
     if (vaccineDiseaseQuery.rows.length === 0) {
-      return res
-        .status(404)
-        .json({
-          error: true,
-          message: "Vaccine not found or no associated disease",
-        });
+      return res.status(404).json({
+        error: true,
+        message: "Vaccine not found or no associated disease",
+      });
     }
 
     const disease_id = vaccineDiseaseQuery.rows[0].disease_id;
@@ -206,7 +204,6 @@ async function createRegisterRequest(campaign_id, disease_id) {
       );
     }
 
-    console.log("Bị lỗi khi tạo đơn");
     return true;
   } catch (error) {
     console.error("Error creating registration request:", error);
@@ -688,6 +685,21 @@ export async function completeRecord(req, res) {
       "SELECT * FROM vaccination_record WHERE id = $1",
       [record_id]
     );
+
+    const register_id = record.rows[0].register_id;
+
+    const campaign_id_rows = await query(
+      "SELECT campaign_id FROM vaccination_campaign_register WHERE id = $1",
+      [register_id]
+    );
+
+    const campaign_id = campaign_id_rows.rows[0].campaign_id;
+
+    const info = await query(
+      "SELECT * FROM vaccination_campaign WHERE id = $1",
+      [campaign_id]
+    );
+
     if (record.rows.length === 0) {
       return res
         .status(404)
@@ -695,14 +707,24 @@ export async function completeRecord(req, res) {
     }
 
     // Update vaccination record
+    console.log(info.rows[0].vaccination_date);
     const updateQuery = `
                   UPDATE vaccination_record
-                  SET status = 'COMPLETED'
+                  SET 
+                    status = 'COMPLETED',
+                    description = $2,
+                    location = $3,
+                    vaccination_date = $4
                   WHERE id = $1
                   RETURNING *;
             `;
 
-    const result = await query(updateQuery, [record_id]);
+    const result = await query(updateQuery, [
+      record_id,
+      info.rows[0].description,
+      info.rows[0].location,
+      info.rows[0].vaccination_date,
+    ]);
 
     return res.status(200).json({
       message: "Vaccination record updated",
@@ -1045,7 +1067,7 @@ export async function getAllRegisteredRecords(req, res) {
         s.id AS student_id,
         s.supabase_uid as supabase_uid,
         rec.id AS record_id,
-        rec.disease_id
+        rec.disease_id,
         rec.vaccine_id,
         rec.status as status,
         rec.description as description,
