@@ -9,7 +9,9 @@ import {
       handleConfirmEmailForUser,
       handleUnconfirmEmailForUser,
       deleteAdmin, deleteNurse, deleteParent, deleteStudent,
-      getAdminTemplate, getNurseTemplate, getParentTemplate, getStudentTemplate, getStudentParentTemplate
+      getAdminTemplate, getNurseTemplate, getParentTemplate, getStudentTemplate, getStudentParentTemplate,
+      handleDownloadUsers,
+      hanldeUploadStudentParent
 
 } from '../controllers/users.controller.js';
 
@@ -99,7 +101,7 @@ router.get("/student-parent-import-template", getStudentParentTemplate);// lấy
 router.get("/get-admin-import-sample"); // lấy file excel mẫu để import admin
 
 // route để xuất nhập file excel
-router.get("/download-users"); // lấy toàn bộ admin, nurse, student, parent vào chung 1 file excel chia thành từng sheet
+router.get("/download-users", handleDownloadUsers); // lấy toàn bộ admin, nurse, student, parent vào chung 1 file excel chia thành từng sheet
 router.post("/upload-admin-excel");
 router.post("/upload-nurse-excel");
 router.post("/upload-student-parent-excel");

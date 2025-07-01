@@ -35,3 +35,16 @@ export async function exportExcel(headers = [], rows = [], sheetName = 'Sheet1',
       await workbook.xlsx.writeFile(filePath);
 }
 
+function generateExcelTemplate(template, sheetName = 'Sheet1') {
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet(sheetName);
+
+      const columnDefs = Object.entries(template.COLUMN).map(([key, value]) => ({
+            header: value.col_name,
+            key,
+            width: Math.max(value.col_name.length, 20),
+      }));
+
+      sheet.columns = columnDefs;
+      return workbook.xlsx.writeBuffer();
+}

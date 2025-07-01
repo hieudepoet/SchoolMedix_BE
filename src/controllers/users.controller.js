@@ -22,6 +22,8 @@ import {
 
 } from "../services/index.js";
 
+import ExcelJS from 'exceljs';
+
 import {
       ADMIN_IMPORT_TEMPLATE,
       NURSE_IMPORT_TEMPLATE,
@@ -787,10 +789,7 @@ export async function handleUnconfirmEmailForUser(req, res) {
       }
 }
 
-
-
-
-
+// get json
 export function getAdminTemplate(req, res) {
       try {
             res.json({
@@ -866,3 +865,118 @@ export function getStudentParentTemplate(req, res) {
       }
 }
 
+
+// get exel template
+export async function getAdminExcelImportSample(req, res) {
+
+}
+
+export async function getNurseExcelImportSample(req, res) {
+
+}
+
+export async function getStudentParentExcelImportSample(req, res) {
+
+}
+
+// download all user - excel
+export async function handleDownloadUsers(req, res) {
+      try {
+            const [admins, nurses, parents, students] = await Promise.all([
+                  getAllAdmins(),
+                  getAllNurses(),
+                  getAllParents(),
+                  getAllStudents()
+            ]);
+
+            const workbook = new ExcelJS.Workbook();
+
+            // 🧑‍💼 Sheet: Admin
+            const adminSheet = workbook.addWorksheet('admin');
+            if (admins.length > 0) {
+                  adminSheet.columns = Object.keys(admins[0]).map(key => ({ header: key, key }));
+                  admins.forEach(admin => adminSheet.addRow(admin));
+            }
+
+            // 🧑‍⚕️ Sheet: Nurse
+            const nurseSheet = workbook.addWorksheet('nurse');
+            if (nurses.length > 0) {
+                  nurseSheet.columns = Object.keys(nurses[0]).map(key => ({ header: key, key }));
+                  nurses.forEach(nurse => nurseSheet.addRow(nurse));
+            }
+
+            // 👨‍👩‍👧‍👦 Sheet: Student + Parent Info
+            const studentSheet = workbook.addWorksheet('student_parent');
+            if (students.length > 0) {
+                  const flattened = students.map(s => ({
+                        id: s.id,
+                        name: s.name,
+                        email: s.email,
+                        dob: s.dob,
+                        age: s.age,
+                        isMale: s.isMale,
+                        address: s.address,
+                        phone_number: s.phone_number,
+                        profile_img_url: s.profile_img_url,
+                        year_of_enrollment: s.year_of_enrollment,
+                        email_confirmed: s.email_confirmed,
+                        class_id: s.class_id,
+                        class_name: s.class_name,
+                        mom_name: s.mom_profile?.name || '',
+                        mom_email: s.mom_profile?.email || '',
+                        dad_name: s.dad_profile?.name || '',
+                        dad_email: s.dad_profile?.email || ''
+                  }));
+
+                  studentSheet.columns = Object.keys(flattened[0]).map(key => ({ header: key, key }));
+                  flattened.forEach(row => studentSheet.addRow(row));
+            }
+
+            // 📥 Sheet: Parent + Their Children Info
+            const parentSheet = workbook.addWorksheet('parent');
+            if (parents.length > 0) {
+                  // Flatten each parent to a row with all fields + children (as JSON string for now)
+                  const flattenedParents = parents.map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        email: p.email,
+                        dob: p.dob,
+                        age: p.age,
+                        isMale: p.isMale,
+                        address: p.address,
+                        phone_number: p.phone_number,
+                        profile_img_url: p.profile_img_url,
+                        email_confirmed: p.email_confirmed,
+                        children: JSON.stringify(p.students || [])
+                  }));
+
+                  parentSheet.columns = Object.keys(flattenedParents[0]).map(key => ({ header: key, key }));
+                  flattenedParents.forEach(row => parentSheet.addRow(row));
+            }
+
+            // 📦 Xuất ra buffer
+            const buffer = await workbook.xlsx.writeBuffer();
+
+            const fileName = `users-${Date.now()}.xlsx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+            res.send(buffer);
+
+      } catch (error) {
+            console.error('❌ Lỗi khi tạo file Excel:', error);
+            res.status(500).json({ error: true, message: 'Không thể xuất file Excel' });
+      }
+}
+
+// upload then creating account for them if there is email, otherwise, just creating without email
+export async function handleUploadAdmin(req, res) {
+
+}
+
+export async function handleUploadNurse(req, res) {
+
+}
+
+export async function hanldeUploadStudentParent(req, res) {
+
+}

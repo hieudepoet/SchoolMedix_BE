@@ -31,11 +31,22 @@ import {
         completeARecordForSpeExam,
         handleUploadHealthRecordResult,
         handleRetrieveHealthRecordResultByCampaignID,
-        handleRetrieveSampleImportHealthRecordForm
+        handleRetrieveSampleImportHealthRecordForm,
+        getSpecialRecordsOfAStudent,
+        getFullHealthAndSpecialRecordsOfAStudent,
+        sendRegister,
+        updateCampaign
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
 //Orther
+
+
+router.post('/checkup/:campaign_id/send-register',sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
+router.put('/checkup/:campaign_id/update-info',updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
+
+
+
 
 router.get('/checkup/campaign_id/:campaign_id/student_id/:student_id', getRegisterID); //Lấy Register ID 
 router.get('/checkup/survey/status', getRegisterStatus);//Lay Register Status
@@ -69,7 +80,9 @@ router.patch("/checkup-campaign/:id/finish", finishCampaign); //Admin finish Cam
 //Parent
 router.patch("/checkup-register/:id/submit", submitRegister); // Parent submit form Register
 
-router.get("/student/:id/checkup-health-record", getHealthRecordsOfAStudent); //Parent xem tất cả Health Record của Student truyền vào body Student_id
+router.get("/student/:id/checkup-health-record", getHealthRecordsOfAStudent);
+router.get("/student/:id/specialist-record", getSpecialRecordsOfAStudent);
+router.get("/student/:id/full-record", getFullHealthAndSpecialRecordsOfAStudent);
 router.get("/checkup-health-record/detail", getHealthRecordParentDetails); //Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
 
 router.get("/checkup-special-record", getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
