@@ -3,13 +3,7 @@ import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Campaign
 export async function createCampaign(req, res) {
-  const {
-    vaccine_id,
-    description,
-    location,
-    start_date,
-    end_date,
-  } = req.body;
+  const { vaccine_id, description, location, start_date, end_date } = req.body;
 
   // Validate required fields (removed disease_id from validation since it will be fetched)
   if (!vaccine_id || !description || !start_date || !end_date) {
@@ -26,9 +20,10 @@ export async function createCampaign(req, res) {
     );
 
     if (vaccineDiseaseQuery.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Vaccine not found or no associated disease" });
+      return res.status(404).json({
+        error: true,
+        message: "Vaccine not found or no associated disease",
+      });
     }
 
     const disease_id = vaccineDiseaseQuery.rows[0].disease_id;
@@ -52,7 +47,10 @@ export async function createCampaign(req, res) {
 
     const campaign_id = result.rows[0].id;
 
-    const register_success = await createRegisterRequest(campaign_id);
+    const register_success = await createRegisterRequest(
+      campaign_id,
+      disease_id
+    );
 
     if (!register_success) {
       console.log("Internal server error: " + "tạo register thất bại!");
@@ -138,8 +136,9 @@ export async function getCampaignDetailByID(req, res) {
 }
 
 // Register
-async function createRegisterRequest(campaign_id) {
+async function createRegisterRequest(campaign_id, disease_id) {
   if (!campaign_id) {
+    console.log("Yêu cầu campaign_id");
     return false;
   }
 
@@ -150,6 +149,7 @@ async function createRegisterRequest(campaign_id) {
       [campaign_id]
     );
     if (campaigns.rows.length === 0) {
+      console.log("Không thấy campaign_id");
       return false;
     }
 
@@ -169,23 +169,23 @@ async function createRegisterRequest(campaign_id) {
 
     // Check nếu campaign đang trong giai đoạn nhận đơn thì tiếp tục tạo register (status PREPARING), không thì return
     if (campaigns.rows[0].status !== "PREPARING") {
+      console.log("Hết hạn tạo đơn");
       return false;
     }
 
     // Check if registration already exists for the campaign
-    // THIS IS HARD CODE, JUST FINE AT THE DEMO SCOPE, PLS CHANGE LATER
     const existingRegistrations = await query(
       "SELECT * FROM vaccination_campaign_register WHERE campaign_id = $1",
       [campaign_id]
     );
     if (existingRegistrations.rows.length > 0) {
+      console.log("Đã tạo đơn thành công");
       return false;
     }
 
     //Get all students eligible for the campaign
-    const eligibleStudents = await getStudentEligibleForADiseaseID(
-      campaigns.rows[0].disease_id
-    );
+    const eligibleStudents = await getStudentEligibleForADiseaseID(disease_id);
+
     console.log(eligibleStudents);
 
     if (eligibleStudents.length === 0) {
@@ -685,6 +685,21 @@ export async function completeRecord(req, res) {
       "SELECT * FROM vaccination_record WHERE id = $1",
       [record_id]
     );
+
+    const register_id = record.rows[0].register_id;
+
+    const campaign_id_rows = await query(
+      "SELECT campaign_id FROM vaccination_campaign_register WHERE id = $1",
+      [register_id]
+    );
+
+    const campaign_id = campaign_id_rows.rows[0].campaign_id;
+
+    const info = await query(
+      "SELECT * FROM vaccination_campaign WHERE id = $1",
+      [campaign_id]
+    );
+
     if (record.rows.length === 0) {
       return res
         .status(404)
@@ -692,14 +707,24 @@ export async function completeRecord(req, res) {
     }
 
     // Update vaccination record
+    console.log(info.rows[0].vaccination_date);
     const updateQuery = `
                   UPDATE vaccination_record
-                  SET status = 'COMPLETED'
+                  SET 
+                    status = 'COMPLETED',
+                    description = $2,
+                    location = $3,
+                    vaccination_date = $4
                   WHERE id = $1
                   RETURNING *;
             `;
 
-    const result = await query(updateQuery, [record_id]);
+    const result = await query(updateQuery, [
+      record_id,
+      info.rows[0].description,
+      info.rows[0].location,
+      info.rows[0].vaccination_date,
+    ]);
 
     return res.status(200).json({
       message: "Vaccination record updated",
@@ -1042,7 +1067,7 @@ export async function getAllRegisteredRecords(req, res) {
         s.id AS student_id,
         s.supabase_uid as supabase_uid,
         rec.id AS record_id,
-        rec.disease_id
+        rec.disease_id,
         rec.vaccine_id,
         rec.status as status,
         rec.description as description,
@@ -1180,7 +1205,6 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
     });
   }
 }
-
 
 export async function getAcceptedRegisteredRecords(req, res) {
   const { campaign_id } = req.params;

@@ -1070,12 +1070,12 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location,
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
     student_id varchar(10) NOT NULL,
-	campaign_id int not null,
+	  campaign_id int not null,
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
     submit_time TIMESTAMP,
     submit_by int, -- parent ID
-	FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
+	  FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
