@@ -9,14 +9,14 @@ import {
 } from "./userDao.js";
 import { sendWelcomeEmail } from "../email/index.js";
 import { generateRandomPassword } from "./userUtils.js";
+import { sendInviteEmail } from "../email/senders/inviteSender.js";
 
 
 
-export async function createSupabaseAuthUserWithRole(email, password, role) {
+export async function createSupabaseAuthUserWithRole(email, name, role) {
     const { data, error } = await supabaseAdmin.createUser({
         email,
-        password,
-        email_confirm: true,
+        email_confirm: false,
         user_metadata: {},
         app_metadata: {
             role,
@@ -27,8 +27,72 @@ export async function createSupabaseAuthUserWithRole(email, password, role) {
         throw new Error("Tạo user trên supabase auth thất bại: " + error.message);
     }
 
-    return data.user.id;
+    const { data: linkData, error: linkError } = await supabaseAdmin.generateLink({
+        email,
+        type: 'invite',
+        options: {
+            redirectTo: `${process.env.FIREBASE_FE_DEPLOYING_URL}/setup-password`,
+        },
+    });
+
+    if (linkError) {
+        throw new Error("Không tạo được link mời: " + linkError.message);
+    }
+
+    try {
+        await sendInviteEmail(email, name, role, linkData.properties.action_link);
+    } catch (mailErr) {
+        console.error('❌ Gửi email thất bại:', mailErr);
+        throw new Error('Đã tạo user nhưng gửi email mời thất bại.');
+    }
+    return {
+        supabase_uid: data.user.id,
+        invite_link: linkData.properties.action_link,
+    };
 }
+
+export async function sendInviteLinkToEmails(users = []) {
+    const results = [];
+
+    for (const user of users) {
+        const { email, name, role } = user;
+
+        try {
+            const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+                email,
+                type: 'invite',
+                options: {
+                    redirectTo: `${process.env.FIREBASE_FE_DEPLOYING_URL}/setup-password`,
+                },
+            });
+
+            if (linkError) {
+                throw new Error(`Tạo link mời thất bại: ${linkError.message}`);
+            }
+
+            await sendInviteEmail(email, name, role, linkData.action_link);
+
+            results.push({
+                email,
+                error: false,
+                supabase_uid: data.user.id,
+                invite_link: linkData.action_link,
+            });
+        } catch (err) {
+            console.error(`❌ Gửi email mời thất bại cho ${email}:`, err.message);
+            results.push({
+                email,
+                error: true,
+                message: err.message,
+            });
+        }
+    }
+
+    return results;
+}
+
+
+
 
 export async function createNewAdmin(
     email,
@@ -40,25 +104,35 @@ export async function createNewAdmin(
     profile_img_url
 ) {
     let supabase_uid = null;
-    if (email) {
-        const password = generateRandomPassword();
-        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "admin");
-        await sendWelcomeEmail(email, name, "admin", password);
+
+    try {
+        if (email) {
+            const { supabase_uid: uid } = await createSupabaseAuthUserWithRole(email, name, "admin");
+            supabase_uid = uid;
+        }
+
+        const addedUser = await insertAdmin(
+            supabase_uid,
+            email,
+            name,
+            dob,
+            isMale,
+            address,
+            phone_number,
+            profile_img_url
+        );
+
+        return addedUser;
+    } catch (err) {
+        if (supabase_uid) {
+            await deleteAuthUser(supabase_uid).catch((delErr) =>
+                console.error("❌ Rollback Supabase Auth thất bại:", delErr.message)
+            );
+        }
+        throw err;
     }
-
-    const addedUser = await insertAdmin(
-        supabase_uid,
-        email,
-        name,
-        dob,
-        isMale,
-        address,
-        phone_number,
-        profile_img_url
-    );
-
-    return addedUser;
 }
+
 
 export async function createNewNurse(
     email,
@@ -70,24 +144,31 @@ export async function createNewNurse(
     profile_img_url
 ) {
     let supabase_uid = null;
-    if (email) {
-        const password = generateRandomPassword();
-        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "nurse");
-        await sendWelcomeEmail(email, name, "nurse", password);
+
+    try {
+        if (email) {
+            const { supabase_uid: uid } = await createSupabaseAuthUserWithRole(email, name, "nurse");
+            supabase_uid = uid;
+        }
+
+        return await insertNurse(
+            supabase_uid,
+            email,
+            name,
+            dob,
+            isMale,
+            address,
+            phone_number,
+            profile_img_url
+        );
+    } catch (err) {
+        if (supabase_uid) {
+            await deleteAuthUser(supabase_uid).catch((e) =>
+                console.error("❌ Rollback Supabase Auth thất bại:", e.message)
+            );
+        }
+        throw err;
     }
-
-    const addedUser = await insertNurse(
-        supabase_uid,
-        email,
-        name,
-        dob,
-        isMale,
-        address,
-        phone_number,
-        profile_img_url
-    );
-
-    return addedUser;
 }
 
 export async function createNewParent(
@@ -100,24 +181,31 @@ export async function createNewParent(
     profile_img_url
 ) {
     let supabase_uid = null;
-    if (email) {
-        const password = generateRandomPassword();
-        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "parent");
-        await sendWelcomeEmail(email, name, "parent", password);
+
+    try {
+        if (email) {
+            const { supabase_uid: uid } = await createSupabaseAuthUserWithRole(email, name, "parent");
+            supabase_uid = uid;
+        }
+
+        return await insertParent(
+            supabase_uid,
+            email,
+            name,
+            dob,
+            isMale,
+            address,
+            phone_number,
+            profile_img_url
+        );
+    } catch (err) {
+        if (supabase_uid) {
+            await deleteAuthUser(supabase_uid).catch((e) =>
+                console.error("❌ Rollback Supabase Auth thất bại:", e.message)
+            );
+        }
+        throw err;
     }
-
-    const addedUser = await insertParent(
-        supabase_uid,
-        email,
-        name,
-        dob,
-        isMale,
-        address,
-        phone_number,
-        profile_img_url
-    );
-
-    return addedUser;
 }
 
 export async function createNewStudent(
@@ -134,29 +222,37 @@ export async function createNewStudent(
     dad_id
 ) {
     let supabase_uid = null;
-    if (email) {
-        const password = generateRandomPassword();
-        supabase_uid = await createSupabaseAuthUserWithRole(email, password, "student");
-        await sendWelcomeEmail(email, name, "student", password);
+
+    try {
+        if (email) {
+            const { supabase_uid: uid } = await createSupabaseAuthUserWithRole(email, name, "student");
+            supabase_uid = uid;
+        }
+
+        return await insertStudent(
+            supabase_uid,
+            email,
+            name,
+            dob,
+            isMale,
+            address,
+            phone_number,
+            profile_img_url || process.env.DEFAULT_AVATAR_URL,
+            class_id,
+            year_of_enrollment,
+            mom_id,
+            dad_id
+        );
+    } catch (err) {
+        if (supabase_uid) {
+            await deleteAuthUser(supabase_uid).catch((e) =>
+                console.error("❌ Rollback Supabase Auth thất bại:", e.message)
+            );
+        }
+        throw err;
     }
-
-    const addedUser = await insertStudent(
-        supabase_uid,
-        email,
-        name,
-        dob,
-        isMale,
-        address,
-        phone_number,
-        profile_img_url,
-        class_id,
-        year_of_enrollment,
-        mom_id,
-        dad_id
-    );
-
-    return addedUser;
 }
+
 
 // update email
 export async function updateEmailForSupabaseAuthUser(supabase_uid, email) {
@@ -166,47 +262,6 @@ export async function updateEmailForSupabaseAuthUser(supabase_uid, email) {
 
     if (error) {
         throw new Error(`Lỗi cập nhật email trên supabase auth: ${error.message}`);
-    }
-
-    return data;
-}
-
-export async function signInWithPassAndEmail(email, password) {
-    const { data, error } = await supabaseClient.signInWithPassword({
-        email,
-        password,
-    });
-
-    if (error) {
-        throw new Error(error.message || "Đăng nhập thất bại");
-    }
-    const userInfo = data.user;
-    const role = userInfo.app_metadata.role;
-    const supabase_uid = userInfo.id;
-
-    if (!role) {
-        throw new Error("Tài khoản không có role được xác định.");
-    }
-
-
-    const profile = await getProfileByUUID(role, supabase_uid);
-
-    return {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        user: {
-            ...profile
-        }
-    };
-}
-
-export async function updatePasswordForUser(supabase_uid, newPassword) {
-    const { data, error } = await supabaseAdmin.updateUserById(supabase_uid, {
-        password: newPassword,
-    });
-
-    if (error) {
-        throw new Error(error.message || 'Cập nhật mật khẩu thất bại.');
     }
 
     return data;

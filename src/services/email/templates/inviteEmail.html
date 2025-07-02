@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thư mời tham gia SchoolMedix</title>
+  </head>
+
+  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333">
+    <p>Xin chào <strong>{{ name }}</strong>,</p>
+
+    <p>
+      Bạn được mời tham gia hệ thống <strong>SchoolMedix</strong> với vai trò
+      <strong>{{ role }}</strong>.
+    </p>
+
+    <p>
+      <b>Thông tin tài khoản:</b><br />
+      🔹 <b>Email:</b> {{ email }}
+    </p>
+
+    <p>
+      👉 Để bắt đầu, vui lòng nhấn vào liên kết dưới đây để xác minh tài khoản
+      và thiết lập mật khẩu:
+    </p>
+
+    <p>
+      <a
+        href="{{ link }}"
+        target="_blank"
+        style="
+          display: inline-block;
+          background-color: #007bff;
+          color: #fff;
+          padding: 12px 20px;
+          border-radius: 5px;
+          text-decoration: none;
+        "
+      >
+        Xác nhận & Thiết lập mật khẩu
+      </a>
+    </p>
+
+    <p>Nếu bạn không yêu cầu tài khoản này, vui lòng bỏ qua email này.</p>
+
+    <p>
+      Trân trọng,<br />
+      <i>Phòng Y tế Trường học - SchoolMedix</i>
+    </p>
+  </body>
+</html>

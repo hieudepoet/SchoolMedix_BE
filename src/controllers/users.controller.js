@@ -12,25 +12,21 @@ import {
       linkParentsAndStudents,
       removeDadByStudentId,
       removeMomByStudentId,
-      signInWithPassAndEmail,
       confirmEmailFor,
-      unconfirmEmailFor,
       editUserProfileByAdmin,
       uploadFileToSupabaseStorage,
       getProfileByUUID,
-      deleteAuthUser, deleteUserByID
+      deleteAuthUser, deleteUserByID,
+      generateAdminImportTemplate,
+      getSupabaseUIDOfAUser,
+      unconfirmEmailFor,
+      sendInviteLinkToEmails,
+
 
 } from "../services/index.js";
 
 import ExcelJS from 'exceljs';
 
-import {
-      ADMIN_IMPORT_TEMPLATE,
-      NURSE_IMPORT_TEMPLATE,
-      PARENT_IMPORT_TEMPLATE,
-      STUDENT_IMPORT_TEMPLATE,
-      STUDENT_PARENT_IMPORT_TEMPLATE
-} from "../services/excel/index.js";
 
 export async function createAdmin(req, res) {
       try {
@@ -270,7 +266,7 @@ export async function getUserProfileByUUID(req, res) {
             const profile = await getProfileByUUID(role, supabase_uid);
 
             if (!profile) {
-                  return res.status(404).json({ error: true, message: "Không tìm thấy hồ sơ." });
+                  return res.status(400).json({ error: true, message: "Không tìm thấy hồ sơ." });
             }
 
             return res.status(200).json({ error: false, data: profile });
@@ -293,7 +289,7 @@ export async function getAdminProfileByID(req, res) {
             const admin = await getProfileOfAdminByID(admin_id);
             if (!admin) {
                   return res
-                        .status(404)
+                        .status(400)
                         .json({ error: true, message: "Không tìm thấy admin!" });
             }
 
@@ -321,7 +317,7 @@ export async function getNurseProfileByID(req, res) {
             const nurse = await getProfileOfNurseByID(nurse_id);
             if (!nurse) {
                   return res
-                        .status(404)
+                        .status(400)
                         .json({ error: true, message: "Không tìm thấy nurse!" });
             }
 
@@ -624,54 +620,6 @@ export async function handleUploadProfileImg(req, res) {
 }
 
 
-export async function handleLogIn(req, res) {
-      const { email, password } = req.body;
-
-      if (!email || !password) {
-            return res.status(400).json({
-                  error: true,
-                  message: "Vui lòng nhập email và mật khẩu.",
-            });
-      }
-
-      try {
-            const result = await signInWithPassAndEmail(email, password);
-
-            const { role, supabase_uid, profile } = result.user;
-            const id = profile?.id;
-
-            if (!id || !role || !supabase_uid) {
-                  return res.status(400).json({
-                        error: true,
-                        message: "Không thể xác định thông tin người dùng.",
-                  });
-            }
-
-            // Đánh dấu đã xác thực email ở bảng ứng với role
-            await confirmEmailFor(role, supabase_uid, id);
-
-            return res.status(200).json({
-                  error: false,
-                  message: "Đăng nhập thành công",
-                  data: result,
-            });
-      } catch (err) {
-            console.error("Login failed:", err);
-            return res.status(500).json({
-                  error: true,
-                  message: err.message || "Đăng nhập thất bại.",
-            });
-      }
-}
-
-
-export async function handleLogOut(req, res) {
-
-}
-
-export async function handleUpdatePassword(req, res) {
-
-}
 
 export async function deleteAdmin(req, res) {
       try {
@@ -737,9 +685,14 @@ export async function deleteStudent(req, res) {
 
 export async function handleConfirmEmailForUser(req, res) {
       const { role, user_id } = req.params;
-
+      if (!role || !user_id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu role hoặc user_id.",
+            });
+      }
       try {
-            const result = await confirmEmailFor(role, user_id);
+            const result = await confirmEmailFor(role, user_id,);
 
             if (!result) {
                   return res.status(404).json({
@@ -762,9 +715,41 @@ export async function handleConfirmEmailForUser(req, res) {
       }
 }
 
+export async function handleSendingInvitationToEmails(req, res) {
+      const users = req.body;
+
+      if (!Array.isArray(users) || users.length === 0) {
+            return res.status(400).json({
+                  error: true,
+                  message: 'Danh sách người dùng không hợp lệ.',
+            });
+      }
+
+      try {
+            const results = await sendInviteLinkToEmails(users);
+
+            return res.status(200).json({
+                  error: false,
+                  message: 'Đã gửi lời mời.',
+                  results,
+            });
+      } catch (err) {
+            console.error('❌ Lỗi khi gửi lời mời:', err.message);
+            return res.status(500).json({
+                  error: true,
+                  message: 'Có lỗi xảy ra khi gửi lời mời.',
+            });
+      }
+}
+
 export async function handleUnconfirmEmailForUser(req, res) {
       const { role, user_id } = req.params;
-
+      if (!role || !user_id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu role hoặc user_id.",
+            });
+      }
       try {
             const result = await unconfirmEmailFor(role, user_id);
 
@@ -788,83 +773,6 @@ export async function handleUnconfirmEmailForUser(req, res) {
             });
       }
 }
-
-// get json
-export function getAdminTemplate(req, res) {
-      try {
-            res.json({
-                  error: false,
-                  data: ADMIN_IMPORT_TEMPLATE,
-            });
-      } catch (error) {
-            console.error('Lỗi khi lấy admin template:', error);
-            res.status(500).json({
-                  error: true,
-                  message: 'Không thể lấy template admin',
-            });
-      }
-}
-
-export function getNurseTemplate(req, res) {
-      try {
-            res.json({
-                  error: false,
-                  data: NURSE_IMPORT_TEMPLATE,
-            });
-      } catch (error) {
-            console.error('Lỗi khi lấy nurse template:', error);
-            res.status(500).json({
-                  error: true,
-                  message: 'Không thể lấy template nurse',
-            });
-      }
-}
-
-export function getParentTemplate(req, res) {
-      try {
-            res.json({
-                  error: false,
-                  data: PARENT_IMPORT_TEMPLATE,
-            });
-      } catch (error) {
-            console.error('Lỗi khi lấy parent template:', error);
-            res.status(500).json({
-                  error: true,
-                  message: 'Không thể lấy template parent',
-            });
-      }
-}
-
-export function getStudentTemplate(req, res) {
-      try {
-            res.json({
-                  error: false,
-                  data: STUDENT_IMPORT_TEMPLATE,
-            });
-      } catch (error) {
-            console.error('Lỗi khi lấy student template:', error);
-            res.status(500).json({
-                  error: true,
-                  message: 'Không thể lấy template student',
-            });
-      }
-}
-
-export function getStudentParentTemplate(req, res) {
-      try {
-            res.json({
-                  error: false,
-                  data: STUDENT_PARENT_IMPORT_TEMPLATE,
-            });
-      } catch (error) {
-            console.error('Lỗi khi lấy student-parent template:', error);
-            res.status(500).json({
-                  error: true,
-                  message: 'Không thể lấy template student-parent',
-            });
-      }
-}
-
 
 // get exel template
 export async function getAdminExcelImportSample(req, res) {
@@ -970,13 +878,71 @@ export async function handleDownloadUsers(req, res) {
 
 // upload then creating account for them if there is email, otherwise, just creating without email
 export async function handleUploadAdmin(req, res) {
+      // step 1: convert buffer received from FE then get the json of data
 
+      // step 2: 
 }
 
 export async function handleUploadNurse(req, res) {
 
 }
 
-export async function hanldeUploadStudentParent(req, res) {
+export async function handleUploadParent(req, res) {
 
+}
+
+export async function handleUploadStudent(req, res) {
+
+}
+
+export async function handleGetAdminImportSample(req, res) {
+      try {
+            const buffer = await generateAdminImportTemplate();
+
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=admin_import_template.xlsx');
+            res.status(200).send(buffer);
+      } catch (error) {
+            console.error('Error generating admin import template:', error);
+            res.status(500).json({ error: true, message: 'Failed to generate import template' });
+      }
+}
+
+export async function handleGetNurseImportSample(req, res) {
+      try {
+            const buffer = await generateImportTemplate('import-nurse-template.xlsx');
+
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=nurse_import_template.xlsx');
+            res.status(200).send(buffer);
+      } catch (error) {
+            console.error('Error generating nurse import template:', error);
+            res.status(500).json({ error: true, message: 'Failed to generate import template' });
+      }
+}
+
+export async function handleGetParentImportSample(req, res) {
+      try {
+            const buffer = await generateImportTemplate('import-parent-template.xlsx');
+
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=parent_import_template.xlsx');
+            res.status(200).send(buffer);
+      } catch (error) {
+            console.error('Error generating parent import template:', error);
+            res.status(500).json({ error: true, message: 'Failed to generate import template' });
+      }
+}
+
+export async function handleGetStudentImportSample(req, res) {
+      try {
+            const buffer = await generateImportTemplate('import-student-template.xlsx');
+
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=student_import_template.xlsx');
+            res.status(200).send(buffer);
+      } catch (error) {
+            console.error('Error generating student import template:', error);
+            res.status(500).json({ error: true, message: 'Failed to generate import template' });
+      }
 }

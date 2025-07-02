@@ -3,15 +3,20 @@ import {
       createNurse, createAdmin, createParent, createStudent, getAdminProfileByID, getNurseProfileByID, getParentProfileByID, getStudentProfileByID, getUserProfileByUUID,
       listAdmins, listNurses, listStudents, listParents, listStudentsByClass, listStudentsByGrade,
       assignParents, removeMomFromStudent, removeDadFromStudent,
-      handleUpdatePassword, handleLogIn, handleLogOut,
       editUserInfoByAdmin,
       handleUploadProfileImg,
       handleConfirmEmailForUser,
       handleUnconfirmEmailForUser,
       deleteAdmin, deleteNurse, deleteParent, deleteStudent,
-      getAdminTemplate, getNurseTemplate, getParentTemplate, getStudentTemplate, getStudentParentTemplate,
       handleDownloadUsers,
-      hanldeUploadStudentParent
+      handleUploadStudent,
+      handleUploadParent,
+      handleUploadAdmin,
+      handleUploadNurse,
+      handleGetStudentImportSample,
+      handleGetParentImportSample,
+      handleGetNurseImportSample,
+      handleGetAdminImportSample
 
 } from '../controllers/users.controller.js';
 
@@ -21,10 +26,6 @@ router.post('/parent', createParent);
 router.post('/student', createStudent);
 router.post('/admin', createAdmin);
 router.post('/nurse', createNurse);
-
-// get parent that not have any managed kids in the system
-// get student that not under supervision of any parent
-
 
 router.get("/user/:supabase_uid/role/:role/profile", getUserProfileByUUID);
 
@@ -84,27 +85,30 @@ router.delete("/student/:student_id", deleteStudent);
 router.post("/profile-img", handleUploadProfileImg);
 
 
-// handle account: login, logout, reset password,...
-router.post("/update-password", handleUpdatePassword); // chua
-
 router.patch("/role/:role/user/:user_id/confirm-email", handleConfirmEmailForUser); // lần đăng nhập đầu tiên sẽ xác thực
-router.patch("/role/:role/user/:user_id/unconfirm-email", handleUnconfirmEmailForUser); // nếu đổi email, đổi pass hay gì thì sẽ chuyển về unconfirmed to false
+router.patch("/role/:role/user/:user_id/unconfirm-email", handleUnconfirmEmailForUser); // nếu admin có đổi email trên dashboard sẽ chuyển thành unconfirmed
 
 
 // Route cho từng loại template
-router.get("/admin-import-template", getAdminTemplate); // lấy json template các cột cần có
-router.get("/nurse-import-template", getNurseTemplate); // lấy json template các cột cần có
-router.get("/parent-import-template", getParentTemplate);// lấy json template các cột cần có
-router.get("/student-import-template", getStudentTemplate);// lấy json template các cột cần có
-router.get("/student-parent-import-template", getStudentParentTemplate);// lấy json template các cột cần có
+// router.get("/admin-import-template", getAdminTemplate); // lấy json template các cột cần có
+// router.get("/nurse-import-template", getNurseTemplate); // lấy json template các cột cần có
+// router.get("/parent-import-template", getParentTemplate);// lấy json template các cột cần có
+// router.get("/student-import-template", getStudentTemplate);// lấy json template các cột cần có
+// router.get("/student-parent-import-template", getStudentParentTemplate);// lấy json template các cột cần có
 
-router.get("/get-admin-import-sample"); // lấy file excel mẫu để import admin
+
 
 // route để xuất nhập file excel
 router.get("/download-users", handleDownloadUsers); // lấy toàn bộ admin, nurse, student, parent vào chung 1 file excel chia thành từng sheet
-router.post("/upload-admin-excel");
-router.post("/upload-nurse-excel");
-router.post("/upload-student-parent-excel");
+router.post("/upload-admin-excel", handleUploadAdmin); // trả về file result để xem trạng thái tạo user của từng dòng
+router.post("/upload-nurse-excel", handleUploadNurse); // trả về file result để xem trạng thái tạo user của từng dòng
+router.post("/upload-parent-excel", handleUploadParent); // trả về file result để xem trạng thái tạo user của từng dòng
+router.post("/upload-student-excel", handleUploadStudent); // trả về file result để xem trạng thái tạo user của từng dòng
+// route để lấy mẫu nhập liệu
+router.get("/admin-import-sample", handleGetAdminImportSample); // lấy file excel mẫu để import admin, 
+router.get("/nurse-import-sample", handleGetNurseImportSample); // lấy file excel mẫu để import nurse, 
+router.get("/parent-import-sample", handleGetParentImportSample); // lấy file excel mẫu để import parent,
+router.get("/student-import-sample", handleGetStudentImportSample); // lấy file excel mẫu để import student
 
 
 
