@@ -16,7 +16,8 @@ import {
       handleGetStudentImportSample,
       handleGetParentImportSample,
       handleGetNurseImportSample,
-      handleGetAdminImportSample
+      handleGetAdminImportSample,
+      handleSendingInvitationToEmails
 
 } from '../controllers/users.controller.js';
 
@@ -85,16 +86,12 @@ router.delete("/student/:student_id", deleteStudent);
 router.post("/profile-img", handleUploadProfileImg);
 
 
+// route để gửi link mời tham gia hệ thống
+router.post("/send-invites", handleSendingInvitationToEmails);
+
+
 router.patch("/role/:role/user/:user_id/confirm-email", handleConfirmEmailForUser); // lần đăng nhập đầu tiên sẽ xác thực
 router.patch("/role/:role/user/:user_id/unconfirm-email", handleUnconfirmEmailForUser); // nếu admin có đổi email trên dashboard sẽ chuyển thành unconfirmed
-
-
-// Route cho từng loại template
-// router.get("/admin-import-template", getAdminTemplate); // lấy json template các cột cần có
-// router.get("/nurse-import-template", getNurseTemplate); // lấy json template các cột cần có
-// router.get("/parent-import-template", getParentTemplate);// lấy json template các cột cần có
-// router.get("/student-import-template", getStudentTemplate);// lấy json template các cột cần có
-// router.get("/student-parent-import-template", getStudentParentTemplate);// lấy json template các cột cần có
 
 
 
