@@ -23,4 +23,32 @@ export async function exportExcelToBuffer(headers = [], rows = [], sheetName = '
       return buffer;
 }
 
+export async function addSheetToBuffer(fileBuffer, newSheetName, headers = [], rows = []) {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(fileBuffer);
+
+      // Nếu đã có sheet cùng tên, thì xóa trước khi thêm
+      const existingSheet = workbook.getWorksheet(newSheetName);
+      if (existingSheet) {
+            workbook.removeWorksheet(existingSheet.id);
+      }
+
+      const sheet = workbook.addWorksheet(newSheetName);
+
+      if (headers.length > 0) {
+            sheet.addRow(headers);
+      }
+
+      rows.forEach((row) => {
+            sheet.addRow(row);
+      });
+
+      // Auto resize columns
+      sheet.columns.forEach((col, i) => {
+            col.width = headers[i]?.length > 12 ? headers[i].length + 5 : 15;
+      });
+
+      const newBuffer = await workbook.xlsx.writeBuffer();
+      return newBuffer;
+}
 

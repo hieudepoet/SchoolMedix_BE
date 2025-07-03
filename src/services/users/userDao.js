@@ -1,5 +1,4 @@
 import { query } from "../../config/database.js";
-import { supabaseAdmin } from "../../config/supabase.js";
 import { generateStudentCode, updateProfileFor } from "./userUtils.js"
 
 export async function insertAdmin(
@@ -104,7 +103,6 @@ export async function insertStudent(
   dad_id = null
 ) {
   const student_id = await generateStudentCode(year_of_enrollment);
-  console.log(student_id);
 
   const result = await query(`
     INSERT INTO Student (
