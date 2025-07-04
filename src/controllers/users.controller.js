@@ -21,11 +21,21 @@ import {
       getSupabaseUIDOfAUser,
       unconfirmEmailFor,
       sendInviteLinkToEmails,
+      generateImportTemplate,
+      excelToJson,
+      insertAdmin,
+      exportExcelToBuffer,
+      insertStudent,
+      insertNurse,
+      insertParent,
+      addSheetToBuffer
 
 
 } from "../services/index.js";
 
 import ExcelJS from 'exceljs';
+import { json } from "express";
+import { query } from "../config/database.js";
 
 
 export async function createAdmin(req, res) {
@@ -876,25 +886,376 @@ export async function handleDownloadUsers(req, res) {
       }
 }
 
-// upload then creating account for them if there is email, otherwise, just creating without email
-export async function handleUploadAdmin(req, res) {
-      // step 1: convert buffer received from FE then get the json of data
 
-      // step 2: 
+// upload user with each role
+export async function handleUploadAdmin(req, res) {
+      const upload = multer({ storage: multer.memoryStorage() }).single("file");
+
+      upload(req, res, async function (err) {
+            if (err) {
+                  return res
+                        .status(500)
+                        .json({ error: true, message: "Lỗi khi xử lý file." });
+            }
+
+            const file = req.file;
+
+            try {
+                  // đưa file về json
+                  const jsonData = await excelToJson(file.buffer);
+                  //---- luồng xử lý tạo tài khoản trên supabase
+                  await Promise.all(
+                        jsonData.map(async (user) => {
+                              user.is_success = false;
+                              const email = typeof user.email === "object" ? user.email.text : user.email;
+                              user.email = email || null;
+                              if (!email) {
+                                    user.create_log = `User không đăng ký email`;
+                                    user.is_success = true;
+                                    return;
+                              };
+
+                              const { data, error } = await supabaseAdmin.createUser({
+                                    email,
+                                    email_confirm: false,
+                                    user_metadata: {},
+                                    app_metadata: {
+                                          role: "admin",
+                                    },
+                              });
+
+                              if (error) {
+                                    user.create_log = error.message;
+                                    user.is_success = false;
+                                    user.supabase_uid = null;
+                              } else {
+                                    user.create_log = "Tạo tài khoản thành công.";
+                                    user.is_success = true;
+                                    user.supabase_uid = data.user?.id;
+                              }
+
+                        })
+                  );
+                  //---- luồng xử lý insert vào db riêng
+                  await Promise.all(
+                        jsonData.map(async (user) => {
+                              user.id = null;
+                              if (!user.is_success) {
+                                    return;
+                              }
+                              try {
+                                    const { supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url } = user;
+                                    const insert_data = await insertAdmin(supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url);
+                                    user.id = insert_data.id;
+                                    user.create_log += "Tạo user thành công.";
+                                    user.is_success = true;
+                              } catch (err) {
+                                    user.create_log += `Insert thất bại: ${err.message}. Không thể tạo user.`;
+                                    user.is_success = false;
+                                    if (user.supabase_uid) {
+                                          await deleteAuthUser(user.supabase_uid); // roll back xóa user trên supabase auth
+                                    }
+                                    user.supabase_uid = null;
+                              }
+                        })
+                  )
+                  console.log(jsonData);
+                  //--- trả về tổng cộng số user cần xử lý + số dòng lỗi + file excel có log lỗi
+                  const headers = [
+                        "id",
+                        "supabase_uid",
+                        "email",
+                        "name",
+                        "dob",
+                        "isMale",
+                        "address",
+                        "phone_number",
+                        "is_success",
+                        "create_log",
+                  ];
+                  const rows = jsonData.map((user) => [
+                        user.id || "",
+                        user.supabase_uid || "",
+                        user.email || "",
+                        user.name || "",
+                        user.dob || "",
+                        user.isMale ?? "",
+                        user.address || "",
+                        user.phone_number || "",
+                        user.is_success ? "✅" : "❌",
+                        user.create_log || "",
+                  ]);
+
+                  const buffer = await exportExcelToBuffer(headers, rows, "Admin Upload Log");
+
+                  res.setHeader(
+                        "Content-Disposition",
+                        'attachment; filename="admin_upload_log.xlsx"'
+                  );
+                  res.setHeader(
+                        "Content-Type",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  );
+
+                  return res.send(buffer);
+            } catch (err) {
+                  console.error("Error:", err);
+                  return res.status(500).json({
+                        error: true,
+                        message: `Lỗi hệ thống: ${err.message || err}`,
+                  });
+            }
+      });
 }
 
 export async function handleUploadNurse(req, res) {
+      const upload = multer({ storage: multer.memoryStorage() }).single("file");
 
+      upload(req, res, async function (err) {
+            if (err) return res.status(500).json({ error: true, message: "Lỗi xử lý file." });
+
+            const file = req.file;
+            try {
+                  const jsonData = await excelToJson(file.buffer);
+
+                  await Promise.all(jsonData.map(async (user) => {
+                        user.is_success = false;
+                        const email = typeof user.email === "object" ? user.email.text : user.email;
+                        user.email = email || null;
+                        if (!email) {
+                              user.create_log = `User không đăng ký email`;
+                              user.is_success = true;
+                              return;
+                        }
+
+                        const { data, error } = await supabaseAdmin.createUser({
+                              email,
+                              email_confirm: false,
+                              user_metadata: {},
+                              app_metadata: { role: "nurse" },
+                        });
+
+                        if (error) {
+                              user.create_log = error.message;
+                              user.supabase_uid = null;
+                        } else {
+                              user.create_log = "Tạo tài khoản thành công.";
+                              user.supabase_uid = data.user?.id;
+                              user.is_success = true;
+                        }
+                  }));
+
+                  await Promise.all(jsonData.map(async (user) => {
+                        user.id = null;
+                        if (!user.is_success) return;
+                        try {
+                              const { supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url } = user;
+                              const inserted = await insertNurse(supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url);
+                              user.id = inserted.id;
+                              user.create_log += " Tạo user thành công.";
+                        } catch (err) {
+                              user.create_log += `Insert thất bại: ${err.message}. Không thể tạo user.`;
+                              user.is_success = false;
+                              if (user.supabase_uid) {
+                                    await deleteAuthUser(user.supabase_uid); // roll back xóa user trên supabase auth
+                              }
+                              user.supabase_uid = null;
+                        }
+                  }));
+
+                  const headers = ["id", "supabase_uid", "email", "name", "dob", "isMale", "address", "phone_number", "is_success", "create_log"];
+                  const rows = jsonData.map((user) => [
+                        user.id || "",
+                        user.supabase_uid || "",
+                        user.email || "",
+                        user.name || "",
+                        user.dob || "",
+                        user.isMale ?? "",
+                        user.address || "",
+                        user.phone_number || "",
+                        user.is_success ? "✅" : "❌",
+                        user.create_log || "",
+                  ]);
+
+                  const buffer = await exportExcelToBuffer(headers, rows, "Nurse Upload Log");
+
+                  res.setHeader("Content-Disposition", 'attachment; filename="nurse_upload_log.xlsx"');
+                  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                  return res.send(buffer);
+            } catch (err) {
+                  console.error("Error:", err);
+                  return res.status(500).json({ error: true, message: `Lỗi hệ thống: ${err.message || err}` });
+            }
+      });
 }
 
 export async function handleUploadParent(req, res) {
+      const upload = multer({ storage: multer.memoryStorage() }).single("file");
 
+      upload(req, res, async function (err) {
+            if (err) return res.status(500).json({ error: true, message: "Lỗi xử lý file." });
+
+            const file = req.file;
+            try {
+                  const jsonData = await excelToJson(file.buffer);
+
+                  await Promise.all(jsonData.map(async (user) => {
+                        user.is_success = false;
+                        const email = typeof user.email === "object" ? user.email.text : user.email;
+                        user.email = email || null;
+                        if (!email) {
+                              user.create_log = `User không đăng ký email`;
+                              user.is_success = true;
+                              return;
+                        }
+
+                        const { data, error } = await supabaseAdmin.createUser({
+                              email,
+                              email_confirm: false,
+                              user_metadata: {},
+                              app_metadata: { role: "parent" },
+                        });
+
+                        if (error) {
+                              user.create_log = error.message;
+                              user.supabase_uid = null;
+                        } else {
+                              user.create_log = "Tạo tài khoản thành công.";
+                              user.supabase_uid = data.user?.id;
+                              user.is_success = true;
+                        }
+                  }));
+
+                  await Promise.all(jsonData.map(async (user) => {
+                        user.id = null;
+                        if (!user.is_success) return;
+                        try {
+                              const { supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url } = user;
+                              const inserted = await insertParent(supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url);
+                              user.id = inserted.id;
+                              user.create_log += " Tạo user thành công.";
+                        } catch (err) {
+                              user.create_log += `Insert thất bại: ${err.message}. Không thể tạo user.`;
+                              user.is_success = false;
+                              if (user.supabase_uid) {
+                                    await deleteAuthUser(user.supabase_uid); // roll back xóa user trên supabase auth
+                              }
+                              user.supabase_uid = null;
+                        }
+                  }));
+
+                  const headers = ["id", "supabase_uid", "email", "name", "dob", "isMale", "address", "phone_number", "is_success", "create_log"];
+                  const rows = jsonData.map((user) => [
+                        user.id || "",
+                        user.supabase_uid || "",
+                        user.email || "",
+                        user.name || "",
+                        user.dob || "",
+                        user.isMale ?? "",
+                        user.address || "",
+                        user.phone_number || "",
+                        user.is_success ? "✅" : "❌",
+                        user.create_log || "",
+                  ]);
+
+                  const buffer = await exportExcelToBuffer(headers, rows, "Parent Upload Log");
+
+                  res.setHeader("Content-Disposition", 'attachment; filename="parent_upload_log.xlsx"');
+                  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                  return res.send(buffer);
+            } catch (err) {
+                  console.error("Error:", err);
+                  return res.status(500).json({ error: true, message: `Lỗi hệ thống: ${err.message || err}` });
+            }
+      });
 }
 
 export async function handleUploadStudent(req, res) {
+      const upload = multer({ storage: multer.memoryStorage() }).single("file");
 
+      upload(req, res, async function (err) {
+            if (err) return res.status(500).json({ error: true, message: "Lỗi xử lý file." });
+
+            const file = req.file;
+            try {
+                  let jsonData = await excelToJson(file.buffer, 10);
+                  jsonData = jsonData.filter(obj => Object.keys(obj).length > 0);
+                  await Promise.all(jsonData.map(async (user) => {
+                        user.is_success = false;
+                        const email = typeof user.email === "object" ? user.email.text : user.email;
+                        user.email = email || null;
+                        if (!email) {
+                              user.create_log = `User không đăng ký email`;
+                              user.is_success = true;
+                              return;
+                        }
+
+                        const { data, error } = await supabaseAdmin.createUser({
+                              email,
+                              email_confirm: false,
+                              user_metadata: {},
+                              app_metadata: { role: "student" },
+                        });
+
+                        if (error) {
+                              user.create_log = error.message;
+                              user.supabase_uid = null;
+                        } else {
+                              user.create_log = "Tạo tài khoản thành công.";
+                              user.supabase_uid = data.user?.id;
+                              user.is_success = true;
+                        }
+                  }));
+
+                  await Promise.all(jsonData.map(async (user) => {
+                        user.id = null;
+                        if (!user.is_success) return;
+                        try {
+                              const { supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, class_id, year_of_enrollment, mom_id, dad_id } = user;
+                              const inserted = await insertStudent(supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, class_id, year_of_enrollment, mom_id, dad_id);
+                              user.id = inserted.id;
+                              user.create_log += " Tạo user thành công.";
+                        } catch (err) {
+                              user.create_log += `Insert thất bại: ${err.message}. Không thể tạo user.`;
+                              user.is_success = false;
+                              if (user.supabase_uid) {
+                                    await deleteAuthUser(user.supabase_uid); // roll back xóa user trên supabase auth
+                              }
+                              user.supabase_uid = null;
+                        }
+                  }));
+
+                  const headers = ["id", "supabase_uid", "email", "name", "dob", "isMale", "address", "phone_number", "class_id", "year_of_enrollment", "mom_id", "dad_id", "is_success", "create_log"];
+                  const rows = jsonData.map((user) => [
+                        user.id || "",
+                        user.supabase_uid || "",
+                        user.email || "",
+                        user.name || "",
+                        user.dob || "",
+                        user.isMale ?? "",
+                        user.address || "",
+                        user.phone_number || "",
+                        user.class_id || "",
+                        user.year_of_enrollment || "",
+                        user.mom_id || "",
+                        user.dad_id || "",
+                        user.is_success ? "✅" : "❌",
+                        user.create_log || "",
+                  ]);
+
+                  let buffer = await exportExcelToBuffer(headers, rows, "Student Upload Log");
+
+                  res.setHeader("Content-Disposition", 'attachment; filename="student_upload_log.xlsx"');
+                  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                  return res.send(buffer);
+            } catch (err) {
+                  console.error("Error:", err);
+                  return res.status(500).json({ error: true, message: `Lỗi hệ thống: ${err.message || err}` });
+            }
+      });
 }
 
+// get sample to input data
 export async function handleGetAdminImportSample(req, res) {
       try {
             const buffer = await generateAdminImportTemplate();
@@ -936,7 +1297,24 @@ export async function handleGetParentImportSample(req, res) {
 
 export async function handleGetStudentImportSample(req, res) {
       try {
-            const buffer = await generateImportTemplate('import-student-template.xlsx');
+            let buffer = await generateImportTemplate('import-student-template.xlsx');
+
+            const result = await query(`SELECT * FROM parent WHERE is_deleted = false`);
+            const parents = result.rows;
+
+            const parent_headers = ["id", "email", "name", "dob", "isMale", "address", "phone_number"];
+
+            const parent_rows = parents.map(parent => [
+                  parent.id,
+                  parent.email,
+                  parent.name,
+                  parent.dob,
+                  parent.ismale,
+                  parent.address,
+                  parent.phone_number,
+            ]);
+
+            buffer = await addSheetToBuffer(buffer, "CURRENT_PARENT", parent_headers, parent_rows);
 
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', 'attachment; filename=student_import_template.xlsx');
