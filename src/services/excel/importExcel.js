@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-export async function excelToJson(fileBuffer) {
+export async function excelToJson(fileBuffer, colMaxNum = 100) {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(fileBuffer);
 
@@ -12,13 +12,15 @@ export async function excelToJson(fileBuffer) {
       const data = [];
 
       worksheet.eachRow((row, rowIndex) => {
-            const values = row.values.slice(1);
+            const values = row.values.slice(1, colMaxNum + 1); // slice(1, colMaxNum + 1) để lấy từ cột 1 đến colMaxNum
             if (rowIndex === 1) {
                   headers.push(...values);
             } else {
                   const rowData = {};
                   values.forEach((cell, i) => {
-                        rowData[headers[i]] = cell;
+                        if (i < headers.length) {
+                              rowData[headers[i]] = cell;
+                        }
                   });
                   data.push(rowData);
             }
