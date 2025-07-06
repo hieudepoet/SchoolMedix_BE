@@ -767,36 +767,34 @@ INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (14, 14);
 INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (15, 18);
 INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (16, 18);
 INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (17, 15);
-
+       
 --vaccination_campaign
 CREATE TABLE vaccination_campaign (
     id SERIAL PRIMARY KEY,
-	disease_id INT NOT NULL,
+    title TEXT NOT NULL,
+	  disease_id INT NOT NULL,
     vaccine_id INT NOT NULL,
     description TEXT,
     location VARCHAR(255),
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('PREPARING', 'UPCOMING', 'CANCELLED', 'ONGOING', 'COMPLETED')),
+    status VARCHAR(50) NOT NULL CHECK (status IN ('DRAFTED', 'PREPARING', 'UPCOMING', 'CANCELLED', 'ONGOING', 'COMPLETED')),
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
-INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status) VALUES
-(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED'),
-(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-01', '2025-06-20', 'PREPARING'),
-(2, 3, 'Tiêm phòng viêm gan B đơn thành phần', 'School Medix', '2025-06-22', '2025-06-24', 'CANCELLED'),
-(3, 4, 'Tiêm Vaccine 3 trong 1 phòng Bạch hầu - Ho gà - Uốn ván', 'School Medix', '2025-06-25', '2025-06-27', 'PREPARING');
+INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, location, start_date, end_date, status) VALUES
+(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED');
 
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
     student_id varchar(10) NOT NULL,
-	campaign_id int not null,
+	  campaign_id int not null,
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
     submit_time TIMESTAMP,
     submit_by int, -- parent ID
-	FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
+	  FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
@@ -853,7 +851,7 @@ VALUES
     1,
     1,
     '2025-06-15',
-    'Tiêm vaccine BCG phòng bệnh Lao',
+    'Tiêm vaccine BCG phòng bệnh Lao..............',
     'School Medix',
     'COMPLETED'
   ),
@@ -862,44 +860,44 @@ VALUES
     NULL,
     2,
     3,
-    '2025-06-15',
-    'Tiêm vaccine Heplisav-B phòng bệnh Viêm gan B',
+    '2023-06-15',
+    'Tiêm vaccine Heplisav-B phòng bệnh Viêm gan B.............',
     'School Medix',
-    'CANCELLED'
+    'COMPLETED'
   ),
   (
-    '211000',
+    '211001',
     1,
-    2,
-    2,
+    1,
+    1,
     '2025-06-15',
-    'Tiêm vaccine Engerix-B phòng bệnh Viêm gan B',
+    'Tiêm vaccine BCG phòng bệnh Lao................',
     'School Medix',
     'COMPLETED'
   ),
   (
     '211002',
-    3,
+    1,
     1,
     1,
     '2025-06-16',
-    'Tiêm vaccine BCG phòng bệnh Lao',
+    'Tiêm vaccine BCG phòng bệnh Lao.........',
     'School Medix',
     'COMPLETED'
   ),
   (
     '211003',
-    4,
+    1,
     1,
     1,
     '2025-06-17',
-    'Tiêm vaccine BCG phòng bệnh Lao',
+    'Tiêm vaccine BCG phòng bệnh Lao.............',
     'School Medix',
     'COMPLETED'
   ),
   (
     '211002',
-    3,
+    NULL,
     3,
     5,
     '2025-06-20',
@@ -909,17 +907,17 @@ VALUES
   ),
   (
     '211001',
-    2,
+    NULL,
     3,
     4,
     '2025-06-22',
     'Tiêm vaccine DTP phòng bệnh Bạch hầu, Ho gà, Uốn ván',
     'School Medix',
-    'CANCELLED'
+    'COMPLETED'
   ),
   (
     '211003',
-    4,
+    NULL,
     4,
     7,
     '2025-06-25',
@@ -999,3 +997,4 @@ VALUES
 ('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
 ('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 ('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
+    
