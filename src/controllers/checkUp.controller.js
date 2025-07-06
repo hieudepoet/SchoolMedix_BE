@@ -18,6 +18,86 @@ async function checkCampaignExists(campaignID) {
     } else return true;
 }
 
+ export async function getAllHealthRecordOfStudent(req, res) {
+
+    const { student_id } = req.params;
+
+    if (!student_id) {
+        return res
+            .status(400)
+            .json({
+                error: true,
+                message: "Không nhận được Student.",
+            });
+    }
+
+
+
+    try {
+
+        const check = await query(`SELECT * FROM student 
+                                    WHERE id = $1`
+            , [student_id]);
+        if (check.rowCount === 0) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Student ID không tồn tại.",
+                });
+        }
+
+        const rs = await query(`
+SELECT
+    s.id AS student_id,
+    s.name AS student_name,
+    hr.*
+FROM
+    HealthRecord hr
+JOIN
+    CheckupRegister cr ON hr.register_id = cr.id
+JOIN
+    Student s ON cr.student_id = s.id
+WHERE
+    s.id = $1`
+            , [student_id]);
+
+        const result = rs.rows;
+
+        if (result.length === 0) {
+            return res
+                .status(200)
+                .json({
+                    error: false,
+                    message: "Không có Health Record",
+                    data: []
+                });
+
+        }
+
+        return res
+            .status(200)
+            .json({
+                error: false,
+                message: "Lấy Health Record Thành Công",
+                data: result
+            });
+
+
+
+
+    } catch (err) {
+        console.error("❌ Error creating Campaign ", err);
+        return res
+            .status(500)
+            .json({ error: true, message: "Lỗi server khi lấy Health Record." });
+    }
+}
+
+
+
+
+
 export async function createCampaign(req, res) {
     const {
         name,
@@ -357,7 +437,7 @@ export async function updateCampaign(req, res) {
         if (check_contain.rowCount !== 0) {
             const check_delete = await query(`DELETE FROM campaigncontainspeexam
                                           WHERE campaign_id = $1`, [campaign_id]);
-                     
+
 
             if (check_delete.rowCount === 0) {
                 return res
