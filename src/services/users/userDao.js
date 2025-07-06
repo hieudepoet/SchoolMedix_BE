@@ -132,8 +132,9 @@ export async function getProfileOfNurseByID(nurse_id) {
 }
 
 export async function getProfileOfParentByID(parent_id) {
-  const result = await query(` 
-  SELECT 
+  const result = await query(
+    ` 
+SELECT 
     p.id,
     p.supabase_uid,
     p.email,
@@ -145,7 +146,7 @@ export async function getProfileOfParentByID(parent_id) {
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
-    
+
     COALESCE(
       json_agg(
         json_build_object(
@@ -168,13 +169,14 @@ export async function getProfileOfParentByID(parent_id) {
       '[]'
     ) AS children
 
-  FROM parent p
-  where p.is_deleted = false
-  LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
-  LEFT JOIN class c ON c.id = s.class_id
-  WHERE p.id = $1 and p.is_deleted = false
-  GROUP BY p.id
-`, [parent_id]);
+FROM parent p
+LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
+LEFT JOIN class c ON c.id = s.class_id
+WHERE p.id = $1 AND p.is_deleted = false
+GROUP BY p.id;
+`,
+    [parent_id]
+  );
   return result.rows[0];
 }
 

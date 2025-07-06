@@ -58,7 +58,7 @@ export async function sendInviteLinkToEmails(users = []) {
         const { email, name, role } = user;
 
         try {
-            const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+            const { data: linkData, error: linkError } = await supabaseAdmin.generateLink({
                 email,
                 type: 'invite',
                 options: {
@@ -75,7 +75,7 @@ export async function sendInviteLinkToEmails(users = []) {
             results.push({
                 email,
                 error: false,
-                supabase_uid: data.user.id,
+                supabase_uid: linkData.user.id,
                 invite_link: linkData.action_link,
             });
         } catch (err) {
@@ -90,9 +90,6 @@ export async function sendInviteLinkToEmails(users = []) {
 
     return results;
 }
-
-
-
 
 export async function createNewAdmin(
     email,
