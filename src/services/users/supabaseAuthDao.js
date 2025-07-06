@@ -274,3 +274,29 @@ export async function deleteAuthUser(supabase_uid) {
 
     console.log('✅ Đã xóa người dùng khỏi Supabase Auth');
 }
+
+export async function generateRecoveryLink(email) {
+    const { data, error } = await supabaseAdmin.generateLink({
+        email,
+        type: 'recovery',
+        options: {
+            redirectTo: `${process.env.FIREBASE_FE_DEPLOYING_URL}/forgot-password?step=4`,
+        },
+    });
+
+    if (error) {
+        throw new Error(`Không tạo được recovery link: ${error.message}`);
+    }
+
+    return data.properties.action_link;
+}
+
+export async function getUserByEmail(email) {
+    const { data, error } = await supabaseAdmin.listUsers({
+        perPage: 100,
+        page: 1,
+    });
+
+    const user = data?.users?.find((u) => u.email === email);
+    return user || null;
+}
