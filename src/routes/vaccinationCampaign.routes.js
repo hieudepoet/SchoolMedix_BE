@@ -4,7 +4,9 @@ import {
   createCampaign,
   getStudentEligibleForCampaign,
   createVaccinationRecord,
+  createRegisterRequest,
   createPreVaccinationRecord,
+  updateCampaignDetail,
   updateVaccinationRecord,
   getVaccinationRecordByID,
   getAllCampaigns,
@@ -28,6 +30,11 @@ import {
 const router = express.Router();
 
 router.post("/vaccination-campaign", createCampaign);
+router.post(
+  "/vaccination-campaign/:campaign_id/send-register",
+  createRegisterRequest
+);
+router.patch("/vaccination-campaign/:campaign_id", updateCampaignDetail);
 router.get("/vaccination-campaign", getAllCampaigns);
 router.get("/vaccination-campaign/:campaign_id", getCampaignDetailByID);
 // router.post("/vaccination-campaign/:campaign_id/register", createRegisterRequest); // this is wrong relating to the logic mate, when creating new campaign it simultaneously  creates multiple registration forms for student

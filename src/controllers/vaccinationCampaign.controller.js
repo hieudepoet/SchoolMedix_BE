@@ -3,34 +3,34 @@ import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Campaign
 export async function createCampaign(req, res) {
-  const { vaccine_id, description, location, start_date, end_date } = req.body;
+  const {
+    title,
+    disease_id,
+    vaccine_id,
+    description,
+    location,
+    start_date,
+    end_date,
+  } = req.body;
 
   // Validate required fields (removed disease_id from validation since it will be fetched)
-  if (!vaccine_id || !description || !start_date || !end_date) {
+  if (
+    !title ||
+    !disease_id ||
+    !vaccine_id ||
+    !description ||
+    !start_date ||
+    !end_date
+  ) {
     return res
       .status(400)
       .json({ error: true, message: "Missing required fields" });
   }
 
   try {
-    // Fetch disease_id based on vaccine_id
-    const vaccineDiseaseQuery = await query(
-      "SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1",
-      [vaccine_id]
-    );
-
-    if (vaccineDiseaseQuery.rows.length === 0) {
-      return res.status(404).json({
-        error: true,
-        message: "Vaccine not found or no associated disease",
-      });
-    }
-
-    const disease_id = vaccineDiseaseQuery.rows[0].disease_id;
-
     // Insert campaign into database
     const insertQuery = `
-        INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status)
+        INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, location, start_date, end_date, status)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;
     `;
@@ -38,23 +38,24 @@ export async function createCampaign(req, res) {
     const result = await query(insertQuery, [
       disease_id,
       vaccine_id,
-      description,
+      title,
+      description || NULL,
       location,
       start_date,
       end_date,
-      "PREPARING", // Campaign starts in PREPARING status
+      "DRAFTED", // Campaign starts in PREPARING status
     ]);
 
-    const campaign_id = result.rows[0].id;
+    // const campaign_id = result.rows[0].id;
 
-    const register_success = await createRegisterRequest(
-      campaign_id,
-      disease_id
-    );
+    // const register_success = await createRegisterRequest(
+    //   campaign_id,
+    //   disease_id
+    // );
 
-    if (!register_success) {
-      console.log("Internal server error: " + "tạo register thất bại!");
-    }
+    // if (!register_success) {
+    //   console.log("Internal server error: " + "tạo register thất bại!");
+    // }
 
     return res
       .status(201)
@@ -66,11 +67,84 @@ export async function createCampaign(req, res) {
       .json({ error: true, message: "Internal server error" });
   }
 }
+
+export async function updateCampaignDetail(req, res) {
+  const { campaign_id } = req.params;
+  const {
+    title,
+    disease_id,
+    vaccine_id,
+    description,
+    location,
+    start_date,
+    end_date,
+  } = req.body;
+
+  try {
+    // Check if campaign exists
+    const campaign = await query(
+      "SELECT * FROM vaccination_campaign WHERE id = $1",
+      [campaign_id]
+    );
+    if (campaign.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy chiến dịch với ID này",
+      });
+    }
+
+    // Only allow update if status is DRAFTED
+    if (campaign.rows[0].status !== "DRAFTED") {
+      return res.status(400).json({
+        error: true,
+        message: "Chỉ được cập nhật khi chiến dịch ở trạng thái DRAFTED",
+      });
+    }
+
+    // Update campaign details, keep old value if not provided
+    const updateQuery = `
+      UPDATE vaccination_campaign
+      SET
+        title = COALESCE($1, title),
+        disease_id = COALESCE($2, disease_id),
+        vaccine_id = COALESCE($3, vaccine_id),
+        description = COALESCE($4, description),
+        location = COALESCE($5, location),
+        start_date = COALESCE($6, start_date),
+        end_date = COALESCE($7, end_date)
+      WHERE id = $8
+      RETURNING *;
+    `;
+
+    const result = await query(updateQuery, [
+      title,
+      disease_id,
+      vaccine_id,
+      description,
+      location,
+      start_date,
+      end_date,
+      campaign_id,
+    ]);
+
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật chiến dịch thành công",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật chiến dịch:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi cập nhật chiến dịch",
+    });
+  }
+}
 // get all campaigns to see
 export async function getAllCampaigns(req, res) {
   try {
     const result = await query(`
-            select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.description as description, a.location, a.start_date, a.end_date, a.status, dose_quantity
+            select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.title, a.description as description, a.location, a.start_date, a.end_date, a.status, dose_quantity
             from vaccination_campaign a
             join vaccine b on a.vaccine_id = b.id
             join disease c on a.disease_id = c.id
@@ -136,10 +210,72 @@ export async function getCampaignDetailByID(req, res) {
 }
 
 // Register
-async function createRegisterRequest(campaign_id, disease_id) {
+// async function createRegisterRequest(campaign_id, disease_id) {
+//   if (!campaign_id) {
+//     console.log("Yêu cầu campaign_id");
+//     return false;
+//   }
+
+//   try {
+//     // Check if campaign exists
+//     const campaigns = await query(
+//       "SELECT * FROM vaccination_campaign WHERE id = $1",
+//       [campaign_id]
+//     );
+//     if (campaigns.rows.length === 0) {
+//       console.log("Không thấy campaign_id");
+//       return false;
+//     }
+
+//     // Check nếu campaign đang trong giai đoạn nhận đơn thì tiếp tục tạo register (status PREPARING), không thì return
+//     if (campaigns.rows[0].status !== "PREPARING") {
+//       console.log("Hết hạn tạo đơn");
+//       return false;
+//     }
+
+//     // Check if registration already exists for the campaign
+//     const existingRegistrations = await query(
+//       "SELECT * FROM vaccination_campaign_register WHERE campaign_id = $1",
+//       [campaign_id]
+//     );
+//     if (existingRegistrations.rows.length > 0) {
+//       console.log("Đã tạo đơn thành công");
+//       return false;
+//     }
+
+//     //Get all students eligible for the campaign
+//     const eligibleStudents = await getStudentEligibleForADiseaseID(disease_id);
+
+//     console.log(eligibleStudents);
+
+//     if (eligibleStudents.length === 0) {
+//       return false;
+//     }
+
+//     //Create registration requests for eligible students
+//     if (!eligibleStudents || eligibleStudents.length === 0) {
+//       return false;
+//     }
+//     for (const student of eligibleStudents) {
+//       await query(
+//         `INSERT INTO vaccination_campaign_register (campaign_id, student_id, reason, is_registered)
+//                         VALUES ($1, $2, $3, $4)`,
+//         [campaign_id, student.student_id, `Auto_gen for ${campaign_id}`, false]
+//       );
+//     }
+
+//     return true;
+//   } catch (error) {
+//     console.error("Error creating registration request:", error);
+//     return false;
+//   }
+// }
+
+export async function createRegisterRequest(campaign_id) {
   if (!campaign_id) {
-    console.log("Yêu cầu campaign_id");
-    return false;
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing campaign_id" });
   }
 
   try {
@@ -149,28 +285,16 @@ async function createRegisterRequest(campaign_id, disease_id) {
       [campaign_id]
     );
     if (campaigns.rows.length === 0) {
-      console.log("Không thấy campaign_id");
-      return false;
+      return res
+        .status(404)
+        .json({ error: true, message: "Campaign not found" });
     }
 
-    // SAI FLOW RÙI
-    // Check if campaign is in progress
-    // const currentDate = new Date();
-    // const startDate = new Date(campaigns.rows[0].start_date);
-    // const endDate = new Date(campaigns.rows[0].end_date);
-    // console.log("Current Date:", currentDate);
-    // console.log("Start Date:", startDate);
-    // console.log("End Date:", endDate);
-    // if (currentDate < startDate || currentDate > endDate) { // THIS IS NOT RIGHT TO THE CORE FLOW
-    //       return res
-    //             .status(400)
-    //             .json({ error: true, message: "Campaign is not in progress" });
-    // }
-
     // Check nếu campaign đang trong giai đoạn nhận đơn thì tiếp tục tạo register (status PREPARING), không thì return
-    if (campaigns.rows[0].status !== "PREPARING") {
-      console.log("Hết hạn tạo đơn");
-      return false;
+    if (campaigns.rows[0].status !== "DRAFTED") {
+      return res
+        .status(404)
+        .json({ error: true, message: "Campaign is already completed" });
     }
 
     // Check if registration already exists for the campaign
@@ -179,23 +303,24 @@ async function createRegisterRequest(campaign_id, disease_id) {
       [campaign_id]
     );
     if (existingRegistrations.rows.length > 0) {
-      console.log("Đã tạo đơn thành công");
-      return false;
+      return res
+        .status(404)
+        .json({ error: true, message: "Registers are already created" });
     }
+
+    const disease_id = campaigns.rows[0].disease_id;
 
     //Get all students eligible for the campaign
     const eligibleStudents = await getStudentEligibleForADiseaseID(disease_id);
 
     console.log(eligibleStudents);
-
-    if (eligibleStudents.length === 0) {
-      return false;
-    }
-
     //Create registration requests for eligible students
     if (!eligibleStudents || eligibleStudents.length === 0) {
-      return false;
+      return res
+        .status(200)
+        .json({ error: false, message: "Students Not Found" });
     }
+
     for (const student of eligibleStudents) {
       await query(
         `INSERT INTO vaccination_campaign_register (campaign_id, student_id, reason, is_registered)
@@ -204,10 +329,14 @@ async function createRegisterRequest(campaign_id, disease_id) {
       );
     }
 
-    return true;
+    return res
+      .status(200)
+      .json({ error: false, message: "Campaign register created" });
   } catch (error) {
     console.error("Error creating registration request:", error);
-    return false;
+    return res
+      .status(500)
+      .json({ error: tru, message: "Failed to send request: " + error });
   }
 }
 
@@ -236,21 +365,6 @@ export async function acceptRegister(req, res) {
         .status(404)
         .json({ error: true, message: "Campaign not found" });
     }
-
-    // const currentDate = new Date();
-    // const startDate = new Date(campaign.rows[0].start_date);
-    // const endDate = new Date(campaign.rows[0].end_date);
-
-    // THIS BELOW CODES IS WRONG RELATED TO LOGIC
-    // if (currentDate < startDate || currentDate > endDate) {
-    //       console.log("Current Date:", currentDate);
-    //       console.log("Start Date:", startDate);
-    //       console.log("End Date:", endDate);
-    //       return res.status(400).json({
-    //             error: true,
-    //             message: "Cannot update registration status outside campaign dates",
-    //       });
-    // }
 
     if (campaign.rows[0].status !== "PREPARING") {
       return res.status(400).json({
@@ -952,6 +1066,7 @@ export async function closeRegisterByCampaignID(req, res) {
                   r.student_id, 
                   c.vaccine_id, 
                   c.disease_id,
+                  c.title,
                   r.id AS register_id
                   FROM vaccination_campaign_register r 
                   JOIN vaccination_campaign c ON r.campaign_id = c.id
