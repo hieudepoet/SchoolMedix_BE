@@ -58,7 +58,7 @@ export async function sendInviteLinkToEmails(users = []) {
         const { email, name, role } = user;
 
         try {
-            const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+            const { data: linkData, error: linkError } = await supabaseAdmin.generateLink({
                 email,
                 type: 'invite',
                 options: {
@@ -75,7 +75,7 @@ export async function sendInviteLinkToEmails(users = []) {
             results.push({
                 email,
                 error: false,
-                supabase_uid: data.user.id,
+                supabase_uid: linkData.user.id,
                 invite_link: linkData.action_link,
             });
         } catch (err) {
@@ -90,9 +90,6 @@ export async function sendInviteLinkToEmails(users = []) {
 
     return results;
 }
-
-
-
 
 export async function createNewAdmin(
     email,
@@ -276,4 +273,30 @@ export async function deleteAuthUser(supabase_uid) {
     }
 
     console.log('✅ Đã xóa người dùng khỏi Supabase Auth');
+}
+
+export async function generateRecoveryLink(email) {
+    const { data, error } = await supabaseAdmin.generateLink({
+        email,
+        type: 'recovery',
+        options: {
+            redirectTo: `${process.env.FIREBASE_FE_DEPLOYING_URL}/forgot-password?step=4`,
+        },
+    });
+
+    if (error) {
+        throw new Error(`Không tạo được recovery link: ${error.message}`);
+    }
+
+    return data.properties.action_link;
+}
+
+export async function getUserByEmail(email) {
+    const { data, error } = await supabaseAdmin.listUsers({
+        perPage: 100,
+        page: 1,
+    });
+
+    const user = data?.users?.find((u) => u.email === email);
+    return user || null;
 }

@@ -207,6 +207,61 @@ INSERT INTO parent (
     true
   );
 
+-- RESTART parent_id để bắt đầu từ 100004 nếu cần
+ALTER SEQUENCE parent_id_seq RESTART WITH 100004;
+
+INSERT INTO parent (
+  name, dob, isMale, address, phone_number, profile_img_url
+)
+VALUES
+-- Phụ huynh cho học sinh lớp 1 (class_id = 1)
+('Nguyễn Văn An',  '1980-01-01', true,  'Hà Nội', '0900000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Trần Thị Bình',  '1982-02-02', false, 'Hà Nội', '0900000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Lê Văn Cường',  '1981-03-03', true,  'Hà Nội', '0900000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Phạm Thị Dung',  '1983-04-04', false, 'Hà Nội', '0900000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Vũ Văn Em',      '1979-05-05', true,  'Hà Nội', '0900000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Hoàng Thị Gấm',  '1981-06-06', false, 'Hà Nội', '0900000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Đào Văn Hưng',   '1980-07-07', true,  'Hà Nội', '0900000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Nguyễn Thị Hòa', '1982-08-08', false, 'Hà Nội', '0900000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Bùi Văn Khoa',   '1981-09-09', true,  'Hà Nội', '0900000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Lê Thị Lan',     '1984-10-10', false, 'Hà Nội', '0900000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Phạm Văn Minh',  '1980-11-11', true,  'Hà Nội', '0900000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Võ Thị Ngọc',    '1983-12-12', false, 'Hà Nội', '0900000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Trịnh Văn Quân', '1981-01-13', true,  'Hà Nội', '0900000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Mai Thị Quỳnh',  '1984-02-14', false, 'Hà Nội', '0900000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Ngô Văn Sơn',    '1980-03-15', true,  'Hà Nội', '0900000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Đinh Thị Trang', '1983-04-16', false, 'Hà Nội', '0900000016', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+-- Phụ huynh cho học sinh lớp 2 (class_id = 2)
+('Trần Văn Út',    '1979-05-17', true,  'Hà Nội', '0900000017', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Vũ Thị Vân',     '1982-06-18', false, 'Hà Nội', '0900000018', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Hoàng Văn Xuân','1980-07-19', true,  'Hà Nội', '0900000019', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Đặng Thị Yến',   '1983-08-20', false, 'Hà Nội', '0900000020', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Phan Văn Đông',  '1981-09-21', true,  'Hà Nội', '0900000021', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Nguyễn Thị Hoa', '1984-10-22', false, 'Hà Nội', '0900000022', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Bùi Văn Nam',    '1980-11-23', true,  'Hà Nội', '0900000023', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Trần Thị Hà',    '1983-12-24', false, 'Hà Nội', '0900000024', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Lê Văn Dũng',    '1981-01-25', true,  'Hà Nội', '0900000025', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Phạm Thị Oanh',  '1984-02-26', false, 'Hà Nội', '0900000026', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Nguyễn Văn Trí','1980-03-27', true,  'Hà Nội', '0900000027', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Hoàng Thị Mai',  '1983-04-28', false, 'Hà Nội', '0900000028', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+
+('Đỗ Văn Toàn',    '1981-05-29', true,  'Hà Nội', '0900000029', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Vũ Thị Thu',     '1984-06-30', false, 'Hà Nội', '0900000030', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg');
+
+
 --Student
 CREATE TABLE student_code_counter (
   year_of_enrollment INT PRIMARY KEY,
@@ -317,6 +372,52 @@ VALUES
   100000
 );
 
+-- Cập nhật student_code_counter để phản ánh số học sinh mới
+UPDATE student_code_counter
+SET last_number = 1033
+WHERE year_of_enrollment = 2021;
+
+-- Thêm 30 học sinh
+INSERT INTO student (
+  id, name, dob, isMale, address, phone_number, profile_img_url,
+  year_of_enrollment, class_id, mom_id, dad_id
+)
+VALUES
+-- 15 học sinh lớp 1
+('211004', 'Nguyễn An Khang',     '2015-01-01', false, 'Hà Nội', '0901000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100005, 100004),
+('211005', 'Trần Gia Hưng',       '2015-01-02', false, 'Hà Nội', '0901000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100007, 100006),
+('211006', 'Lê Ngọc Bảo',         '2015-01-03', false, 'Hà Nội', '0901000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100009, 100008),
+('211007', 'Phạm Nhật Minh',      '2015-01-04', false, 'Hà Nội', '0901000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100011, 100010),
+('211008', 'Vũ Tuệ Nhi',          '2015-01-05', false, 'Hà Nội', '0901000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100013, 100012),
+('211009', 'Đào Hải Đăng',        '2015-01-06', false, 'Hà Nội', '0901000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100015, 100014),
+('211010', 'Nguyễn Nhật Linh',    '2015-01-07', false, 'Hà Nội', '0901000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100017, 100016),
+('211011', 'Bùi Hoàng Long',      '2015-01-08', false, 'Hà Nội', '0901000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100019, 100018),
+('211012', 'Phạm Mai Chi',        '2015-01-09', false, 'Hà Nội', '0901000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100021, 100020),
+('211013', 'Trịnh Minh Nhật',     '2015-01-10', false, 'Hà Nội', '0901000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100023, 100022),
+('211014', 'Ngô Gia Bảo',         '2015-01-11', false, 'Hà Nội', '0901000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100025, 100024),
+('211015', 'Đinh Hồng Anh',       '2015-01-12', false, 'Hà Nội', '0901000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100027, 100026),
+('211016', 'Trần Quang Duy',      '2015-01-13', false, 'Hà Nội', '0901000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100029, 100028),
+('211017', 'Vũ Thanh Trúc',       '2015-01-14', false, 'Hà Nội', '0901000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100031, 100030),
+('211018', 'Hoàng Nhật Tân',      '2015-01-15', false, 'Hà Nội', '0901000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100033, 100032),
+
+-- 15 học sinh lớp 2
+('211019', 'Trần Gia Huy',        '2014-01-01', false, 'Hà Nội', '0902000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100005, 100004),
+('211020', 'Vũ Hải Yến',          '2014-01-02', false, 'Hà Nội', '0902000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100007, 100006),
+('211021', 'Hoàng Minh Khôi',     '2014-01-03', false, 'Hà Nội', '0902000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100009, 100008),
+('211022', 'Đặng Ngọc Trinh',     '2014-01-04', false, 'Hà Nội', '0902000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100011, 100010),
+('211023', 'Phan Đức Anh',        '2014-01-05', false, 'Hà Nội', '0902000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100013, 100012),
+('211024', 'Nguyễn Minh Thư',     '2014-01-06', false, 'Hà Nội', '0902000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100015, 100014),
+('211025', 'Bùi Nhật Hào',        '2014-01-07', false, 'Hà Nội', '0902000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100017, 100016),
+('211026', 'Trần Khánh Vy',       '2014-01-08', false, 'Hà Nội', '0902000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100019, 100018),
+('211027', 'Lê Hoàng Anh',        '2014-01-09', false, 'Hà Nội', '0902000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100021, 100020),
+('211028', 'Phạm Thảo Nhi',       '2014-01-10', false, 'Hà Nội', '0902000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100023, 100022),
+('211029', 'Nguyễn Minh Hiếu',    '2014-01-11', false, 'Hà Nội', '0902000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100025, 100024),
+('211030', 'Trịnh Hồng Nhung',    '2014-01-12', false, 'Hà Nội', '0902000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100027, 100026),
+('211031', 'Hoàng Thế Anh',       '2014-01-13', false, 'Hà Nội', '0902000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100029, 100028),
+('211032', 'Ngô Ánh Tuyết',       '2014-01-14', false, 'Hà Nội', '0902000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100031, 100030),
+('211033', 'Đào Khánh Duy',       '2014-01-15', false, 'Hà Nội', '0902000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100033, 100032);
+
+
 
 ---------------------------------------------------------------------FLOW SEND MEDICATION REQUEST 
 -------------------------------------------------------------------------------------------------
@@ -405,7 +506,6 @@ INSERT INTO RequestItem (request_id, name, intake_template_time, dosage_usage) V
 ------------------------------------------------------------------------------------------------------------------------------------FLOW CHECKUP CAMPAIGN
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE TYPE campaign_status AS ENUM (
-     'DRAFTED',
     'PREPARING',
     'UPCOMING',
     'CANCELLED',
@@ -420,7 +520,7 @@ CREATE TABLE CheckupCampaign (
     location VARCHAR(255),
     start_date DATE,
 	end_date DATE,
-    status campaign_status NOT NULL DEFAULT 'DRAFTED'
+    status campaign_status NOT NULL DEFAULT 'PREPARING'
 );
 
 INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, status) VALUES
@@ -767,34 +867,36 @@ INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (14, 14);
 INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (15, 18);
 INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (16, 18);
 INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES (17, 15);
-       
+
 --vaccination_campaign
 CREATE TABLE vaccination_campaign (
     id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-	  disease_id INT NOT NULL,
+	disease_id INT NOT NULL,
     vaccine_id INT NOT NULL,
     description TEXT,
     location VARCHAR(255),
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('DRAFTED', 'PREPARING', 'UPCOMING', 'CANCELLED', 'ONGOING', 'COMPLETED')),
+    status VARCHAR(50) NOT NULL CHECK (status IN ('PREPARING', 'UPCOMING', 'CANCELLED', 'ONGOING', 'COMPLETED')),
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
-INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, location, start_date, end_date, status) VALUES
-(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED');
+INSERT INTO vaccination_campaign (disease_id, vaccine_id, description, location, start_date, end_date, status) VALUES
+(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED'),
+(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-01', '2025-06-20', 'PREPARING'),
+(2, 3, 'Tiêm phòng viêm gan B đơn thành phần', 'School Medix', '2025-06-22', '2025-06-24', 'CANCELLED'),
+(3, 4, 'Tiêm Vaccine 3 trong 1 phòng Bạch hầu - Ho gà - Uốn ván', 'School Medix', '2025-06-25', '2025-06-27', 'PREPARING');
 
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
     student_id varchar(10) NOT NULL,
-	  campaign_id int not null,
+	campaign_id int not null,
     reason TEXT,
     is_registered BOOLEAN NOT NULL DEFAULT false,
     submit_time TIMESTAMP,
     submit_by int, -- parent ID
-	  FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
+	FOREIGN KEY (campaign_id) REFERENCES vaccination_campaign(id),
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
@@ -851,7 +953,7 @@ VALUES
     1,
     1,
     '2025-06-15',
-    'Tiêm vaccine BCG phòng bệnh Lao..............',
+    'Tiêm vaccine BCG phòng bệnh Lao',
     'School Medix',
     'COMPLETED'
   ),
@@ -860,44 +962,44 @@ VALUES
     NULL,
     2,
     3,
-    '2023-06-15',
-    'Tiêm vaccine Heplisav-B phòng bệnh Viêm gan B.............',
+    '2025-06-15',
+    'Tiêm vaccine Heplisav-B phòng bệnh Viêm gan B',
     'School Medix',
-    'COMPLETED'
+    'CANCELLED'
   ),
   (
-    '211001',
+    '211000',
     1,
-    1,
-    1,
+    2,
+    2,
     '2025-06-15',
-    'Tiêm vaccine BCG phòng bệnh Lao................',
+    'Tiêm vaccine Engerix-B phòng bệnh Viêm gan B',
     'School Medix',
     'COMPLETED'
   ),
   (
     '211002',
-    1,
+    3,
     1,
     1,
     '2025-06-16',
-    'Tiêm vaccine BCG phòng bệnh Lao.........',
+    'Tiêm vaccine BCG phòng bệnh Lao',
     'School Medix',
     'COMPLETED'
   ),
   (
     '211003',
-    1,
+    4,
     1,
     1,
     '2025-06-17',
-    'Tiêm vaccine BCG phòng bệnh Lao.............',
+    'Tiêm vaccine BCG phòng bệnh Lao',
     'School Medix',
     'COMPLETED'
   ),
   (
     '211002',
-    NULL,
+    3,
     3,
     5,
     '2025-06-20',
@@ -907,17 +1009,17 @@ VALUES
   ),
   (
     '211001',
-    NULL,
+    2,
     3,
     4,
     '2025-06-22',
     'Tiêm vaccine DTP phòng bệnh Bạch hầu, Ho gà, Uốn ván',
     'School Medix',
-    'COMPLETED'
+    'CANCELLED'
   ),
   (
     '211003',
-    NULL,
+    4,
     4,
     7,
     '2025-06-25',
@@ -997,4 +1099,16 @@ VALUES
 ('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
 ('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 ('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
-    
+
+-------------------------------------------------------------------------------------------------------------------------------------- OTP
+CREATE TABLE otps (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  target text, -- email, sdt,...
+  otp TEXT,
+  purpose TEXT,   
+  is_used BOOLEAN DEFAULT FALSE,
+  expires_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);

@@ -17,7 +17,11 @@ import {
       handleGetParentImportSample,
       handleGetNurseImportSample,
       handleGetAdminImportSample,
-      handleSendingInvitationToEmails
+      handleSendingInvitationToEmails,
+      handleExistEmail,
+      handleSendRecoveryLinkForForgotPassword,
+      handleCreateNewOTPForgotPassword,
+      handleCheckOTPForForgotPassword
 
 } from '../controllers/users.controller.js';
 
@@ -94,7 +98,6 @@ router.patch("/role/:role/user/:user_id/confirm-email", handleConfirmEmailForUse
 router.patch("/role/:role/user/:user_id/unconfirm-email", handleUnconfirmEmailForUser); // nếu admin có đổi email trên dashboard sẽ chuyển thành unconfirmed
 
 
-
 // route để xuất nhập file excel
 router.get("/download-users", handleDownloadUsers); // lấy toàn bộ admin, nurse, student, parent vào chung 1 file excel chia thành từng sheet
 router.post("/upload-admin-excel", handleUploadAdmin); // trả về file result để xem trạng thái tạo user của từng dòng
@@ -107,6 +110,13 @@ router.get("/nurse-import-sample", handleGetNurseImportSample); // lấy file ex
 router.get("/parent-import-sample", handleGetParentImportSample); // lấy file excel mẫu để import parent,
 router.get("/student-import-sample", handleGetStudentImportSample); // lấy file excel mẫu để import student
 
+
+
+//otp
+router.post("/forgot-password/create-otp", handleCreateNewOTPForgotPassword);
+router.get("/forgot-password/check-otp", handleCheckOTPForForgotPassword) // trả về {error: true/false, is_valid_otp: true/false, message...} check xem otp đúng ko
+router.get("/exist-email", handleExistEmail); // check xem có tài khoản với email này trong hệ thống không
+router.post("/forgot-password/send-recovery-link", handleSendRecoveryLinkForForgotPassword); // check otp
 
 
 export default router;

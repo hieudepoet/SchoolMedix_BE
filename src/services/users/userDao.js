@@ -175,7 +175,7 @@ export async function getProfileOfParentByID(parent_id) {
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
-    
+
     COALESCE(
       json_agg(
         json_build_object(

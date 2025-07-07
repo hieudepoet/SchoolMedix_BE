@@ -28,14 +28,18 @@ import {
       insertStudent,
       insertNurse,
       insertParent,
-      addSheetToBuffer
+      addSheetToBuffer,
+      sendOTPEmail,
+      getUserByEmail,
+      generateRecoveryLink,
+      sendRecoveryLinkEmailForForgotPassword
 
 
 } from "../services/index.js";
 
 import ExcelJS from 'exceljs';
-import { json } from "express";
 import { query } from "../config/database.js";
+import { hasUsingOTP, insertNewOTP, updateOTPHasBeenUsed, verifyOTP } from "../services/otp/index.js";
 
 
 export async function createAdmin(req, res) {
@@ -1322,5 +1326,116 @@ export async function handleGetStudentImportSample(req, res) {
       } catch (error) {
             console.error('Error generating student import template:', error);
             res.status(500).json({ error: true, message: 'Failed to generate import template' });
+      }
+}
+
+
+
+// ---------------------------------------------------------------------------OTP
+
+export async function handleCreateNewOTPForgotPassword(req, res) {
+      const { email } = req.body;
+
+      if (!email) {
+            res.status(400).json({
+                  error: true,
+                  message: "Không nhận được email!"
+            })
+      }
+
+      try {
+
+            //check xem đã có otp chưa, rồi thì không tạo nữa
+            const is_otp_using = await hasUsingOTP(email, "forgot_password");
+            if (is_otp_using) {
+                  return res.status(200).json({
+                        error: true,
+                        message: "OTP còn hiệu lực."
+                  })
+            }
+
+            // tạo mới
+            const newOTP = await insertNewOTP(email, "forgot_password");
+            // gửi email
+            await sendOTPEmail(email, newOTP);
+            return res.status(200).json({
+                  error: false,
+                  message: "Gửi thành công."
+            })
+      } catch (err) {
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi hệ thống: " + err.message,
+            })
+      }
+}
+
+export async function handleCheckOTPForForgotPassword(req, res) {
+      const { email, otp } = req.query;
+
+      try {
+            const isValid = await verifyOTP(email, otp, 'forgot_password');
+
+            return res.status(200).json({
+                  error: false,
+                  is_valid_otp: isValid,
+                  message: isValid ? "OTP hợp lệ." : "OTP không hợp lệ hoặc đã hết hạn."
+            });
+
+      } catch (err) {
+            console.error('Lỗi khi kiểm tra OTP:', err);
+            return res.status(500).json({
+                  error: true,
+                  message: 'Lỗi máy chủ khi xác minh OTP.',
+            });
+      }
+}
+
+export async function handleSendRecoveryLinkForForgotPassword(req, res) {
+      const { email, otp } = req.body;
+
+      try {
+            const isValid = await verifyOTP(email, otp, 'forgot_password');
+            if (!isValid) {
+                  return res.status(400).json({ error: true, message: 'OTP không hợp lệ hoặc đã hết hạn.' });
+            }
+
+            const link = await generateRecoveryLink(email);
+            await updateOTPHasBeenUsed(email, "forgot_password");
+            await sendRecoveryLinkEmailForForgotPassword(email, link);
+            return res.status(200).json({ error: false, message: 'Đặt lại mật khẩu thành công.' });
+      } catch (err) {
+            console.error('Lỗi khi reset mật khẩu:', err.message);
+            return res.status(500).json({ error: true, message: 'Có lỗi xảy ra khi đặt lại mật khẩu.' });
+      }
+}
+
+
+export async function handleExistEmail(req, res) {
+      const { email } = req.query;
+
+      if (!email) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu email",
+            });
+      }
+
+      try {
+            const user = await getUserByEmail(email);
+            console.log(user);
+            const email_existed = !!user;
+            console.log(email_existed);
+
+            return res.status(200).json({
+                  error: false,
+                  email_existed,
+            });
+      } catch (err) {
+            console.error("❌ Lỗi kiểm tra email:", err.message);
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi hệ thống khi kiểm tra email.",
+            });
       }
 }
