@@ -1457,6 +1457,111 @@ WHERE cr.student_id = $1
     }
 }
 
+export async function getFullRecordOfAStudentInACampaign(req, res) {
+    const { campaign_id, student_id } = req.params;
+
+    if (!campaign_id || !student_id) {
+        return res
+            .status(400)
+            .json({ error: true, message: "Thiếu campaign_id hoặc student_id." });
+    }
+
+    try {
+        const check_student = await query(`SELECT * FROM student WHERE id = $1`, [student_id]);
+
+        if (check_student.rowCount === 0) {
+            return res.status(400).json({ error: true, message: "Student ID không tồn tại." });
+        }
+
+        // Lấy health record của học sinh trong chiến dịch cụ thể
+        const healthResult = await query(
+            `SELECT 
+                cr.campaign_id,
+                campaign.name AS campaign_name,
+                campaign.description AS campaign_description,
+                hr.id AS health_record_id,
+                hr.record_url,
+                hr.register_id,
+                cr.student_id,
+                stu.name AS student_name,
+                stu.dob AS student_dob,
+                clas.name AS class_name,
+
+                hr.height,
+                hr.weight,
+                hr.blood_pressure,
+                hr.left_eye,
+                hr.right_eye,
+                hr.ear,
+                hr.nose,
+                hr.throat,
+                hr.teeth,
+                hr.gums,
+                hr.skin_condition,
+                hr.heart,
+                hr.lungs,
+                hr.spine,
+                hr.posture,
+                hr.final_diagnosis,
+                hr.is_checked,
+                hr.status AS record_status
+
+            FROM HealthRecord hr
+            JOIN CheckupRegister cr ON hr.register_id = cr.id
+            JOIN student stu ON stu.id = cr.student_id
+            JOIN class clas ON clas.id = stu.class_id
+            JOIN checkupcampaign campaign ON campaign.id = cr.campaign_id
+            WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
+            [student_id, campaign_id]
+        );
+
+        if (healthResult.rowCount === 0) {
+            return res.status(200).json({ error: false, data: [] });
+        }
+
+        const healthRecords = healthResult.rows;
+        const registerIds = healthRecords.map(r => r.register_id);
+
+        const specialResult = await query(
+            `SELECT 
+                rec.register_id,
+                rec.spe_exam_id,
+                spe.name AS specialist_name,
+                rec.status AS record_status,
+                rec.diagnosis_paper_url AS record_url,
+                rec.is_checked
+            FROM specialistExamRecord rec
+            JOIN specialistExamList spe ON spe.id = rec.spe_exam_id
+            WHERE rec.status != 'CANNOT_ATTACH' AND rec.register_id = ANY($1)`,
+            [registerIds]
+        );
+
+        const specialRecordsMap = {};
+        specialResult.rows.forEach(record => {
+            if (!specialRecordsMap[record.register_id]) {
+                specialRecordsMap[record.register_id] = [];
+            }
+            specialRecordsMap[record.register_id].push({
+                spe_exam_id: record.spe_exam_id,
+                specialist_name: record.specialist_name,
+                record_status: record.record_status,
+                record_url: record.record_url,
+                is_checked: record.is_checked
+            });
+        });
+
+        const mergedData = healthRecords.map(r => ({
+            ...r,
+            specialist_exam_records: specialRecordsMap[r.register_id] || []
+        }));
+
+        return res.status(200).json({ error: false, data: mergedData });
+    } catch (err) {
+        console.error("❌ Error fetching record in campaign:", err);
+        return res.status(500).json({ error: true, message: "Lỗi khi lấy record theo chiến dịch." });
+    }
+}
+
 
 export async function getHealthRecordParentDetails(req, res) {
     const { health_record_id } = req.body;
