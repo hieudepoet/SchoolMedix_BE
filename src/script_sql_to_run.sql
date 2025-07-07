@@ -70,9 +70,7 @@ CREATE TABLE Admin (
   phone_number VARCHAR(20),
   profile_img_url TEXT,
   email_confirmed BOOLEAN DEFAULT false not null,
-  is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at TIMESTAMP  DEFAULT null,
-  created_at TIMESTAMP  default now()
+  is_deleted BOOLEAN DEFAULT false not null
 );
 -- start admin id from 100000
 ALTER SEQUENCE admin_id_seq RESTART WITH 100000;
@@ -86,9 +84,7 @@ INSERT INTO Admin (
   address,
   phone_number,
   profile_img_url,
-  email_confirmed,
-  last_invitation_at,
-  created_at
+  email_confirmed
 )
 VALUES (
   '1cbb67d3-eaa9-48f4-a577-dcf6bfee9bbb',
@@ -99,9 +95,7 @@ VALUES (
   'Chung cư cao cấp Vinhomes, Hà nội',
   '0123456789',
   'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
-  true,
-  null,
-  '2025-06-14 07:26:19'
+  true
 );
 
 
@@ -117,9 +111,7 @@ CREATE TABLE Nurse (
   phone_number VARCHAR(20),
   profile_img_url TEXT,
   email_confirmed BOOLEAN DEFAULT false not null,
-  is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at TIMESTAMP DEFAULT null,
-  created_at TIMESTAMP default now()
+  is_deleted BOOLEAN DEFAULT false not null
 );
 -- start nurse id from 100000
 ALTER SEQUENCE nurse_id_seq RESTART WITH 100000;
@@ -133,9 +125,7 @@ INSERT INTO Nurse (
   address,
   phone_number,
   profile_img_url,
-  email_confirmed,
-  last_invitation_at,
-  created_at
+  email_confirmed
 )
 VALUES (
   '322526ca-3a47-494a-a0fa-4866f0af9477',
@@ -146,9 +136,7 @@ VALUES (
   'Chung cư Xài Bầu, Hà nội',
   '0123456789',
   'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
-  true,
-  null,
-  '2025-06-12 07:27:34'
+  true
 );
 
 
@@ -165,16 +153,14 @@ CREATE TABLE Parent (
   phone_number VARCHAR(20),
   profile_img_url TEXT,
   email_confirmed BOOLEAN DEFAULT false not null,
-  is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at TIMESTAMP DEFAULT null,
-  created_at TIMESTAMP default now()
+  is_deleted BOOLEAN DEFAULT false not null
 );
 
 -- start parent id from 100000
 ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
 
 INSERT INTO parent (
-  supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, email_confirmed, last_invitation_at, created_at
+  supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, email_confirmed
 ) VALUES
   (
     'be258789-4fe3-421c-baed-53ef3ed87f3b',
@@ -185,9 +171,7 @@ INSERT INTO parent (
     'Xóm trọ Cần Co, Hà Nội',
     '0123456789',
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
-    true,
-    null,
-    '2025-06-08 04:38:48'
+    true
   ),
   (
     '3dfa7d35-7f0f-449f-afbf-bb6e420016d2',
@@ -198,9 +182,7 @@ INSERT INTO parent (
     'Chợ Lớn, Hà Nội',
     '0123456789',
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
-    true,
-    null,
-    '2025-07-05 08:43:45'
+    true
   ),
   (
     '00f7f4c0-4998-4593-b9c4-6b8d74596cd9',
@@ -211,9 +193,7 @@ INSERT INTO parent (
     'Chung cư Xóm Nhỏ, Quận Hoàn Kiếm, Hà Nội',
     '0123456789',
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
-    true,
-    null,
-    '2025-06-08 04:38:49'
+    true
   ),
   (
     '81705d11-3052-4d70-82f2-1c11e8077dbe',
@@ -224,62 +204,62 @@ INSERT INTO parent (
     'Vinhomes Smart City, Hồ Tây, Hà Nội',
     '0123321123',
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
-    true,
-    null,
-    '2025-06-08 04:38:50'
+    true
   );
 
 -- RESTART parent_id để bắt đầu từ 100004 nếu cần
 ALTER SEQUENCE parent_id_seq RESTART WITH 100004;
 
 INSERT INTO parent (
-  name, dob, isMale, address, phone_number, profile_img_url, last_invitation_at, created_at
+  name, dob, isMale, address, phone_number, profile_img_url
 )
 VALUES
-('Nguyễn Văn An',  '1980-01-01', true,  'Hà Nội', '0900000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Trần Thị Bình',  '1982-02-02', false, 'Hà Nội', '0900000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+-- Phụ huynh cho học sinh lớp 1 (class_id = 1)
+('Nguyễn Văn An',  '1980-01-01', true,  'Hà Nội', '0900000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Trần Thị Bình',  '1982-02-02', false, 'Hà Nội', '0900000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Lê Văn Cường',  '1981-03-03', true,  'Hà Nội', '0900000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Phạm Thị Dung',  '1983-04-04', false, 'Hà Nội', '0900000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Lê Văn Cường',  '1981-03-03', true,  'Hà Nội', '0900000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Phạm Thị Dung',  '1983-04-04', false, 'Hà Nội', '0900000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Vũ Văn Em',      '1979-05-05', true,  'Hà Nội', '0900000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Hoàng Thị Gấm',  '1981-06-06', false, 'Hà Nội', '0900000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Vũ Văn Em',      '1979-05-05', true,  'Hà Nội', '0900000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Hoàng Thị Gấm',  '1981-06-06', false, 'Hà Nội', '0900000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Đào Văn Hưng',   '1980-07-07', true,  'Hà Nội', '0900000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Nguyễn Thị Hòa', '1982-08-08', false, 'Hà Nội', '0900000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Đào Văn Hưng',   '1980-07-07', true,  'Hà Nội', '0900000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Nguyễn Thị Hòa', '1982-08-08', false, 'Hà Nội', '0900000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Bùi Văn Khoa',   '1981-09-09', true,  'Hà Nội', '0900000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Lê Thị Lan',     '1984-10-10', false, 'Hà Nội', '0900000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Bùi Văn Khoa',   '1981-09-09', true,  'Hà Nội', '0900000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Lê Thị Lan',     '1984-10-10', false, 'Hà Nội', '0900000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Phạm Văn Minh',  '1980-11-11', true,  'Hà Nội', '0900000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Võ Thị Ngọc',    '1983-12-12', false, 'Hà Nội', '0900000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Phạm Văn Minh',  '1980-11-11', true,  'Hà Nội', '0900000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Võ Thị Ngọc',    '1983-12-12', false, 'Hà Nội', '0900000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Trịnh Văn Quân', '1981-01-13', true,  'Hà Nội', '0900000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Mai Thị Quỳnh',  '1984-02-14', false, 'Hà Nội', '0900000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Trịnh Văn Quân', '1981-01-13', true,  'Hà Nội', '0900000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Mai Thị Quỳnh',  '1984-02-14', false, 'Hà Nội', '0900000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Ngô Văn Sơn',    '1980-03-15', true,  'Hà Nội', '0900000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Đinh Thị Trang', '1983-04-16', false, 'Hà Nội', '0900000016', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Ngô Văn Sơn',    '1980-03-15', true,  'Hà Nội', '0900000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Đinh Thị Trang', '1983-04-16', false, 'Hà Nội', '0900000016', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Trần Văn Út',    '1979-05-17', true,  'Hà Nội', '0900000017', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Vũ Thị Vân',     '1982-06-18', false, 'Hà Nội', '0900000018', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+-- Phụ huynh cho học sinh lớp 2 (class_id = 2)
+('Trần Văn Út',    '1979-05-17', true,  'Hà Nội', '0900000017', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Vũ Thị Vân',     '1982-06-18', false, 'Hà Nội', '0900000018', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Hoàng Văn Xuân','1980-07-19', true,  'Hà Nội', '0900000019', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Đặng Thị Yến',   '1983-08-20', false, 'Hà Nội', '0900000020', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Hoàng Văn Xuân','1980-07-19', true,  'Hà Nội', '0900000019', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Đặng Thị Yến',   '1983-08-20', false, 'Hà Nội', '0900000020', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Phan Văn Đông',  '1981-09-21', true,  'Hà Nội', '0900000021', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Nguyễn Thị Hoa', '1984-10-22', false, 'Hà Nội', '0900000022', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Phan Văn Đông',  '1981-09-21', true,  'Hà Nội', '0900000021', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Nguyễn Thị Hoa', '1984-10-22', false, 'Hà Nội', '0900000022', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Bùi Văn Nam',    '1980-11-23', true,  'Hà Nội', '0900000023', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Trần Thị Hà',    '1983-12-24', false, 'Hà Nội', '0900000024', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Bùi Văn Nam',    '1980-11-23', true,  'Hà Nội', '0900000023', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Trần Thị Hà',    '1983-12-24', false, 'Hà Nội', '0900000024', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Lê Văn Dũng',    '1981-01-25', true,  'Hà Nội', '0900000025', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Phạm Thị Oanh',  '1984-02-26', false, 'Hà Nội', '0900000026', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Lê Văn Dũng',    '1981-01-25', true,  'Hà Nội', '0900000025', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Phạm Thị Oanh',  '1984-02-26', false, 'Hà Nội', '0900000026', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Nguyễn Văn Trí','1980-03-27', true,  'Hà Nội', '0900000027', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Hoàng Thị Mai',  '1983-04-28', false, 'Hà Nội', '0900000028', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
+('Nguyễn Văn Trí','1980-03-27', true,  'Hà Nội', '0900000027', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Hoàng Thị Mai',  '1983-04-28', false, 'Hà Nội', '0900000028', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
 
-('Đỗ Văn Toàn',    '1981-05-29', true,  'Hà Nội', '0900000029', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00'),
-('Vũ Thị Thu',     '1984-06-30', false, 'Hà Nội', '0900000030', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-07-06 14:00:00');
+('Đỗ Văn Toàn',    '1981-05-29', true,  'Hà Nội', '0900000029', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg'),
+('Vũ Thị Thu',     '1984-06-30', false, 'Hà Nội', '0900000030', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg');
 
 
 --Student
@@ -306,9 +286,7 @@ CREATE TABLE Student (
       class_id INT REFERENCES class(id) not null,
       mom_id int REFERENCES parent(id),
       dad_id int REFERENCES parent(id),
-  is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at TIMESTAMP DEFAULT null,
-  created_at TIMESTAMP default now()
+  is_deleted BOOLEAN DEFAULT false not null
 );
 
 
@@ -326,9 +304,7 @@ INSERT INTO Student (
   email_confirmed,
   class_id,
   mom_id,
-  dad_id,
-  last_invitation_at,
-  created_at
+  dad_id
 )
 VALUES 
 (
@@ -345,14 +321,12 @@ VALUES
   true,
   1,
   100003,
-  NULL,
-  null,
-  '2025-06-08 04:38:47'
+  NULL
 ),
 (
   '211001',
   'fc57f7ed-950e-46fb-baa5-7914798e9ae3',
-  'dinhviethieu2910@gmail.com',
+  'dinhvietnam2910@gmail.com',
   'Hoàng Tấn Tạ Yến',
   '2014-02-10',
   false ,
@@ -363,14 +337,12 @@ VALUES
   true,
   2,
   100003,
-  100002,
-  null,
-  '2025-06-08 04:38:46'
+  100002
 ),
 (
   '211002',
   '1519af26-f341-471b-8471-ab33a061b657',
-  'thuandntse150361@fpt.edu.vn',
+  'thuandtse150361@fpt.edu.vn',
   'Mai Triệu Phú',
   '2013-02-10',
   true,
@@ -381,9 +353,7 @@ VALUES
   true,
   2,
   NULL,
-  100000,
-  null,
-  '2025-06-08 04:38:45'
+  100000
 ),
 (
   '211003',
@@ -399,9 +369,7 @@ VALUES
   true,
   2,
   100001,
-  100000,
-  null,
-  '2025-06-08 05:42:35'
+  100000
 );
 
 -- Cập nhật student_code_counter để phản ánh số học sinh mới
@@ -412,43 +380,42 @@ WHERE year_of_enrollment = 2021;
 -- Thêm 30 học sinh
 INSERT INTO student (
   id, name, dob, isMale, address, phone_number, profile_img_url,
-  year_of_enrollment, class_id, mom_id, dad_id,
-  last_invitation_at, created_at
+  year_of_enrollment, class_id, mom_id, dad_id
 )
 VALUES
 -- 15 học sinh lớp 1
-('211004', 'Nguyễn An Khang',     '2015-01-01', false, 'Hà Nội', '0901000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100005, 100004, NULL, '2025-07-06 15:00:00'),
-('211005', 'Trần Gia Hưng',       '2015-01-02', false, 'Hà Nội', '0901000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100007, 100006, NULL, '2025-07-06 15:00:00'),
-('211006', 'Lê Ngọc Bảo',         '2015-01-03', false, 'Hà Nội', '0901000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100009, 100008, NULL, '2025-07-06 15:00:00'),
-('211007', 'Phạm Nhật Minh',      '2015-01-04', false, 'Hà Nội', '0901000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100011, 100010, NULL, '2025-07-06 15:00:00'),
-('211008', 'Vũ Tuệ Nhi',          '2015-01-05', false, 'Hà Nội', '0901000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100013, 100012, NULL, '2025-07-06 15:00:00'),
-('211009', 'Đào Hải Đăng',        '2015-01-06', false, 'Hà Nội', '0901000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100015, 100014, NULL, '2025-07-06 15:00:00'),
-('211010', 'Nguyễn Nhật Linh',    '2015-01-07', false, 'Hà Nội', '0901000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100017, 100016, NULL, '2025-07-06 15:00:00'),
-('211011', 'Bùi Hoàng Long',      '2015-01-08', false, 'Hà Nội', '0901000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100019, 100018, NULL, '2025-07-06 15:00:00'),
-('211012', 'Phạm Mai Chi',        '2015-01-09', false, 'Hà Nội', '0901000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100021, 100020, NULL, '2025-07-06 15:00:00'),
-('211013', 'Trịnh Minh Nhật',     '2015-01-10', false, 'Hà Nội', '0901000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100023, 100022, NULL, '2025-07-06 15:00:00'),
-('211014', 'Ngô Gia Bảo',         '2015-01-11', false, 'Hà Nội', '0901000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100025, 100024, NULL, '2025-07-06 15:00:00'),
-('211015', 'Đinh Hồng Anh',       '2015-01-12', false, 'Hà Nội', '0901000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100027, 100026, NULL, '2025-07-06 15:00:00'),
-('211016', 'Trần Quang Duy',      '2015-01-13', false, 'Hà Nội', '0901000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100029, 100028, NULL, '2025-07-06 15:00:00'),
-('211017', 'Vũ Thanh Trúc',       '2015-01-14', false, 'Hà Nội', '0901000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100031, 100030, NULL, '2025-07-06 15:00:00'),
-('211018', 'Hoàng Nhật Tân',      '2015-01-15', false, 'Hà Nội', '0901000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100033, 100032, NULL, '2025-07-06 15:00:00'),
+('211004', 'Nguyễn An Khang',     '2015-01-01', false, 'Hà Nội', '0901000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100005, 100004),
+('211005', 'Trần Gia Hưng',       '2015-01-02', false, 'Hà Nội', '0901000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100007, 100006),
+('211006', 'Lê Ngọc Bảo',         '2015-01-03', false, 'Hà Nội', '0901000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100009, 100008),
+('211007', 'Phạm Nhật Minh',      '2015-01-04', false, 'Hà Nội', '0901000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100011, 100010),
+('211008', 'Vũ Tuệ Nhi',          '2015-01-05', false, 'Hà Nội', '0901000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100013, 100012),
+('211009', 'Đào Hải Đăng',        '2015-01-06', false, 'Hà Nội', '0901000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100015, 100014),
+('211010', 'Nguyễn Nhật Linh',    '2015-01-07', false, 'Hà Nội', '0901000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100017, 100016),
+('211011', 'Bùi Hoàng Long',      '2015-01-08', false, 'Hà Nội', '0901000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100019, 100018),
+('211012', 'Phạm Mai Chi',        '2015-01-09', false, 'Hà Nội', '0901000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100021, 100020),
+('211013', 'Trịnh Minh Nhật',     '2015-01-10', false, 'Hà Nội', '0901000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100023, 100022),
+('211014', 'Ngô Gia Bảo',         '2015-01-11', false, 'Hà Nội', '0901000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100025, 100024),
+('211015', 'Đinh Hồng Anh',       '2015-01-12', false, 'Hà Nội', '0901000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100027, 100026),
+('211016', 'Trần Quang Duy',      '2015-01-13', false, 'Hà Nội', '0901000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100029, 100028),
+('211017', 'Vũ Thanh Trúc',       '2015-01-14', false, 'Hà Nội', '0901000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100031, 100030),
+('211018', 'Hoàng Nhật Tân',      '2015-01-15', false, 'Hà Nội', '0901000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100033, 100032),
 
 -- 15 học sinh lớp 2
-('211019', 'Trần Gia Huy',        '2014-01-01', false, 'Hà Nội', '0902000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100005, 100004, NULL, '2025-07-06 15:00:00'),
-('211020', 'Vũ Hải Yến',          '2014-01-02', false, 'Hà Nội', '0902000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100007, 100006, NULL, '2025-07-06 15:00:00'),
-('211021', 'Hoàng Minh Khôi',     '2014-01-03', false, 'Hà Nội', '0902000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100009, 100008, NULL, '2025-07-06 15:00:00'),
-('211022', 'Đặng Ngọc Trinh',     '2014-01-04', false, 'Hà Nội', '0902000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100011, 100010, NULL, '2025-07-06 15:00:00'),
-('211023', 'Phan Đức Anh',        '2014-01-05', false, 'Hà Nội', '0902000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100013, 100012, NULL, '2025-07-06 15:00:00'),
-('211024', 'Nguyễn Minh Thư',     '2014-01-06', false, 'Hà Nội', '0902000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100015, 100014, NULL, '2025-07-06 15:00:00'),
-('211025', 'Bùi Nhật Hào',        '2014-01-07', false, 'Hà Nội', '0902000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100017, 100016, NULL, '2025-07-06 15:00:00'),
-('211026', 'Trần Khánh Vy',       '2014-01-08', false, 'Hà Nội', '0902000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100019, 100018, NULL, '2025-07-06 15:00:00'),
-('211027', 'Lê Hoàng Anh',        '2014-01-09', false, 'Hà Nội', '0902000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100021, 100020, NULL, '2025-07-06 15:00:00'),
-('211028', 'Phạm Thảo Nhi',       '2014-01-10', false, 'Hà Nội', '0902000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100023, 100022, NULL, '2025-07-06 15:00:00'),
-('211029', 'Nguyễn Minh Hiếu',    '2014-01-11', false, 'Hà Nội', '0902000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100025, 100024, NULL, '2025-07-06 15:00:00'),
-('211030', 'Trịnh Hồng Nhung',    '2014-01-12', false, 'Hà Nội', '0902000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100027, 100026, NULL, '2025-07-06 15:00:00'),
-('211031', 'Hoàng Thế Anh',       '2014-01-13', false, 'Hà Nội', '0902000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100029, 100028, NULL, '2025-07-06 15:00:00'),
-('211032', 'Ngô Ánh Tuyết',       '2014-01-14', false, 'Hà Nội', '0902000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100031, 100030, NULL, '2025-07-06 15:00:00'),
-('211033', 'Đào Khánh Duy',       '2014-01-15', false, 'Hà Nội', '0902000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100033, 100032, NULL, '2025-07-06 15:00:00');
+('211019', 'Trần Gia Huy',        '2014-01-01', false, 'Hà Nội', '0902000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100005, 100004),
+('211020', 'Vũ Hải Yến',          '2014-01-02', false, 'Hà Nội', '0902000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100007, 100006),
+('211021', 'Hoàng Minh Khôi',     '2014-01-03', false, 'Hà Nội', '0902000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100009, 100008),
+('211022', 'Đặng Ngọc Trinh',     '2014-01-04', false, 'Hà Nội', '0902000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100011, 100010),
+('211023', 'Phan Đức Anh',        '2014-01-05', false, 'Hà Nội', '0902000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100013, 100012),
+('211024', 'Nguyễn Minh Thư',     '2014-01-06', false, 'Hà Nội', '0902000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100015, 100014),
+('211025', 'Bùi Nhật Hào',        '2014-01-07', false, 'Hà Nội', '0902000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100017, 100016),
+('211026', 'Trần Khánh Vy',       '2014-01-08', false, 'Hà Nội', '0902000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100019, 100018),
+('211027', 'Lê Hoàng Anh',        '2014-01-09', false, 'Hà Nội', '0902000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100021, 100020),
+('211028', 'Phạm Thảo Nhi',       '2014-01-10', false, 'Hà Nội', '0902000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100023, 100022),
+('211029', 'Nguyễn Minh Hiếu',    '2014-01-11', false, 'Hà Nội', '0902000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100025, 100024),
+('211030', 'Trịnh Hồng Nhung',    '2014-01-12', false, 'Hà Nội', '0902000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100027, 100026),
+('211031', 'Hoàng Thế Anh',       '2014-01-13', false, 'Hà Nội', '0902000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100029, 100028),
+('211032', 'Ngô Ánh Tuyết',       '2014-01-14', false, 'Hà Nội', '0902000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100031, 100030),
+('211033', 'Đào Khánh Duy',       '2014-01-15', false, 'Hà Nội', '0902000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100033, 100032);
 
 
 
@@ -539,8 +506,8 @@ INSERT INTO RequestItem (request_id, name, intake_template_time, dosage_usage) V
 ------------------------------------------------------------------------------------------------------------------------------------FLOW CHECKUP CAMPAIGN
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE TYPE campaign_status AS ENUM (
-     'DRAFTED',
-    'PREPARING',
+   'DRAFTED',
+   'PREPARING',
     'UPCOMING',
     'CANCELLED',
     'DONE',
@@ -1131,9 +1098,8 @@ VALUES
 ('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
 ('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 ('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
-    
-------------------------------------------------------------------- OTP FLOW
 
+-------------------------------------------------------------------------------------------------------------------------------------- OTP
 CREATE TABLE otps (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   target text, -- email, sdt,...
@@ -1145,3 +1111,86 @@ CREATE TABLE otps (
 );
 
 CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
+
+-------------------------------------------------------------------------------------------------------------------------------------- Blog
+
+-- 1. Bảng loại blog
+CREATE TABLE blog_type (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
+);
+
+INSERT INTO blog_type (name, description) VALUES
+('Dinh dưỡng học đường'
+, 'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'),
+
+('Chăm sóc sức khỏe học đường'
+, 'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'),
+
+('Tâm lý học đường'
+, 'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'),
+
+('Phòng chống bệnh học đường'
+, 'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'),
+
+('Hoạt động y tế trường học'
+, 'Các chương trình, sự kiện, tiêm chủng và hoạt động y tế tại trường');
+
+
+-- 2. Bảng blog (có thumbnail_url)
+CREATE TABLE blog (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    thumbnail_url VARCHAR(255), -- ảnh đại diện
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT NULL,
+	is_deleted BOOLEAN  DEFAULT FALSE,
+    blog_type_id INTEGER REFERENCES blog_type(id) ON DELETE SET NULL
+);
+
+INSERT INTO blog (
+    title,
+    content,
+    thumbnail_url,
+    blog_type_id
+) VALUES (
+    'Tầm quan trọng của dinh dưỡng đối với học sinh',
+	'<h2>I. Dinh dưỡng học đường là gì?</h2>
+<p><strong>Dinh dưỡng học đường</strong> là chế độ ăn uống khoa học, hợp lý dành riêng cho trẻ em và thanh thiếu niên trong độ tuổi đến trường. Việc đảm bảo dinh dưỡng tốt không chỉ giúp học sinh phát triển thể chất mà còn nâng cao trí tuệ, phòng tránh bệnh tật.</p>
+
+<h2>II. Tác động của dinh dưỡng đến sức khỏe và học tập</h2>
+<ul>
+  <li><strong>Phát triển chiều cao, cân nặng:</strong> Trẻ được ăn uống đầy đủ sẽ tăng trưởng tốt, phát triển đồng đều.</li>
+  <li><strong>Cải thiện khả năng tập trung:</strong> Một số nghiên cứu cho thấy, học sinh ăn sáng đủ chất có khả năng tập trung và tiếp thu bài tốt hơn.</li>
+  <li><strong>Tăng sức đề kháng:</strong> Chế độ ăn cân đối giúp trẻ phòng tránh được nhiều bệnh vặt như cảm cúm, nhiễm trùng.</li>
+  <li><strong>Hạn chế nguy cơ mắc các bệnh mãn tính:</strong> Béo phì, tiểu đường, suy dinh dưỡng,... đều có thể phòng tránh nhờ ăn uống lành mạnh.</li>
+</ul>
+
+<h2>III. Những sai lầm phổ biến trong dinh dưỡng học đường</h2>
+<ul>
+  <li><strong>Bỏ bữa sáng:</strong> Nhiều học sinh do dậy muộn hoặc không đói nên bỏ qua bữa sáng, làm giảm năng lượng học tập đầu ngày.</li>
+  <li><strong>Ăn vặt quá nhiều:</strong> Thực phẩm như bánh snack, nước ngọt, trà sữa chứa nhiều đường, chất béo xấu gây béo phì.</li>
+  <li><strong>Bữa ăn thiếu rau xanh và trái cây:</strong> Nhiều em chỉ thích ăn thịt cá, bỏ qua nhóm vitamin và khoáng chất.</li>
+</ul>
+
+<h2>IV. Gợi ý thực đơn lành mạnh cho học sinh</h2>
+<ul>
+  <li><strong>Bữa sáng:</strong> Cháo thịt, bánh mì trứng, sữa tươi hoặc ngũ cốc.</li>
+  <li><strong>Bữa trưa:</strong> Cơm, thịt/cá, canh rau củ, trái cây tráng miệng.</li>
+  <li><strong>Bữa xế:</strong> Sữa chua, trái cây, một ít hạt (hạnh nhân, óc chó...)</li>
+  <li><strong>Bữa tối:</strong> Cơm, tôm/thịt nạc, rau luộc/xào, canh.</li>
+</ul>
+<p><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" alt="Bữa ăn học đường" style="max-width:100%"></p>
+
+<h2>V. Lời khuyên từ chuyên gia dinh dưỡng</h2>
+<blockquote>
+  “<strong>Dinh dưỡng hợp lý là nền tảng cho sự phát triển thể chất và tinh thần của trẻ.</strong> Cha mẹ, nhà trường cần phối hợp để xây dựng bữa ăn đa dạng, đủ 4 nhóm chất: bột đường, đạm, béo, vitamin và khoáng chất. Hạn chế đồ ăn nhanh, thức uống có ga.”
+</blockquote>
+<p><em><strong>Lưu ý:</strong> Học sinh nên uống đủ nước (1,5–2 lít/ngày), tránh bỏ bữa, không ăn quá mặn hoặc quá ngọt.</em></p>
+',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+    1
+);
+
