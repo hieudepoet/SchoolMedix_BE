@@ -31,7 +31,7 @@ export async function createCampaign(req, res) {
     // Insert campaign into database
     const insertQuery = `
         INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, location, start_date, end_date, status)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
     `;
 
