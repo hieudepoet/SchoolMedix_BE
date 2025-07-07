@@ -146,6 +146,8 @@ SELECT
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
+    p.last_invitation_at,
+    p.created_at,
 
     COALESCE(
       json_agg(
@@ -163,7 +165,9 @@ SELECT
           'year_of_enrollment', s.year_of_enrollment,
           'email_confirmed', s.email_confirmed,
           'class_id', c.id,
-          'class_name', c.name
+          'class_name', c.name,
+          'last_invitation_at', s.last_invitation_at,
+          'created_at', s.created_at
         )
       ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
       '[]'
@@ -197,6 +201,8 @@ SELECT
   s.email_confirmed,
   s.class_id,
   c.name AS class_name,
+  s.last_invitation_at,
+  s.created_at,
 
   CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -210,7 +216,9 @@ SELECT
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END AS mom_profile,
@@ -227,7 +235,9 @@ SELECT
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END AS dad_profile
@@ -278,6 +288,8 @@ FROM (
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
+    p.last_invitation_at,
+    p.created_at,
 
     COALESCE(
       json_agg(
@@ -295,7 +307,10 @@ FROM (
           'year_of_enrollment', s.year_of_enrollment,
           'email_confirmed', s.email_confirmed,
           'class_id', c.id,
-          'class_name', c.name
+          'class_name', c.name,
+          'last_invitation_at', s.last_invitation_at,
+          'created_at', s.created_at
+
         )
       ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
       '[]'
@@ -332,6 +347,8 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
   s.email_confirmed,
   s.class_id,
   c.name AS class_name,
+  s.last_invitation_at,
+  s.created_at,
 
   CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -345,7 +362,9 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END AS mom_profile,
@@ -362,7 +381,9 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END AS dad_profile
@@ -406,6 +427,8 @@ FROM (
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
+    p.last_invitation_at,
+    p.created_at,
 
     COALESCE(
       json_agg(
@@ -423,7 +446,9 @@ FROM (
           'year_of_enrollment', s.year_of_enrollment,
           'email_confirmed', s.email_confirmed,
           'class_id', c.id,
-          'class_name', c.name
+          'class_name', c.name,
+          'last_invitation_at', s.last_invitation_at,
+          'created_at', s.created_at
         )
       ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
       '[]'
@@ -458,6 +483,8 @@ export async function getAllStudents() {
   'email_confirmed', s.email_confirmed,
   'class_id', c.id,
   'class_name', c.name,
+  'last_invitation_at', s.last_invitation_at,
+  'created_at', s.created_at,
 
   'mom_profile', CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -471,7 +498,9 @@ export async function getAllStudents() {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END,
@@ -488,7 +517,9 @@ export async function getAllStudents() {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END
@@ -522,6 +553,8 @@ export async function getAllStudentsByClassID(class_id) {
   'email_confirmed', s.email_confirmed,
   'class_id', c.id,
   'class_name', c.name,
+  'last_invitation_at', s.last_invitation_at,
+  'created_at', s.created_at,
 
   'mom_profile', CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -535,7 +568,9 @@ export async function getAllStudentsByClassID(class_id) {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END,
@@ -552,7 +587,9 @@ export async function getAllStudentsByClassID(class_id) {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END
@@ -586,6 +623,8 @@ export async function getAllStudentsByGradeID(grade_id) {
   'email_confirmed', s.email_confirmed,
   'class_id', c.id,
   'class_name', c.name,
+  'last_invitation_at', s.last_invitation_at,
+  'created_at', s.created_at,
 
   'mom_profile', CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -599,7 +638,9 @@ export async function getAllStudentsByGradeID(grade_id) {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END,
@@ -616,7 +657,9 @@ export async function getAllStudentsByGradeID(grade_id) {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END
@@ -806,4 +849,16 @@ export async function deleteUserByID(role, id) {
   const sql = `update ${role} set is_deleted = true, supabase_uid = null, email = null WHERE id = $1;`;
   const result = await query(sql, [id]);
   return result.rows[0];
+}
+
+export async function updateLastInvitationAtByID(id, role) {
+  const sql = `update ${role} set last_invitation_at = now() where id = ${id} returning *`;
+  const result = await query(sql);
+  return result.rows[0] > 0;
+}
+
+export async function updateLastInvitationAtByUUID(supabase_uid, role) {
+  const sql = `update ${role} set last_invitation_at = now() where supabase_uid = ${supabase_uid} returning *`;
+  const result = await query(sql);
+  return result.rows[0] > 0;
 }

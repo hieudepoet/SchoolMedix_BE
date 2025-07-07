@@ -6,6 +6,7 @@ import {
     insertParent,
     insertStudent,
     getProfileByUUID,
+    updateLastInvitationAtByUUID,
 } from "./userDao.js";
 import { sendWelcomeEmail } from "../email/index.js";
 import { generateRandomPassword } from "./userUtils.js";
@@ -105,6 +106,7 @@ export async function createNewAdmin(
         if (email) {
             const { supabase_uid: uid } = await createSupabaseAuthUserWithRole(email, name, "admin");
             supabase_uid = uid;
+
         }
 
         const addedUser = await insertAdmin(
@@ -117,6 +119,10 @@ export async function createNewAdmin(
             phone_number,
             profile_img_url
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, role);
+        }
 
         return addedUser;
     } catch (err) {
@@ -147,7 +153,7 @@ export async function createNewNurse(
             supabase_uid = uid;
         }
 
-        return await insertNurse(
+        const addedUser = await insertNurse(
             supabase_uid,
             email,
             name,
@@ -157,6 +163,12 @@ export async function createNewNurse(
             phone_number,
             profile_img_url
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, role);
+        }
+
+        return addedUser;
     } catch (err) {
         if (supabase_uid) {
             await deleteAuthUser(supabase_uid).catch((e) =>
@@ -184,7 +196,7 @@ export async function createNewParent(
             supabase_uid = uid;
         }
 
-        return await insertParent(
+        const addedUser = await insertParent(
             supabase_uid,
             email,
             name,
@@ -194,6 +206,12 @@ export async function createNewParent(
             phone_number,
             profile_img_url
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, role);
+        }
+
+        return addedUser;
     } catch (err) {
         if (supabase_uid) {
             await deleteAuthUser(supabase_uid).catch((e) =>
@@ -225,7 +243,7 @@ export async function createNewStudent(
             supabase_uid = uid;
         }
 
-        return await insertStudent(
+        const addedUser = await insertStudent(
             supabase_uid,
             email,
             name,
@@ -239,6 +257,12 @@ export async function createNewStudent(
             mom_id,
             dad_id
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, role);
+        }
+
+        return addedUser
     } catch (err) {
         if (supabase_uid) {
             await deleteAuthUser(supabase_uid).catch((e) =>

@@ -18,7 +18,7 @@ async function checkCampaignExists(campaignID) {
     } else return true;
 }
 
- export async function getAllHealthRecordOfStudent(req, res) {
+export async function getAllHealthRecordOfStudent(req, res) {
 
     const { student_id } = req.params;
 
@@ -1973,6 +1973,7 @@ export async function getCampaignDetail(req, res) {
             campaign_location: check.rows[0].location || null,
             start_date: check.rows[0].start_date,
             end_date: check.rows[0].end_date,
+            status: check.rows[0].status,
             specialist_exams: rs.rows
                 .filter(row => row.sel_id) // Lọc các hàng có xét nghiệm
                 .map(row => ({

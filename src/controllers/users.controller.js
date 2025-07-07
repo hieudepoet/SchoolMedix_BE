@@ -32,7 +32,8 @@ import {
       sendOTPEmail,
       getUserByEmail,
       generateRecoveryLink,
-      sendRecoveryLinkEmailForForgotPassword
+      sendRecoveryLinkEmailForForgotPassword,
+      updateLastInvitationAtByUUID
 
 
 } from "../services/index.js";
@@ -681,6 +682,16 @@ export async function handleSendingInvitationToEmails(req, res) {
 
       try {
             const results = await sendInviteLinkToEmails(users);
+            console.log(results);
+
+            // lấy ra những user gửi thành công
+            const updated_last_invite_at_users = results.filter((user_res) => user_res.error === false);
+            console.log(updated_last_invite_at_users);
+            await Promise.all(
+                  updated_last_invite_at_users.map(({ supabase_uid, role }) =>
+                        updateLastInvitationAtByUUID(supabase_uid, role)
+                  )
+            );
 
             return res.status(200).json({
                   error: false,
