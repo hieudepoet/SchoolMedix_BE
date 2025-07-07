@@ -52,15 +52,13 @@ export async function createSupabaseAuthUserWithRole(email, name, role) {
 }
 
 export async function sendInviteLinkToEmails(users = []) {
-    const results = [];
-
-    for (const user of users) {
+    const tasks = users.map(async (user) => {
         const { email, name, role } = user;
 
         try {
             const { data: linkData, error: linkError } = await supabaseAdmin.generateLink({
                 email,
-                type: 'invite',
+                type: "invite",
                 options: {
                     redirectTo: `${process.env.FIREBASE_FE_DEPLOYING_URL}/setup-password`,
                 },
@@ -72,22 +70,23 @@ export async function sendInviteLinkToEmails(users = []) {
 
             await sendInviteEmail(email, name, role, linkData.action_link);
 
-            results.push({
+            return {
                 email,
                 error: false,
                 supabase_uid: linkData.user.id,
                 invite_link: linkData.action_link,
-            });
+            };
         } catch (err) {
             console.error(`❌ Gửi email mời thất bại cho ${email}:`, err.message);
-            results.push({
+            return {
                 email,
                 error: true,
                 message: err.message,
-            });
+            };
         }
-    }
+    });
 
+    const results = await Promise.all(tasks);
     return results;
 }
 
