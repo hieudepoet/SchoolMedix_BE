@@ -144,12 +144,12 @@ export async function updateCampaignDetail(req, res) {
 export async function getAllCampaigns(req, res) {
   try {
     const result = await query(`
-            select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.title, a.description as description, a.location, a.start_date, a.end_date, a.status, dose_quantity
-            from vaccination_campaign a
-            join vaccine b on a.vaccine_id = b.id
-            join disease c on a.disease_id = c.id
-            ORDER BY a.start_date DESC;
-            `);
+      select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.title, a.description as description, a.location, a.start_date, a.end_date, a.status, dose_quantity
+      from vaccination_campaign a
+      join vaccine b on a.vaccine_id = b.id
+      join disease c on a.disease_id = c.id
+      ORDER BY a.start_date DESC;
+      `);
 
     return res.status(200).json({
       error: false,
@@ -271,7 +271,9 @@ export async function getCampaignDetailByID(req, res) {
 //   }
 // }
 
-export async function createRegisterRequest(campaign_id) {
+export async function createRegisterRequest(req, res) {
+  const { campaign_id } = req.params || req.body || {};
+
   if (!campaign_id) {
     return res
       .status(400)
@@ -290,11 +292,11 @@ export async function createRegisterRequest(campaign_id) {
         .json({ error: true, message: "Campaign not found" });
     }
 
-    // Check nếu campaign đang trong giai đoạn nhận đơn thì tiếp tục tạo register (status PREPARING), không thì return
+    // Only allow register creation if campaign is in DRAFTED status
     if (campaigns.rows[0].status !== "DRAFTED") {
       return res
-        .status(404)
-        .json({ error: true, message: "Campaign is already completed" });
+        .status(400)
+        .json({ error: true, message: "Campaign is not in DRAFTED status" });
     }
 
     // Check if registration already exists for the campaign
@@ -304,39 +306,47 @@ export async function createRegisterRequest(campaign_id) {
     );
     if (existingRegistrations.rows.length > 0) {
       return res
-        .status(404)
+        .status(409)
         .json({ error: true, message: "Registers are already created" });
     }
 
     const disease_id = campaigns.rows[0].disease_id;
 
-    //Get all students eligible for the campaign
+    // Get all students eligible for the campaign
     const eligibleStudents = await getStudentEligibleForADiseaseID(disease_id);
 
-    console.log(eligibleStudents);
-    //Create registration requests for eligible students
     if (!eligibleStudents || eligibleStudents.length === 0) {
       return res
         .status(200)
-        .json({ error: false, message: "Students Not Found" });
+        .json({ error: false, message: "No eligible students found" });
     }
 
+    // Create registration requests for eligible students
     for (const student of eligibleStudents) {
       await query(
         `INSERT INTO vaccination_campaign_register (campaign_id, student_id, reason, is_registered)
-                        VALUES ($1, $2, $3, $4)`,
+         VALUES ($1, $2, $3, $4)`,
         [campaign_id, student.student_id, `Auto_gen for ${campaign_id}`, false]
       );
     }
 
+    const statusUpdate = await query(
+      `
+      UPDATE vaccination_campaign
+      SET status = 'PREPARING'
+      WHERE id = $1
+      `,
+      [campaign_id]
+    );
+
     return res
-      .status(200)
+      .status(201)
       .json({ error: false, message: "Campaign register created" });
   } catch (error) {
     console.error("Error creating registration request:", error);
     return res
       .status(500)
-      .json({ error: tru, message: "Failed to send request: " + error });
+      .json({ error: true, message: "Failed to send request: " + error });
   }
 }
 
