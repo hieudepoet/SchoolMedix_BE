@@ -122,12 +122,12 @@ export async function insertStudent(
 }
 
 export async function getProfileOfAdminByID(admin_Id) {
-  const result = await query('select * from admin where id = $1 and is_deleted = false', [admin_Id]);
+  const result = await query(`select 'admin' as role, * from admin where id = $1 and is_deleted = false`, [admin_Id]);
   return result.rows[0];
 }
 
 export async function getProfileOfNurseByID(nurse_id) {
-  const result = await query('SELECT * FROM nurse WHERE id = $1 and is_deleted = false', [nurse_id]);
+  const result = await query(`SELECT 'nurse' as role, * FROM nurse WHERE id = $1 and is_deleted = false`, [nurse_id]);
   return result.rows[0];
 }
 
@@ -136,6 +136,7 @@ export async function getProfileOfParentByID(parent_id) {
     ` 
 SELECT 
     p.id,
+    'parent' as role,
     p.supabase_uid,
     p.email,
     p.name,
@@ -146,6 +147,8 @@ SELECT
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
+    p.last_invitation_at,
+    p.created_at,
 
     COALESCE(
       json_agg(
@@ -163,7 +166,9 @@ SELECT
           'year_of_enrollment', s.year_of_enrollment,
           'email_confirmed', s.email_confirmed,
           'class_id', c.id,
-          'class_name', c.name
+          'class_name', c.name,
+          'last_invitation_at', s.last_invitation_at,
+          'created_at', s.created_at
         )
       ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
       '[]'
@@ -185,6 +190,7 @@ export async function getProfileOfStudentByID(student_id) {
 SELECT 
   s.id,
   s.supabase_uid,
+  'student' as role,
   s.email,
   s.name,
   s.dob,
@@ -197,6 +203,8 @@ SELECT
   s.email_confirmed,
   s.class_id,
   c.name AS class_name,
+  s.last_invitation_at,
+  s.created_at,
 
   CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -210,7 +218,9 @@ SELECT
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END AS mom_profile,
@@ -227,7 +237,9 @@ SELECT
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END AS dad_profile
@@ -278,6 +290,8 @@ FROM (
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
+    p.last_invitation_at,
+    p.created_at,
 
     COALESCE(
       json_agg(
@@ -295,7 +309,10 @@ FROM (
           'year_of_enrollment', s.year_of_enrollment,
           'email_confirmed', s.email_confirmed,
           'class_id', c.id,
-          'class_name', c.name
+          'class_name', c.name,
+          'last_invitation_at', s.last_invitation_at,
+          'created_at', s.created_at
+
         )
       ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
       '[]'
@@ -332,6 +349,8 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
   s.email_confirmed,
   s.class_id,
   c.name AS class_name,
+  s.last_invitation_at,
+  s.created_at,
 
   CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -345,7 +364,9 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END AS mom_profile,
@@ -362,7 +383,9 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END AS dad_profile
@@ -380,12 +403,12 @@ WHERE s.supabase_uid = $1 AND s.is_deleted = false;
 
 
 export async function getAllAdmins() {
-  const result = await query('SELECT * FROM admin where is_deleted = false ORDER BY id ');
+  const result = await query(`SELECT 'admin' as role, * FROM admin where is_deleted = false ORDER BY id `);
   return result.rows;
 }
 
 export async function getAllNurses() {
-  const result = await query('SELECT * FROM nurse where is_deleted = false ORDER BY id');
+  const result = await query(`SELECT 'nurse' as role, * FROM nurse where is_deleted = false ORDER BY id`);
   return result.rows;
 }
 
@@ -396,6 +419,7 @@ export async function getAllParents() {
 FROM (
   SELECT 
     p.id,
+    'parent' as role,
     p.supabase_uid,
     p.email,
     p.name,
@@ -406,6 +430,8 @@ FROM (
     p.phone_number,
     p.profile_img_url,
     p.email_confirmed,
+    p.last_invitation_at,
+    p.created_at,
 
     COALESCE(
       json_agg(
@@ -423,7 +449,9 @@ FROM (
           'year_of_enrollment', s.year_of_enrollment,
           'email_confirmed', s.email_confirmed,
           'class_id', c.id,
-          'class_name', c.name
+          'class_name', c.name,
+          'last_invitation_at', s.last_invitation_at,
+          'created_at', s.created_at
         )
       ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
       '[]'
@@ -445,6 +473,7 @@ export async function getAllStudents() {
   const result = await query(`
     SELECT json_build_object(
   'id', s.id,
+  'role', 'student',
   'supabase_uid', s.supabase_uid,
   'email', s.email,
   'name', s.name,
@@ -458,6 +487,8 @@ export async function getAllStudents() {
   'email_confirmed', s.email_confirmed,
   'class_id', c.id,
   'class_name', c.name,
+  'last_invitation_at', s.last_invitation_at,
+  'created_at', s.created_at,
 
   'mom_profile', CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -471,7 +502,9 @@ export async function getAllStudents() {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END,
@@ -488,7 +521,9 @@ export async function getAllStudents() {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END
@@ -507,8 +542,9 @@ ORDER BY s.id;
 
 export async function getAllStudentsByClassID(class_id) {
   const result = await query(`
-    SELESELECT json_build_object(
+    select json_build_object(
   'id', s.id,
+  'role', 'student',
   'supabase_uid', s.supabase_uid,
   'email', s.email,
   'name', s.name,
@@ -522,6 +558,8 @@ export async function getAllStudentsByClassID(class_id) {
   'email_confirmed', s.email_confirmed,
   'class_id', c.id,
   'class_name', c.name,
+  'last_invitation_at', s.last_invitation_at,
+  'created_at', s.created_at,
 
   'mom_profile', CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -535,7 +573,9 @@ export async function getAllStudentsByClassID(class_id) {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END,
@@ -552,7 +592,9 @@ export async function getAllStudentsByClassID(class_id) {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END
@@ -574,6 +616,7 @@ export async function getAllStudentsByGradeID(grade_id) {
     SELECT json_build_object(
   'id', s.id,
   'supabase_uid', s.supabase_uid,
+  'role', 'student',
   'email', s.email,
   'name', s.name,
   'dob', s.dob,
@@ -586,6 +629,8 @@ export async function getAllStudentsByGradeID(grade_id) {
   'email_confirmed', s.email_confirmed,
   'class_id', c.id,
   'class_name', c.name,
+  'last_invitation_at', s.last_invitation_at,
+  'created_at', s.created_at,
 
   'mom_profile', CASE
     WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
@@ -599,7 +644,9 @@ export async function getAllStudentsByGradeID(grade_id) {
       'address', m.address,
       'profile_img_url', m.profile_img_url,
       'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed
+      'email_confirmed', m.email_confirmed,
+      'last_invitation_at', m.last_invitation_at,
+      'created_at', m.created_at
     )
     ELSE NULL
   END,
@@ -616,7 +663,9 @@ export async function getAllStudentsByGradeID(grade_id) {
       'address', d.address,
       'profile_img_url', d.profile_img_url,
       'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed
+      'email_confirmed', d.email_confirmed,
+      'last_invitation_at', d.last_invitation_at,
+      'created_at', d.created_at
     )
     ELSE NULL
   END
@@ -806,4 +855,16 @@ export async function deleteUserByID(role, id) {
   const sql = `update ${role} set is_deleted = true, supabase_uid = null, email = null WHERE id = $1;`;
   const result = await query(sql, [id]);
   return result.rows[0];
+}
+
+export async function updateLastInvitationAtByID(id, role) {
+  const sql = `update ${role} set last_invitation_at = now() where id = '${id}' returning *`;
+  const result = await query(sql);
+  return result.rows[0] > 0;
+}
+
+export async function updateLastInvitationAtByUUID(supabase_uid, role) {
+  const sql = `update ${role} set last_invitation_at = now() where supabase_uid = '${supabase_uid}' returning *`;
+  const result = await query(sql);
+  return result.rows[0] > 0;
 }

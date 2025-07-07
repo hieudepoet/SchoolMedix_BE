@@ -6,6 +6,7 @@ import {
     insertParent,
     insertStudent,
     getProfileByUUID,
+    updateLastInvitationAtByUUID,
 } from "./userDao.js";
 import { sendWelcomeEmail } from "../email/index.js";
 import { generateRandomPassword } from "./userUtils.js";
@@ -52,15 +53,13 @@ export async function createSupabaseAuthUserWithRole(email, name, role) {
 }
 
 export async function sendInviteLinkToEmails(users = []) {
-    const results = [];
-
-    for (const user of users) {
+    const tasks = users.map(async (user) => {
         const { email, name, role } = user;
 
         try {
             const { data: linkData, error: linkError } = await supabaseAdmin.generateLink({
                 email,
-                type: 'invite',
+                type: "invite",
                 options: {
                     redirectTo: `${process.env.FIREBASE_FE_DEPLOYING_URL}/setup-password`,
                 },
@@ -70,24 +69,29 @@ export async function sendInviteLinkToEmails(users = []) {
                 throw new Error(`Tạo link mời thất bại: ${linkError.message}`);
             }
 
-            await sendInviteEmail(email, name, role, linkData.action_link);
+            console.log(linkData);
 
-            results.push({
+            await sendInviteEmail(email, name, role, linkData.properties.action_link);
+
+            return {
                 email,
                 error: false,
+                role,
                 supabase_uid: linkData.user.id,
-                invite_link: linkData.action_link,
-            });
+                invite_link: linkData.properties.action_link,
+            };
         } catch (err) {
             console.error(`❌ Gửi email mời thất bại cho ${email}:`, err.message);
-            results.push({
+            return {
                 email,
                 error: true,
+                role,
                 message: err.message,
-            });
+            };
         }
-    }
+    });
 
+    const results = await Promise.all(tasks);
     return results;
 }
 
@@ -106,6 +110,7 @@ export async function createNewAdmin(
         if (email) {
             const { supabase_uid: uid } = await createSupabaseAuthUserWithRole(email, name, "admin");
             supabase_uid = uid;
+
         }
 
         const addedUser = await insertAdmin(
@@ -118,6 +123,10 @@ export async function createNewAdmin(
             phone_number,
             profile_img_url
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, 'admin');
+        }
 
         return addedUser;
     } catch (err) {
@@ -148,7 +157,7 @@ export async function createNewNurse(
             supabase_uid = uid;
         }
 
-        return await insertNurse(
+        const addedUser = await insertNurse(
             supabase_uid,
             email,
             name,
@@ -158,6 +167,12 @@ export async function createNewNurse(
             phone_number,
             profile_img_url
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, 'nurse');
+        }
+
+        return addedUser;
     } catch (err) {
         if (supabase_uid) {
             await deleteAuthUser(supabase_uid).catch((e) =>
@@ -185,7 +200,7 @@ export async function createNewParent(
             supabase_uid = uid;
         }
 
-        return await insertParent(
+        const addedUser = await insertParent(
             supabase_uid,
             email,
             name,
@@ -195,6 +210,12 @@ export async function createNewParent(
             phone_number,
             profile_img_url
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, 'parent');
+        }
+
+        return addedUser;
     } catch (err) {
         if (supabase_uid) {
             await deleteAuthUser(supabase_uid).catch((e) =>
@@ -226,7 +247,7 @@ export async function createNewStudent(
             supabase_uid = uid;
         }
 
-        return await insertStudent(
+        const addedUser = await insertStudent(
             supabase_uid,
             email,
             name,
@@ -240,6 +261,12 @@ export async function createNewStudent(
             mom_id,
             dad_id
         );
+
+        if (email) {
+            await updateLastInvitationAtByUUID(supabase_uid, 'student');
+        }
+
+        return addedUser
     } catch (err) {
         if (supabase_uid) {
             await deleteAuthUser(supabase_uid).catch((e) =>

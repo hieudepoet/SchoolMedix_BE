@@ -36,7 +36,9 @@ import {
         getFullHealthAndSpecialRecordsOfAStudent,
         sendRegister,
         updateCampaign,
-        getAllHealthRecordOfStudent
+        getAllHealthRecordOfStudent,
+        getFullRecordOfAStudentInACampaign,
+        getHealthRecordByID
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
@@ -46,7 +48,7 @@ const router = express.Router();
 router.post('/checkup/:campaign_id/send-register', sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
 router.put('/checkup/:campaign_id/update-info', updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
 
-router.get('/health-record/:student_id',getAllHealthRecordOfStudent); //Truyền vào Student_id lấy tất cả ds healthrecord của Student
+router.get('/health-record/:student_id', getAllHealthRecordOfStudent); //Truyền vào Student_id lấy tất cả ds healthrecord của Student
 
 
 router.get('/checkup/campaign_id/:campaign_id/student_id/:student_id', getRegisterID); //Lấy Register ID 
@@ -99,7 +101,11 @@ router.patch('/checkup/:id/record', updateHealthRecord) // Doctor or Nurse updat
 router.get('/checkup-register/student/:id', getCheckupRegisterStudent);  // Student lấy các lịch sử registers
 router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealthRecordStudent);//Student view Health Record
 
-router.get("/specialist-exam", getALLSpeciaListExams); // lất toàn bộ các chuyên môn khám có sẵn
+// duy khanh
+router.get("/full-record/campaign/:campaign_id/student/:student_id", getFullRecordOfAStudentInACampaign); // lấy toàn bộ khám chuyên khoa, khám tổng quát của một học sinh trong một đợt khám định kỳ
+router.get("/health-record/:record_id/detail", getHealthRecordByID);
+
+router.get("/specialist-exam", getALLSpeciaListExams); // lấy toàn bộ các chuyên môn khám có sẵn
 
 router.get("/campaign/:campaign_id/specialist-exam/record", getAllRecordsOfEachSpeExamInACampaign); //
 
