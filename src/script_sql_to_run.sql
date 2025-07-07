@@ -917,7 +917,7 @@ CREATE TABLE vaccination_campaign (
 );
 
 INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, location, start_date, end_date, status) VALUES
-(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED');
+(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'DRAFTED');
 
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
@@ -932,19 +932,19 @@ CREATE TABLE vaccination_campaign_register (
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
-INSERT INTO vaccination_campaign_register (
-  campaign_id,
-  student_id,
-  reason,
-  is_registered,
-  submit_time,
-  submit_by
-)
-VALUES
-(1, '211000', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
-(1, '211001', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
-(1, '211002', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
-(1, '211003', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
+-- INSERT INTO vaccination_campaign_register (
+--   campaign_id,
+--   student_id,
+--   reason,
+--   is_registered,
+--   submit_time,
+--   submit_by
+-- )
+-- VALUES
+-- (1, '211000', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
+-- (1, '211001', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
+-- (1, '211002', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
+-- (1, '211003', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
 
 
 
@@ -979,16 +979,16 @@ INSERT INTO vaccination_record (
   status
 )
 VALUES
-  (
-    '211000',
-    1,
-    1,
-    1,
-    '2025-06-15',
-    'Tiêm vaccine BCG phòng bệnh Lao..............',
-    'School Medix',
-    'COMPLETED'
-  ),
+  -- (
+  --   '211000',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-15',
+  --   'Tiêm vaccine BCG phòng bệnh Lao..............',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
   (
     '211000',
     NULL,
@@ -999,36 +999,36 @@ VALUES
     'School Medix',
     'COMPLETED'
   ),
-  (
-    '211001',
-    1,
-    1,
-    1,
-    '2025-06-15',
-    'Tiêm vaccine BCG phòng bệnh Lao................',
-    'School Medix',
-    'COMPLETED'
-  ),
-  (
-    '211002',
-    1,
-    1,
-    1,
-    '2025-06-16',
-    'Tiêm vaccine BCG phòng bệnh Lao.........',
-    'School Medix',
-    'COMPLETED'
-  ),
-  (
-    '211003',
-    1,
-    1,
-    1,
-    '2025-06-17',
-    'Tiêm vaccine BCG phòng bệnh Lao.............',
-    'School Medix',
-    'COMPLETED'
-  ),
+  -- (
+  --   '211001',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-15',
+  --   'Tiêm vaccine BCG phòng bệnh Lao................',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
+  -- (
+  --   '211002',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-16',
+  --   'Tiêm vaccine BCG phòng bệnh Lao.........',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
+  -- (
+  --   '211003',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-17',
+  --   'Tiêm vaccine BCG phòng bệnh Lao.............',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
   (
     '211002',
     NULL,
@@ -1100,6 +1100,7 @@ VALUES
 -----------------------------------------------------------------------------------------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE TABLE disease_record (
+    id SERIAL PRIMARY KEY,
     student_id VARCHAR(10) NOT NULL,
     disease_id INT NOT NULL,
     diagnosis TEXT,
@@ -1108,27 +1109,27 @@ CREATE TABLE disease_record (
     location_cure TEXT,
     transferred_to TEXT,
     status VARCHAR(50) CHECK (status IN ('RECOVERED', 'UNDER_TREATMENT')),
+    pending VARCHAR(50) CHECK (pending IN ('PENDING', 'DONE', 'CANCELLED')),
+    reason_by_nurse TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_id) REFERENCES student(id),
-    FOREIGN KEY (disease_id) REFERENCES disease(id),
-    
-    PRIMARY KEY (student_id, disease_id)
+    FOREIGN KEY (disease_id) REFERENCES disease(id)
 );
 
 INSERT INTO disease_record (
-    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status
-)
+    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status, pending
+) 
 VALUES
-('211000', 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED'),
-('211001', 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT'),
-('211002', 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED'),
-('211003', 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211000', 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED'),
-('211001', 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211002', 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT'),
-('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
-('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
+('211000', 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED', 'DONE'),
+('211001', 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211002', 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED', 'DONE'),
+('211003', 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211000', 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED', 'DONE'),
+('211001', 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211002', 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED', 'DONE'),
+('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT', 'DONE');
     
