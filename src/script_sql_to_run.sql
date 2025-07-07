@@ -1132,3 +1132,16 @@ VALUES
 ('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 ('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
     
+------------------------------------------------------------------- OTP FLOW
+
+CREATE TABLE otps (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  target text, -- email, sdt,...
+  otp TEXT,
+  purpose TEXT,   
+  is_used BOOLEAN DEFAULT FALSE,
+  expires_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
