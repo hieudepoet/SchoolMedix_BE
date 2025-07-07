@@ -506,7 +506,8 @@ INSERT INTO RequestItem (request_id, name, intake_template_time, dosage_usage) V
 ------------------------------------------------------------------------------------------------------------------------------------FLOW CHECKUP CAMPAIGN
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE TYPE campaign_status AS ENUM (
-    'PREPARING',
+   'DRAFTED',
+   'PREPARING',
     'UPCOMING',
     'CANCELLED',
     'DONE',
@@ -520,7 +521,7 @@ CREATE TABLE CheckupCampaign (
     location VARCHAR(255),
     start_date DATE,
 	end_date DATE,
-    status campaign_status NOT NULL DEFAULT 'PREPARING'
+    status campaign_status NOT NULL DEFAULT 'DRAFTED'
 );
 
 INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, status) VALUES
