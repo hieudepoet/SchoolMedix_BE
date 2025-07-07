@@ -122,12 +122,12 @@ export async function insertStudent(
 }
 
 export async function getProfileOfAdminByID(admin_Id) {
-  const result = await query('select * from admin where id = $1 and is_deleted = false', [admin_Id]);
+  const result = await query(`select 'admin' as role, * from admin where id = $1 and is_deleted = false`, [admin_Id]);
   return result.rows[0];
 }
 
 export async function getProfileOfNurseByID(nurse_id) {
-  const result = await query('SELECT * FROM nurse WHERE id = $1 and is_deleted = false', [nurse_id]);
+  const result = await query(`SELECT 'nurse' as role, * FROM nurse WHERE id = $1 and is_deleted = false`, [nurse_id]);
   return result.rows[0];
 }
 
@@ -136,6 +136,7 @@ export async function getProfileOfParentByID(parent_id) {
     ` 
 SELECT 
     p.id,
+    'parent' as role,
     p.supabase_uid,
     p.email,
     p.name,
@@ -189,6 +190,7 @@ export async function getProfileOfStudentByID(student_id) {
 SELECT 
   s.id,
   s.supabase_uid,
+  'student' as role,
   s.email,
   s.name,
   s.dob,
@@ -401,12 +403,12 @@ WHERE s.supabase_uid = $1 AND s.is_deleted = false;
 
 
 export async function getAllAdmins() {
-  const result = await query('SELECT * FROM admin where is_deleted = false ORDER BY id ');
+  const result = await query(`SELECT 'admin' as role, * FROM admin where is_deleted = false ORDER BY id `);
   return result.rows;
 }
 
 export async function getAllNurses() {
-  const result = await query('SELECT * FROM nurse where is_deleted = false ORDER BY id');
+  const result = await query(`SELECT 'nurse' as role, * FROM nurse where is_deleted = false ORDER BY id`);
   return result.rows;
 }
 
@@ -417,6 +419,7 @@ export async function getAllParents() {
 FROM (
   SELECT 
     p.id,
+    'parent' as role,
     p.supabase_uid,
     p.email,
     p.name,
@@ -470,6 +473,7 @@ export async function getAllStudents() {
   const result = await query(`
     SELECT json_build_object(
   'id', s.id,
+  'role', 'student',
   'supabase_uid', s.supabase_uid,
   'email', s.email,
   'name', s.name,
@@ -538,8 +542,9 @@ ORDER BY s.id;
 
 export async function getAllStudentsByClassID(class_id) {
   const result = await query(`
-    SELESELECT json_build_object(
+    select json_build_object(
   'id', s.id,
+  'role', 'student',
   'supabase_uid', s.supabase_uid,
   'email', s.email,
   'name', s.name,
@@ -611,6 +616,7 @@ export async function getAllStudentsByGradeID(grade_id) {
     SELECT json_build_object(
   'id', s.id,
   'supabase_uid', s.supabase_uid,
+  'role', 'student',
   'email', s.email,
   'name', s.name,
   'dob', s.dob,
@@ -852,13 +858,13 @@ export async function deleteUserByID(role, id) {
 }
 
 export async function updateLastInvitationAtByID(id, role) {
-  const sql = `update ${role} set last_invitation_at = now() where id = ${id} returning *`;
+  const sql = `update ${role} set last_invitation_at = now() where id = '${id}' returning *`;
   const result = await query(sql);
   return result.rows[0] > 0;
 }
 
 export async function updateLastInvitationAtByUUID(supabase_uid, role) {
-  const sql = `update ${role} set last_invitation_at = now() where supabase_uid = ${supabase_uid} returning *`;
+  const sql = `update ${role} set last_invitation_at = now() where supabase_uid = '${supabase_uid}' returning *`;
   const result = await query(sql);
   return result.rows[0] > 0;
 }

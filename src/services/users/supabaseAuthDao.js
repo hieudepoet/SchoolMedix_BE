@@ -69,19 +69,23 @@ export async function sendInviteLinkToEmails(users = []) {
                 throw new Error(`Tạo link mời thất bại: ${linkError.message}`);
             }
 
-            await sendInviteEmail(email, name, role, linkData.action_link);
+            console.log(linkData);
+
+            await sendInviteEmail(email, name, role, linkData.properties.action_link);
 
             return {
                 email,
                 error: false,
+                role,
                 supabase_uid: linkData.user.id,
-                invite_link: linkData.action_link,
+                invite_link: linkData.properties.action_link,
             };
         } catch (err) {
             console.error(`❌ Gửi email mời thất bại cho ${email}:`, err.message);
             return {
                 email,
                 error: true,
+                role,
                 message: err.message,
             };
         }
@@ -121,7 +125,7 @@ export async function createNewAdmin(
         );
 
         if (email) {
-            await updateLastInvitationAtByUUID(supabase_uid, role);
+            await updateLastInvitationAtByUUID(supabase_uid, 'admin');
         }
 
         return addedUser;
@@ -165,7 +169,7 @@ export async function createNewNurse(
         );
 
         if (email) {
-            await updateLastInvitationAtByUUID(supabase_uid, role);
+            await updateLastInvitationAtByUUID(supabase_uid, 'nurse');
         }
 
         return addedUser;
@@ -208,7 +212,7 @@ export async function createNewParent(
         );
 
         if (email) {
-            await updateLastInvitationAtByUUID(supabase_uid, role);
+            await updateLastInvitationAtByUUID(supabase_uid, 'parent');
         }
 
         return addedUser;
@@ -259,7 +263,7 @@ export async function createNewStudent(
         );
 
         if (email) {
-            await updateLastInvitationAtByUUID(supabase_uid, role);
+            await updateLastInvitationAtByUUID(supabase_uid, 'student');
         }
 
         return addedUser

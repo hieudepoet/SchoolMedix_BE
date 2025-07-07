@@ -71,8 +71,8 @@ CREATE TABLE Admin (
   profile_img_url TEXT,
   email_confirmed BOOLEAN DEFAULT false not null,
   is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at date DEFAULT null,
-  created_at date default now()
+  last_invitation_at TIMESTAMP  DEFAULT null,
+  created_at TIMESTAMP  default now()
 );
 -- start admin id from 100000
 ALTER SEQUENCE admin_id_seq RESTART WITH 100000;
@@ -118,8 +118,8 @@ CREATE TABLE Nurse (
   profile_img_url TEXT,
   email_confirmed BOOLEAN DEFAULT false not null,
   is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at date DEFAULT null,
-  created_at date default now()
+  last_invitation_at TIMESTAMP DEFAULT null,
+  created_at TIMESTAMP default now()
 );
 -- start nurse id from 100000
 ALTER SEQUENCE nurse_id_seq RESTART WITH 100000;
@@ -133,7 +133,9 @@ INSERT INTO Nurse (
   address,
   phone_number,
   profile_img_url,
-  email_confirmed
+  email_confirmed,
+  last_invitation_at,
+  created_at
 )
 VALUES (
   '322526ca-3a47-494a-a0fa-4866f0af9477',
@@ -164,8 +166,8 @@ CREATE TABLE Parent (
   profile_img_url TEXT,
   email_confirmed BOOLEAN DEFAULT false not null,
   is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at date DEFAULT null,
-  created_at date default now()
+  last_invitation_at TIMESTAMP DEFAULT null,
+  created_at TIMESTAMP default now()
 );
 
 -- start parent id from 100000
@@ -211,7 +213,7 @@ INSERT INTO parent (
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
     true,
     null,
-    "2025-06-08 04:38:49"
+    '2025-06-08 04:38:49'
   ),
   (
     '81705d11-3052-4d70-82f2-1c11e8077dbe',
@@ -305,8 +307,8 @@ CREATE TABLE Student (
       mom_id int REFERENCES parent(id),
       dad_id int REFERENCES parent(id),
   is_deleted BOOLEAN DEFAULT false not null,
-  last_invitation_at date DEFAULT null,
-  created_at date default now()
+  last_invitation_at TIMESTAMP DEFAULT null,
+  created_at TIMESTAMP default now()
 );
 
 
