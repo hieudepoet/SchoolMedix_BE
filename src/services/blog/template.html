@@ -1,184 +1,127 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Blog Editor - Upload ALL image on Save</title>
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <style>
-      body { font-family: 'Segoe UI', sans-serif; background: #fafbfc; margin: 0; padding: 40px 0; }
-      .editor-container { max-width: 700px; margin: auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 36px 32px 24px 32px; }
-      .editor-form input, .editor-form select { display: block; margin-bottom: 14px; width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 16px; background: #f8fafc; }
-      #editor { height: 260px; border-radius: 0 0 8px 8px; background: #fff; margin-bottom: 14px; }
-      .editor-form button { background: #2864e8; color: #fff; padding: 12px 32px; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: 600; box-shadow: 0 1px 4px rgba(40,100,232,0.09); }
-      .editor-form button:hover { background: #1b439e; }
-      #thumb-preview { max-width: 180px; max-height: 130px; margin-bottom: 10px; display: none; border-radius: 8px; border: 1px solid #eee;}
-      label[for="thumbnail"] { font-weight: 600; margin-bottom: 6px; display: block;}
-    </style>
-  </head>
-  <body>
-    <div class="editor-container">
-      <h2>Blog Editor (Tất cả ảnh upload khi Save)</h2>
-      <form class="editor-form" onsubmit="saveBlog(event)">
-        <input id="title" type="text" placeholder="Tiêu đề bài viết" required />
-        <select id="category" required>
-          <option value="">Chọn thể loại</option>
-          <option value="news">Tin tức</option>
-          <option value="tutorial">Hướng dẫn</option>
-          <option value="review">Đánh giá</option>
-          <option value="story">Chia sẻ</option>
-        </select>
-        <input id="date" type="date" required />
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Blog Editor với TinyMCE (FREE)</title>
+  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #fafbfc; margin: 0; padding: 40px 0; }
+    .editor-container { max-width: 700px; margin: auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 36px 32px 24px 32px; }
+    .editor-form input, .editor-form select { display: block; margin-bottom: 14px; width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 16px; background: #f8fafc; }
+    .editor-form button { background: #2864e8; color: #fff; padding: 12px 32px; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: 600; box-shadow: 0 1px 4px rgba(40,100,232,0.09); }
+    .editor-form button:hover { background: #1b439e; }
+    #thumb-preview { max-width: 180px; max-height: 130px; margin-bottom: 10px; display: none; border-radius: 8px; border: 1px solid #eee;}
+    label[for="thumbnail"] { font-weight: 600; margin-bottom: 6px; display: block;}
+  </style>
+</head>
+<body>
+  <div class="editor-container">
+    <h2>Blog Editor (TinyMCE FREE)</h2>
+    <form class="editor-form" onsubmit="saveBlog(event)">
+      <input id="title" type="text" placeholder="Tiêu đề bài viết" required />
+      <select id="category" required>
+        <option value="">Chọn thể loại</option>
+        <option value="news">Tin tức</option>
+        <option value="tutorial">Hướng dẫn</option>
+        <option value="review">Đánh giá</option>
+        <option value="story">Chia sẻ</option>
+      </select>
+      <input id="date" type="date" required />
 
-        <label for="thumbnail">Ảnh đại diện (bắt buộc):</label>
-        <input id="thumbnail" type="file" accept="image/*" required />
-        <img id="thumb-preview" src="" alt="Thumbnail preview"/>
+      <label for="thumbnail">Ảnh đại diện (bắt buộc):</label>
+      <input id="thumbnail" type="file" accept="image/*" required />
+      <img id="thumb-preview" src="" alt="Thumbnail preview"/>
 
-        <div id="editor"></div>
-        <button type="submit">Lưu bài viết</button>
-      </form>
-    </div>
+      <textarea id="editor"></textarea>
+      <button type="submit">Lưu bài viết</button>
+    </form>
+  </div>
 
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script>
-      // Hiển thị preview thumbnail
-      document.getElementById('thumbnail').addEventListener('change', function (e) {
-        const file = this.files[0];
-        const preview = document.getElementById('thumb-preview');
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function (evt) {
-            preview.src = evt.target.result;
-            preview.style.display = 'block';
-          };
-          reader.readAsDataURL(file);
-        } else {
-          preview.src = '';
-          preview.style.display = 'none';
-        }
-      });
-
-      // --- Custom Image Handler: chỉ chèn ảnh local, KHÔNG upload ngay ---
-      function imageHandler() {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.click();
-
-        input.onchange = function () {
-          const file = input.files[0];
-          if (!file) return;
-
-          // Chèn ảnh local (dùng objectURL, không upload lên BE)
-          const reader = new FileReader();
-          reader.onload = function (evt) {
-            const range = quill.getSelection(true);
-            quill.insertEmbed(range.index, 'image', evt.target.result); // evt.target.result là base64 data URL
-            quill.setSelection(range.index + 1);
-          };
-          reader.readAsDataURL(file);
+  <script>
+    // Xem trước ảnh thumbnail
+    document.getElementById('thumbnail').addEventListener('change', function (e) {
+      const file = this.files[0];
+      const preview = document.getElementById('thumb-preview');
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          preview.src = evt.target.result;
+          preview.style.display = 'block';
         };
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = '';
+        preview.style.display = 'none';
       }
+    });
 
-      // Init Quill
-      var quill = new Quill('#editor', {
-        theme: 'snow',
-        placeholder: 'Nhập nội dung bài viết...',
-        modules: {
-          toolbar: {
-            container: [
-              [{ 'header': [1, 2, 3, false] }],
-              ['bold', 'italic', 'underline', 'strike'],
-              [{ 'color': [] }, { 'background': [] }],
-              [{ 'align': [] }],
-              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-              ['blockquote', 'code-block'],
-              ['link', 'image'],
-              ['clean']
-            ],
-            handlers: {
-              'image': imageHandler
-            }
-          }
-        }
-      });
-
-      // Helper: Chuyển base64 sang file (cho ảnh nội dung)
-      function dataURLtoFile(dataurl, filename) {
-        let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while(n--) u8arr[n] = bstr.charCodeAt(n);
-        return new File([u8arr], filename, {type:mime});
-      }
-
-      // Gửi lên BE, upload tất cả ảnh khi ấn Save
-      async function saveBlog(e) {
-        e.preventDefault();
-
-        const title = document.getElementById('title').value;
-        const category = document.getElementById('category').value;
-        const date = document.getElementById('date').value;
-        let content = quill.root.innerHTML;
-        const thumbnailInput = document.getElementById('thumbnail');
-        const thumbFile = thumbnailInput.files[0];
-
-        if (!thumbFile) {
-          alert("Bạn phải chọn ảnh đại diện!");
-          thumbnailInput.focus();
-          return;
-        }
-
-        // 1. Tìm tất cả các <img src="..."> trong nội dung (dạng base64)
-        let imgBase64s = [];
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(content, 'text/html');
-        let imgs = doc.querySelectorAll('img');
-        imgs.forEach((img, idx) => {
-          if (img.src.startsWith('data:image')) {
-            imgBase64s.push({node: img, dataUrl: img.src, idx: idx});
-          }
-        });
-
-        // 2. Upload từng ảnh lên BE lấy về link public rồi thay vào nội dung
-        for (let i = 0; i < imgBase64s.length; ++i) {
-          const imgData = imgBase64s[i];
-          const files = dataURLtoFile(imgData.dataUrl, `content-img-${Date.now()}-${i}.png`);
-          const formData = new FormData();
-          formData.append('files', files);
-
-          // Đổi đúng endpoint của bạn
-          const res = await fetch('http://localhost:3000/api/upload-image', {
-            method: 'POST',
-            body: formData
-          });
-          const data = await res.json();
-          if (data.url) {
-            imgData.node.src = data.url;
-          }
-        }
-        // 3. Lấy lại HTML content sau khi thay link ảnh
-        content = doc.body.innerHTML;
-
-        // 4. Gửi tất cả lên BE: tiêu đề, thể loại, ngày, thumbnail, content (link ảnh đã là url public)
-        const finalFormData = new FormData();
-        finalFormData.append('title', title);
-        finalFormData.append('category', category);
-        finalFormData.append('date', date);
-        finalFormData.append('content', content);
-        finalFormData.append('thumbnail', thumbFile);
+    // Cấu hình TinyMCE (FREE), cho phép upload ảnh về server custom
+    tinymce.init({
+      selector: '#editor',
+      height: 320,
+      menubar: false,
+      plugins: 'lists link image code table',
+      toolbar: 'undo redo | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote code | image link table | removeformat',
+      branding: false,
+      content_style: "body { font-size:16px; font-family: 'Segoe UI', sans-serif; }",
+      // Chỉ cho phép upload ảnh .png, .jpg
+      images_file_types: 'jpg,jpeg,png',
+      images_upload_url: 'http://localhost:3000/api/upload-image', // BE của bạn
+      automatic_uploads: true,
+      // Xử lý upload ảnh lên BE (custom, miễn phí)
+      images_upload_handler: function (blobInfo, success, failure) {
+        var formData = new FormData();
+        formData.append('file', blobInfo.blob(), blobInfo.filename());
 
         fetch('http://localhost:3000/api/upload-image', {
           method: 'POST',
-          body: finalFormData
+          body: formData
         })
           .then(res => res.json())
           .then(data => {
-            alert('Bài viết đã lưu thành công!');
+            if (data.url) success(data.url);
+            else failure('Upload thất bại!');
           })
-          .catch(err => {
-            alert('Có lỗi khi lưu bài viết!');
-            console.error(err);
-          });
+          .catch(() => failure('Có lỗi khi upload ảnh!'));
       }
-    </script>
-  </body>
+    });
+
+    // Gửi form
+    async function saveBlog(e) {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const category = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      const thumbnailInput = document.getElementById('thumbnail');
+      const thumbFile = thumbnailInput.files[0];
+      const content = tinymce.get('editor').getContent();
+
+      if (!thumbFile) {
+        alert("Bạn phải chọn ảnh đại diện!");
+        thumbnailInput.focus();
+        return;
+      }
+
+      const finalFormData = new FormData();
+      finalFormData.append('title', title);
+      finalFormData.append('category', category);
+      finalFormData.append('date', date);
+      finalFormData.append('content', content);
+      finalFormData.append('thumbnail', thumbFile);
+
+      fetch('http://localhost:3000/api/save-blog', {
+        method: 'POST',
+        body: finalFormData
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert('Bài viết đã lưu thành công!');
+        })
+        .catch(err => {
+          alert('Có lỗi khi lưu bài viết!');
+          console.error(err);
+        });
+    }
+  </script>
+</body>
 </html>

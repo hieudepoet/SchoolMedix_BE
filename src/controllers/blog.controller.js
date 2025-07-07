@@ -38,7 +38,8 @@ export async function uploadImgSupabase(req, res) {
 
 export async function createBlog(req, res) {
 
-    const { title,
+    const { 
+        title,
         content,
         thumbnail_url,
         blog_type_id,
