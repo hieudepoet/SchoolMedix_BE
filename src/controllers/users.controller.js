@@ -32,7 +32,8 @@ import {
       sendOTPEmail,
       getUserByEmail,
       generateRecoveryLink,
-      sendRecoveryLinkEmailForForgotPassword
+      sendRecoveryLinkEmailForForgotPassword,
+      updateLastInvitationAtByUUID
 
 
 } from "../services/index.js";
@@ -538,66 +539,6 @@ export async function removeDadFromStudent(req, res) {
       }
 }
 
-export async function editUserInfoByAdmin(req, res) {
-      const { id, role, updates } = req.body;
-
-      if (!id) {
-            return res.status(400).json({
-                  error: true,
-                  message: "Thiếu ID người dùng."
-            });
-      }
-
-      if (!role) {
-            return res.status(400).json({
-                  error: true,
-                  message: "Thiếu vai trò người dùng (admin, nurse, parent, student)."
-            });
-      }
-
-      if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-            return res.status(400).json({
-                  error: true,
-                  message: "Trường 'updates' phải là một object chứa thông tin cần cập nhật."
-            });
-      }
-
-      if (Object.keys(updates).length === 0) {
-            return res.status(400).json({
-                  error: true,
-                  message: "Không có trường nào để cập nhật."
-            });
-      }
-
-      // khoong cho cập nhật supabase_uid, tự động sinh khi tạo mới tài khoản với email
-      if (updates?.supabase_uid) {
-            return res.status(400).json({
-                  error: true,
-                  message: "Không thể cập nhật trực tiếp supabase_uid (tự động sinh khi tạo mới tài khoản)."
-            });
-      }
-
-      try {
-            // nếu profile chưa đăng ký tài khoản mà cập nhật mới email thì sẽ tạo mới tài khoản (gửi qua mail acc + pass) rồi gắn supabase_uid vào user_profile
-            // nếu profile đăng ký tài khoản rồi mà cập nhật email mới thì gửi lại
-            const result = await editUserProfileByAdmin(id, role, updates);
-
-            if (!result) {
-                  return res.status(404).json({ error: true, message: "Không tìm thấy người dùng." });
-            }
-
-            return res.status(200).json({
-                  error: false,
-                  message: "Cập nhật thành công.",
-                  data: result
-            });
-
-      } catch (err) {
-            console.error("Lỗi khi cập nhật thông tin người dùng:", err);
-            return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
-      }
-}
-
 export async function handleUploadProfileImg(req, res) {
       const upload = multer({ storage: multer.memoryStorage() }).single('image');
 
@@ -730,7 +671,7 @@ export async function handleConfirmEmailForUser(req, res) {
 }
 
 export async function handleSendingInvitationToEmails(req, res) {
-      const users = req.body;
+      const { users } = req.body;
 
       if (!Array.isArray(users) || users.length === 0) {
             return res.status(400).json({
@@ -741,6 +682,16 @@ export async function handleSendingInvitationToEmails(req, res) {
 
       try {
             const results = await sendInviteLinkToEmails(users);
+            console.log(results);
+
+            // lấy ra những user gửi thành công
+            const updated_last_invite_at_users = results.filter((user_res) => user_res.error === false);
+            console.log(updated_last_invite_at_users);
+            await Promise.all(
+                  updated_last_invite_at_users.map(({ supabase_uid, role }) =>
+                        updateLastInvitationAtByUUID(supabase_uid, role)
+                  )
+            );
 
             return res.status(200).json({
                   error: false,
@@ -1437,5 +1388,67 @@ export async function handleExistEmail(req, res) {
                   error: true,
                   message: "Lỗi hệ thống khi kiểm tra email.",
             });
+      }
+}
+
+
+// ------------------------------------------------------------------------ FLOW UPDATE AND ACCOUNT UPDATE
+export async function editUserInfoByAdmin(req, res) {
+      const { id, role, updates } = req.body;
+
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID người dùng."
+            });
+      }
+
+      if (!role) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu vai trò người dùng (admin, nurse, parent, student)."
+            });
+      }
+
+      if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Trường 'updates' phải là một object chứa thông tin cần cập nhật."
+            });
+      }
+
+      if (Object.keys(updates).length === 0) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Không có trường nào để cập nhật."
+            });
+      }
+
+      // khoong cho cập nhật supabase_uid, tự động sinh khi tạo mới tài khoản với email
+      if (updates?.supabase_uid) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Không thể cập nhật trực tiếp supabase_uid (tự động sinh khi tạo mới tài khoản)."
+            });
+      }
+
+      try {
+            // nếu profile chưa đăng ký tài khoản mà cập nhật mới email thì sẽ tạo mới tài khoản (gửi qua mail acc + pass) rồi gắn supabase_uid vào user_profile
+            // nếu profile đăng ký tài khoản rồi mà cập nhật email mới thì gửi lại
+            const result = await editUserProfileByAdmin(id, role, updates);
+
+            if (!result) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy người dùng." });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Cập nhật thành công.",
+                  data: result
+            });
+
+      } catch (err) {
+            console.error("Lỗi khi cập nhật thông tin người dùng:", err);
+            return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
       }
 }
