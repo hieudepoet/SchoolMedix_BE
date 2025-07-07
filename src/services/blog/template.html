@@ -141,12 +141,12 @@
         // 2. Upload từng ảnh lên BE lấy về link public rồi thay vào nội dung
         for (let i = 0; i < imgBase64s.length; ++i) {
           const imgData = imgBase64s[i];
-          const file = dataURLtoFile(imgData.dataUrl, `content-img-${Date.now()}-${i}.png`);
+          const files = dataURLtoFile(imgData.dataUrl, `content-img-${Date.now()}-${i}.png`);
           const formData = new FormData();
-          formData.append('file', file);
+          formData.append('files', files);
 
           // Đổi đúng endpoint của bạn
-          const res = await fetch('http://localhost:4000/api/upload-image', {
+          const res = await fetch('http://localhost:3000/api/upload-image', {
             method: 'POST',
             body: formData
           });
@@ -166,7 +166,7 @@
         finalFormData.append('content', content);
         finalFormData.append('thumbnail', thumbFile);
 
-        fetch('http://localhost:4000/api/save-blog', {
+        fetch('http://localhost:3000/api/upload-image', {
           method: 'POST',
           body: finalFormData
         })
