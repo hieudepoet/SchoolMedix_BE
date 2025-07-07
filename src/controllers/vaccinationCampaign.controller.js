@@ -667,7 +667,6 @@ export async function createVaccinationRecord(req, res) {
     location,
     vaccination_date,
     status,
-    campaign_id,
   } = req.body;
   if (
     !student_id ||
@@ -679,24 +678,6 @@ export async function createVaccinationRecord(req, res) {
     return res
       .status(400)
       .json({ error: true, message: "Missing required fields" });
-  }
-
-  if (campaign_id) {
-    //Check if campaign exists
-    const campaign = await query(
-      `
-        SELECT * FROM vaccination_campaign
-        WHERE id = $1
-      `,
-      [campaign_id]
-    );
-
-    if (campaign.rowCount === 0) {
-      return res.status(404).json({
-        error: true,
-        message: "Chiến dịch không tồn tại",
-      });
-    }
   }
 
   try {
@@ -712,7 +693,7 @@ export async function createVaccinationRecord(req, res) {
 
     // Insert vaccination record into database
     const insertQuery = `
-                  INSERT INTO vaccination_record (student_id, register_id, description, disease_id, vaccine_id, location, vaccination_date, status, campaign_id)
+                  INSERT INTO vaccination_record (student_id, register_id, description, disease_id, vaccine_id, location, vaccination_date, status)
                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                   RETURNING *;
             `;
@@ -726,7 +707,6 @@ export async function createVaccinationRecord(req, res) {
       location || null,
       vaccination_date,
       status,
-      campaign_id || null,
     ]);
 
     return res
