@@ -10,7 +10,7 @@
             "test": "jest"
       },
       "dependencies": {
-            "@supabase/supabase-js": "^2.50.0",
+            "@supabase/supabase-js": "^2.50.3",
             "cors": "^2.8.5",
             "crypto": "^1.0.1",
             "dotenv": "^16.5.0",
