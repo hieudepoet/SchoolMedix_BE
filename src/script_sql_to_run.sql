@@ -517,7 +517,7 @@ CREATE TABLE HealthRecord (
     lungs VARCHAR(100),
     spine VARCHAR(100),
     posture VARCHAR(100),
-
+    record_url text DEFAULT NULL,
     final_diagnosis TEXT,
 	is_checked BOOLEAN DEFAULT FALSE,
 	status health_record_status NOT NULL DEFAULT 'WAITING'

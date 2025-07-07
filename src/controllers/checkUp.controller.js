@@ -1368,24 +1368,43 @@ export async function getFullHealthAndSpecialRecordsOfAStudent(req, res) {
         // Lấy health record
         const healthResult = await query(
             `SELECT 
-                cr.campaign_id,
-                campaign.name as campaign_name,
-                campaign.description as campaign_description,
-                hr.id AS health_record_id,
-                hr.record_url,
-                hr.register_id,
-                cr.student_id,
-                stu.name as student_name,
-                stu.dob as student_dob,
-                clas.name as class_name,
-                hr.is_checked,
-                hr.status AS record_status
-            FROM HealthRecord hr
-            JOIN CheckupRegister cr ON hr.register_id = cr.id
-            JOIN student stu ON stu.id = cr.student_id
-            JOIN class clas ON clas.id = stu.class_id
-            JOIN checkupcampaign campaign ON campaign.id = cr.campaign_id
-            WHERE cr.student_id = $1`,
+    cr.campaign_id,
+    campaign.name AS campaign_name,
+    campaign.description AS campaign_description,
+    hr.id AS health_record_id,
+    hr.record_url,
+    hr.register_id,
+    cr.student_id,
+    stu.name AS student_name,
+    stu.dob AS student_dob,
+    clas.name AS class_name,
+
+    hr.height,
+    hr.weight,
+    hr.blood_pressure,
+    hr.left_eye,
+    hr.right_eye,
+    hr.ear,
+    hr.nose,
+    hr.throat,
+    hr.teeth,
+    hr.gums,
+    hr.skin_condition,
+    hr.heart,
+    hr.lungs,
+    hr.spine,
+    hr.posture,
+    hr.final_diagnosis,
+    hr.is_checked,
+    hr.status AS record_status
+
+FROM HealthRecord hr
+JOIN CheckupRegister cr ON hr.register_id = cr.id
+JOIN student stu ON stu.id = cr.student_id
+JOIN class clas ON clas.id = stu.class_id
+JOIN checkupcampaign campaign ON campaign.id = cr.campaign_id
+WHERE cr.student_id = $1
+`,
             [id]
         );
 
