@@ -1113,3 +1113,49 @@ CREATE TABLE otps (
 );
 
 CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
+
+-------------------------------------------------------------------------------------------------------------------------------------- Blog
+
+-- 1. Bảng loại blog
+CREATE TABLE blog_type (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
+);
+
+INSERT INTO blog_type (name, description) VALUES
+('Dinh dưỡng học đường'
+, 'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'),
+
+('Chăm sóc sức khỏe học đường'
+, 'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'),
+
+('Tâm lý học đường'
+, 'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'),
+
+('Phòng chống bệnh học đường'
+, 'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'),
+
+('Hoạt động y tế trường học'
+, 'Các chương trình, sự kiện, tiêm chủng và hoạt động y tế tại trường');
+
+
+-- 2. Bảng blog (có thumbnail_url)
+CREATE TABLE blog (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    thumbnail_url VARCHAR(255), -- ảnh đại diện
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT NULL,
+	is_deleted BOOLEAN  DEFAULT FALSE,
+    blog_type_id INTEGER REFERENCES blog_type(id) ON DELETE SET NULL
+);
+
+select * from blog
+
+
+
+
+
+
