@@ -1563,6 +1563,69 @@ export async function getFullRecordOfAStudentInACampaign(req, res) {
 }
 
 
+export async function getHealthRecordByID(req, res) {
+    const { record_id } = req.params;
+
+    if (!record_id) {
+        return res.status(400).json({ error: true, message: "Thiếu record_id." });
+    }
+
+    try {
+        const result = await query(
+            `SELECT 
+                hr.id AS health_record_id,
+                hr.record_url,
+                hr.register_id,
+                cr.student_id,
+                stu.name AS student_name,
+                stu.dob AS student_dob,
+                stu.ismale AS student_gender,
+                clas.name AS class_name,
+                campaign.id AS campaign_id,
+                campaign.name AS campaign_name,
+                campaign.description AS campaign_description,
+
+                hr.height,
+                hr.weight,
+                hr.blood_pressure,
+                hr.left_eye,
+                hr.right_eye,
+                hr.ear,
+                hr.nose,
+                hr.throat,
+                hr.teeth,
+                hr.gums,
+                hr.skin_condition,
+                hr.heart,
+                hr.lungs,
+                hr.spine,
+                hr.posture,
+                hr.final_diagnosis,
+                hr.is_checked,
+                hr.status AS record_status
+
+            FROM HealthRecord hr
+            JOIN CheckupRegister cr ON hr.register_id = cr.id
+            JOIN student stu ON stu.id = cr.student_id
+            JOIN class clas ON clas.id = stu.class_id
+            JOIN checkupcampaign campaign ON campaign.id = cr.campaign_id
+            WHERE hr.id = $1`,
+            [record_id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: true, message: "Không tìm thấy health record." });
+        }
+
+        return res.status(200).json({ error: false, data: result.rows[0] });
+    } catch (err) {
+        console.error("❌ Error fetching health record by ID:", err);
+        return res.status(500).json({ error: true, message: "Lỗi khi lấy health record." });
+    }
+}
+
+
+
 export async function getHealthRecordParentDetails(req, res) {
     const { health_record_id } = req.body;
     try {

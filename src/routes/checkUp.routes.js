@@ -37,7 +37,8 @@ import {
         sendRegister,
         updateCampaign,
         getAllHealthRecordOfStudent,
-        getFullRecordOfAStudentInACampaign
+        getFullRecordOfAStudentInACampaign,
+        getHealthRecordByID
 } from "../controllers/checkUp.controller.js";
 
 const router = express.Router();
@@ -102,8 +103,9 @@ router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealth
 
 // duy khanh
 router.get("/full-record/campaign/:campaign_id/student/:student_id", getFullRecordOfAStudentInACampaign); // lấy toàn bộ khám chuyên khoa, khám tổng quát của một học sinh trong một đợt khám định kỳ
+router.get("/health-record/:record_id/detail", getHealthRecordByID);
 
-router.get("/specialist-exam", getALLSpeciaListExams); // lất toàn bộ các chuyên môn khám có sẵn
+router.get("/specialist-exam", getALLSpeciaListExams); // lấy toàn bộ các chuyên môn khám có sẵn
 
 router.get("/campaign/:campaign_id/specialist-exam/record", getAllRecordsOfEachSpeExamInACampaign); //
 
