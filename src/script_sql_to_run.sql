@@ -1176,50 +1176,62 @@ CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
 
 -------------------------------------------------------------------------------------------------------------------------------------- Blog
 
--- 1. Bảng loại blog
-CREATE TABLE blog_type (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT
+CREATE TABLE BLOG_TYPE (
+	ID SERIAL PRIMARY KEY,
+	NAME TEXT,
+	DESCRIPTION TEXT
 );
 
-INSERT INTO blog_type (name, description) VALUES
-('Dinh dưỡng học đường'
-, 'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'),
-
-('Chăm sóc sức khỏe học đường'
-, 'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'),
-
-('Tâm lý học đường'
-, 'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'),
-
-('Phòng chống bệnh học đường'
-, 'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'),
-
-('Hoạt động y tế trường học'
-, 'Các chương trình, sự kiện, tiêm chủng và hoạt động y tế tại trường');
-
+INSERT INTO
+	BLOG_TYPE (NAME, DESCRIPTION)
+VALUES
+	(
+		'Dinh dưỡng học đường',
+		'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'
+	),
+	(
+		'Chăm sóc sức khỏe học đường',
+		'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'
+	),
+	(
+		'Tâm lý học đường',
+		'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'
+	),
+	(
+		'Phòng chống bệnh học đường',
+		'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'
+	),
+	(
+		'Hoạt động y tế trường học',
+		'Các chương trình, sự kiện, tiêm chủng và hoạt động y tế tại trường'
+	),
+	(
+		' Giáo dục giới tính & sức khỏe sinh sản vị thành niên',
+		'Dạy trẻ về giới tính an toàn, phòng tránh xâm hại'
+	);
 
 -- 2. Bảng blog (có thumbnail_url)
-CREATE TABLE blog (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    thumbnail_url VARCHAR(255), -- ảnh đại diện
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT NULL,
-	  is_deleted BOOLEAN  DEFAULT FALSE,
-    blog_type_id INTEGER REFERENCES blog_type(id) ON DELETE SET NULL
+CREATE TYPE BLOG_STATUS AS ENUM('DRAFTED', 'PUBLISHED');
+
+CREATE TABLE BLOG (
+	ID SERIAL PRIMARY KEY,
+	TITLE VARCHAR(255) NOT NULL,
+	CONTENT TEXT NOT NULL,
+	THUMBNAIL_URL VARCHAR(255), -- ảnh đại diện
+	CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UPDATED_AT TIMESTAMP DEFAULT NULL,
+	IS_DELETED BOOLEAN DEFAULT FALSE,
+	STATUS BLOG_STATUS DEFAULT 'DRAFTED',
+	BLOG_TYPE_ID INTEGER REFERENCES BLOG_TYPE (ID) ON DELETE SET NULL
 );
 
-INSERT INTO blog (
-    title,
-    content,
-    thumbnail_url,
-    blog_type_id
-) VALUES (
-    'Tầm quan trọng của dinh dưỡng đối với học sinh',
-	'<h2>I. Dinh dưỡng học đường là gì?</h2>
+----Blog 1 
+INSERT INTO
+	BLOG (TITLE, CONTENT, THUMBNAIL_URL, BLOG_TYPE_ID)
+VALUES
+	(
+		'Tầm quan trọng của dinh dưỡng đối với học sinh',
+		'<h2>I. Dinh dưỡng học đường là gì?</h2>
 <p><strong>Dinh dưỡng học đường</strong> là chế độ ăn uống khoa học, hợp lý dành riêng cho trẻ em và thanh thiếu niên trong độ tuổi đến trường. Việc đảm bảo dinh dưỡng tốt không chỉ giúp học sinh phát triển thể chất mà còn nâng cao trí tuệ, phòng tránh bệnh tật.</p>
 
 <h2>II. Tác động của dinh dưỡng đến sức khỏe và học tập</h2>
@@ -1244,7 +1256,7 @@ INSERT INTO blog (
   <li><strong>Bữa xế:</strong> Sữa chua, trái cây, một ít hạt (hạnh nhân, óc chó...)</li>
   <li><strong>Bữa tối:</strong> Cơm, tôm/thịt nạc, rau luộc/xào, canh.</li>
 </ul>
-<p><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" alt="Bữa ăn học đường" style="max-width:100%"></p>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//bua-an-dinh-duong.jpg" alt="Bữa ăn học đường" style="max-width:100%"></p>
 
 <h2>V. Lời khuyên từ chuyên gia dinh dưỡng</h2>
 <blockquote>
@@ -1252,7 +1264,8 @@ INSERT INTO blog (
 </blockquote>
 <p><em><strong>Lưu ý:</strong> Học sinh nên uống đủ nước (1,5–2 lít/ngày), tránh bỏ bữa, không ăn quá mặn hoặc quá ngọt.</em></p>
 ',
-    'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-    1
-);
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//thap-dinh-duong-cho-tre-em.jpg',
+		1
+	);
 
+----Blog 2
