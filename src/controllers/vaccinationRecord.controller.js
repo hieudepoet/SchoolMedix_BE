@@ -30,8 +30,8 @@ export async function createVaccinationRecord(req, res) {
 
     // Insert vaccination record into database
     const insertQuery = `
-                  INSERT INTO vaccination_record (student_id, description, disease_id, vaccine_id, location, vaccination_date, status)
-                  VALUES ($1, $2, $3, $4, $5, $6, $7)
+                  INSERT INTO vaccination_record (student_id, description, disease_id, vaccine_id, location, vaccination_date, pending, status)
+                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                   RETURNING *;
             `;
 
@@ -42,6 +42,7 @@ export async function createVaccinationRecord(req, res) {
       vaccine_id,
       location || null,
       vaccination_date,
+      "PENDING",
       "PENDING",
     ]);
 
@@ -70,6 +71,39 @@ export async function acceptVaccinationRecord(req, res) {
       `,
       [id]
     );
+
+    const vaccine_id = accept.rows[0].vaccine_id;
+
+    // Lấy tất cả disease_id được map với vaccine_id này (ngoại trừ disease_id gốc)
+    const diseases = await query(
+      `SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id != $2`,
+      [vaccine_id, accept.rows[0].disease_id]
+    );
+
+    // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
+    for (const disease of diseases.rows) {
+      await query(
+        `INSERT INTO vaccination_record (
+          student_id,  
+          disease_id, 
+          vaccine_id, 
+          status, 
+          description, 
+          location, 
+          vaccination_date, 
+          pending
+          )
+         VALUES ($1, $2, $3, 'COMPLETED', $4, $5, $6, $7, 'DONE')`,
+        [
+          accept.rows[0].student_id,
+          disease.id,
+          vaccine_id,
+          accept.rows[0].description,
+          accept.rows[0].location,
+          accept.rows[0].vaccination_date,
+        ]
+      );
+    }
 
     return res.status(200).json({
       error: false,
