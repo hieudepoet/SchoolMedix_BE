@@ -904,7 +904,7 @@ CREATE TABLE vaccination_campaign (
 );
 
 INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, location, start_date, end_date, status) VALUES
-(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'COMPLETED');
+(1, 1, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'DRAFTED');
 
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
@@ -919,19 +919,19 @@ CREATE TABLE vaccination_campaign_register (
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
-INSERT INTO vaccination_campaign_register (
-  campaign_id,
-  student_id,
-  reason,
-  is_registered,
-  submit_time,
-  submit_by
-)
-VALUES
-(1, '211000', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
-(1, '211001', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
-(1, '211002', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
-(1, '211003', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
+-- INSERT INTO vaccination_campaign_register (
+--   campaign_id,
+--   student_id,
+--   reason,
+--   is_registered,
+--   submit_time,
+--   submit_by
+-- )
+-- VALUES
+-- (1, '211000', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
+-- (1, '211001', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
+-- (1, '211002', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
+-- (1, '211003', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
 
 
 
@@ -966,16 +966,16 @@ INSERT INTO vaccination_record (
   status
 )
 VALUES
-  (
-    '211000',
-    1,
-    1,
-    1,
-    '2025-06-15',
-    'Tiêm vaccine BCG phòng bệnh Lao..............',
-    'School Medix',
-    'COMPLETED'
-  ),
+  -- (
+  --   '211000',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-15',
+  --   'Tiêm vaccine BCG phòng bệnh Lao..............',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
   (
     '211000',
     NULL,
@@ -986,36 +986,36 @@ VALUES
     'School Medix',
     'COMPLETED'
   ),
-  (
-    '211001',
-    1,
-    1,
-    1,
-    '2025-06-15',
-    'Tiêm vaccine BCG phòng bệnh Lao................',
-    'School Medix',
-    'COMPLETED'
-  ),
-  (
-    '211002',
-    1,
-    1,
-    1,
-    '2025-06-16',
-    'Tiêm vaccine BCG phòng bệnh Lao.........',
-    'School Medix',
-    'COMPLETED'
-  ),
-  (
-    '211003',
-    1,
-    1,
-    1,
-    '2025-06-17',
-    'Tiêm vaccine BCG phòng bệnh Lao.............',
-    'School Medix',
-    'COMPLETED'
-  ),
+  -- (
+  --   '211001',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-15',
+  --   'Tiêm vaccine BCG phòng bệnh Lao................',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
+  -- (
+  --   '211002',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-16',
+  --   'Tiêm vaccine BCG phòng bệnh Lao.........',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
+  -- (
+  --   '211003',
+  --   1,
+  --   1,
+  --   1,
+  --   '2025-06-17',
+  --   'Tiêm vaccine BCG phòng bệnh Lao.............',
+  --   'School Medix',
+  --   'COMPLETED'
+  -- ),
   (
     '211002',
     NULL,
@@ -1087,6 +1087,7 @@ VALUES
 -----------------------------------------------------------------------------------------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE TABLE disease_record (
+    id SERIAL PRIMARY KEY,
     student_id VARCHAR(10) NOT NULL,
     disease_id INT NOT NULL,
     diagnosis TEXT,
@@ -1095,122 +1096,27 @@ CREATE TABLE disease_record (
     location_cure TEXT,
     transferred_to TEXT,
     status VARCHAR(50) CHECK (status IN ('RECOVERED', 'UNDER_TREATMENT')),
+    pending VARCHAR(50) CHECK (pending IN ('PENDING', 'DONE', 'CANCELLED')),
+    reason_by_nurse TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_id) REFERENCES student(id),
-    FOREIGN KEY (disease_id) REFERENCES disease(id),
-    
-    PRIMARY KEY (student_id, disease_id)
+    FOREIGN KEY (disease_id) REFERENCES disease(id)
 );
 
 INSERT INTO disease_record (
-    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status
-)
+    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status, pending
+) 
 VALUES
-('211000', 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED'),
-('211001', 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT'),
-('211002', 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED'),
-('211003', 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211000', 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED'),
-('211001', 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211002', 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT'),
-('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
-('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
-
--------------------------------------------------------------------------------------------------------------------------------------- OTP
-CREATE TABLE otps (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  target text, -- email, sdt,...
-  otp TEXT,
-  purpose TEXT,   
-  is_used BOOLEAN DEFAULT FALSE,
-  expires_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
-
--------------------------------------------------------------------------------------------------------------------------------------- Blog
-
--- 1. Bảng loại blog
-CREATE TABLE blog_type (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT
-);
-
-INSERT INTO blog_type (name, description) VALUES
-('Dinh dưỡng học đường'
-, 'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'),
-
-('Chăm sóc sức khỏe học đường'
-, 'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'),
-
-('Tâm lý học đường'
-, 'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'),
-
-('Phòng chống bệnh học đường'
-, 'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'),
-
-('Hoạt động y tế trường học'
-, 'Các chương trình, sự kiện, tiêm chủng và hoạt động y tế tại trường');
-
-
--- 2. Bảng blog (có thumbnail_url)
-CREATE TABLE blog (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    thumbnail_url VARCHAR(255), -- ảnh đại diện
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT NULL,
-	  is_deleted BOOLEAN  DEFAULT FALSE,
-    blog_type_id INTEGER REFERENCES blog_type(id) ON DELETE SET NULL
-);
-
-INSERT INTO blog (
-    title,
-    content,
-    thumbnail_url,
-    blog_type_id
-) VALUES (
-    'Tầm quan trọng của dinh dưỡng đối với học sinh',
-	'<h2>I. Dinh dưỡng học đường là gì?</h2>
-<p><strong>Dinh dưỡng học đường</strong> là chế độ ăn uống khoa học, hợp lý dành riêng cho trẻ em và thanh thiếu niên trong độ tuổi đến trường. Việc đảm bảo dinh dưỡng tốt không chỉ giúp học sinh phát triển thể chất mà còn nâng cao trí tuệ, phòng tránh bệnh tật.</p>
-
-<h2>II. Tác động của dinh dưỡng đến sức khỏe và học tập</h2>
-<ul>
-  <li><strong>Phát triển chiều cao, cân nặng:</strong> Trẻ được ăn uống đầy đủ sẽ tăng trưởng tốt, phát triển đồng đều.</li>
-  <li><strong>Cải thiện khả năng tập trung:</strong> Một số nghiên cứu cho thấy, học sinh ăn sáng đủ chất có khả năng tập trung và tiếp thu bài tốt hơn.</li>
-  <li><strong>Tăng sức đề kháng:</strong> Chế độ ăn cân đối giúp trẻ phòng tránh được nhiều bệnh vặt như cảm cúm, nhiễm trùng.</li>
-  <li><strong>Hạn chế nguy cơ mắc các bệnh mãn tính:</strong> Béo phì, tiểu đường, suy dinh dưỡng,... đều có thể phòng tránh nhờ ăn uống lành mạnh.</li>
-</ul>
-
-<h2>III. Những sai lầm phổ biến trong dinh dưỡng học đường</h2>
-<ul>
-  <li><strong>Bỏ bữa sáng:</strong> Nhiều học sinh do dậy muộn hoặc không đói nên bỏ qua bữa sáng, làm giảm năng lượng học tập đầu ngày.</li>
-  <li><strong>Ăn vặt quá nhiều:</strong> Thực phẩm như bánh snack, nước ngọt, trà sữa chứa nhiều đường, chất béo xấu gây béo phì.</li>
-  <li><strong>Bữa ăn thiếu rau xanh và trái cây:</strong> Nhiều em chỉ thích ăn thịt cá, bỏ qua nhóm vitamin và khoáng chất.</li>
-</ul>
-
-<h2>IV. Gợi ý thực đơn lành mạnh cho học sinh</h2>
-<ul>
-  <li><strong>Bữa sáng:</strong> Cháo thịt, bánh mì trứng, sữa tươi hoặc ngũ cốc.</li>
-  <li><strong>Bữa trưa:</strong> Cơm, thịt/cá, canh rau củ, trái cây tráng miệng.</li>
-  <li><strong>Bữa xế:</strong> Sữa chua, trái cây, một ít hạt (hạnh nhân, óc chó...)</li>
-  <li><strong>Bữa tối:</strong> Cơm, tôm/thịt nạc, rau luộc/xào, canh.</li>
-</ul>
-<p><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" alt="Bữa ăn học đường" style="max-width:100%"></p>
-
-<h2>V. Lời khuyên từ chuyên gia dinh dưỡng</h2>
-<blockquote>
-  “<strong>Dinh dưỡng hợp lý là nền tảng cho sự phát triển thể chất và tinh thần của trẻ.</strong> Cha mẹ, nhà trường cần phối hợp để xây dựng bữa ăn đa dạng, đủ 4 nhóm chất: bột đường, đạm, béo, vitamin và khoáng chất. Hạn chế đồ ăn nhanh, thức uống có ga.”
-</blockquote>
-<p><em><strong>Lưu ý:</strong> Học sinh nên uống đủ nước (1,5–2 lít/ngày), tránh bỏ bữa, không ăn quá mặn hoặc quá ngọt.</em></p>
-',
-    'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-    1
-);
-
+('211000', 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED', 'DONE'),
+('211001', 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211002', 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED', 'DONE'),
+('211003', 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211000', 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED', 'DONE'),
+('211001', 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211002', 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED', 'DONE'),
+('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT', 'DONE');
+    
