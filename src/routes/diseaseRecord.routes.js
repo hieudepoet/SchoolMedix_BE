@@ -46,7 +46,7 @@ router.get(
 );
 
 router.get(
-  "/disease-record/requestsHistory", // lấy ra lịch sử khai báo bệnh của một học sinh xem đơn đã được duyệt hay chưa
+  "/disease-record/requestsHistory", // lấy ra lịch sử khai báo bệnh của tất cả học sinh xem đơn đã được duyệt hay chưa
   getDiseaseDeclarationsHistory
 );
 
