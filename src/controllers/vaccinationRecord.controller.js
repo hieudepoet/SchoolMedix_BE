@@ -64,7 +64,7 @@ export async function acceptVaccinationRecord(req, res) {
       `
         UPDATE vaccination_record 
         SET
-          pending = 'DONE'
+          pending = 'DONE', status = 'COMPLETED'
         WHERE 
           id = $1
       `,
@@ -94,7 +94,7 @@ export async function refuseVaccinationRecord(req, res) {
       `
         UPDATE vaccination_record 
         SET
-          pending = 'CANCELLED',
+          pending = 'CANCELLED', status = 'CANCELLED'
           reason_by_nurse = $1
         WHERE 
           id = $2
@@ -440,7 +440,7 @@ export async function getVaccinationRecordByID(req, res) {
 
   try {
     const records = await query(
-      "SELECT * FROM vaccination_record WHERE id = $1",
+      "SELECT * FROM vaccination_record WHERE id = $1 AND pending IS NULL OR pending = 'DONE'",
       [id]
     );
     if (records.rows.length === 0) {
@@ -473,7 +473,7 @@ export async function getVaccinationRecordsByStudentID(req, res) {
 
   try {
     const records = await query(
-      `SELECT * FROM vaccination_record a join vaccine b on a.vaccine_id = b.id WHERE student_id = $1 and disease_id = $2`,
+      `SELECT * FROM vaccination_record a join vaccine b on a.vaccine_id = b.id WHERE student_id = $1 and disease_id = $2 AND pending IS NULL OR pending = 'DONE'`,
       [student_id, disease_id]
     );
     if (records.rows.length === 0) {
@@ -512,11 +512,18 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
         vr.status
       FROM vaccination_record vr
       JOIN vaccine v ON vr.vaccine_id = v.id
-      WHERE vr.student_id = $1 AND vr.disease_id = $2
+      WHERE vr.student_id = $1 AND vr.disease_id = $2 AND pending IS NULL OR pending = 'DONE'
       ORDER BY vr.vaccination_date
     `,
       [student_id, disease_id]
     );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không có lịch sử tiêm chủng cho học sinh này với bệnh này",
+      });
+    }
 
     return res.status(200).json({
       error: false,
