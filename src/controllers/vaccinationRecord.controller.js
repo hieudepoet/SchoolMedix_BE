@@ -242,7 +242,7 @@ export async function getAllMedicalRecordsRequested(req, res) {
   }
 }
 
-export async function getAllMedicalRecordsRequested(req, res) {
+export async function getAllMedicalRecordsRequestedBuStudentID(req, res) {
   const { student_id } = req.params;
 
   try {
