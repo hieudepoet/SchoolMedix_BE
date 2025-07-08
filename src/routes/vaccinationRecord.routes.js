@@ -8,7 +8,9 @@ import {
   getVaccinationRecordsOfAStudentBasedOnADisease,
   acceptVaccinationRecord,
   refuseVaccinationRecord,
+  getVaccinationRecordsRequestedByStudentID,
   getAllVaccinationRecordsRequested,
+  getAllMedicalRecordsRequestedBuStudentID,
   getAllMedicalRecordsRequested,
 } from "../controllers/vaccinationRecord.controller.js";
 
@@ -23,7 +25,17 @@ router.get(
   getVaccinationRecordsOfAStudentBasedOnADisease // get detail of vaccination records of a student based on a disease
 );
 router.post("/vaccination-record", createVaccinationRecord);
-router.patch("/vaccination-record/:record_id", updateVaccinationRecord);
+// router.patch("/vaccination-record/:record_id", updateVaccinationRecord);
 router.get("/vaccination-record/:id", getVaccinationRecordByID);
+
+router.patch("/vaccination-record/:id/accept", acceptVaccinationRecord);
+router.patch("/vaccination-record/:id/refuse", refuseVaccinationRecord);
+router.get(
+  "/parent/vaccination-record/:student_id/requests",
+  getVaccinationRecordsRequestedByStudentID
+);
+router.get("/vaccination-record/requests", getAllVaccinationRecordsRequested);
+router.get("/:student_id/requests", getAllMedicalRecordsRequestedBuStudentID);
+router.get("/requests", getAllMedicalRecordsRequested);
 
 export default router;
