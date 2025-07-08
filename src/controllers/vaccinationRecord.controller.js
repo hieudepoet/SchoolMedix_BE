@@ -116,6 +116,60 @@ export async function refuseVaccinationRecord(req, res) {
   }
 }
 
+export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
+  const { student_id } = req.params;
+  try {
+    const result = await query(
+      `
+        SELECT * FROM vaccination_record WHERE student_id = $1 AND pending IS NOT NULL
+        ORDER BY created_at DESC
+      `,
+      [student_id]
+    );
+
+    return res.status(200).json({
+      error: false,
+      message:
+        "Get vaccinationvaccination-declaration history requests successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(
+      "Error when getting vaccination-declaration history requests: " + error
+    );
+    return res.status(500).json({
+      error: true,
+      message: "Error when getting vaccination-declaration history requests",
+    });
+  }
+}
+
+export async function getVaccinationDeclarationsHistory(req, res) {
+  try {
+    const result = await query(
+      `
+        SELECT * FROM vaccination_record WHERE pending IS NOT NULL
+        ORDER BY created_at DESC
+      `
+    );
+
+    return res.status(200).json({
+      error: false,
+      message:
+        "Get vaccinationvaccination-declaration history requests successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(
+      "Error when getting vaccination-declaration history requests: " + error
+    );
+    return res.status(500).json({
+      error: true,
+      message: "Error when getting vaccination-declaration history requests",
+    });
+  }
+}
+
 export async function getVaccinationRecordsRequestedByStudentID(req, res) {
   const { student_id } = req.params;
   try {
