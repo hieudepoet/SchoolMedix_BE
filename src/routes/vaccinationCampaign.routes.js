@@ -3,15 +3,11 @@ import express from "express";
 import {
   createCampaign,
   getStudentEligibleForCampaign,
-  createVaccinationRecord,
   createRegisterRequest,
   createPreVaccinationRecord,
   updateCampaignDetail,
-  updateVaccinationRecord,
-  getVaccinationRecordByID,
   getAllCampaigns,
   getCampaignDetailByID,
-  getVaccinationRecordsByStudentID,
   acceptRegister,
   refuseRegister,
   closeRegisterByCampaignID,
@@ -22,7 +18,6 @@ import {
   getAllRegistersOfAStudentWithCampaignID,
   getAllRegisteredRecords,
   completeRecord,
-  getVaccinationRecordsOfAStudentBasedOnADisease,
   getCompletedDosesMergedByDisease,
   getAcceptedRegisteredRecords,
 } from "../controllers/vaccinationCampaign.controller.js";
@@ -37,7 +32,6 @@ router.post(
 router.patch("/vaccination-campaign/:campaign_id", updateCampaignDetail);
 router.get("/vaccination-campaign", getAllCampaigns);
 router.get("/vaccination-campaign/:campaign_id", getCampaignDetailByID);
-// router.post("/vaccination-campaign/:campaign_id/register", createRegisterRequest); // this is wrong relating to the logic mate, when creating new campaign it simultaneously  creates multiple registration forms for student
 
 router.patch(
   "/vaccination-campaign/:campaign_id/close-register",
@@ -52,17 +46,8 @@ router.patch(
 );
 
 router.get(
-  "/student/:student_id/vaccination-record",
-  getVaccinationRecordsByStudentID
-);
-
-router.get(
   "/student/:student_id/completed-doses",
   getCompletedDosesMergedByDisease
-);
-router.get(
-  "/student/:student_id/disease/:disease_id/vaccination-record",
-  getVaccinationRecordsOfAStudentBasedOnADisease // get detail of vaccination records of a student based on a disease
 );
 
 router.patch("/vaccination-register/:id/accept", acceptRegister);
@@ -73,13 +58,9 @@ router.get(
   getStudentEligibleForCampaign
 );
 
-router.post("/vaccination-record", createVaccinationRecord);
 router.post("/pre-vaccination-record/:campaign_id", createPreVaccinationRecord);
 
-router.patch("/vaccination-record/:record_id", updateVaccinationRecord);
 router.patch("/vaccination-record/:record_id/complete", completeRecord);
-
-router.get("/vaccination-record/:id", getVaccinationRecordByID);
 
 router.get(
   "/student/:student_id/vaccination-campaign/:campaign_id/register",

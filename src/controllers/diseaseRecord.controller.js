@@ -12,6 +12,9 @@ export async function getDiseaseRecordsOfStudent(req, res) {
     const result = await query(
       `
       SELECT 
+        dr.id,
+        dr.status,
+        dr.pending,
         dr.student_id,
         dr.disease_id,
         dr.diagnosis,
@@ -486,6 +489,7 @@ export async function getDiseaseRecordsRequestedByStudentID(req, res) {
     const result = await query(
       `
         SELECT * FROM disease_record WHERE student_id = $1 AND pending = 'PENDING' 
+        ORDER BY created_at DESC
       `,
       [student_id]
     );
@@ -508,7 +512,8 @@ export async function getAllDiseaseRecordsRequested(req, res) {
   try {
     const result = await query(
       `
-        SELECT * FROM disease_record WHERE pending = 'PENDING' 
+      SELECT * FROM disease_record WHERE pending = 'PENDING'
+      ORDER BY created_at DESC
       `
     );
 
