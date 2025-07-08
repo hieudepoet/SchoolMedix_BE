@@ -12,6 +12,7 @@ import {
   refuseDiseaseRecord,
   getAllDiseaseRecordsRequested,
   getDiseaseRecordsRequestedByStudentID,
+  getDiseaseDeclarationsHistoryByStudentID,
 } from "../controllers/diseaseRecord.controller.js";
 
 const router = express.Router();
@@ -36,6 +37,11 @@ router.get("/disease-record/requests", getAllDiseaseRecordsRequested);
 router.get(
   "/disease-record/:student_id/requests",
   getDiseaseRecordsRequestedByStudentID
+);
+
+router.get(
+  "/disease-record/:student_id/requestsHistory", // lấy ra lịch sử khai báo bệnh của một học sinh xem đơn đã được duyệt hay chưa
+  getDiseaseDeclarationsHistoryByStudentID
 );
 
 // router.patch("/student/:id/disease-record", updateDiseaseRecord); // update disease record

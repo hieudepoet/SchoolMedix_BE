@@ -483,6 +483,33 @@ export async function refuseDiseaseRecord(req, res) {
   }
 }
 
+export async function getDiseaseDeclarationsHistoryByStudentID(req, res) {
+  const { student_id } = req.params;
+  try {
+    const result = await query(
+      `
+        SELECT * FROM disease_record WHERE student_id = $1 AND pending != null
+        ORDER BY created_at DESC
+      `,
+      [student_id]
+    );
+
+    return res.status(200).json({
+      error: false,
+      message: "Get disease-declaration history requests successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(
+      "Error when getting disease-declaration history requests: " + error
+    );
+    return res.status(500).json({
+      error: true,
+      message: "Error when getting disease-declaration history requests",
+    });
+  }
+}
+
 export async function getDiseaseRecordsRequestedByStudentID(req, res) {
   const { student_id } = req.params;
   try {
