@@ -947,11 +947,14 @@ CREATE TABLE vaccination_record (
     location VARCHAR(255),
     vaccination_date DATE,
     status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'COMPLETED', 'MISSED',  'CANCELLED')),
+    pending VARCHAR(50) CHECK (pending IN ('PENDING', 'DONE', 'CANCELLED')),
+    reason_by_nurse TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (register_id) REFERENCES vaccination_campaign_register(id),
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id),
     CONSTRAINT unique_student_vaccine_date UNIQUE (student_id, vaccine_id, register_id)
-
 );
 
 
