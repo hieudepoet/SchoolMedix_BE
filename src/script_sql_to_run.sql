@@ -948,21 +948,6 @@ CREATE TABLE vaccination_campaign_register (
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (submit_by) REFERENCES parent(id)
 );	
--- INSERT INTO vaccination_campaign_register (
---   campaign_id,
---   student_id,
---   reason,
---   is_registered,
---   submit_time,
---   submit_by
--- )
--- VALUES
--- (1, '211000', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 08:00:00', 100003),
--- (1, '211001', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-10 09:00:00', 100002),
--- (1, '211002', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 08:30:00', 100000),
--- (1, '211003', 'Đăng ký theo yêu cầu của nhà trường', true, '2025-06-11 09:30:00', 100001);
-
-
 
 --vacination_record
 CREATE TABLE vaccination_record (
@@ -1014,7 +999,7 @@ VALUES
     2,
     3,
     '2023-06-15',
-    'Tiêm vaccine Heplisav-B phòng bệnh Viêm gan B.............',
+    'Tiêm bên ngoài',
     'School Medix',
     'COMPLETED'
   ),
@@ -1054,7 +1039,7 @@ VALUES
     3,
     5,
     '2025-06-20',
-    'Tiêm vaccine Infanrix Hexa phòng bệnh Bạch hầu, Ho gà, Uốn ván',
+    'Tiêm bên ngoài',
     'School Medix',
     'COMPLETED'
   ),
@@ -1064,7 +1049,7 @@ VALUES
     3,
     4,
     '2025-06-22',
-    'Tiêm vaccine DTP phòng bệnh Bạch hầu, Ho gà, Uốn ván',
+    'Tiêm bên ngoài',
     'School Medix',
     'COMPLETED'
   ),
@@ -1074,7 +1059,7 @@ VALUES
     4,
     7,
     '2025-06-25',
-    'Tiêm vaccine OPV phòng bệnh Bại liệt',
+    'Tiêm bên ngoài',
     'School Medix',
     'COMPLETED'
   );
@@ -1152,3 +1137,98 @@ VALUES
 ('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
 ('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
     
+-------------------------------------------------------------------------------------------------------------------------------------- OTP
+CREATE TABLE otps (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  target text, -- email, sdt,...
+  otp TEXT,
+  purpose TEXT,   
+  is_used BOOLEAN DEFAULT FALSE,
+  expires_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
+
+-------------------------------------------------------------------------------------------------------------------------------------- Blog
+
+-- 1. Bảng loại blog
+CREATE TABLE blog_type (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
+);
+
+INSERT INTO blog_type (name, description) VALUES
+('Dinh dưỡng học đường'
+, 'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'),
+
+('Chăm sóc sức khỏe học đường'
+, 'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'),
+
+('Tâm lý học đường'
+, 'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'),
+
+('Phòng chống bệnh học đường'
+, 'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'),
+
+('Hoạt động y tế trường học'
+, 'Các chương trình, sự kiện, tiêm chủng và hoạt động y tế tại trường');
+
+
+-- 2. Bảng blog (có thumbnail_url)
+CREATE TABLE blog (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    thumbnail_url VARCHAR(255), -- ảnh đại diện
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT NULL,
+	  is_deleted BOOLEAN  DEFAULT FALSE,
+    blog_type_id INTEGER REFERENCES blog_type(id) ON DELETE SET NULL
+);
+
+INSERT INTO blog (
+    title,
+    content,
+    thumbnail_url,
+    blog_type_id
+) VALUES (
+    'Tầm quan trọng của dinh dưỡng đối với học sinh',
+	'<h2>I. Dinh dưỡng học đường là gì?</h2>
+<p><strong>Dinh dưỡng học đường</strong> là chế độ ăn uống khoa học, hợp lý dành riêng cho trẻ em và thanh thiếu niên trong độ tuổi đến trường. Việc đảm bảo dinh dưỡng tốt không chỉ giúp học sinh phát triển thể chất mà còn nâng cao trí tuệ, phòng tránh bệnh tật.</p>
+
+<h2>II. Tác động của dinh dưỡng đến sức khỏe và học tập</h2>
+<ul>
+  <li><strong>Phát triển chiều cao, cân nặng:</strong> Trẻ được ăn uống đầy đủ sẽ tăng trưởng tốt, phát triển đồng đều.</li>
+  <li><strong>Cải thiện khả năng tập trung:</strong> Một số nghiên cứu cho thấy, học sinh ăn sáng đủ chất có khả năng tập trung và tiếp thu bài tốt hơn.</li>
+  <li><strong>Tăng sức đề kháng:</strong> Chế độ ăn cân đối giúp trẻ phòng tránh được nhiều bệnh vặt như cảm cúm, nhiễm trùng.</li>
+  <li><strong>Hạn chế nguy cơ mắc các bệnh mãn tính:</strong> Béo phì, tiểu đường, suy dinh dưỡng,... đều có thể phòng tránh nhờ ăn uống lành mạnh.</li>
+</ul>
+
+<h2>III. Những sai lầm phổ biến trong dinh dưỡng học đường</h2>
+<ul>
+  <li><strong>Bỏ bữa sáng:</strong> Nhiều học sinh do dậy muộn hoặc không đói nên bỏ qua bữa sáng, làm giảm năng lượng học tập đầu ngày.</li>
+  <li><strong>Ăn vặt quá nhiều:</strong> Thực phẩm như bánh snack, nước ngọt, trà sữa chứa nhiều đường, chất béo xấu gây béo phì.</li>
+  <li><strong>Bữa ăn thiếu rau xanh và trái cây:</strong> Nhiều em chỉ thích ăn thịt cá, bỏ qua nhóm vitamin và khoáng chất.</li>
+</ul>
+
+<h2>IV. Gợi ý thực đơn lành mạnh cho học sinh</h2>
+<ul>
+  <li><strong>Bữa sáng:</strong> Cháo thịt, bánh mì trứng, sữa tươi hoặc ngũ cốc.</li>
+  <li><strong>Bữa trưa:</strong> Cơm, thịt/cá, canh rau củ, trái cây tráng miệng.</li>
+  <li><strong>Bữa xế:</strong> Sữa chua, trái cây, một ít hạt (hạnh nhân, óc chó...)</li>
+  <li><strong>Bữa tối:</strong> Cơm, tôm/thịt nạc, rau luộc/xào, canh.</li>
+</ul>
+<p><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" alt="Bữa ăn học đường" style="max-width:100%"></p>
+
+<h2>V. Lời khuyên từ chuyên gia dinh dưỡng</h2>
+<blockquote>
+  “<strong>Dinh dưỡng hợp lý là nền tảng cho sự phát triển thể chất và tinh thần của trẻ.</strong> Cha mẹ, nhà trường cần phối hợp để xây dựng bữa ăn đa dạng, đủ 4 nhóm chất: bột đường, đạm, béo, vitamin và khoáng chất. Hạn chế đồ ăn nhanh, thức uống có ga.”
+</blockquote>
+<p><em><strong>Lưu ý:</strong> Học sinh nên uống đủ nước (1,5–2 lít/ngày), tránh bỏ bữa, không ăn quá mặn hoặc quá ngọt.</em></p>
+',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+    1
+);
+
