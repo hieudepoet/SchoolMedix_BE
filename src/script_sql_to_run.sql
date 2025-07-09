@@ -21,7 +21,7 @@ BEGIN
 
 END $$;
 
-
+SET TIME ZONE 'Asia/Ho_Chi_Minh';
 
 -- grade
 CREATE TABLE grade (
@@ -1321,29 +1321,33 @@ CREATE TABLE daily_health_record (
     id SERIAL PRIMARY KEY,
     student_id VARCHAR(10) NOT NULL,
     detect_time DATE NOT NULL,
-    record_date DATE NOT NULL,
+    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     diagnosis TEXT,
     on_site_treatment TEXT,
     transferred_to TEXT,
     items_usage TEXT,
+    status VARCHAR(50) CHECK (status IN ('MILD', 'SERIOUS')),
     FOREIGN KEY (student_id) REFERENCES student(id)
 );
 
+CREATE INDEX idx_daily_health_record_detect_time ON daily_health_record(detect_time);
+CREATE INDEX idx_daily_health_record_status ON daily_health_record(status);
+
 INSERT INTO daily_health_record (
-    student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage
+    student_id, detect_time, diagnosis, on_site_treatment, transferred_to, items_usage, status
 )
 VALUES 
-('211000', '2025-06-05', '2025-06-05', 'Chảy máu cam', 'Nằm nghỉ, nghiêng đầu về trước', NULL, 'Bông gòn'),
-('211000', '2025-06-01', '2025-06-01', 'Đau mắt đỏ', 'Nhỏ mắt Natri Clorid 0.9%', NULL, 'Thuốc nhỏ mắt'),
+('211000', '2025-07-05', 'Chảy máu cam', 'Nằm nghỉ, nghiêng đầu về trước', NULL, 'Bông gòn', 'MILD'),
+('211000', '2025-07-01', 'Đau mắt đỏ', 'Nhỏ mắt Natri Clorid 0.9%', NULL, 'Thuốc nhỏ mắt', 'MILD'),
 
-('211001', '2025-06-04', '2025-06-04', 'Ho và sổ mũi', 'Uống thuốc ho thảo dược', NULL, 'Thuốc ho, giấy lau'),
-('211001', '2025-06-02', '2025-06-02', 'Đau răng', 'Súc miệng nước muối, thông báo phụ huynh', NULL, 'Nước muối sinh lý'),
+('211001', '2025-07-08', 'Ho và sổ mũi', 'Uống thuốc ho thảo dược', NULL, 'Thuốc ho, giấy lau', 'MILD'),
+('211001', '2025-07-02', 'Đau răng', 'Súc miệng nước muối, thông báo phụ huynh', NULL, 'Nước muối sinh lý', 'MILD'),
 
-('211002', '2025-06-03', '2025-06-03', 'Ngã cầu thang nhẹ', 'Kiểm tra vết thương, theo dõi 15 phút', NULL, 'Băng dán, nước sát khuẩn'),
-('211002', '2025-05-31', '2025-05-31', 'Sốt 38.5°C', 'Đặt khăn lạnh, uống hạ sốt', NULL, 'Paracetamol 250mg'),
+('211002', '2025-07-03', 'Ngã cầu thang nhẹ', 'Kiểm tra vết thương, theo dõi 15 phút', NULL, 'Băng dán, nước sát khuẩn', 'SERIOUS'),
+('211002', '2025-07-31', 'Sốt 38.5°C', 'Đặt khăn lạnh, uống hạ sốt', NULL, 'Paracetamol 250mg', 'MILD'),
 
-('211003', '2025-06-06', '2025-06-06', 'Nổi mẩn đỏ toàn thân', 'Thông báo phụ huynh, theo dõi phản ứng', 'Trạm Y tế Phường 3', 'Kem chống ngứa'),
-('211003', '2025-06-03', '2025-06-03', 'Khó tiêu', 'Uống men tiêu hóa', NULL, 'Men tiêu hóa gói');
+('211003', '2025-07-07', 'Nổi mẩn đỏ toàn thân', 'Thông báo phụ huynh, theo dõi phản ứng', 'Trạm Y tế Phường 3', 'Kem chống ngứa', 'SERIOUS'),
+('211003', '2025-07-03', 'Khó tiêu', 'Uống men tiêu hóa', NULL, 'Men tiêu hóa gói', 'MILD');
 
 -----------------------------------------------------------------------------------------END FLOW DaiLyHealthRecord
 
