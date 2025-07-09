@@ -2638,80 +2638,69 @@ export async function handleRetrieveSampleImportHealthRecordForm(req, res) {
 export async function updateSpecialRecord(req, res) {
 
     const {
-        register_id,
-        spe_exam_id
-    } = req.params;
+    register_id,
+    spe_exam_id
+} = req.params;
 
-    const {
-        result,
-        diagnosis,
-        diagnosis_url
-    } = req.body;
+const {
+    result,
+    diagnosis,
+    diagnosis_url
+} = req.body;
 
-    try {
-
-        if (!register_id ||
-            !spe_exam_id ||
-            !result ||
-            !diagnosis ||
-            !diagnosis_url
-        ) {
-            return res.status(404).json({
-                error: true,
-                message: "Không nhận được dữ liệu.",
-            });
-        }
-
-        const check_register = await query(`SELECT * FROM checkupregister 
-                                            WHERE id = $1`,
-            [register_id]);
-
-        if (check_register.rowCount === 0) {
-            return res.status(404).json({
-                error: true,
-                message: "Register ID không tồn tại.",
-            });
-        }
-
-        const check_spe = await query(`SELECT * FROM specialistexamlist
-                                        WHERE id = $1`,
-            [spe_exam_id]);
-
-        if (check_spe.rowCount === 0) {
-            return res.status(404).json({
-                error: true,
-                message: "Special-Exam ID không tồn tại.",
-            });
-        }
-
-        const rs = await query(`UPDATE specialistexamrecord
-                                    SET result = $1 , diagnosis = $2 , diagnosis_paper_url = $3
-                                    WHERE register_id = $4 AND spe_exam_id = $5
-                                    RETURNING *`,
-            [result, diagnosis, diagnosis_url, register_id, spe_exam_id]);
-
-        if (rs.rowCount === 0) {
-            return res.status(404).json({
-                error: true,
-                message: "Update Special-Exam Record không thành công.",
-            });
-        }
-
-        return res.status(200).json({
-            error: false,
-            message: "Update Special-Exam Record thành công.",
-            data: rs.rows[0],
-        });
-
-
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+try {
+    if (!register_id || !spe_exam_id || !result || !diagnosis || !diagnosis_url) {
+        return res.status(404).json({
             error: true,
-            message: "Lỗi server khi Update Special-Exam Record.",
+            message: "Không nhận được đầy đủ dữ liệu.",
         });
     }
+
+    const check_register = await query(`SELECT * FROM checkupregister WHERE id = $1`, [register_id]);
+    if (check_register.rowCount === 0) {
+        return res.status(404).json({
+            error: true,
+            message: "Register ID không tồn tại.",
+        });
+    }
+
+    const check_spe = await query(`SELECT * FROM specialistexamlist WHERE id = $1`, [spe_exam_id]);
+    if (check_spe.rowCount === 0) {
+        return res.status(404).json({
+            error: true,
+            message: "Special-Exam ID không tồn tại.",
+        });
+    }
+
+    const diagnosisUrls = Array.isArray(diagnosis_url) ? diagnosis_url : [diagnosis_url];
+
+    const rs = await query(`UPDATE specialistexamrecord
+        SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3
+        WHERE register_id = $4 AND spe_exam_id = $5
+        RETURNING *`,
+        [result, diagnosis, diagnosisUrls, register_id, spe_exam_id]);
+
+    if (rs.rowCount === 0) {
+        return res.status(404).json({
+            error: true,
+            message: "Update Special-Exam Record không thành công.",
+        });
+    }
+
+    return res.status(200).json({
+        error: false,
+        message: "Update Special-Exam Record thành công.",
+        data: rs.rows[0],
+    });
+
+} catch (err) {
+    console.error(err);
+    return res.status(500).json({
+        error: true,
+        message: "Lỗi server khi Update Special-Exam Record.",
+    });
+}
+
 }
 export async function uploadDiagnosisURL(req, res) {
 
@@ -2776,12 +2765,12 @@ export async function uploadDiagnosisURL(req, res) {
             });
         }
 
-        const urlString = urls.join(','); // chuyển mảng URL thành chuỗi cách nhau bởi dấu ,
+       
 
         return res.status(200).json({
             error: false,
             message: 'Upload ảnh thành công.',
-            urls: urlString
+            urls: urls
         });
 
     } catch (err) {
