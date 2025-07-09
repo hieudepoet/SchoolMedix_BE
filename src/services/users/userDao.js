@@ -826,6 +826,19 @@ export async function updateParentProfile(id, updates) {
   return await updateProfileFor(id, "parent", filteredUpdates);
 }
 
+export async function deleteAccount(id, role) {
+  const result = await query(
+    `
+    update ${role}
+    set email_confirmed = false, last_invitation_at = null, supabase_uid = null, email = null
+    where id = $1
+    `,
+    [id]
+  )
+
+  return result.rows > 0;
+}
+
 //---------------------------------------------------- end update flow:
 export async function confirmEmailFor(role, id) {
   const result = await query(
@@ -915,11 +928,22 @@ export async function deleteUserByID(role, id) {
 export async function updateLastInvitationAtByID(id, role) {
   const sql = `update ${role} set last_invitation_at = now() where id = '${id}' returning *`;
   const result = await query(sql);
-  return result.rows[0] > 0;
+  return result.rowCount > 0;
 }
 
 export async function updateLastInvitationAtByUUID(supabase_uid, role) {
   const sql = `update ${role} set last_invitation_at = now() where supabase_uid = '${supabase_uid}' returning *`;
   const result = await query(sql);
-  return result.rows[0] > 0;
+  return result.rowCount > 0;
+}
+
+
+export async function updateAccount(id, role, email, supabase_uid) {
+  const result = await query(`
+    update ${role}
+    set email = $1, supabase_uid = $2
+    where id = $3
+  `, [email, supabase_uid, id]);
+
+  return result.rowCount > 0;
 }

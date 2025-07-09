@@ -48,13 +48,13 @@ export async function updateProfileFor(id, role, updates) {
     throw new Error("Không có dữ liệu để cập nhật.");
   }
 
-  const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+  const setClause = keys.map((key, idx) => `${key} = $${idx + 2}`).join(', ');
   const result = await query(
     `UPDATE ${role}
        SET ${setClause}
        WHERE id = $1
        RETURNING *`,
-    [...values, id]
+    [id, ...values]
   );
 
   return result.rows[0];

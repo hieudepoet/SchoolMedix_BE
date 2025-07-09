@@ -488,7 +488,10 @@ export async function getDiseaseDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT * FROM disease_record WHERE student_id = $1 AND pending IS NOT NULL
+        SELECT dr.*, s.name as student_name
+        FROM disease_record dr 
+        JOIN student s on dr.student_id = s.id
+        WHERE student_id = $1 AND pending IS NOT NULL
         ORDER BY created_at DESC
       `,
       [student_id]
@@ -514,7 +517,10 @@ export async function getDiseaseDeclarationsHistory(req, res) {
   try {
     const result = await query(
       `
-        SELECT * FROM disease_record WHERE pending IS NOT NULL
+        SELECT dr.*, s.name as student_name
+        FROM disease_record dr 
+        JOIN student s on dr.student_id = s.id
+        WHERE pending IS NOT NULL
         ORDER BY created_at DESC
       `
     );
