@@ -155,7 +155,12 @@ export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT * FROM vaccination_record WHERE student_id = $1 AND pending IS NOT NULL
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, d.name as disease_name
+        FROM vaccination_record vr
+        JOIN student s on vr.student_id = s.id
+        JOIN vaccine v on vr.vaccine_id = v.id
+        JOIN disease d on vr.disease_id = d.id 
+        WHERE student_id = $1 AND pending IS NOT NULL
         ORDER BY created_at DESC
       `,
       [student_id]
@@ -182,7 +187,12 @@ export async function getVaccinationDeclarationsHistory(req, res) {
   try {
     const result = await query(
       `
-        SELECT * FROM vaccination_record WHERE pending IS NOT NULL
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, d.name as disease_name
+        FROM vaccination_record vr
+        JOIN student s on vr.student_id = s.id
+        JOIN vaccine v on vr.vaccine_id = v.id
+        JOIN disease d on vr.disease_id = d.id 
+        WHERE pending IS NOT NULL
         ORDER BY created_at DESC
       `
     );
