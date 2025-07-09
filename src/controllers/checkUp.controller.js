@@ -5,7 +5,9 @@ import { generatePDFBufferFromHealthRecord } from "../services/pdf/exportPDF.js"
 import { retrieveFileFromSupabaseStorage, uploadFileToSupabaseStorage } from "../services/supabase-storage/index.js"
 import multer from 'multer';
 import exceljs from "exceljs";
+import { admin } from "../config/supabase.js";
 
+const BUCKET = process.env.SUPABASE_BUCKET || "diagnosis-url";
 
 
 
@@ -2632,3 +2634,151 @@ export async function handleRetrieveSampleImportHealthRecordForm(req, res) {
         });
     }
 }
+
+export async function updateSpecialRecord(req, res) {
+
+    const {
+    register_id,
+    spe_exam_id
+} = req.params;
+
+const {
+    result,
+    diagnosis,
+    diagnosis_url
+} = req.body;
+
+try {
+    if (!register_id || !spe_exam_id || !result || !diagnosis || !diagnosis_url) {
+        return res.status(404).json({
+            error: true,
+            message: "Không nhận được đầy đủ dữ liệu.",
+        });
+    }
+
+    const check_register = await query(`SELECT * FROM checkupregister WHERE id = $1`, [register_id]);
+    if (check_register.rowCount === 0) {
+        return res.status(404).json({
+            error: true,
+            message: "Register ID không tồn tại.",
+        });
+    }
+
+    const check_spe = await query(`SELECT * FROM specialistexamlist WHERE id = $1`, [spe_exam_id]);
+    if (check_spe.rowCount === 0) {
+        return res.status(404).json({
+            error: true,
+            message: "Special-Exam ID không tồn tại.",
+        });
+    }
+
+    const diagnosisUrls = Array.isArray(diagnosis_url) ? diagnosis_url : [diagnosis_url];
+
+    const rs = await query(`UPDATE specialistexamrecord
+        SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3
+        WHERE register_id = $4 AND spe_exam_id = $5
+        RETURNING *`,
+        [result, diagnosis, diagnosisUrls, register_id, spe_exam_id]);
+
+    if (rs.rowCount === 0) {
+        return res.status(404).json({
+            error: true,
+            message: "Update Special-Exam Record không thành công.",
+        });
+    }
+
+    return res.status(200).json({
+        error: false,
+        message: "Update Special-Exam Record thành công.",
+        data: rs.rows[0],
+    });
+
+} catch (err) {
+    console.error(err);
+    return res.status(500).json({
+        error: true,
+        message: "Lỗi server khi Update Special-Exam Record.",
+    });
+}
+
+}
+export async function uploadDiagnosisURL(req, res) {
+
+    const {
+        register_id,
+        spe_exam_id
+    } = req.params;
+    const files = req.files;
+
+    try {
+        if (
+            !register_id ||
+            !spe_exam_id
+        ) {
+            return res.status(400).json({
+                error: true,
+                message: 'Thiếu register_id hoặc spe_exam_id trong URL.',
+            });
+        }
+
+        if (!files || files.length === 0) {
+            return res.status(400).json({
+                error: true,
+                message: 'Không có ảnh nào được upload.',
+            });
+        }
+
+        const urls = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileExt = file.originalname.split('.').pop();
+            const index = i + 1;
+            const fileName = `${register_id}_${spe_exam_id}_${index}.${fileExt}`;
+            const filePath = `special-exams/${fileName}`;
+
+            // Upload ảnh lên Supabase Storage với quyền admin
+            const { error: uploadError } = await admin.storage
+                .from(BUCKET)
+                .upload(filePath, file.buffer, {
+                    contentType: file.mimetype,
+                    upsert: true,
+                });
+
+            if (uploadError) {
+                console.error(`❌ Lỗi khi upload ${fileName}:`, uploadError);
+                continue;
+            }
+
+            // Lấy public URL từ storage
+            const { data } = admin.storage
+                .from(BUCKET)
+                .getPublicUrl(filePath);
+
+            urls.push(data.publicUrl);
+        }
+
+        if (urls.length === 0) {
+            return res.status(500).json({
+                error: true,
+                message: 'Tất cả ảnh đều upload thất bại.',
+            });
+        }
+
+       
+
+        return res.status(200).json({
+            error: false,
+            message: 'Upload ảnh thành công.',
+            urls: urls
+        });
+
+    } catch (err) {
+        console.error('❌ Lỗi upload ảnh:', err);
+        return res.status(500).json({
+            error: true,
+            message: 'Lỗi server khi upload ảnh.',
+        });
+    }
+}
+

@@ -185,3 +185,23 @@ export async function getAllBlog(req,res) {
         return res.status(500).json({ error: true, message: "Lỗi khi lấy tất cả Blog." });
     }
 }
+
+export async function getBlogType(req,res) {
+    try{
+        const rs = await query (`SELECT * FROM BLOG_TYPE`);
+        if(rs.rowCount === 0){
+            return res
+                .status(400)
+                .json({ error: true, message: "Lấy Blog Type không thành công" });
+        }
+
+        return res
+            .status(200)
+            .json({ error: false, message: "Lấy dữ liệu thành công.", blog: rs.rows });
+
+    } catch (err) {
+        console.error("❌ Error fetching full record:", err);
+        return res.status(500).json({ error: true, message: "Lỗi khi lấy tất cả Blog Type." });
+    }
+    
+}
