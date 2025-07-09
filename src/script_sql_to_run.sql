@@ -545,9 +545,10 @@ CREATE TABLE CheckupCampaign (
 );
 
 INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, status) VALUES
-('Khám sức khỏe định kỳ học sinh năm 2025', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2025-09-01', '2025-09-10', 'CANCELLED'),
-('Định kỳ + Khám mắt và răng học sinh', 'Khám chuyên sâu về mắt và răng, phối hợp với phòng khám chuyên khoa. Thời gian dự kiến: 8h sáng ngày 5/10/25', 'sân trường', '2025-10-05', '2025-10-12', 'DONE'),
-('Khám tâm lý học đường', 'Tư vấn và hỗ trợ tâm lý cho học sinh cần thiết', 'sân trường', '2025-08-15', '2025-08-20', 'PREPARING');
+('Khám sức khỏe định kỳ học sinh năm 2022', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2022-08-01', '2022-08-02', 'DONE'),
+('Khám sức khỏe định kỳ học sinh năm 2023', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2023-8-05', '2023-08-06', 'DONE'),
+('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-05-15', '2025-05-16', 'CANCELLED'),
+('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-08-15', '2025-08-26', 'DONE');
 
 CREATE TABLE SpecialistExamList (
 	id serial primary key,
@@ -603,18 +604,20 @@ CREATE TABLE CheckupRegister (
     FOREIGN KEY (submit_by) REFERENCES Parent(id) ON DELETE CASCADE
 );
 
+---Campaign 1
 -- 10 học sinh đã nộp
-INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, status) VALUES
-(1, '211000', 100003, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211001', 100003, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211002', 100000, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211003', 100000, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211004', 100005, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211005', 100007, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211006', 100009, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211007', 100011, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211008', 100013, '2024-07-07 08:00:00', 'SUBMITTED'),
-(1, '211009', 100015, '2024-07-07 08:00:00', 'SUBMITTED');
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, status, reason) VALUES
+(1, '211000', 100003, '2022-07-25 08:00:00', 'SUBMITTED', 'Đồng ý tham gia khám chuyên khoa'),
+(1, '211001', 100003, '2022-07-26 08:00:00', 'SUBMITTED', 'Đồng ý'),
+(1, '211002', 100000, '2022-07-25 08:00:00', 'SUBMITTED', 'Chấp nhận tham gia'),
+(1, '211003', 100000, '2022-07-27 08:00:00', 'SUBMITTED', 'Đồng ý tham gia khám chuyên khoa'),
+(1, '211004', 100005, '2022-07-28 08:00:00', 'SUBMITTED', 'Đồng ý'),
+(1, '211005', 100007, '2022-07-25 08:00:00', 'SUBMITTED', 'Chấp nhận tham gia'),
+(1, '211006', 100009, '2022-07-27 08:00:00', 'SUBMITTED', 'Đồng ý tham gia khám chuyên khoa'),
+(1, '211007', 100011, '2022-07-28 08:00:00', 'SUBMITTED', 'Đồng ý'),
+(1, '211008', 100013, '2022-07-29 08:00:00', 'SUBMITTED', 'Chấp nhận tham gia'),
+(1, '211009', 100015, '2022-07-30 08:00:00', 'SUBMITTED', 'Đồng ý tham gia khám chuyên khoa');
+
 
 -- 24 học sinh chưa nộp (PENDING)
 INSERT INTO CheckupRegister (campaign_id, student_id, status) VALUES
@@ -642,6 +645,49 @@ INSERT INTO CheckupRegister (campaign_id, student_id, status) VALUES
 (1, '211031', 'PENDING'),
 (1, '211032', 'PENDING'),
 (1, '211033', 'PENDING');
+
+---Campaign 2
+-- 24 bản ghi đầu: status = PENDING (mặc định)
+INSERT INTO CheckupRegister (campaign_id, student_id)
+VALUES
+(2, '211000'),
+(2, '211001'),
+(2, '211002'),
+(2, '211003'),
+(2, '211004'),
+(2, '211005'),
+(2, '211006'),
+(2, '211007'),
+(2, '211008'),
+(2, '211009'),
+(2, '211010'),
+(2, '211011'),
+(2, '211012'),
+(2, '211013'),
+(2, '211014'),
+(2, '211015'),
+(2, '211016'),
+(2, '211017'),
+(2, '211018'),
+(2, '211019'),
+(2, '211020'),
+(2, '211021'),
+(2, '211022'),
+(2, '211023');
+
+-- 10 bản ghi cuối: status = SUBMITTED, submit_by = 1, submit_time từ 2023-06-01 đến 2023-06-07
+INSERT INTO CheckupRegister (campaign_id, student_id, status, submit_by, submit_time, reason)
+VALUES
+(2, '211024', 'SUBMITTED', 100015, '2023-06-01 10:00:00', 'Đồng ý tham gia khám chuyên khoa'),
+(2, '211025', 'SUBMITTED', 100017, '2023-06-02 11:15:00', 'Đồng ý'),
+(2, '211026', 'SUBMITTED', 100019, '2023-06-02 14:30:00', 'Chấp nhận tham gia'),
+(2, '211027', 'SUBMITTED', 100020, '2023-06-03 09:00:00', 'Đồng ý tham gia khám chuyên khoa'),
+(2, '211028', 'SUBMITTED', 100023, '2023-06-04 08:45:00', 'Đồng ý'),
+(2, '211029', 'SUBMITTED', 100024, '2023-06-04 15:10:00', 'Chấp nhận tham gia'),
+(2, '211030', 'SUBMITTED', 100026, '2023-06-05 12:00:00', 'Đồng ý tham gia khám chuyên khoa'),
+(2, '211031', 'SUBMITTED', 100028, '2023-06-06 13:30:00', 'Đồng ý'),
+(2, '211032', 'SUBMITTED', 100030, '2023-06-06 16:45:00', 'Chấp nhận tham gia'),
+(2, '211033', 'SUBMITTED', 100033, '2023-06-07 10:20:00', 'Đồng ý tham gia khám chuyên khoa');
 
 
 
@@ -671,47 +717,124 @@ CREATE TABLE HealthRecord (
 	is_checked BOOLEAN DEFAULT FALSE,
 	status health_record_status NOT NULL DEFAULT 'WAITING'
 );
-
+---Campaign 1
 INSERT INTO HealthRecord (
     register_id, height, weight, blood_pressure, left_eye, right_eye,
     ear, nose, throat, teeth, gums, skin_condition,
     heart, lungs, spine, posture,
     record_url, final_diagnosis, is_checked, status, date_record
 ) VALUES
-(1, '145', '38', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(2, '150', '43', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định', 'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-07 08:00:00'),
-(3, '155', '48', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Bình thường', 'Không bệnh ngoài da', 'Bình thường', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Họng đỏ nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(4, '148', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', NULL, 'Thị lực giảm nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(5, '160', '52', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè', 'Không sâu', 'Tốt', 'Bình thường', 'Bình thường', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Khò nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(6, '142', '36', '90/60', '9/10', '9/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô', 'Bình thường', 'Tốt', 'Thẳng', 'Lệch vai', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(7, '163', '58', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
-(8, '155', '65', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ', 'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2023-08-07 08:00:00'),
-(9, '158', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
-(10, '150', '35', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2023-08-07 08:00:00'),
-(11, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(12, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
-(13, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00'),
-(14, '149', '41', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2023-08-07 08:00:00'),
-(15, '152', '55', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-07 08:00:00'),
-(16, '145', '38', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(17, '150', '43', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định', 'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-07 08:00:00'),
-(18, '155', '48', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Bình thường', 'Không bệnh ngoài da', 'Bình thường', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Họng đỏ nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(19, '148', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', NULL, 'Thị lực giảm nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(20, '160', '52', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè', 'Không sâu', 'Tốt', 'Bình thường', 'Bình thường', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Khò nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(21, '142', '36', '90/60', '9/10', '9/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô', 'Bình thường', 'Tốt', 'Thẳng', 'Lệch vai', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(22, '163', '58', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
-(23, '155', '65', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ', 'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2023-08-07 08:00:00'),
-(24, '158', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
-(25, '150', '35', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2023-08-07 08:00:00'),
-(26, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(27, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
-(28, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00'),
-(29, '149', '41', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2023-08-07 08:00:00'),
-(30, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
-(31, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
-(32, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00'),
-(33, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
-(34, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00');
+(1, '145', '38', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(2, '150', '43', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định', 'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2022-08-02 08:00:00'),
+(3, '155', '48', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Bình thường', 'Không bệnh ngoài da', 'Bình thường', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Họng đỏ nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(4, '148', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', NULL, 'Thị lực giảm nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(5, '160', '52', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè', 'Không sâu', 'Tốt', 'Bình thường', 'Bình thường', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Khò nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(6, '142', '36', '90/60', '9/10', '9/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô', 'Bình thường', 'Tốt', 'Thẳng', 'Lệch vai', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(7, '163', '58', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2022-08-02 08:00:00'),
+(8, '155', '65', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ', 'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2022-08-02 08:00:00'),
+(9, '158', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2022-08-02 08:00:00'),
+(10, '150', '35', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2022-08-02 08:00:00'),
+(11, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(12, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2022-08-02 08:00:00'),
+(13, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2022-08-02 08:00:00'),
+(14, '149', '41', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2022-08-02 08:00:00'),
+(15, '152', '55', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2022-08-02 08:00:00'),
+(16, '145', '38', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(17, '150', '43', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định', 'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2022-08-02 08:00:00'),
+(18, '155', '48', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Bình thường', 'Không bệnh ngoài da', 'Bình thường', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Họng đỏ nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(19, '148', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', NULL, 'Thị lực giảm nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(20, '160', '52', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè', 'Không sâu', 'Tốt', 'Bình thường', 'Bình thường', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Khò nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(21, '142', '36', '90/60', '9/10', '9/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô', 'Bình thường', 'Tốt', 'Thẳng', 'Lệch vai', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(22, '163', '58', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2022-08-02 08:00:00'),
+(23, '155', '65', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ', 'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2022-08-02 08:00:00'),
+(24, '158', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2022-08-02 08:00:00'),
+(25, '150', '35', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2022-08-02 08:00:00'),
+(26, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(27, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2022-08-02 08:00:00'),
+(28, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2022-08-02 08:00:00'),
+(29, '149', '41', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2022-08-02 08:00:00'),
+(30, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2022-08-02 08:00:00'),
+(31, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2022-08-02 08:00:00'),
+(32, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2022-08-02 08:00:00'),
+(33, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2022-08-02 08:00:00'),
+(34, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2022-08-02 08:00:00');
+
+
+---Campaign 2
+INSERT INTO HealthRecord (
+    register_id, height, weight, blood_pressure, left_eye, right_eye,
+    ear, nose, throat, teeth, gums, skin_condition,
+    heart, lungs, spine, posture,
+    record_url, final_diagnosis, is_checked, status, date_record
+) VALUES
+(35, '146', '39', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thiếu cân nhẹ', true, 'DONE', '2023-08-06'),
+(36, '151', '45', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', 'https://example.com/record36.pdf', 'Bình thường', true, 'DONE', '2023-08-06'),
+(37, '156', '49', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Tốt', 'Da thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Viêm họng nhẹ', true, 'DONE', '2023-08-06'),
+(38, '149', '41', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Da bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thị lực phải yếu nhẹ', true, 'DONE', '2023-08-06'),
+(39, '161', '53', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè', 'Không sâu', 'Tốt', 'Bình thường',
+ 'Bình thường', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hô hấp nhẹ', true, 'DONE', '2023-08-06'),
+(40, '143', '35', '90/60', '9/10', '9/10', 'Viêm tai nhẹ', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô',
+ 'Tốt', 'Tốt', 'Thẳng', 'Lệch vai nhẹ', 'https://example.com/record40.pdf', 'Viêm tai giữa nhẹ', true, 'DONE', '2023-08-06'),
+(41, '164', '59', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-06'),
+(42, '156', '66', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ', 'Sâu nặng', 'Viêm lợi',
+ 'Da khô', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng lợi', true, 'DONE', '2023-08-06'),
+(43, '159', '47', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(44, '152', '36', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', 'https://example.com/record44.pdf', 'Hơi gầy', true, 'DONE', '2023-08-06'),
+(45, '167', '72', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Da bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-06'),
+ (46, '155', '43', '110/70', '10/10', '10/10', 'Viêm tai nhẹ', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô',
+ 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Theo dõi tai', true, 'DONE', '2023-08-06'),
+(47, '162', '51', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ',
+ 'Da thường', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', 'https://example.com/record47.pdf', 'Chăm sóc răng lợi', true, 'DONE', '2023-08-06'),
+(48, '150', '42', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da hơi nhạy',
+ 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da nhẹ', true, 'DONE', '2023-08-06'),
+(49, '153', '54', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(50, '146', '38', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Da thường',
+ 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Cần theo dõi tư thế', true, 'DONE', '2023-08-06'),
+(51, '151', '47', '110/70', '10/10', '10/10', 'Viêm tai nhẹ', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Nên tái khám tai', true, 'DONE', '2023-08-06'),
+(52, '158', '49', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', 'https://example.com/record52.pdf', 'Bình thường', true, 'DONE', '2023-08-06'),
+(53, '150', '35', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Tốt', 'Bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Họng đỏ nhẹ', true, 'DONE', '2023-08-06'),
+(54, '165', '71', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Da thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-06'),
+(55, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường',
+ 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-06'),
+(56, '160', '49', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô',
+ 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Đánh răng đều', true, 'DONE', '2023-08-06'),
+ (57, '149', '40', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ 'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2023-08-06'),
+(58, '154', '56', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ 'Không sâu', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(59, '147', '39', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ 'Sâu nhẹ', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2023-08-06'),
+(60, '152', '44', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định',
+ 'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', 'https://example.com/record60.pdf', 'Cần theo dõi viêm mũi', true, 'DONE', '2023-08-06'),
+(61, '157', '49', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ',
+ 'Không sâu', 'Bình thường', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Viêm họng nhẹ', true, 'DONE', '2023-08-06'),
+(62, '150', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ 'Sâu nhẹ', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thị lực phải giảm nhẹ', true, 'DONE', '2023-08-06'),
+(63, '162', '54', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè',
+ 'Không sâu', 'Tốt', 'Da thường', 'Tốt', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Cần theo dõi hô hấp', true, 'DONE', '2023-08-06'),
+(64, '144', '37', '90/60', '9/10', '9/10', 'Viêm tai nhẹ', 'Không viêm', 'Ổn định',
+ 'Không sâu', 'Tốt', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Lệch vai nhẹ', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2023-08-06'),
+(65, '166', '59', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ 'Không sâu', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', 'https://example.com/record65.pdf', 'Khỏe mạnh', true, 'DONE', '2023-08-06'),
+(66, '158', '64', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ',
+ 'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2023-08-06'),
+(67, '160', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ 'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-06'),
+(68, '153', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2023-08-06');
 
 CREATE TYPE specialist_exam_record_status AS ENUM ('CANNOT_ATTACH', 'WAITING', 'DONE');
 CREATE TABLE specialistExamRecord (
@@ -727,38 +850,91 @@ CREATE TABLE specialistExamRecord (
     FOREIGN KEY (spe_exam_id) REFERENCES SpecialistExamList(id)
 );
 
-INSERT INTO specialistExamRecord (register_id,spe_exam_id) VALUES 
-(1,1),
-(1,3),
-(2,1),
-(2,3),
-(3,1),
-(3,3),
-(4,1),
-(4,3);
-
-
-
+---Campaign 1
 
 INSERT INTO specialistExamRecord (
-    register_id, 
-    spe_exam_id,
-    result,
-    diagnosis,
-    diagnosis_paper_urls,
-	is_checked,
-	status
-) VALUES 
-(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường',ARRAY[ 'http://example.com/doc1.pdf'],TRUE, 'DONE'),
-(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm',ARRAY[ 'http://example.com/doc2.pdf'],TRUE, 'DONE'),
-(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', ARRAY['http://example.com/doc3.pdf'], TRUE,'DONE'),
-(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường',ARRAY[ 'http://example.com/doc4.pdf'],TRUE, 'DONE');
+    register_id, spe_exam_id, result, diagnosis, diagnosis_paper_urls, is_checked, status
+)
+VALUES
+-- register_id 1
+(1, 1, 'Không phát hiện bất thường sinh dục.', 'Sinh dục bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(1, 3, 'Không có dấu hiệu rối loạn tâm thần.', 'Tâm thần ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
 
-INSERT INTO specialistExamRecord (register_id,spe_exam_id,status) VALUES 
-(9,4,'WAITING'),
-(10,4,'WAITING'),
-(11,4,'WAITING'),
-(12,4,'WAITING');
+-- register_id 2
+(2, 1, 'Cơ quan sinh dục phát triển bình thường.', 'Không phát hiện dị tật.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(2, 3, 'Ứng xử phù hợp, không có dấu hiệu loạn thần.', 'Tâm thần trong giới hạn bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 3
+(3, 1, 'Không có dấu hiệu bất thường bộ phận sinh dục.', 'Sinh dục ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(3, 3, 'Tâm trạng ổn định, không có hành vi bất thường.', 'Không phát hiện rối loạn tâm thần.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 4
+(4, 1, 'Kiểm tra sinh dục trong giới hạn bình thường.', 'Không có dấu hiệu bệnh lý.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(4, 3, 'Không có dấu hiệu stress hay lo âu kéo dài.', 'Tâm lý ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 5
+(5, 1, 'Sinh dục không bị tổn thương.', 'Không phát hiện bất thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(5, 3, 'Phản ứng cảm xúc phù hợp, giao tiếp tốt.', 'Tâm thần bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 6
+(6, 1, 'Bộ phận sinh dục phát triển theo độ tuổi.', 'Không có dấu hiệu bệnh lý.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(6, 3, 'Nhận thức rõ ràng, trả lời câu hỏi phù hợp.', 'Tâm thần khỏe mạnh.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 7
+(7, 1, 'Không phát hiện viêm nhiễm hoặc dị tật.', 'Khám sinh dục bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(7, 3, 'Không có dấu hiệu rối loạn tâm trạng.', 'Tâm thần bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 8
+(8, 1, 'Sinh dục trong trạng thái khỏe mạnh.', 'Không có biểu hiện lâm sàng bất thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(8, 3, 'Không phát hiện bất ổn tâm lý.', 'Khám tâm thần trong giới hạn bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 9
+(9, 1, 'Khám sinh dục không phát hiện bất thường.', 'Tình trạng sinh dục ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(9, 3, 'Tâm thần tỉnh táo, phản xạ nhanh.', 'Tâm thần tốt.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+
+-- register_id 10
+(10, 1, 'Không có dấu hiệu nhiễm trùng hay tổn thương.', 'Sinh dục trong giới hạn bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(10, 3, 'Thái độ hợp tác tốt, không rối loạn hành vi.', 'Khám tâm thần bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE');
+
+---Campaign 2
+
+INSERT INTO specialistExamRecord (
+    register_id, spe_exam_id, result, diagnosis, diagnosis_paper_urls, is_checked, status
+) VALUES
+
+-- register_id 59
+(59, 2, 'Học sinh biểu hiện lo âu nhẹ, tiếp xúc tốt.', 'Khuyến khích tham gia hoạt động nhóm, theo dõi định kỳ.', ARRAY['https://example.com/diag_59.pdf'], true, 'DONE'),
+
+-- register_id 60
+(60, 2, 'Ổn định tâm lý, hợp tác tốt trong buổi tư vấn.', 'Không cần can thiệp thêm.', ARRAY['https://example.com/diag_60.pdf'], true, 'DONE'),
+
+-- register_id 61
+(61, 2, 'Thể hiện sự căng thẳng khi nói về bài tập.', 'Cần hỗ trợ quản lý thời gian học tập.', ARRAY['https://example.com/diag_61.pdf'], true, 'DONE'),
+
+-- register_id 62
+(62, 2, 'Hơi rụt rè khi giao tiếp, không có dấu hiệu rối loạn.', 'Khuyến khích tăng cường giao tiếp.', ARRAY['https://example.com/diag_62.pdf'], true, 'DONE'),
+
+-- register_id 63
+(63, 2, 'Chia sẻ tốt, tâm lý ổn định.', 'Không cần can thiệp.', NULL, true, 'DONE'),
+
+-- register_id 64 
+(64, 2, 'Có dấu hiệu mất tập trung trong lớp.', 'Đề nghị theo dõi thêm từ giáo viên chủ nhiệm.', NULL, true, 'DONE'),
+
+-- register_id 65
+(65, 2, 'Chủ động trao đổi, không có biểu hiện tiêu cực.', 'Không cần hỗ trợ thêm.', ARRAY['https://example.com/diag_65.pdf'], true, 'DONE'),
+
+-- register_id 66
+(66, 2, 'Biểu hiện buồn bã, thiếu động lực học tập.', 'Khuyến nghị tham gia thêm buổi tư vấn chuyên sâu.', ARRAY['https://example.com/diag_66.pdf'], true, 'DONE'),
+
+-- register_id 67
+(67, 2, 'Tâm lý ổn định, có định hướng học tập rõ ràng.', 'Không cần hỗ trợ thêm.', NULL, true, 'DONE'),
+
+-- register_id 68
+(68, 2, 'Khó khăn trong việc thích nghi môi trường học mới.', 'Nên có sự hỗ trợ từ gia đình và giáo viên.', ARRAY['https://example.com/diag_68.pdf'], true, 'DONE');
+
+
+
+
 
 ----- FLOW VACCINATION CAMPAIGN
 --disease
