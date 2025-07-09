@@ -163,101 +163,6 @@ export async function createCampaign(req, res) {
             }
         }
 
-        // //STEP 3.1: Tạo CheckUp Register
-        // //Lấy danh sách student
-        // const result_student = await query(`SELECT * FROM Student`);
-        // const students = result_student.rows;
-        // const checkup_register = [];
-        // //Tạo CheckUp Register  và cho từng Student
-        // for (const student of students) {
-        //     const result_checkup_register = await query(
-        //         `INSERT INTO CheckupRegister (campaign_id, student_id, status)
-        //              VALUES ($1, $2, $3)  RETURNING*`,
-        //         [campaign.id, student.id, "PENDING"]
-        //     );
-
-        //     if (result_checkup_register.rowCount === 0) {
-        //         return res
-        //             .status(400)
-        //             .json({
-        //                 error: true,
-        //                 message: "Create CheckUp Register không thành công.",
-        //             });
-        //     }
-
-        //     checkup_register.push(result_checkup_register.rows[0]);
-        // }
-
-
-
-        // DUY KHANH: cái này nên tách riêng ra làm hàm riêng, chứ để đây nó TIMEOUT
-        //     //STEP 3.2 Gửi mail cho phụ huynh
-
-        //     const result_list = await query(`SELECT
-        // s.id   AS student_id,
-        // s.name AS student_name,
-        // mom.id AS mom_id,
-        // mom.name AS mom_name,
-        // mom.email AS mom_email,
-        // dad.id AS dad_id,
-        // dad.name AS dad_name,
-        // dad.email AS dad_email
-        // FROM student s
-        // LEFT JOIN parent mom ON s.mom_id = mom.id
-        // LEFT JOIN parent dad ON s.dad_id = dad.id`);
-
-        //     const rs_list = result_list.rows;
-
-        //     for (const row of rs_list) {
-        //         // Gửi mail cho mẹ nếu có email (parent_name ,student_name ,campaign_name ,description ,location ,start_date ,start_date,email
-        //         if (row.mom_email) {
-        //             await sendCheckupRegister(row.mom_email, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.mom_email);
-        //         }
-        //         // Gửi mail cho bố nếu có email
-        //         if (row.dad_email) {
-        //             await sendCheckupRegister(row.dad_name, row.student_name, campaign.name, campaign.description, campaign.location, campaign.start_date, campaign.end_date, row.dad_email);
-
-        //         }
-        //     }
-
-
-        // STEP 4 Tạo specialistExamRecord theo từng CheckUp Register và Special List Exam
-
-        // for (const registerId of checkup_register) {
-        //     for (const examId of specialist_exam_ids) {
-        //         const result_update_speciallist = await query(
-        //             `INSERT INTO specialistExamRecord (register_id,spe_exam_id,status)
-        //                 VALUES ($1, $2, $3)`,
-        //             [registerId.id, examId, "CANNOT_ATTACH"]
-        //         );
-
-        //         if (result_update_speciallist.rowCount === 0) {
-        //             return res
-        //                 .status(400)
-        //                 .json({
-        //                     error: true,
-        //                     message: "Create Special List Exam Record không thành công.",
-        //                 });
-        //         }
-        //     }
-        // }
-
-        // // STEP 5: Tạo HealthRecord cho từng Register và Student
-
-        // for (const registerID of checkup_register) {
-        //     const result_check_healthrecord = await query(
-        //         `INSERT INTO HealthRecord (register_id) VALUES ($1)`,
-        //         [registerID.id]
-        //     );
-        //     if (result_check_healthrecord.rowCount === 0) {
-        //         return res
-        //             .status(400)
-        //             .json({
-        //                 error: true,
-        //                 message: "Create Health Record không thành công.",
-        //             });
-        //     }
-        // }
 
         return res
             .status(200)
@@ -342,11 +247,6 @@ export async function sendRegister(req, res) {
 
 
         const specialist_exam_ids = rs.rows;
-
-
-
-
-
 
 
         //Step 3: Tạo specialistExamRecord
