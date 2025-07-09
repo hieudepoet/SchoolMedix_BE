@@ -942,20 +942,21 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
   10, 
   11, 
   'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 
-  '<div style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <h2 style="color: #2E7D32;">Thông Báo Về Chiến Dịch Tiêm Phòng Bệnh Lao (BCG)</h2>
-    <p>Kính gửi Quý Phụ huynh,</p>
-    <p>Nhà trường phối hợp với Trung tâm Y tế tổ chức <strong>Chiến dịch tiêm phòng vắc xin BCG</strong> nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn <em>Mycobacterium tuberculosis</em> gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.</p>
-    <ul>
-      <li><strong>Thời gian:</strong> Từ ngày 15/06/2025 đến ngày 17/06/2025</li>
-      <li><strong>Địa điểm:</strong> School Medix, Phòng Y tế Trường học</li>
-      <li><strong>Đối tượng:</strong> Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh)</li>
-      <li><strong>Vắc xin:</strong> BCG (sản xuất tại Việt Nam, an toàn và hiệu quả)</li>
-    </ul>
-    <p>Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email <a href="mailto:health@schoolmedix.edu.vn">health@schoolmedix.edu.vn</a> trước ngày 10/06/2025 để sắp xếp lịch tiêm.</p>
-    <p>Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: <strong>(+84) 123 456 789</strong>.</p>
-    <p>Trân trọng,<br>Ban Giám Hiệu</p>
-  </div>',
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG)
+	Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin BCG nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn Mycobacterium tuberculosis gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.
+	
+	Thông tin chi tiết:
+	- Thời gian: Từ ngày 15/06/2025 đến ngày 17/06/2025
+	- Địa điểm: School Medix, Phòng Y tế Trường học
+	- Đối tượng: Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh)
+	- Vắc xin: BCG (sản xuất tại Việt Nam, an toàn và hiệu quả)
+	
+	Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email health@schoolmedix.edu.vn trước ngày 10/06/2025 để sắp xếp lịch tiêm.
+	
+	Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: (+84) 123 456 789.
+	
+	Trân trọng,
+	Ban Giám Hiệu',
   'School Medix', 
   '2025-06-15', 
   '2025-06-17', 

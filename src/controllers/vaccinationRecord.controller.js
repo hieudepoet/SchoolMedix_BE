@@ -30,8 +30,8 @@ export async function createVaccinationRecord(req, res) {
 
     // Insert vaccination record into database
     const insertQuery = `
-                  INSERT INTO vaccination_record (student_id, description, disease_id, vaccine_id, location, vaccination_date, status)
-                  VALUES ($1, $2, $3, $4, $5, $6, $7)
+                  INSERT INTO vaccination_record (student_id, description, disease_id, vaccine_id, location, vaccination_date, pending, status)
+                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                   RETURNING *;
             `;
 
@@ -42,6 +42,7 @@ export async function createVaccinationRecord(req, res) {
       vaccine_id,
       location || null,
       vaccination_date,
+      "PENDING",
       "PENDING",
     ]);
 
@@ -64,12 +65,45 @@ export async function acceptVaccinationRecord(req, res) {
       `
         UPDATE vaccination_record 
         SET
-          pending = 'DONE'
+          pending = 'DONE', status = 'COMPLETED'
         WHERE 
           id = $1
       `,
       [id]
     );
+
+    const vaccine_id = accept.rows[0].vaccine_id;
+
+    // Lấy tất cả disease_id được map với vaccine_id này (ngoại trừ disease_id gốc)
+    const diseases = await query(
+      `SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id != $2`,
+      [vaccine_id, accept.rows[0].disease_id]
+    );
+
+    // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
+    for (const disease of diseases.rows) {
+      await query(
+        `INSERT INTO vaccination_record (
+          student_id,  
+          disease_id, 
+          vaccine_id, 
+          status, 
+          description, 
+          location, 
+          vaccination_date, 
+          pending
+          )
+         VALUES ($1, $2, $3, 'COMPLETED', $4, $5, $6, $7, 'DONE')`,
+        [
+          accept.rows[0].student_id,
+          disease.id,
+          vaccine_id,
+          accept.rows[0].description,
+          accept.rows[0].location,
+          accept.rows[0].vaccination_date,
+        ]
+      );
+    }
 
     return res.status(200).json({
       error: false,
@@ -94,7 +128,7 @@ export async function refuseVaccinationRecord(req, res) {
       `
         UPDATE vaccination_record 
         SET
-          pending = 'CANCELLED',
+          pending = 'CANCELLED', status = 'CANCELLED'
           reason_by_nurse = $1
         WHERE 
           id = $2
@@ -112,6 +146,60 @@ export async function refuseVaccinationRecord(req, res) {
     return res.status(500).json({
       error: true,
       message: "Error when refusing record request: ",
+    });
+  }
+}
+
+export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
+  const { student_id } = req.params;
+  try {
+    const result = await query(
+      `
+        SELECT * FROM vaccination_record WHERE student_id = $1 AND pending IS NOT NULL
+        ORDER BY created_at DESC
+      `,
+      [student_id]
+    );
+
+    return res.status(200).json({
+      error: false,
+      message:
+        "Get vaccinationvaccination-declaration history requests successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(
+      "Error when getting vaccination-declaration history requests: " + error
+    );
+    return res.status(500).json({
+      error: true,
+      message: "Error when getting vaccination-declaration history requests",
+    });
+  }
+}
+
+export async function getVaccinationDeclarationsHistory(req, res) {
+  try {
+    const result = await query(
+      `
+        SELECT * FROM vaccination_record WHERE pending IS NOT NULL
+        ORDER BY created_at DESC
+      `
+    );
+
+    return res.status(200).json({
+      error: false,
+      message:
+        "Get vaccinationvaccination-declaration history requests successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.log(
+      "Error when getting vaccination-declaration history requests: " + error
+    );
+    return res.status(500).json({
+      error: true,
+      message: "Error when getting vaccination-declaration history requests",
     });
   }
 }
@@ -386,7 +474,7 @@ export async function getVaccinationRecordByID(req, res) {
 
   try {
     const records = await query(
-      "SELECT * FROM vaccination_record WHERE id = $1",
+      "SELECT * FROM vaccination_record WHERE id = $1 AND pending IS NULL OR pending = 'DONE'",
       [id]
     );
     if (records.rows.length === 0) {
@@ -419,7 +507,7 @@ export async function getVaccinationRecordsByStudentID(req, res) {
 
   try {
     const records = await query(
-      `SELECT * FROM vaccination_record a join vaccine b on a.vaccine_id = b.id WHERE student_id = $1 and disease_id = $2`,
+      `SELECT * FROM vaccination_record a join vaccine b on a.vaccine_id = b.id WHERE student_id = $1 and disease_id = $2 AND pending IS NULL OR pending = 'DONE'`,
       [student_id, disease_id]
     );
     if (records.rows.length === 0) {
@@ -458,11 +546,18 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
         vr.status
       FROM vaccination_record vr
       JOIN vaccine v ON vr.vaccine_id = v.id
-      WHERE vr.student_id = $1 AND vr.disease_id = $2
+      WHERE vr.student_id = $1 AND vr.disease_id = $2 AND pending IS NULL OR pending = 'DONE'
       ORDER BY vr.vaccination_date
     `,
       [student_id, disease_id]
     );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không có lịch sử tiêm chủng cho học sinh này với bệnh này",
+      });
+    }
 
     return res.status(200).json({
       error: false,
