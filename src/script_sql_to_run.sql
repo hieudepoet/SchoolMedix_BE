@@ -21,7 +21,7 @@ BEGIN
 
 END $$;
 
-
+SET TIME ZONE 'Asia/Ho_Chi_Minh';
 
 -- grade
 CREATE TABLE grade (
@@ -1329,6 +1329,9 @@ CREATE TABLE daily_health_record (
     status VARCHAR(50) CHECK (status IN ('MILD', 'SERIOUS')),
     FOREIGN KEY (student_id) REFERENCES student(id)
 );
+
+CREATE INDEX idx_daily_health_record_detect_time ON daily_health_record(detect_time);
+CREATE INDEX idx_daily_health_record_status ON daily_health_record(status);
 
 INSERT INTO daily_health_record (
     student_id, detect_time, diagnosis, on_site_treatment, transferred_to, items_usage, status
