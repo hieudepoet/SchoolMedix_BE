@@ -603,19 +603,46 @@ CREATE TABLE CheckupRegister (
     FOREIGN KEY (submit_by) REFERENCES Parent(id) ON DELETE CASCADE
 );
 
-INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, reason, status) VALUES
-(1, '211000', 100002, 'Đăng ký khám mắt và răng', 'CANCELLED'),
-(1, '211001', 100000, 'Hỗ trợ tư vấn tâm lý', 'CANCELLED'),
-(1, '211002', 100001, 'Khám sinh dục tuổi dậy thì', 'CANCELLED'),
-(1, '211003', 100002, 'Đăng ký khám tổng quát', 'CANCELLED'),
-(2, '211000', 100000, 'Đăng ký khám mắt định kỳ', 'PENDING'),
-(2, '211001', 100001, 'Tư vấn tâm lý bổ sung', 'PENDING'),
-(2, '211002', 100003, 'Khám sinh dục bổ sung', 'SUBMITTED'),
-(2, '211003', 100000, 'Khám tổng quát lần 2', 'SUBMITTED'),
-(3, '211000', 100003, 'Hỗ trợ tâm lý bổ sung', 'PENDING'),
-(3, '211001', 100001, 'Đăng ký khám mắt', 'SUBMITTED'),
-(3, '211002', 100000, 'Khám sức khỏe định kỳ', 'SUBMITTED'),
-(3, '211003', 100002, 'Khám sinh dục bổ sung', 'SUBMITTED');
+-- 10 học sinh đã nộp
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, status) VALUES
+(1, '211000', 100003, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211001', 100003, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211002', 100000, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211003', 100000, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211004', 100005, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211005', 100007, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211006', 100009, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211007', 100011, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211008', 100013, '2024-07-07 08:00:00', 'SUBMITTED'),
+(1, '211009', 100015, '2024-07-07 08:00:00', 'SUBMITTED');
+
+-- 24 học sinh chưa nộp (PENDING)
+INSERT INTO CheckupRegister (campaign_id, student_id, status) VALUES
+(1, '211010', 'PENDING'),
+(1, '211011', 'PENDING'),
+(1, '211012', 'PENDING'),
+(1, '211013', 'PENDING'),
+(1, '211014', 'PENDING'),
+(1, '211015', 'PENDING'),
+(1, '211016', 'PENDING'),
+(1, '211017', 'PENDING'),
+(1, '211018', 'PENDING'),
+(1, '211019', 'PENDING'),
+(1, '211020', 'PENDING'),
+(1, '211021', 'PENDING'),
+(1, '211022', 'PENDING'),
+(1, '211023', 'PENDING'),
+(1, '211024', 'PENDING'),
+(1, '211025', 'PENDING'),
+(1, '211026', 'PENDING'),
+(1, '211027', 'PENDING'),
+(1, '211028', 'PENDING'),
+(1, '211029', 'PENDING'),
+(1, '211030', 'PENDING'),
+(1, '211031', 'PENDING'),
+(1, '211032', 'PENDING'),
+(1, '211033', 'PENDING');
+
 
 
 create type health_record_status as enum ('CANCELLED','WAITING', 'DONE');
@@ -640,34 +667,51 @@ CREATE TABLE HealthRecord (
     posture VARCHAR(100),
     record_url text DEFAULT NULL,
     final_diagnosis TEXT,
+	date_record TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	is_checked BOOLEAN DEFAULT FALSE,
 	status health_record_status NOT NULL DEFAULT 'WAITING'
 );
 
-INSERT INTO HealthRecord (register_id, status) VALUES 
-(1,'CANCELLED'),
-(2,'CANCELLED'),
-(3,'CANCELLED'),
-(4,'CANCELLED');
-
-
 INSERT INTO HealthRecord (
-    register_id, height, weight, blood_pressure,
-    left_eye, right_eye, ear, nose, throat,
-    teeth, gums, skin_condition, heart, lungs,
-    spine, posture, final_diagnosis, is_checked,status
+    register_id, height, weight, blood_pressure, left_eye, right_eye,
+    ear, nose, throat, teeth, gums, skin_condition,
+    heart, lungs, spine, posture,
+    record_url, final_diagnosis, is_checked, status, date_record
 ) VALUES
-(5, '150cm', '40kg', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Hồng hào', 'Không mẩn đỏ', 'Bình thường', 'Bình thường', 'Thẳng', 'Bình thường', 'Sức khỏe tốt',TRUE, 'DONE'),
-(6, '155cm', '42kg', '105/70', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Răng hơi sâu', 'Bình thường', 'Không có vấn đề', 'Bình thường', 'Bình thường', 'Hơi lệch', 'Tư thế tốt', 'Cần theo dõi tâm lý', TRUE,'DONE'),
-(7, '152cm', '41kg', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Bình thường', 'Bình thường', 'Da nhạy cảm', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', 'Tạm hoãn do lý do cá nhân', TRUE,'DONE'),
-(8, '149cm', '39kg', '115/75', '9/10', '9/10', 'Bình thường', 'Không viêm', 'Không viêm', 'Bình thường', 'Bình thường', 'Không mẩn', 'Bình thường', 'Bình thường', 'Bình thường', 'Bình thường', 'Khuyến cáo bổ sung dinh dưỡng',TRUE, 'DONE');
-
-INSERT INTO HealthRecord (register_id, status) VALUES 
-(9,'WAITING'),
-(10,'WAITING'),
-(11,'WAITING'),
-(12,'WAITING');
-
+(1, '145', '38', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(2, '150', '43', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định', 'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-07 08:00:00'),
+(3, '155', '48', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Bình thường', 'Không bệnh ngoài da', 'Bình thường', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Họng đỏ nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(4, '148', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', NULL, 'Thị lực giảm nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(5, '160', '52', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè', 'Không sâu', 'Tốt', 'Bình thường', 'Bình thường', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Khò nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(6, '142', '36', '90/60', '9/10', '9/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô', 'Bình thường', 'Tốt', 'Thẳng', 'Lệch vai', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(7, '163', '58', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
+(8, '155', '65', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ', 'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2023-08-07 08:00:00'),
+(9, '158', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
+(10, '150', '35', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2023-08-07 08:00:00'),
+(11, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(12, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
+(13, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00'),
+(14, '149', '41', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2023-08-07 08:00:00'),
+(15, '152', '55', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-07 08:00:00'),
+(16, '145', '38', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(17, '150', '43', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định', 'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-07 08:00:00'),
+(18, '155', '48', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ', 'Không sâu', 'Bình thường', 'Không bệnh ngoài da', 'Bình thường', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Họng đỏ nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(19, '148', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Bình thường', 'Thẳng', 'Bình thường', NULL, 'Thị lực giảm nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(20, '160', '52', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè', 'Không sâu', 'Tốt', 'Bình thường', 'Bình thường', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Khò nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(21, '142', '36', '90/60', '9/10', '9/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da khô', 'Bình thường', 'Tốt', 'Thẳng', 'Lệch vai', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(22, '163', '58', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
+(23, '155', '65', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ', 'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2023-08-07 08:00:00'),
+(24, '158', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-07 08:00:00'),
+(25, '150', '35', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2023-08-07 08:00:00'),
+(26, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(27, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
+(28, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00'),
+(29, '149', '41', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2023-08-07 08:00:00'),
+(30, '165', '70', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-07 08:00:00'),
+(31, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
+(32, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00'),
+(33, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-07 08:00:00'),
+(34, '160', '50', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Cần đánh răng đều', true, 'DONE', '2023-08-07 08:00:00');
 
 CREATE TYPE specialist_exam_record_status AS ENUM ('CANNOT_ATTACH', 'WAITING', 'DONE');
 CREATE TABLE specialistExamRecord (
@@ -675,7 +719,7 @@ CREATE TABLE specialistExamRecord (
     spe_exam_id INT NOT NULL,
     result TEXT,
     diagnosis TEXT,
-    diagnosis_paper_url VARCHAR(255),
+    diagnosis_paper_urls TEXT[],
 	is_checked BOOLEAN DEFAULT FALSE,
     status specialist_exam_record_status NOT NULL DEFAULT 'CANNOT_ATTACH',
     PRIMARY KEY (register_id, spe_exam_id),
@@ -694,19 +738,21 @@ INSERT INTO specialistExamRecord (register_id,spe_exam_id) VALUES
 (4,3);
 
 
+
+
 INSERT INTO specialistExamRecord (
     register_id, 
     spe_exam_id,
     result,
     diagnosis,
-    diagnosis_paper_url,
+    diagnosis_paper_urls,
 	is_checked,
 	status
 ) VALUES 
-(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf',TRUE, 'DONE'),
-(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf',TRUE, 'DONE'),
-(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', TRUE,'DONE'),
-(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf',TRUE, 'DONE');
+(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường',ARRAY[ 'http://example.com/doc1.pdf'],TRUE, 'DONE'),
+(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm',ARRAY[ 'http://example.com/doc2.pdf'],TRUE, 'DONE'),
+(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', ARRAY['http://example.com/doc3.pdf'], TRUE,'DONE'),
+(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường',ARRAY[ 'http://example.com/doc4.pdf'],TRUE, 'DONE');
 
 INSERT INTO specialistExamRecord (register_id,spe_exam_id,status) VALUES 
 (9,4,'WAITING'),
@@ -940,23 +986,24 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
   10, 
   11, 
   'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 
-  '<div style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <h2 style="color: #2E7D32;">Thông Báo Về Chiến Dịch Tiêm Phòng Bệnh Lao (BCG)</h2>
-    <p>Kính gửi Quý Phụ huynh,</p>
-    <p>Nhà trường phối hợp với Trung tâm Y tế tổ chức <strong>Chiến dịch tiêm phòng vắc xin BCG</strong> nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn <em>Mycobacterium tuberculosis</em> gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.</p>
-    <ul>
-      <li><strong>Thời gian:</strong> Từ ngày 15/06/2025 đến ngày 17/06/2025</li>
-      <li><strong>Địa điểm:</strong> School Medix, Phòng Y tế Trường học</li>
-      <li><strong>Đối tượng:</strong> Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh)</li>
-      <li><strong>Vắc xin:</strong> BCG (sản xuất tại Việt Nam, an toàn và hiệu quả)</li>
-    </ul>
-    <p>Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email <a href="mailto:health@schoolmedix.edu.vn">health@schoolmedix.edu.vn</a> trước ngày 10/06/2025 để sắp xếp lịch tiêm.</p>
-    <p>Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: <strong>(+84) 123 456 789</strong>.</p>
-    <p>Trân trọng,<br>Ban Giám Hiệu</p>
-  </div>',
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG)
+	Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin BCG nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn Mycobacterium tuberculosis gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.
+	
+	Thông tin chi tiết:
+	- Thời gian: Từ ngày 15/06/2025 đến ngày 17/06/2025
+	- Địa điểm: School Medix, Phòng Y tế Trường học
+	- Đối tượng: Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh)
+	- Vắc xin: BCG (sản xuất tại Việt Nam, an toàn và hiệu quả)
+	
+	Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email health@schoolmedix.edu.vn trước ngày 10/06/2025 để sắp xếp lịch tiêm.
+	
+	Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: (+84) 123 456 789.
+	
+	Trân trọng,
+	Ban Giám Hiệu',
   'School Medix', 
   '2025-06-15', 
-  '2025-06-17', 
+  '2025-06-17',  
   'DRAFTED'
 );
 --vaccination_campaign_register
@@ -1176,50 +1223,55 @@ CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
 
 -------------------------------------------------------------------------------------------------------------------------------------- Blog
 
--- 1. Bảng loại blog
-CREATE TABLE blog_type (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT
+CREATE TABLE BLOG_TYPE (
+	ID SERIAL PRIMARY KEY,
+	NAME TEXT,
+	DESCRIPTION TEXT
 );
 
-INSERT INTO blog_type (name, description) VALUES
-('Dinh dưỡng học đường'
-, 'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'),
-
-('Chăm sóc sức khỏe học đường'
-, 'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'),
-
-('Tâm lý học đường'
-, 'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'),
-
-('Phòng chống bệnh học đường'
-, 'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'),
-
-('Hoạt động y tế trường học'
-, 'Các chương trình, sự kiện, tiêm chủng và hoạt động y tế tại trường');
-
+INSERT INTO
+	BLOG_TYPE (NAME, DESCRIPTION)
+VALUES	
+	(
+		'Tin tức',
+		'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'
+	),
+	(
+		'Hướng dẫn',
+		'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'
+	),
+	(
+		'Đánh giá',
+		'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'
+	),
+	(
+		'Chia sẻ',
+		'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'
+);
+	
 
 -- 2. Bảng blog (có thumbnail_url)
-CREATE TABLE blog (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    thumbnail_url VARCHAR(255), -- ảnh đại diện
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT NULL,
-	  is_deleted BOOLEAN  DEFAULT FALSE,
-    blog_type_id INTEGER REFERENCES blog_type(id) ON DELETE SET NULL
+CREATE TYPE BLOG_STATUS AS ENUM('DRAFTED', 'PUBLISHED');
+
+CREATE TABLE BLOG (
+	ID SERIAL PRIMARY KEY,
+	TITLE VARCHAR(255) NOT NULL,
+	CONTENT TEXT NOT NULL,
+	THUMBNAIL_URL VARCHAR(255), -- ảnh đại diện
+	CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UPDATED_AT TIMESTAMP DEFAULT NULL,
+	IS_DELETED BOOLEAN DEFAULT FALSE,
+	STATUS BLOG_STATUS DEFAULT 'DRAFTED',
+	BLOG_TYPE_ID INTEGER REFERENCES BLOG_TYPE (ID) ON DELETE SET NULL
 );
 
-INSERT INTO blog (
-    title,
-    content,
-    thumbnail_url,
-    blog_type_id
-) VALUES (
-    'Tầm quan trọng của dinh dưỡng đối với học sinh',
-	'<h2>I. Dinh dưỡng học đường là gì?</h2>
+----Blog 1 
+INSERT INTO
+	BLOG (TITLE, CONTENT, THUMBNAIL_URL, BLOG_TYPE_ID)
+VALUES
+	(
+		'Tầm quan trọng của dinh dưỡng đối với học sinh',
+		'<h2>I. Dinh dưỡng học đường là gì?</h2>
 <p><strong>Dinh dưỡng học đường</strong> là chế độ ăn uống khoa học, hợp lý dành riêng cho trẻ em và thanh thiếu niên trong độ tuổi đến trường. Việc đảm bảo dinh dưỡng tốt không chỉ giúp học sinh phát triển thể chất mà còn nâng cao trí tuệ, phòng tránh bệnh tật.</p>
 
 <h2>II. Tác động của dinh dưỡng đến sức khỏe và học tập</h2>
@@ -1244,7 +1296,7 @@ INSERT INTO blog (
   <li><strong>Bữa xế:</strong> Sữa chua, trái cây, một ít hạt (hạnh nhân, óc chó...)</li>
   <li><strong>Bữa tối:</strong> Cơm, tôm/thịt nạc, rau luộc/xào, canh.</li>
 </ul>
-<p><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" alt="Bữa ăn học đường" style="max-width:100%"></p>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//bua-an-dinh-duong.jpg" alt="Bữa ăn học đường" style="max-width:100%"></p>
 
 <h2>V. Lời khuyên từ chuyên gia dinh dưỡng</h2>
 <blockquote>
@@ -1252,7 +1304,140 @@ INSERT INTO blog (
 </blockquote>
 <p><em><strong>Lưu ý:</strong> Học sinh nên uống đủ nước (1,5–2 lít/ngày), tránh bỏ bữa, không ăn quá mặn hoặc quá ngọt.</em></p>
 ',
-    'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-    1
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//thap-dinh-duong-cho-tre-em.jpg',
+		1
+	);
+
+----Blog 2
+
+INSERT INTO BLOG (TITLE, CONTENT, THUMBNAIL_URL, BLOG_TYPE_ID)
+VALUES (
+  'Những thói quen ăn uống lành mạnh cho học sinh tiểu học',
+  '<h2>I. Vì sao cần hình thành thói quen ăn uống từ nhỏ?</h2>
+<p>Giai đoạn tiểu học là thời điểm cơ thể và trí não trẻ phát triển mạnh mẽ. Thiết lập <strong>thói quen ăn uống lành mạnh</strong> từ sớm giúp trẻ:</p>
+<ul>
+  <li>Hình thành nền tảng sức khỏe tốt lâu dài.</li>
+  <li>Phòng ngừa các bệnh dinh dưỡng: béo phì, suy dinh dưỡng, thiếu vi chất.</li>
+  <li>Tăng khả năng học tập, tập trung và sáng tạo.</li>
+</ul>
+
+<h2>II. Những thói quen ăn uống tốt nên rèn luyện</h2>
+<ul>
+  <li><strong>Ăn đủ 3 bữa chính và 1–2 bữa phụ mỗi ngày:</strong> Đảm bảo cung cấp đủ năng lượng và dưỡng chất.</li>
+  <li><strong>Không bỏ bữa sáng:</strong> Đây là bữa ăn quan trọng giúp não bộ hoạt động hiệu quả.</li>
+  <li><strong>Ưu tiên thực phẩm tươi sạch, tự nhiên:</strong> Hạn chế đồ chế biến sẵn, chiên rán.</li>
+  <li><strong>Bổ sung đủ rau xanh và trái cây:</strong> Cung cấp vitamin, khoáng chất và chất xơ cho hệ tiêu hóa khỏe mạnh.</li>
+  <li><strong>Uống đủ nước:</strong> Trẻ nên uống 1,5–2 lít nước/ngày, tránh các loại nước ngọt có gas.</li>
+</ul>
+
+<h2>III. Những thực phẩm nên tránh cho học sinh</h2>
+<ul>
+  <li>Đồ ăn nhanh: gà rán, khoai tây chiên, mì gói...</li>
+  <li>Đồ ngọt nhiều đường: kẹo, bánh quy, nước ngọt, trà sữa.</li>
+  <li>Đồ uống có caffein: trà đặc, cà phê, nước tăng lực.</li>
+  <li>Món ăn quá mặn hoặc cay: ảnh hưởng tiêu hóa và thận.</li>
+</ul>
+
+<h2>IV. Gợi ý hộp cơm học đường cân bằng dinh dưỡng</h2>
+<ul>
+  <li><strong>Protein:</strong> Thịt nạc, cá, trứng, đậu hũ.</li>
+  <li><strong>Tinh bột:</strong> Cơm gạo lứt, bánh mì nguyên cám, khoai lang.</li>
+  <li><strong>Rau củ:</strong> Cà rốt, cải xanh, đậu que, súp lơ.</li>
+  <li><strong>Trái cây:</strong> Chuối, táo, dưa hấu, cam.</li>
+</ul>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/hop-com-hoc-duong.jpg" alt="Hộp cơm học đường" style="max-width:100%"></p>
+
+<h2>V. Vai trò của phụ huynh và nhà trường</h2>
+<blockquote>
+  “<strong>Sự phối hợp giữa gia đình và nhà trường</strong> là yếu tố then chốt trong việc hình thành thói quen ăn uống tốt. Phụ huynh nên chuẩn bị bữa ăn sạch – đủ – đúng, đồng thời nhà trường cần giáo dục trẻ về dinh dưỡng qua hoạt động ngoại khóa, bài giảng lồng ghép.”
+</blockquote>
+
+<p><em><strong>Lưu ý:</strong> Hãy để trẻ tham gia vào quá trình chuẩn bị bữa ăn để tăng hứng thú, giáo dục trẻ chọn thực phẩm tốt và xây dựng thói quen ăn chậm, nhai kỹ.</em></p>',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039066915_4033.gif',
+  1
 );
+
+----Blog 3
+INSERT INTO BLOG (TITLE, CONTENT, THUMBNAIL_URL, BLOG_TYPE_ID)
+VALUES (
+  'Chăm sóc sức khỏe học đường – Phương pháp & hoạt động thiết thực',
+  '<h2>I. Sức khỏe học đường là gì?</h2>
+<p><strong>Sức khỏe học đường</strong> là tổng hòa các yếu tố liên quan đến thể chất, tinh thần và môi trường sống của học sinh trong trường học. Một môi trường học đường lành mạnh giúp học sinh phát triển toàn diện, học tập hiệu quả và phòng ngừa bệnh tật.</p>
+
+<h2>II. Vai trò của chăm sóc sức khỏe trong nhà trường</h2>
+<ul>
+  <li><strong>Phòng tránh bệnh tật:</strong> Kiểm tra sức khỏe định kỳ giúp phát hiện sớm các vấn đề như cận thị, sâu răng, thiếu máu, suy dinh dưỡng...</li>
+  <li><strong>Đảm bảo vệ sinh môi trường học:</strong> Trường lớp sạch sẽ, đủ ánh sáng, thông thoáng giúp giảm nguy cơ lây nhiễm bệnh.</li>
+  <li><strong>Giáo dục thể chất và tinh thần:</strong> Các hoạt động thể thao, ngoại khóa giúp học sinh phát triển thể lực và kỹ năng sống.</li>
+</ul>
+
+<h2>III. Các phương pháp chăm sóc sức khỏe cho học sinh</h2>
+<ul>
+  <li><strong>Khám sức khỏe định kỳ:</strong> Mỗi học kỳ nên tổ chức kiểm tra mắt, răng miệng, chiều cao, cân nặng cho học sinh.</li>
+  <li><strong>Tiêm chủng đầy đủ:</strong> Đảm bảo học sinh được tiêm các vaccine cơ bản như sởi, quai bị, rubella, viêm gan B...</li>
+  <li><strong>Giữ vệ sinh cá nhân:</strong> Hướng dẫn rửa tay đúng cách, đánh răng sau ăn, giữ vệ sinh thân thể.</li>
+  <li><strong>Chế độ dinh dưỡng hợp lý:</strong> Kết hợp bữa ăn học đường đầy đủ 4 nhóm chất và thực phẩm an toàn.</li>
+</ul>
+
+<h2>IV. Hoạt động thực tế trong chăm sóc sức khỏe học đường</h2>
+<ul>
+  <li>Tổ chức ngày hội sức khỏe, tuyên truyền vệ sinh cá nhân.</li>
+  <li>Lồng ghép bài học kỹ năng sống về chăm sóc bản thân.</li>
+  <li>Thi đua thể thao giữa các lớp nhằm khuyến khích vận động.</li>
+  <li>Bố trí cán bộ y tế học đường túc trực, xử lý tình huống y tế cơ bản.</li>
+</ul>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/suc-khoe-hoc-duong.jpg" alt="Hoạt động sức khỏe học đường" style="max-width:100%"></p>
+
+<h2>V. Gợi ý cho phụ huynh và nhà trường</h2>
+<blockquote>
+  “<strong>Sức khỏe học sinh là ưu tiên hàng đầu</strong>. Phụ huynh và nhà trường cần phối hợp chặt chẽ trong việc xây dựng lối sống lành mạnh, tạo môi trường học tập tích cực, an toàn cho trẻ.”
+</blockquote>
+
+<p><em><strong>Lưu ý:</strong> Ngoài sức khỏe thể chất, cần quan tâm đến sức khỏe tâm lý học đường: phòng chống bạo lực học đường, áp lực học tập, trầm cảm học sinh...</em></p>',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039118375_7282.jpg',
+  2
+);
+
+---Blog 4
+INSERT INTO BLOG (TITLE, CONTENT, THUMBNAIL_URL, BLOG_TYPE_ID)
+VALUES (
+  'Tâm lý học đường – Hiểu và vượt qua áp lực tuổi học trò',
+  '<h2>I. Tâm lý học đường là gì?</h2>
+<p><strong>Tâm lý học đường</strong> là những cảm xúc, suy nghĩ, hành vi của học sinh trong môi trường học tập. Đây là giai đoạn các em hình thành nhân cách, dễ chịu ảnh hưởng bởi bạn bè, kỳ vọng của gia đình, áp lực học hành và cả mạng xã hội.</p>
+
+<h2>II. Nguyên nhân gây áp lực tâm lý ở học sinh</h2>
+<ul>
+  <li><strong>Áp lực học tập:</strong> Kỳ vọng điểm cao, thi cử căng thẳng, bài tập nhiều dễ khiến học sinh mệt mỏi.</li>
+  <li><strong>Sự so sánh:</strong> So sánh với bạn bè về điểm số, ngoại hình, khả năng khiến các em tự ti.</li>
+  <li><strong>Mâu thuẫn với phụ huynh, thầy cô:</strong> Khi không được lắng nghe, học sinh dễ bị tổn thương tinh thần.</li>
+  <li><strong>Bắt nạt học đường hoặc cô lập xã hội:</strong> Dễ gây trầm cảm, lo âu, sợ đến trường.</li>
+</ul>
+
+<h2>III. Dấu hiệu học sinh gặp vấn đề tâm lý</h2>
+<ul>
+  <li>Thường xuyên mệt mỏi, mất ngủ hoặc ngủ quá nhiều.</li>
+  <li>Giảm hứng thú học tập, bỏ bê việc học, dễ cáu gắt.</li>
+  <li>Thu mình, không muốn giao tiếp hoặc thay đổi hành vi bất thường.</li>
+  <li>Xuất hiện suy nghĩ tiêu cực hoặc hành vi tự làm tổn thương bản thân.</li>
+</ul>
+
+<h2>IV. Cách hỗ trợ học sinh vượt qua áp lực tâm lý</h2>
+<ul>
+  <li><strong>Lắng nghe và thấu hiểu:</strong> Hãy để học sinh được nói ra suy nghĩ mà không bị phán xét.</li>
+  <li><strong>Giúp các em quản lý thời gian:</strong> Lên lịch học tập – nghỉ ngơi hợp lý, tránh học dồn ép.</li>
+  <li><strong>Khuyến khích vận động và giải trí lành mạnh:</strong> Thể thao, âm nhạc, hội họa giúp giải tỏa căng thẳng.</li>
+  <li><strong>Kết nối với chuyên gia tâm lý học đường:</strong> Khi có dấu hiệu bất ổn, cần tư vấn chuyên môn kịp thời.</li>
+</ul>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/tam-ly-hoc-duong.jpg" alt="Tư vấn tâm lý học đường" style="max-width:100%"></p>
+
+<h2>V. Thông điệp dành cho phụ huynh và nhà trường</h2>
+<blockquote>
+  “<strong>Một học sinh khỏe mạnh không chỉ là khỏe về thể chất mà còn ổn định về mặt tinh thần.</strong> Mỗi em đều cần được yêu thương, lắng nghe và tôn trọng trong hành trình trưởng thành.”
+</blockquote>
+
+<p><em><strong>Lưu ý:</strong> Đừng xem nhẹ những biểu hiện tâm lý ở học sinh. Việc đồng hành, chia sẻ đúng lúc có thể giúp trẻ vượt qua khủng hoảng và phát triển tích cực hơn.</em></p>',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039012599_4286.jpg',
+  3
+);
+---Blog 5
 

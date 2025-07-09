@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import {
         cancelRegister,
         closeRegister,
@@ -38,10 +39,14 @@ import {
         updateCampaign,
         getAllHealthRecordOfStudent,
         getFullRecordOfAStudentInACampaign,
-        getHealthRecordByID
+        getHealthRecordByID,
+        updateSpecialRecord,
+        uploadDiagnosisURL
 } from "../controllers/checkUp.controller.js";
 
+const upload = multer();
 const router = express.Router();
+
 //Orther
 
 
@@ -93,6 +98,11 @@ router.get("/checkup-special-record/detail", getSpecialRecordParentDetails); //p
 
 //Nurse
 
+//Update Special-Exam Record
+router.put('/special-exam-record/:register_id/:spe_exam_id',updateSpecialRecord); //update result , diagnosis cho Spe-Exam-Record
+router.post('/upload-diagnosis_url/:register_id/:spe_exam_id',upload.array("files"),uploadDiagnosisURL); //Lưu  DiagnosisURL vào supabase
+
+
 //CHECK-IN
 router.patch('/checkup-checkin/register_id/:register_id/campaign/:campaign_id/', UpdateCheckinHealthRecord);//Nurse Checkin Khám Định kỳ cần truyền vào Student_id và Campain_id trong body
 router.patch('/checkup-checkin/special-record', UpdateCheckinSpecialRecord); //Nurse Checkin Khám Chuyên khoa truyền vào student_id,campaign_id,spex_exam_id
@@ -104,13 +114,9 @@ router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealth
 // duy khanh
 router.get("/full-record/campaign/:campaign_id/student/:student_id", getFullRecordOfAStudentInACampaign); // lấy toàn bộ khám chuyên khoa, khám tổng quát của một học sinh trong một đợt khám định kỳ
 router.get("/health-record/:record_id/detail", getHealthRecordByID);
-
 router.get("/specialist-exam", getALLSpeciaListExams); // lấy toàn bộ các chuyên môn khám có sẵn
-
 router.get("/campaign/:campaign_id/specialist-exam/record", getAllRecordsOfEachSpeExamInACampaign); //
-
 router.patch("/checkup-register/:register_id/specialist-exam/:spe_exam_id/done", completeARecordForSpeExam);
-
 // duy khanh
 router.post("/campaign/:campaign_id/upload-health-record-result", handleUploadHealthRecordResult); //excel upload file then retrieve each row to update record result_url
 router.get("/campaign/:campaign_id/import-health-record-form", handleRetrieveSampleImportHealthRecordForm); // trả về form gồm tất cả các record của một chiến dịch để làm smaple mẫu cho nurse cập nhật thông tin khám

@@ -154,6 +154,31 @@ export async function getAllCampaigns(req, res) {
   }
 }
 
+export async function getAllCampaignsForParent(req, res) {
+  try {
+    const result = await query(`
+      select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.title, a.description as description, a.location, a.start_date, a.end_date, a.status, dose_quantity
+      from vaccination_campaign a
+      join vaccine b on a.vaccine_id = b.id
+      join disease c on a.disease_id = c.id
+      WHERE status != 'DRAFTED'
+      ORDER BY a.start_date DESC;
+      `);
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách chiến dịch thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách chiến dịch:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách chiến dịch",
+    });
+  }
+}
+
 export async function getCampaignDetailByID(req, res) {
   const { campaign_id } = req.params;
 
@@ -611,12 +636,47 @@ export async function completeRecord(req, res) {
                   RETURNING *;
             `;
 
+    const now = new Date();
     const result = await query(updateQuery, [
       record_id,
       info.rows[0].description,
       info.rows[0].location,
-      info.rows[0].vaccination_date,
+      now,
     ]);
+
+    const vaccine_id = result.rows[0].vaccine_id;
+
+    // Lấy tất cả disease_id được map với vaccine_id này (ngoại trừ disease_id gốc)
+    const diseases = await query(
+      `SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id != $2`,
+      [vaccine_id, result.rows[0].disease_id]
+    );
+
+    // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
+    for (const disease of diseases.rows) {
+      await query(
+        `INSERT INTO vaccination_record (
+          student_id,  
+          disease_id, 
+          vaccine_id, 
+          status, 
+          description, 
+          location, 
+          vaccination_date, 
+          register_id
+          )
+         VALUES ($1, $2, $3, 'COMPLETED', $4, $5, $6, $7)`,
+        [
+          result.rows[0].student_id,
+          disease.id,
+          vaccine_id,
+          result.rows[0].description,
+          result.rows[0].location,
+          result.rows[0].vaccination_date,
+          result.rows[0].register_id,
+        ]
+      );
+    }
 
     return res.status(200).json({
       message: "Vaccination record updated",

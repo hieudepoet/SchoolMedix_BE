@@ -12,6 +12,8 @@ import {
   getAllVaccinationRecordsRequested,
   getAllMedicalRecordsRequestedBuStudentID,
   getAllMedicalRecordsRequested,
+  getVaccinationDeclarationsHistoryByStudentID,
+  getVaccinationDeclarationsHistory,
 } from "../controllers/vaccinationRecord.controller.js";
 
 const router = express.Router();
@@ -37,5 +39,12 @@ router.get(
 router.get("/vaccination-record/requests", getAllVaccinationRecordsRequested);
 router.get("/:student_id/requests", getAllMedicalRecordsRequestedBuStudentID);
 router.get("/requests", getAllMedicalRecordsRequested);
-
+router.get(
+  "/vaccination-record/:student_id/requestsHistory", // lấy ra lịch sử khai báo bệnh của một học sinh xem đơn đã được duyệt hay chưa
+  getVaccinationDeclarationsHistoryByStudentID
+);
+router.get(
+  "/vaccination-record/requestsHistory", // lấy ra lịch sử khai báo bệnh của một học sinh xem đơn đã được duyệt hay chưa
+  getVaccinationDeclarationsHistory
+);
 export default router;
