@@ -1248,6 +1248,8 @@ VALUES
 		'Chia sẻ',
 		'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'
 );
+	
+
 -- 2. Bảng blog (có thumbnail_url)
 CREATE TYPE BLOG_STATUS AS ENUM('DRAFTED', 'PUBLISHED');
 
@@ -1351,7 +1353,7 @@ VALUES (
 </blockquote>
 
 <p><em><strong>Lưu ý:</strong> Hãy để trẻ tham gia vào quá trình chuẩn bị bữa ăn để tăng hứng thú, giáo dục trẻ chọn thực phẩm tốt và xây dựng thói quen ăn chậm, nhai kỹ.</em></p>',
-  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/hop-com-thumbnail.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039066915_4033.gif',
   1
 );
 
@@ -1392,7 +1394,7 @@ VALUES (
 </blockquote>
 
 <p><em><strong>Lưu ý:</strong> Ngoài sức khỏe thể chất, cần quan tâm đến sức khỏe tâm lý học đường: phòng chống bạo lực học đường, áp lực học tập, trầm cảm học sinh...</em></p>',
-  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/suc-khoe-thumbnail.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039118375_7282.jpg',
   2
 );
 
@@ -1434,7 +1436,7 @@ VALUES (
 </blockquote>
 
 <p><em><strong>Lưu ý:</strong> Đừng xem nhẹ những biểu hiện tâm lý ở học sinh. Việc đồng hành, chia sẻ đúng lúc có thể giúp trẻ vượt qua khủng hoảng và phát triển tích cực hơn.</em></p>',
-  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/tam-ly-thumbnail.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039012599_4286.jpg',
   3
 );
 ---Blog 5
