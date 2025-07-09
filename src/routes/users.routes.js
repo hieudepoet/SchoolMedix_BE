@@ -21,7 +21,9 @@ import {
       handleExistEmail,
       handleSendRecoveryLinkForForgotPassword,
       handleCreateNewOTPForgotPassword,
-      handleCheckOTPForForgotPassword
+      handleCheckOTPForForgotPassword,
+      handleDeleteAccountByAdmin,
+      handleUpdateAccountByAdmin
 
 } from '../controllers/users.controller.js';
 
@@ -64,7 +66,9 @@ router.post("/register-email-for-student/:student_id"); // cần truyền vào o
 // check otp và email
 
 // update thông tin cá nhân cho các role với admin, được quyền cập nhật all info
-router.patch("/admin/edit-user-profile", editUserInfoByAdmin); // chua
+router.patch("/admin/edit-user-profile", editUserInfoByAdmin);
+router.delete("/admin/delete-user-account", handleDeleteAccountByAdmin);
+router.patch("/admin/update-user-account", handleUpdateAccountByAdmin);
 
 
 // delete một user

@@ -33,7 +33,9 @@ import {
       getUserByEmail,
       generateRecoveryLink,
       sendRecoveryLinkEmailForForgotPassword,
-      updateLastInvitationAtByUUID
+      updateLastInvitationAtByUUID,
+      deleteAccount,
+      createSupabaseAuthUserWithRole
 
 
 } from "../services/index.js";
@@ -1432,9 +1434,15 @@ export async function editUserInfoByAdmin(req, res) {
             });
       }
 
+      if (updates?.email) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Không thể cập nhật trực tiếp email."
+            })
+      }
+
       try {
-            // nếu profile chưa đăng ký tài khoản mà cập nhật mới email thì sẽ tạo mới tài khoản (gửi qua mail acc + pass) rồi gắn supabase_uid vào user_profile
-            // nếu profile đăng ký tài khoản rồi mà cập nhật email mới thì gửi lại
+            // ONLY EDIT THE NORMAL INFO OF USER
             const result = await editUserProfileByAdmin(id, role, updates);
 
             if (!result) {
@@ -1449,6 +1457,96 @@ export async function editUserInfoByAdmin(req, res) {
 
       } catch (err) {
             console.error("Lỗi khi cập nhật thông tin người dùng:", err);
+            return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
+      }
+}
+
+export async function handleDeleteAccountByAdmin(req, res) {
+      const { id, role } = req.body;
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID người dùng."
+            });
+      }
+
+      if (!role) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu vai trò người dùng (admin, nurse, parent, student)."
+            });
+      }
+
+      try {
+
+            const supabase_uid = await getSupabaseUIDOfAUser(role, id);
+
+            await deleteAuthUser(supabase_uid);
+
+            await query(
+                  `
+                        update ${role} set supabase_uid = null, email = null, last_invitation_at = null WHERE id = $1;
+                  `,
+                  [id]
+            )
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Xóa thành công tài khoản.",
+            });
+
+      } catch (err) {
+            return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
+      }
+
+}
+
+export async function handleUpdateAccountByAdmin(req, res) {
+      const { id, role, email, name } = req.body;
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID người dùng."
+            });
+      }
+
+      if (!role) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu vai trò người dùng (admin, nurse, parent, student)."
+            });
+      }
+
+      if (!email) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu email."
+            });
+      }
+
+
+      try {
+            const old_supabase_uid = await getSupabaseUIDOfAUser(role, id);
+
+            const { supabase_uid, invite_link } = await createSupabaseAuthUserWithRole(email, name, role);
+
+
+            const result = await query(
+                  `
+                        update ${role}
+                        set email_confirmed = false, last_invitation_at = now(), supabase_uid = $1, email = $2
+                        where id = $3
+                        `,
+                  [supabase_uid, email, id]
+            )
+
+            await deleteAuthUser(old_supabase_uid);
+            return res.status(200).json({
+                  error: false,
+                  message: `Cập nhật thành công tài khoản: email ${email}. Đã gửi email mời tham gia hệ thống.`,
+            });
+
+      } catch (err) {
             return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
       }
 }

@@ -339,7 +339,7 @@ VALUES
 (
   '211001',
   'fc57f7ed-950e-46fb-baa5-7914798e9ae3',
-  'dinhvietnam2910@gmail.com',
+  'dinhviethieu2910@gmail.com',
   'Hoàng Tấn Tạ Yến',
   '2014-02-10',
   false,

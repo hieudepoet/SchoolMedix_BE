@@ -292,6 +292,7 @@ export async function updateEmailForSupabaseAuthUser(supabase_uid, email) {
 }
 
 export async function deleteAuthUser(supabase_uid) {
+    if (!supabase_uid) return;
     const { error } = await supabaseAdmin.deleteUser(supabase_uid);
 
     if (error) {
