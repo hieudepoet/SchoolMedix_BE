@@ -675,7 +675,7 @@ CREATE TABLE specialistExamRecord (
     spe_exam_id INT NOT NULL,
     result TEXT,
     diagnosis TEXT,
-    diagnosis_paper_url TEXT,
+    diagnosis_paper_urls TEXT[],
 	is_checked BOOLEAN DEFAULT FALSE,
     status specialist_exam_record_status NOT NULL DEFAULT 'CANNOT_ATTACH',
     PRIMARY KEY (register_id, spe_exam_id),
@@ -694,19 +694,21 @@ INSERT INTO specialistExamRecord (register_id,spe_exam_id) VALUES
 (4,3);
 
 
+
+
 INSERT INTO specialistExamRecord (
     register_id, 
     spe_exam_id,
     result,
     diagnosis,
-    diagnosis_paper_url,
+    diagnosis_paper_urls,
 	is_checked,
 	status
 ) VALUES 
-(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường', 'http://example.com/doc1.pdf',TRUE, 'DONE'),
-(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm', 'http://example.com/doc2.pdf',TRUE, 'DONE'),
-(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', 'http://example.com/doc3.pdf', TRUE,'DONE'),
-(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường', 'http://example.com/doc4.pdf',TRUE, 'DONE');
+(5, 2, 'Bình thường', 'Sức khỏe sinh dục tốt, không có bất thường',ARRAY[ 'http://example.com/doc1.pdf'],TRUE, 'DONE'),
+(6, 2, 'Ổn định', 'Tâm lý ổn định, không có dấu hiệu lo âu hay trầm cảm',ARRAY[ 'http://example.com/doc2.pdf'],TRUE, 'DONE'),
+(7, 2, 'Không có dấu hiệu', 'Không phát hiện rối loạn tâm thần', ARRAY['http://example.com/doc3.pdf'], TRUE,'DONE'),
+(8, 2, 'Bình thường', 'Sức khỏe sinh dục bình thường, chưa phát hiện bất thường',ARRAY[ 'http://example.com/doc4.pdf'],TRUE, 'DONE');
 
 INSERT INTO specialistExamRecord (register_id,spe_exam_id,status) VALUES 
 (9,4,'WAITING'),
