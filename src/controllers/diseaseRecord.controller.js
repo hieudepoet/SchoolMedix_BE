@@ -16,6 +16,7 @@ export async function getDiseaseRecordsOfStudent(req, res) {
         dr.status,
         dr.pending,
         dr.student_id,
+        s.*,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -39,8 +40,8 @@ export async function getDiseaseRecordsOfStudent(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE dr.student_id = $1 AND pending IS NULL OR pending = 'DONE'
-      ORDER BY dr.student_id ASC
+      WHERE dr.student_id = $1 AND (pending IS NULL OR pending = 'DONE')
+      ORDER BY dr.created_at DESC
     `,
       [student_id]
     );
@@ -78,6 +79,7 @@ export async function getChronicDiseaseRecordsOfStudent(req, res) {
       `
       SELECT 
         dr.student_id,
+        s.*,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -101,8 +103,8 @@ export async function getChronicDiseaseRecordsOfStudent(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE dr.student_id = $1 AND d.disease_category = 'Bệnh mãn tính' AND pending IS NULL OR pending = 'DONE'
-      ORDER BY dr.student_id ASC
+      WHERE dr.student_id = $1 AND d.disease_category = 'Bệnh mãn tính' AND (pending IS NULL OR pending = 'DONE')
+      ORDER BY dr.created_at DESC
     `,
       [student_id]
     );
@@ -140,6 +142,7 @@ export async function getInfectiousDiseaseRecordsOfStudent(req, res) {
       `
       SELECT 
         dr.student_id,
+        s.*,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -163,8 +166,8 @@ export async function getInfectiousDiseaseRecordsOfStudent(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE dr.student_id = $1 AND d.disease_category = 'Bệnh truyền nhiễm' AND pending IS NULL OR pending = 'DONE' 
-      ORDER BY dr.student_id ASC
+      WHERE dr.student_id = $1 AND d.disease_category = 'Bệnh truyền nhiễm' AND (pending IS NULL OR pending = 'DONE') 
+      ORDER BY dr.created_at DESC
     `,
       [student_id]
     );
@@ -199,6 +202,7 @@ export async function getAllChronicDiseaseRecords(req, res) {
     const result = await query(`
       SELECT 
         dr.student_id,
+        s.*,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -222,8 +226,8 @@ export async function getAllChronicDiseaseRecords(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE d.disease_category = 'Bệnh mãn tính' AND pending IS NULL OR pending = 'DONE'
-      ORDER BY dr.student_id ASC
+      WHERE d.disease_category = 'Bệnh mãn tính' AND (pending IS NULL OR pending = 'DONE')
+      ORDER BY dr.created_at DESC
     `);
 
     // Gắn profile từ Supabase
@@ -256,6 +260,7 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
     const result = await query(`
       SELECT 
         dr.student_id,
+        s.*,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -279,8 +284,8 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE d.disease_category = 'Bệnh truyền nhiễm' AND pending IS NULL OR pending = 'DONE'
-      ORDER BY dr.student_id ASC
+      WHERE d.disease_category = 'Bệnh truyền nhiễm' AND (pending IS NULL OR pending = 'DONE')
+      ORDER BY dr.created_at DESC
     `);
 
     // Gắn profile từ Supabase
@@ -314,6 +319,7 @@ export async function getAllDiseaseRecords(req, res) {
     const result = await query(`
       SELECT 
         dr.student_id,
+        s.*,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -338,7 +344,7 @@ export async function getAllDiseaseRecords(req, res) {
       JOIN 
         class c ON s.class_id = c.id
       WHERE pending IS NULL OR pending = 'DONE'
-      ORDER BY dr.student_id ASC
+      ORDER BY dr.created_at DESC
     `);
 
     // Gắn profile từ Supabase
@@ -488,12 +494,12 @@ export async function getDiseaseDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.name as student_name, c.name as class_name
+        SELECT dr.*, s.*, s.name as student_name, c.name as class_name
         FROM disease_record dr 
         JOIN student s on dr.student_id = s.id
         JOIN class c on s.class_id = c.id
         WHERE student_id = $1 AND pending IS NOT NULL
-        ORDER BY created_at DESC
+        ORDER BY dr.created_at DESC
       `,
       [student_id]
     );
@@ -518,12 +524,12 @@ export async function getDiseaseDeclarationsHistory(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.name as student_name, c.name as class_name
+        SELECT dr.*, s.*, s.name as student_name, c.name as class_name
         FROM disease_record dr 
         JOIN student s on dr.student_id = s.id
         JOIN class c on s.class_id = c.id
         WHERE pending IS NOT NULL
-        ORDER BY created_at DESC
+        ORDER BY dr.created_at DESC
       `
     );
 
@@ -548,8 +554,11 @@ export async function getDiseaseRecordsRequestedByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT * FROM disease_record WHERE student_id = $1 AND pending = 'PENDING' 
-        ORDER BY created_at DESC
+        SELECT dr.*, s.* 
+        FROM disease_record dr 
+        JOIN student s ON dr.student_id = s.id
+        WHERE dr.student_id = $1 AND dr.pending = 'PENDING' 
+        ORDER BY dr.created_at DESC
       `,
       [student_id]
     );
@@ -572,8 +581,11 @@ export async function getAllDiseaseRecordsRequested(req, res) {
   try {
     const result = await query(
       `
-      SELECT * FROM disease_record WHERE pending = 'PENDING'
-      ORDER BY created_at DESC
+        SELECT dr.*, s.* 
+        FROM disease_record dr 
+        JOIN student s ON dr.student_id = s.id
+        WHERE dr.pending = 'PENDING' 
+        ORDER BY dr.created_at DESC
       `
     );
 
