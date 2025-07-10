@@ -499,7 +499,7 @@ export async function getVaccinationRecordByID(req, res) {
         FROM vaccination_record vr
         JOIN student s ON vr.student_id = s.id
         JOIN vaccine v ON vr.vaccine_id = v.id
-        JOIN disease d ON vr.disease_id = d.id
+        JOIN disease d ON vr.disease_id = d.id   
         WHERE vr.id = $1 AND (vr.pending IS NULL OR vr.pending = 'DONE')`,
       [id]
     );
