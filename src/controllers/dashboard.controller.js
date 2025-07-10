@@ -236,6 +236,175 @@ export async function getDiseaseStats(req, res) {
 
 export async function getHealthStats(req, res) {}
 
-export async function getMedicalPlans(req, res) {}
+export async function getMedicalPlans(req, res) {
+  try {
+    // Truy vấn gộp từ CheckupCampaign và vaccination_campaign
+    const queryText = `
+      SELECT 
+        ROW_NUMBER() OVER (ORDER BY date DESC) AS serial_id,
+        combined.*
+      FROM (
+        SELECT 
+          id AS checkup_id,
+		  NULL AS vaccination_id,
+          name AS name,
+          start_date AS date,
+          status::char(10) as status
+        FROM CheckupCampaign
+        UNION ALL
+        SELECT 
+		  NULL AS checkup_id,
+          id AS vaccination_id,
+          title AS name,
+          start_date AS date,
+          status
+        FROM vaccination_campaign
+      ) AS combined
+      ORDER BY date ASC
+    `;
+    const result = await query(queryText, []);
 
-export async function getHealthStatsByGradeID(req, res) {}
+    // Định dạng dữ liệu trả về
+    const plans = result.rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      date: row.date ? row.date.toISOString().split("T")[0] : "N/A",
+      status: row.status,
+    }));
+
+    return res.status(200).json({ data: plans });
+  } catch (error) {
+    console.error("Error fetching upcoming plans:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Không thể tải dữ liệu kế hoạch y tế: " + error.message,
+      data: null,
+    });
+  }
+}
+
+export async function getHealthStatsByGradeID(req, res) {
+  try {
+    const { grade_id } = req.params;
+
+    // Tìm đợt khám gần nhất với status = 'COMPLETED'
+    const latestCampaignQuery = `
+      SELECT id, name, TO_CHAR(DATE(end_date), 'YYYY-MM-DD') AS date
+      FROM CheckupCampaign
+      WHERE status = 'DONE'
+      ORDER BY start_date DESC
+      LIMIT 1
+    `;
+    const latestCampaignResult = await query(latestCampaignQuery, []);
+
+    if (!latestCampaignResult.rows.length) {
+      return res.status(200).json({
+        data: {
+          error: false,
+          message: "No campaigns found",
+          data: {
+            checkupName: "N/A",
+            latestCheckupDate: "N/A",
+            totalChecked: 0,
+            totalStudents: 0,
+            maleCount: 0,
+            femaleCount: 0,
+            maleHeightAvg: null,
+            maleWeightAvg: null,
+            femaleHeightAvg: null,
+            femaleWeightAvg: null,
+          },
+        },
+      });
+    }
+
+    const {
+      id: campaignId,
+      name: checkupName,
+      date: latestCheckupDate,
+    } = latestCampaignResult.rows[0];
+
+    // Truy vấn dữ liệu từ lần khám gần nhất
+    let queryText = `
+        SELECT 
+            COUNT(DISTINCT CASE WHEN hr.is_checked = TRUE THEN cr.id END) AS total_checked,
+            (
+                SELECT COUNT(*) 
+                FROM Student s1
+                JOIN Class c1 ON c1.id = s1.class_id 
+                JOIN Grade g1 ON g1.id = c1.grade_id 
+                WHERE ${grade_id ? "g1.id = $2" : "1=1"}
+            ) AS total_students,
+            COUNT(DISTINCT CASE WHEN s.isMale = TRUE AND hr.is_checked = TRUE THEN cr.id END) AS male_count,
+
+            -- Số nữ đã khám
+            COUNT(DISTINCT CASE WHEN s.isMale = FALSE AND hr.is_checked = TRUE THEN cr.id END) AS female_count,
+
+            -- Trung bình chiều cao/ cân nặng của nam
+            AVG(CASE WHEN s.isMale = TRUE AND hr.is_checked = TRUE THEN CAST(NULLIF(hr.height, '') AS FLOAT) END) AS male_height_avg,
+            AVG(CASE WHEN s.isMale = TRUE AND hr.is_checked = TRUE THEN CAST(NULLIF(hr.weight, '') AS FLOAT) END) AS male_weight_avg,
+
+            -- Trung bình chiều cao/ cân nặng của nữ
+            AVG(CASE WHEN s.isMale = FALSE AND hr.is_checked = TRUE THEN CAST(NULLIF(hr.height, '') AS FLOAT) END) AS female_height_avg,
+            AVG(CASE WHEN s.isMale = FALSE AND hr.is_checked = TRUE THEN CAST(NULLIF(hr.weight, '') AS FLOAT) END) AS female_weight_avg
+        FROM CheckupCampaign cc
+        LEFT JOIN CheckupRegister cr ON cr.campaign_id = cc.id AND cr.status = 'SUBMITTED'
+        LEFT JOIN HealthRecord hr ON hr.register_id = cr.id
+        LEFT JOIN Student s ON cr.student_id = s.id
+        LEFT JOIN Class c ON s.class_id = c.id
+        LEFT JOIN Grade g ON c.grade_id = g.id
+        WHERE cc.id = $1
+    `;
+    const queryParams = [campaignId];
+    if (grade_id) {
+      queryText += ` AND ${grade_id ? "g.id = $2" : "1=1"}`;
+      queryParams.push(grade_id);
+    }
+
+    const result = await query(queryText, queryParams);
+
+    // Query danh sách khối lớp
+    const gradesQuery = `
+        SELECT * FROM Grade
+        ORDER BY id
+    `;
+    const gradesResult = await query(gradesQuery, []);
+
+    // Định dạng dữ liệu trả về
+    const data = result.rows[0]
+      ? {
+          checkupName: checkupName || "N/A",
+          latestCheckupDate: latestCheckupDate || "N/A",
+          totalChecked: parseInt(result.rows[0].total_checked, 10) || 0,
+          totalStudents: parseInt(result.rows[0].total_students, 10) || 0,
+          maleCount: parseInt(result.rows[0].male_count, 10) || 0,
+          femaleCount: parseInt(result.rows[0].female_count, 10) || 0,
+          maleHeightAvg: result.rows[0].male_height_avg
+            ? parseFloat(result.rows[0].male_height_avg.toFixed(1))
+            : null,
+          maleWeightAvg: result.rows[0].male_weight_avg
+            ? parseFloat(result.rows[0].male_weight_avg.toFixed(1))
+            : null,
+          femaleHeightAvg: result.rows[0].female_height_avg
+            ? parseFloat(result.rows[0].female_height_avg.toFixed(1))
+            : null,
+          femaleWeightAvg: result.rows[0].female_weight_avg
+            ? parseFloat(result.rows[0].female_weight_avg.toFixed(1))
+            : null,
+          grades: gradesResult.rows.map((row) => ({
+            id: row.id,
+            name: row.name,
+          })),
+        }
+      : {};
+
+    return res.status(200).json({ data });
+  } catch (error) {
+    console.error("Error fetching height-weight stats:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Không thể tải dữ liệu chiều cao cân nặng: " + error.message,
+      data: null,
+    });
+  }
+}
