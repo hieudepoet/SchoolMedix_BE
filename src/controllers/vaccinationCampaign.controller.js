@@ -1,4 +1,4 @@
-import { query } from "../config/database.js";
+import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Campaign
@@ -601,52 +601,6 @@ export async function completeRecord(req, res) {
     // Bắt đầu transaction
     await client.query("BEGIN");
 
-    // Check if vaccination record exists
-    const record = await client.query(
-      `SELECT * FROM vaccination_record WHERE id = $1`,
-      [record_id]
-    );
-
-    if (record.rowCount === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({
-        error: true,
-        message: "Vaccination record not found",
-      });
-    }
-
-    const register_id = record.rows[0].register_id;
-
-    // Lấy campaign_id từ vaccination_campaign_register
-    const campaign_id_rows = await client.query(
-      `SELECT campaign_id FROM vaccination_campaign_register WHERE id = $1`,
-      [register_id]
-    );
-
-    if (campaign_id_rows.rowCount === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({
-        error: true,
-        message: "Vaccination campaign register not found",
-      });
-    }
-
-    const campaign_id = campaign_id_rows.rows[0].campaign_id;
-
-    // Lấy thông tin campaign
-    const info = await client.query(
-      `SELECT * FROM vaccination_campaign WHERE id = $1`,
-      [campaign_id]
-    );
-
-    if (info.rowCount === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({
-        error: true,
-        message: "Vaccination campaign not found",
-      });
-    }
-
     // Cập nhật vaccination record
     const now = new Date();
     const updateQuery = `
@@ -659,12 +613,17 @@ export async function completeRecord(req, res) {
       WHERE id = $1
       RETURNING *
     `;
+
     const result = await client.query(updateQuery, [
       record_id,
       "Empty",
       info.rows[0].location,
       now,
     ]);
+
+    if (result.rowCount === 0) {
+      throw new Error("Vaccination record not found");
+    }
 
     const vaccine_id = result.rows[0].vaccine_id;
 
@@ -681,7 +640,7 @@ export async function completeRecord(req, res) {
           student_id, 
           disease_id, 
           vaccine_id, 
-          status, 
+          status,     
           description, 
           location, 
           vaccination_date, 
@@ -709,6 +668,7 @@ export async function completeRecord(req, res) {
       error: false,
       message: "Vaccination record updated",
       data: result.rows[0],
+      diseases,
     });
   } catch (error) {
     // Rollback transaction nếu có lỗi

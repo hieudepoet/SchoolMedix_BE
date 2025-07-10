@@ -327,6 +327,7 @@ export async function getAllDiseaseRecords(req, res) {
         dr.location_cure,
         dr.created_at,
         dr.updated_at,
+        dr.status,
         d.id as disease_id,
         d.disease_category,
         d.name AS disease_name,
