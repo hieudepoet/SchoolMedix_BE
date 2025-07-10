@@ -155,14 +155,14 @@ export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT vr.*, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
+        SELECT vr.*, s.*, c.name as class_name, v.name as vaccine_name, d.name as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id
         JOIN disease d on vr.disease_id = d.id 
         JOIN class c on s.class_id = c.id
         WHERE student_id = $1 AND pending IS NOT NULL
-        ORDER BY created_at DESC
+        ORDER BY vr.created_at DESC
       `,
       [student_id]
     );
@@ -221,8 +221,13 @@ export async function getVaccinationRecordsRequestedByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT * FROM vaccination_record WHERE student_id = $1 AND pending = 'PENDING' 
-        ORDER BY created_at DESC
+        SELECT vr.*, s.*, s.name as student_name, v.*, d.* 
+        FROM vaccination_record vr 
+        JOIN student s ON vr.student_id = s.id
+        JOIN vaccine v ON vr.vaccine_id = v.id
+        JOIN disease d ON vr.disease_id = d.id
+        WHERE student_id = $1 AND pending = 'PENDING' 
+        ORDER BY vr.created_at DESC
       `,
       [student_id]
     );
@@ -245,8 +250,11 @@ export async function getAllVaccinationRecordsRequested(req, res) {
   try {
     const result = await query(
       `
-      SELECT * FROM vaccination_record WHERE pending = 'PENDING'
-      ORDER BY created_at DESC
+        SELECT vr.*, s.*, s.name as student_name, v.*, d.*
+        FROM vaccination_record vr 
+        JOIN student s ON vr.student_id = s.id
+        WHERE vr.pending = 'PENDING' 
+        ORDER BY vr.created_at DESC
       `
     );
 
@@ -486,7 +494,13 @@ export async function getVaccinationRecordByID(req, res) {
 
   try {
     const records = await query(
-      "SELECT * FROM vaccination_record WHERE id = $1 AND pending IS NULL OR pending = 'DONE'",
+      `
+        SELECT vr.*, s.*, v.*, d.* 
+        FROM vaccination_record vr
+        JOIN student s ON vr.student_id = s.id
+        JOIN vaccine v ON vr.vaccine_id = v.id
+        JOIN disease d ON vr.disease_id = d.id
+        WHERE vr.id = $1 AND (vr.pending IS NULL OR vr.pending = 'DONE')`,
       [id]
     );
     if (records.rows.length === 0) {
@@ -519,8 +533,14 @@ export async function getVaccinationRecordsByStudentID(req, res) {
 
   try {
     const records = await query(
-      `SELECT * FROM vaccination_record a join vaccine b on a.vaccine_id = b.id WHERE student_id = $1 and disease_id = $2 AND pending IS NULL OR pending = 'DONE'`,
-      [student_id, disease_id]
+      `
+        SELECT vr.*, s.*, v.*, d.* 
+        FROM vaccination_record vr
+        JOIN student s ON vr.student_id = s.id
+        JOIN vaccine v ON vr.vaccine_id = v.id
+        JOIN disease d ON vr.disease_id = d.id
+        WHERE vr.student_id = $1 AND pending IS NULL OR pending = 'DONE'`,
+      [student_id]
     );
     if (records.rows.length === 0) {
       return res.status(404).json({
@@ -558,7 +578,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
         vr.status
       FROM vaccination_record vr
       JOIN vaccine v ON vr.vaccine_id = v.id
-      WHERE vr.student_id = $1 AND vr.disease_id = $2 AND pending IS NULL OR pending = 'DONE'
+      WHERE vr.student_id = $1 AND vr.disease_id = $2 AND (vr.pending IS NULL OR vr.pending = 'DONE')
       ORDER BY vr.vaccination_date
     `,
       [student_id, disease_id]
