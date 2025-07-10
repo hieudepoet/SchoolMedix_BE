@@ -40,11 +40,11 @@ router.get("/vaccination-record/requests", getAllVaccinationRecordsRequested); /
 router.get("/:student_id/requests", getAllMedicalRecordsRequestedBuStudentID);
 router.get("/requests", getAllMedicalRecordsRequested);
 router.get(
-  "/vaccination-record/:student_id/requestsHistory", // lấy ra lịch sử khai báo vaccine của một học sinh xem đơn đã được duyệt hay chưa
+  "/vaccination-record/:student_id/requests/history", // lấy ra lịch sử khai báo vaccine của một học sinh xem đơn đã được duyệt hay chưa
   getVaccinationDeclarationsHistoryByStudentID
 );
 router.get(
-  "/vaccination-record/requestsHistory", // lấy ra lịch sử khai báo vaccine của tất cả học sinh xem đơn đã được duyệt hay chưa
+  "/vaccination-record/requests/history", // lấy ra lịch sử khai báo vaccine của tất cả học sinh xem đơn đã được duyệt hay chưa
   getVaccinationDeclarationsHistory
 );
 export default router;
