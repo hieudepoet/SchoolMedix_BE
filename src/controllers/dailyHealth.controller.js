@@ -62,7 +62,7 @@ export const createDailyHealthRecord = async (req, res) => {
 export const getDailyHealthRecords = async (req, res) => {
   try {
     const result = await query(
-      "SELECT * FROM daily_health_record ORDER BY record_date DESC;"
+      "SELECT * FROM daily_health_record JOIN student s ON student_id = s.id ORDER BY record_date DESC;"
     );
     return res.status(200).json({ data: result.rows });
   } catch (error) {
