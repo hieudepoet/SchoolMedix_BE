@@ -249,7 +249,7 @@ export async function getMedicalPlans(req, res) {
 		  NULL AS vaccination_id,
           name AS name,
           start_date AS date,
-          status::char(10) as status
+          CAST(status as varchar) as status
         FROM CheckupCampaign
         UNION ALL
         SELECT 
@@ -260,7 +260,7 @@ export async function getMedicalPlans(req, res) {
           status
         FROM vaccination_campaign
       ) AS combined
-      ORDER BY date ASC
+      ORDER BY date DESC
     `;
     const result = await query(queryText, []);
 
