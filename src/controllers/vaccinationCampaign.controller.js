@@ -192,7 +192,7 @@ export async function getCampaignDetailByID(req, res) {
   try {
     const result = await query(
       `
-        select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.description as description, a.location, a.start_date, a.end_date, a.status
+        select title, a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.description as description, a.location, a.start_date, a.end_date, a.status
         from vaccination_campaign a
         join vaccine b on a.vaccine_id = b.id
         join disease c on a.disease_id = c.id
