@@ -2140,7 +2140,7 @@ export async function getALLHealthRecordOfACampaign(req, res) {
 
     try {
         const result = await query(
-            `select hr.*, stu.name as student_name, clas.name as class_name from HealthRecord hr
+            `select hr.*,stu.id, stu.name as student_name, clas.name as class_name from HealthRecord hr
 join checkupregister reg on hr.register_id = reg.id
 join student stu on stu.id = reg.student_id
 join class clas on clas.id = stu.class_id
