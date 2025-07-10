@@ -348,8 +348,8 @@ export async function getHealthStatsByGradeID(req, res) {
             AVG(CASE WHEN s.isMale = FALSE AND hr.is_checked = TRUE THEN CAST(NULLIF(hr.height, '') AS FLOAT) END) AS female_height_avg,
             AVG(CASE WHEN s.isMale = FALSE AND hr.is_checked = TRUE THEN CAST(NULLIF(hr.weight, '') AS FLOAT) END) AS female_weight_avg
         FROM CheckupCampaign cc
-        LEFT JOIN CheckupRegister cr ON cr.campaign_id = cc.id AND cr.status = 'SUBMITTED'
-        LEFT JOIN HealthRecord hr ON hr.register_id = cr.id
+        LEFT JOIN CheckupRegister cr ON cr.campaign_id = cc.id 
+        LEFT JOIN HealthRecord hr ON hr.register_id = cr.id AND hr.status = 'DONE'
         LEFT JOIN Student s ON cr.student_id = s.id
         LEFT JOIN Class c ON s.class_id = c.id
         LEFT JOIN Grade g ON c.grade_id = g.id
