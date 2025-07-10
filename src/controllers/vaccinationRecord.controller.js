@@ -106,13 +106,13 @@ export async function acceptVaccinationRecord(req, res) {
         `,
         [
           accept.rows[0].student_id,
-          disease,
+          disease.disease_id,
           vaccine_id,
           "COMPLETED",
           accept.rows[0].description,
           accept.rows[0].location,
           accept.rows[0].vaccination_date,
-          "DONE",
+          NULL,
         ]
       );
     }
