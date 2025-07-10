@@ -639,7 +639,7 @@ export async function completeRecord(req, res) {
     const now = new Date();
     const result = await query(updateQuery, [
       record_id,
-      info.rows[0].description,
+      "Empty",
       info.rows[0].location,
       now,
     ]);
@@ -668,7 +668,7 @@ export async function completeRecord(req, res) {
          VALUES ($1, $2, $3, 'COMPLETED', $4, $5, $6, $7)`,
         [
           result.rows[0].student_id,
-          disease.id,
+          disease.disease_id,
           vaccine_id,
           result.rows[0].description,
           result.rows[0].location,
