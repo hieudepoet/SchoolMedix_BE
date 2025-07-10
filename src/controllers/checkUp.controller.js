@@ -956,7 +956,7 @@ export async function cancelRegister(req, res) {
 }
 // Nurse or Doctor Update Health  Recordcho Student theo Register ID
 export async function updateHealthRecord(req, res) {
-    const { id } = req.params;
+    const { record_id } = req.params;
     const {
         height,
         weight,
@@ -976,6 +976,7 @@ export async function updateHealthRecord(req, res) {
         final_diagnosis,
     } = req.body;
 
+    // Validation cho các trường bắt buộc
     if (
         !height ||
         !weight ||
@@ -984,50 +985,78 @@ export async function updateHealthRecord(req, res) {
         !right_eye ||
         !ear ||
         !nose ||
-        !register_id
+        !record_id
     ) {
         return res
             .status(400)
             .json({ error: true, message: "Các chỉ số cơ bản không thể trống." });
     }
 
+    // Validation định dạng
+    if (isNaN(height) || height <= 0 || height > 250) {
+        return res
+            .status(400)
+            .json({ error: true, message: "Chiều cao phải là số từ 0 đến 250 cm." });
+    }
+    if (isNaN(weight) || weight <= 0 || weight > 200) {
+        return res
+            .status(400)
+            .json({ error: true, message: "Cân nặng phải là số từ 0 đến 200 kg." });
+    }
+    if (!/^\d{1,3}\/\d{1,3}$/.test(blood_pressure)) {
+        return res
+            .status(400)
+            .json({ error: true, message: "Huyết áp phải có định dạng ví dụ: 120/80." });
+    }
+    if (isNaN(left_eye) || left_eye < 0 || left_eye > 10) {
+        return res
+            .status(400)
+            .json({ error: true, message: "Thị lực mắt trái phải là số từ 0 đến 10." });
+    }
+    if (isNaN(right_eye) || right_eye < 0 || right_eye > 10) {
+        return res
+            .status(400)
+            .json({ error: true, message: "Thị lực mắt phải phải là số từ 0 đến 10." });
+    }
+
     try {
+        // Kiểm tra bản ghi tồn tại
         const result_check = await query(
-            "SELECT * FROM healthrecord WHERE register_id = $1",
-            [id]
+            "SELECT * FROM healthrecord WHERE id = $1",
+            [record_id]
         );
 
         if (result_check.rowCount === 0) {
             return res
-                .status(400)
+                .status(404)
                 .json({
                     error: true,
-                    message: "Không tìm thấy hoặc không Health Record",
+                    message: "Không tìm thấy hồ sơ sức khỏe.",
                 });
         }
 
-        //Step 1: Update Health Record
+        // Cập nhật bản ghi sức khỏe
         const result = await query(
-            `UPDATE HealthRecord
-     SET
-        height = $1,
-        weight = $2,
-        blood_pressure = $3,
-        left_eye = $4,
-        right_eye = $5,
-        ear = $6,
-        nose = $7,
-        throat = $8,
-        teeth = $9,
-        gums = $10,
-        skin_condition = $11,
-        heart = $12,
-        lungs = $13,
-        spine = $14,
-        posture = $15,
-        final_diagnosis = $16,
-        status = $17
-        WHERE register_id = $18`,
+            `UPDATE healthrecord
+             SET
+                height = $1,
+                weight = $2,
+                blood_pressure = $3,
+                left_eye = $4,
+                right_eye = $5,
+                ear = $6,
+                nose = $7,
+                throat = $8,
+                teeth = $9,
+                gums = $10,
+                skin_condition = $11,
+                heart = $12,
+                lungs = $13,
+                spine = $14,
+                posture = $15,
+                final_diagnosis = $16
+             WHERE id = $17
+             RETURNING *`,
             [
                 height,
                 weight,
@@ -1045,33 +1074,31 @@ export async function updateHealthRecord(req, res) {
                 spine,
                 posture,
                 final_diagnosis,
-                "DONE",
-                register_id,
+                record_id,
             ]
         );
 
-        const result_checkup_register = await query(
-            "UPDATE checkupregister SET status= $1 WHERE id = $2",
-            ["DONE", id]
-        );
-
-        if (result.rowCount === 0 || result_checkup_register.rowCount === 0) {
+        if (result.rowCount === 0) {
             return res
                 .status(400)
                 .json({
                     error: true,
-                    message: "Không tìm thấy hoặc không Update được Health record.",
+                    message: "Không thể cập nhật hồ sơ sức khỏe.",
                 });
-        } else {
-            return res
-                .status(200)
-                .json({ error: false, message: "Update Health record thành công." });
         }
+
+        return res
+            .status(200)
+            .json({
+                error: false,
+                message: "Cập nhật hồ sơ sức khỏe thành công.",
+                data: result.rows[0],
+            });
     } catch (err) {
-        console.error("❌ Error creating Campaign ", err);
+        console.error("❌ Lỗi khi cập nhật hồ sơ sức khỏe:", err);
         return res
             .status(500)
-            .json({ error: true, message: "Lỗi khi tạo record." });
+            .json({ error: true, message: "Lỗi server khi cập nhật hồ sơ sức khỏe." });
     }
 }
 
@@ -1214,7 +1241,7 @@ JOIN (
                 'spe_exam_id', spe.id,
                 'specialist_name', spe.name,
 				'record_status', rec.status,
-				'record_url', rec.diagnosis_paper_url,
+				'record_url', rec.diagnosis_paper_urls,
 				'is_checked', rec.is_checked
             )
         ) AS records
@@ -1325,7 +1352,7 @@ WHERE cr.student_id = $1
                 rec.spe_exam_id,
                 spe.name AS specialist_name,
                 rec.status AS record_status,
-                rec.diagnosis_paper_url AS record_url,
+                rec.diagnosis_paper_urls AS record_url,
                 rec.is_checked
             FROM specialistExamRecord rec
             JOIN specialistExamList spe ON spe.id = rec.spe_exam_id
@@ -1430,7 +1457,7 @@ export async function getFullRecordOfAStudentInACampaign(req, res) {
                 rec.spe_exam_id,
                 spe.name AS specialist_name,
                 rec.status AS record_status,
-                rec.diagnosis_paper_url AS record_url,
+                rec.diagnosis_paper_urls AS record_url,
                 rec.is_checked
             FROM specialistExamRecord rec
             JOIN specialistExamList spe ON spe.id = rec.spe_exam_id
@@ -2158,38 +2185,60 @@ export async function completeAHealthRecordForStudent(req, res) {
     const { id } = req.params;
 
     if (!id) {
-        return res.status(400).json({
-            error: true,
-            message: "Không nhận được id khám tổng quát.",
-        });
+        return res
+            .status(400)
+            .json({
+                error: true,
+                message: "Không nhận được id khám tổng quát.",
+            });
     }
 
     try {
-        const result = await query(
-            `UPDATE healthrecord
-             SET status = 'DONE'
-             WHERE id = $1
-             RETURNING *`,
+        // Kiểm tra bản ghi tồn tại
+        const result_check = await query(
+            "SELECT * FROM healthrecord WHERE id = $1",
             [id]
         );
 
-        if (result.rowCount === 0) {
-            return res.status(400).json({
-                error: true,
-                message: "Không update được status cho khám tổng quát.",
-            });
+        if (result_check.rowCount === 0) {
+            return res
+                .status(404)
+                .json({
+                    error: true,
+                    message: "Không tìm thấy hồ sơ sức khỏe.",
+                });
         }
 
-        // ✅ Thêm phản hồi thành công
-        return res.status(200).json({
-            error: false,
-            message: "Cập nhật trạng thái khám tổng quát thành công.",
-            data: result.rows[0],
-        });
+        // Cập nhật trạng thái
+        const result = await query(
+            `UPDATE healthrecord
+             SET status = $1
+             WHERE id = $2
+             RETURNING *`,
+            ["DONE", id]
+        );
 
+        if (result.rowCount === 0) {
+            return res
+                .status(400)
+                .json({
+                    error: true,
+                    message: "Không update được trạng thái cho khám tổng quát.",
+                });
+        }
+
+        return res
+            .status(200)
+            .json({
+                error: false,
+                message: "Cập nhật trạng thái khám tổng quát thành công.",
+                data: result.rows[0],
+            });
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: true, message: "Lỗi server" });
+        console.error("❌ Lỗi khi cập nhật trạng thái:", err);
+        return res
+            .status(500)
+            .json({ error: true, message: "Lỗi server khi cập nhật trạng thái." });
     }
 }
 
@@ -2296,7 +2345,7 @@ export async function getAllRecordsOfEachSpeExamInACampaign(req, res) {
                 message: "Chiến dịch khám định kỳ không khám chuyên khoa.",
             });
         }
-        console.log(contained_exams_res.rows);
+        // console.log(contained_exams_res.rows);
         let final_result = [];
         const contained_exams = contained_exams_res.rows;
         for (const exam of contained_exams) {
