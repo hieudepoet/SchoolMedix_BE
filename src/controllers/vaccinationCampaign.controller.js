@@ -601,6 +601,16 @@ export async function completeRecord(req, res) {
     // Bắt đầu transaction
     await client.query("BEGIN");
 
+    const info = await query(
+      `
+        SELECT vc.location
+        FROM vaccination_record vr
+        JOIN vaccination_campaign_register vcr ON vr.register_id = vcr.id
+        JOIN vaccination_campaign vc ON vcr.campaign_id = vc.id
+        WHERE vr.id = $1
+      `,
+      [record_id]
+    );
     // Cập nhật vaccination record
     const now = new Date();
     const updateQuery = `
@@ -643,11 +653,10 @@ export async function completeRecord(req, res) {
           status,     
           description, 
           location, 
-          vaccination_date, 
-          register_id
+          vaccination_date
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        ON CONFLICT DO NOTHING`,
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `,
         [
           result.rows[0].student_id,
           disease.disease_id,
@@ -656,7 +665,6 @@ export async function completeRecord(req, res) {
           result.rows[0].description,
           result.rows[0].location,
           result.rows[0].vaccination_date,
-          result.rows[0].register_id,
         ]
       );
     }
