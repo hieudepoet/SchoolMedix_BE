@@ -177,7 +177,7 @@ export async function getDiseaseStats(req, res) {
         EXTRACT(YEAR FROM detect_date)::TEXT AS date,
         COUNT(*) AS total
       FROM disease_record
-      WHERE status = 'UNDER_TREATMENT'
+      WHERE status = 'UNDER_TREATMENT' and (pending is NULL OR pending = 'DONE')
     `;
     const queryParams = [];
 
@@ -404,13 +404,11 @@ export async function getHealthStatsByGradeID(req, res) {
         }
       : {};
 
-    return res
-      .status(200)
-      .json({
-        data: data,
-        error: false,
-        message: "Fetching data successfully",
-      });
+    return res.status(200).json({
+      data: data,
+      error: false,
+      message: "Fetching data successfully",
+    });
   } catch (error) {
     console.error("Error fetching height-weight stats:", error);
     return res.status(500).json({

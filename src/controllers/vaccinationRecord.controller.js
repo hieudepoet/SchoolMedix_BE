@@ -1,4 +1,4 @@
-import { query } from "../config/database.js";
+import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Cái này dùng cho tạo record mà không đăng ký tiêm qua campaign
@@ -91,21 +91,22 @@ export async function acceptVaccinationRecord(req, res) {
     // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
     for (const disease of diseases.rows) {
       await client.query(
-        `INSERT INTO vaccination_record (
-          student_id, 
-          disease_id, 
-          vaccine_id, 
-          status, 
-          description, 
-          location, 
-          vaccination_date, 
-          pending
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        ON CONFLICT DO NOTHING`,
+        `
+          INSERT INTO vaccination_record (
+            student_id, 
+            disease_id, 
+            vaccine_id, 
+            status, 
+            description, 
+            location, 
+            vaccination_date, 
+            pending
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `,
         [
           accept.rows[0].student_id,
-          disease.disease_id,
+          disease,
           vaccine_id,
           "COMPLETED",
           accept.rows[0].description,
