@@ -41,12 +41,12 @@ router.get(
 );
 
 router.get(
-  "/disease-record/:student_id/requestsHistory", // lấy ra lịch sử khai báo bệnh của một học sinh xem đơn đã được duyệt hay chưa
+  "/disease-record/:student_id/requests/history", // lấy ra lịch sử khai báo bệnh của một học sinh xem đơn đã được duyệt hay chưa
   getDiseaseDeclarationsHistoryByStudentID
 );
 
 router.get(
-  "/disease-record/requestsHistory", // lấy ra lịch sử khai báo bệnh của tất cả học sinh xem đơn đã được duyệt hay chưa
+  "/disease-record/requests/history", // lấy ra lịch sử khai báo bệnh của tất cả học sinh xem đơn đã được duyệt hay chưa
   getDiseaseDeclarationsHistory
 );
 
