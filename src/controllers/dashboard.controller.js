@@ -270,9 +270,15 @@ export async function getMedicalPlans(req, res) {
       name: row.name,
       date: row.date ? row.date.toISOString().split("T")[0] : "N/A",
       status: row.status,
+      vaccaination_id: row.vaccination_id || null,
+      checkup_id: row.checkup_id || null,
     }));
 
-    return res.status(200).json({ data: plans });
+    return res.status(200).json({
+      data: plans,
+      error: false,
+      message: "Fetching data successfully",
+    });
   } catch (error) {
     console.error("Error fetching upcoming plans:", error);
     return res.status(500).json({
@@ -398,7 +404,13 @@ export async function getHealthStatsByGradeID(req, res) {
         }
       : {};
 
-    return res.status(200).json({ data });
+    return res
+      .status(200)
+      .json({
+        data: data,
+        error: false,
+        message: "Fetching data successfully",
+      });
   } catch (error) {
     console.error("Error fetching height-weight stats:", error);
     return res.status(500).json({
