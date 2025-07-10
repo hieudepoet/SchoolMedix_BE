@@ -595,49 +595,71 @@ export async function createPreVaccinationRecord(req, res) {
 
 export async function completeRecord(req, res) {
   const { record_id } = req.params;
+  const client = await pool.connect(); // Sử dụng pool để quản lý kết nối
 
   try {
+    // Bắt đầu transaction
+    await client.query("BEGIN");
+
     // Check if vaccination record exists
-    const record = await query(
-      "SELECT * FROM vaccination_record WHERE id = $1",
+    const record = await client.query(
+      `SELECT * FROM vaccination_record WHERE id = $1`,
       [record_id]
     );
 
+    if (record.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        error: true,
+        message: "Vaccination record not found",
+      });
+    }
+
     const register_id = record.rows[0].register_id;
 
-    const campaign_id_rows = await query(
-      "SELECT campaign_id FROM vaccination_campaign_register WHERE id = $1",
+    // Lấy campaign_id từ vaccination_campaign_register
+    const campaign_id_rows = await client.query(
+      `SELECT campaign_id FROM vaccination_campaign_register WHERE id = $1`,
       [register_id]
     );
 
+    if (campaign_id_rows.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        error: true,
+        message: "Vaccination campaign register not found",
+      });
+    }
+
     const campaign_id = campaign_id_rows.rows[0].campaign_id;
 
-    const info = await query(
-      "SELECT * FROM vaccination_campaign WHERE id = $1",
+    // Lấy thông tin campaign
+    const info = await client.query(
+      `SELECT * FROM vaccination_campaign WHERE id = $1`,
       [campaign_id]
     );
 
-    if (record.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Vaccination record not found" });
+    if (info.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        error: true,
+        message: "Vaccination campaign not found",
+      });
     }
 
-    // Update vaccination record
-    console.log(info.rows[0].vaccination_date);
-    const updateQuery = `
-                  UPDATE vaccination_record
-                  SET 
-                    status = 'COMPLETED',
-                    description = $2,
-                    location = $3,
-                    vaccination_date = $4
-                  WHERE id = $1
-                  RETURNING *;
-            `;
-
+    // Cập nhật vaccination record
     const now = new Date();
-    const result = await query(updateQuery, [
+    const updateQuery = `
+      UPDATE vaccination_record
+      SET 
+        status = 'COMPLETED',
+        description = $2,
+        location = $3,
+        vaccination_date = $4
+      WHERE id = $1
+      RETURNING *
+    `;
+    const result = await client.query(updateQuery, [
       record_id,
       "Empty",
       info.rows[0].location,
@@ -647,16 +669,16 @@ export async function completeRecord(req, res) {
     const vaccine_id = result.rows[0].vaccine_id;
 
     // Lấy tất cả disease_id được map với vaccine_id này (ngoại trừ disease_id gốc)
-    const diseases = await query(
+    const diseases = await client.query(
       `SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id != $2`,
       [vaccine_id, result.rows[0].disease_id]
     );
 
     // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
     for (const disease of diseases.rows) {
-      await query(
+      await client.query(
         `INSERT INTO vaccination_record (
-          student_id,  
+          student_id, 
           disease_id, 
           vaccine_id, 
           status, 
@@ -664,12 +686,14 @@ export async function completeRecord(req, res) {
           location, 
           vaccination_date, 
           register_id
-          )
-         VALUES ($1, $2, $3, 'COMPLETED', $4, $5, $6, $7)`,
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT DO NOTHING`,
         [
           result.rows[0].student_id,
           disease.disease_id,
           vaccine_id,
+          "COMPLETED",
           result.rows[0].description,
           result.rows[0].location,
           result.rows[0].vaccination_date,
@@ -678,15 +702,25 @@ export async function completeRecord(req, res) {
       );
     }
 
+    // Commit transaction
+    await client.query("COMMIT");
+
     return res.status(200).json({
+      error: false,
       message: "Vaccination record updated",
       data: result.rows[0],
     });
   } catch (error) {
+    // Rollback transaction nếu có lỗi
+    await client.query("ROLLBACK");
     console.error("Error updating vaccination record:", error);
-    return res
-      .status(500)
-      .json({ error: true, message: "Internal server error" });
+    return res.status(500).json({
+      error: true,
+      message: `Error when updating record: ${error.message}`,
+    });
+  } finally {
+    // Giải phóng kết nối
+    client.release();
   }
 }
 

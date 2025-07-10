@@ -1,4 +1,4 @@
-import { query } from "../config/database.js";
+import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Cái này dùng cho tạo record mà không đăng ký tiêm qua campaign
@@ -59,63 +59,83 @@ export async function createVaccinationRecord(req, res) {
 
 export async function acceptVaccinationRecord(req, res) {
   const { id } = req.params;
+  const client = await pool.connect(); // Sử dụng pool để quản lý kết nối
 
   try {
-    const accept = await query(
+    // Bắt đầu transaction
+    await client.query("BEGIN");
+
+    // Cập nhật bản ghi vaccination_record
+    const accept = await client.query(
       `
         UPDATE vaccination_record 
-        SET
-          pending = 'DONE', status = 'COMPLETED'
-        WHERE 
-          id = $1
+        SET pending = 'DONE', status = 'COMPLETED'
+        WHERE id = $1
+        RETURNING student_id, disease_id, vaccine_id, description, location, vaccination_date
       `,
       [id]
     );
 
+    if (accept.rowCount === 0) {
+      throw new Error("Vaccination record not found");
+    }
+
     const vaccine_id = accept.rows[0].vaccine_id;
 
     // Lấy tất cả disease_id được map với vaccine_id này (ngoại trừ disease_id gốc)
-    const diseases = await query(
+    const diseases = await client.query(
       `SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id != $2`,
       [vaccine_id, accept.rows[0].disease_id]
     );
 
     // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
     for (const disease of diseases.rows) {
-      await query(
-        `INSERT INTO vaccination_record (
-          student_id,  
-          disease_id, 
-          vaccine_id, 
-          status, 
-          description, 
-          location, 
-          vaccination_date, 
-          pending
+      await client.query(
+        `
+          INSERT INTO vaccination_record (
+            student_id, 
+            disease_id, 
+            vaccine_id, 
+            status, 
+            description, 
+            location, 
+            vaccination_date, 
+            pending
           )
-         VALUES ($1, $2, $3, 'COMPLETED', $4, $5, $6, $7, 'DONE')`,
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `,
         [
           accept.rows[0].student_id,
-          disease.id,
+          disease.disease_id,
           vaccine_id,
+          "COMPLETED",
           accept.rows[0].description,
           accept.rows[0].location,
           accept.rows[0].vaccination_date,
+          NULL,
         ]
       );
     }
 
+    // Commit transaction
+    await client.query("COMMIT");
+
     return res.status(200).json({
       error: false,
       message: "Accept recording request successfully",
-      data: accept,
+      data: accept.rows[0],
     });
   } catch (error) {
-    console.error("Error accepting recording request: " + error);
+    // Rollback transaction nếu có lỗi
+    await client.query("ROLLBACK");
+    console.error("Error accepting recording request:", error);
     return res.status(500).json({
       error: true,
-      message: "Error when accepting record request: ",
+      message: `Error when accepting record request: ${error.message}`,
     });
+  } finally {
+    // Giải phóng kết nối
+    client.release();
   }
 }
 
