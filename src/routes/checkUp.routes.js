@@ -107,7 +107,7 @@ router.post('/upload-diagnosis_url/:register_id/:spe_exam_id',upload.array("file
 router.patch('/checkup-checkin/register_id/:register_id/campaign/:campaign_id/', UpdateCheckinHealthRecord);//Nurse Checkin Khám Định kỳ cần truyền vào Student_id và Campain_id trong body
 router.patch('/checkup-checkin/special-record', UpdateCheckinSpecialRecord); //Nurse Checkin Khám Chuyên khoa truyền vào student_id,campaign_id,spex_exam_id
 
-router.patch('/checkup/:id/record', updateHealthRecord) // Doctor or Nurse update Heatlh Record for Student
+router.patch('/checkup/:record_id/record', updateHealthRecord) // Doctor or Nurse update Heatlh Record for Student
 router.get('/checkup-register/student/:id', getCheckupRegisterStudent);  // Student lấy các lịch sử registers
 router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealthRecordStudent);//Student view Health Record
 

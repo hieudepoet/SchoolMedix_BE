@@ -9,10 +9,13 @@ export const createDailyHealthRecord = async (req, res) => {
     on_site_treatment,
     transferred_to,
     items_usage,
+    status,
   } = req.body;
 
   if (!student_id || !detect_time) {
-    return res.status(400).json({ error: false, message: "Missing required fields" });
+    return res
+      .status(400)
+      .json({ error: false, message: "Missing required fields" });
   }
 
   try {
@@ -29,8 +32,8 @@ export const createDailyHealthRecord = async (req, res) => {
     // Insert the daily health record
     const record_date = new Date();
     const insertQuery = `
-           INSERT INTO daily_health_record (student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+           INSERT INTO daily_health_record (student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage, status)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *;
         `;
     const values = [
@@ -41,6 +44,7 @@ export const createDailyHealthRecord = async (req, res) => {
       on_site_treatment || null,
       transferred_to || null,
       items_usage || null,
+      status,
     ];
     const result = await query(insertQuery, values);
     return res
@@ -101,7 +105,6 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
     });
   }
 };
-
 
 // Get a daily health record by ID
 export const getDailyHealthRecordById = async (req, res) => {

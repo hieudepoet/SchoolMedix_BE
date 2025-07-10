@@ -337,7 +337,7 @@ export async function getAllDiseaseRecords(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE AND pending IS NULL OR pending = 'DONE'
+      WHERE pending IS NULL OR pending = 'DONE'
       ORDER BY dr.student_id ASC
     `);
 
