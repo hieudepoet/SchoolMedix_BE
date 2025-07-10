@@ -547,8 +547,8 @@ CREATE TABLE CheckupCampaign (
 INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, status) VALUES
 ('Khám sức khỏe định kỳ học sinh năm 2022', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2022-08-01', '2022-08-02', 'DONE'),
 ('Khám sức khỏe định kỳ học sinh năm 2023', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2023-8-05', '2023-08-06', 'DONE'),
-('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-05-15', '2025-05-16', 'CANCELLED'),
-('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-08-15', '2025-08-26', 'DONE');
+('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-05-15', '2025-05-16', 'CANCELLED');
+-- ('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-08-15', '2025-08-26', 'DONE');
 
 CREATE TABLE SpecialistExamList (
 	id serial primary key,

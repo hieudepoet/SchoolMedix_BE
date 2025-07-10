@@ -34,9 +34,9 @@ router.get("/disease-record", getAllDiseaseRecords); // lấy toàn bộ danh s�
 router.post("/student/:student_id/disease-record", createDiseaseRecord); // tạo mới bệnh cho cả truyền nhiễm và mãn tính
 router.patch("/disease-record/:id/accept", acceptDiseaseRecord);
 router.patch("/disease-record/:id/refuse", refuseDiseaseRecord);
-router.get("/disease-record/requests", getAllDiseaseRecordsRequested);
+router.get("/disease-record/requests", getAllDiseaseRecordsRequested); // Lấy ra tất cả các khai báo bệnh chưa được duyệt
 router.get(
-  "/disease-record/:student_id/requests",
+  "/disease-record/:student_id/requests", // Lấy ra tất cả các khai báo bệnh chưa được duyệt của một học sinh
   getDiseaseRecordsRequestedByStudentID
 );
 

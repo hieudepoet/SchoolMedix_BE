@@ -488,9 +488,10 @@ export async function getDiseaseDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.name as student_name
+        SELECT dr.*, s.name as student_name, c.name as class_name
         FROM disease_record dr 
         JOIN student s on dr.student_id = s.id
+        JOIN class c on s.class_id = c.id
         WHERE student_id = $1 AND pending IS NOT NULL
         ORDER BY created_at DESC
       `,
@@ -517,9 +518,10 @@ export async function getDiseaseDeclarationsHistory(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.name as student_name
+        SELECT dr.*, s.name as student_name, c.name as class_name
         FROM disease_record dr 
         JOIN student s on dr.student_id = s.id
+        JOIN class c on s.class_id = c.id
         WHERE pending IS NOT NULL
         ORDER BY created_at DESC
       `
