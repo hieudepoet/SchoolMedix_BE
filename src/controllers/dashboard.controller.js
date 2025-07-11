@@ -14,8 +14,8 @@ export async function getSummary(req, res) {
       newCasesResult,
       processingDrugResult,
       pendingDrugResult,
-      emailConfirmedStudentCountResult,
       emailUnconfirmedStudentCountResult,
+      emailUnconfirmedUserCountResult,
     ] = await Promise.all([
       query("SELECT COUNT(*) AS total FROM student"),
       query(`
@@ -65,13 +65,34 @@ export async function getSummary(req, res) {
       query(`
         SELECT COUNT(*) AS total
         FROM student
-        WHERE email_confirmed = true
-      `),
-      query(`
-        SELECT COUNT(*) AS total
-        FROM student
         WHERE email_confirmed = false
       `),
+      query(`
+        SELECT SUM(total) AS total_unconfirmed
+        FROM (
+            SELECT COUNT(*) AS total
+            FROM student
+            WHERE email_confirmed = false
+            
+            UNION ALL
+            
+            SELECT COUNT(*) AS total
+            FROM admin
+            WHERE email_confirmed = false
+            
+            UNION ALL
+            
+            SELECT COUNT(*) AS total
+            FROM nurse
+            WHERE email_confirmed = false
+            
+            UNION ALL
+            
+            SELECT COUNT(*) AS total
+            FROM parent
+            WHERE email_confirmed = false
+        ) AS combined_counts;
+              `),
     ]);
 
     // Extract the total count from each query result
@@ -80,21 +101,30 @@ export async function getSummary(req, res) {
       healthyStudents: parseInt(healthyStudentsResult.rows[0]?.total || 0, 10),
       recentAccidents: parseInt(recentAccidentsResult.rows[0]?.total || 0, 10),
       monitoredCases: parseInt(monitoredCasesResult.rows[0]?.total || 0, 10),
-      previousAccidents: parseInt(previousAccidentsResult.rows[0]?.total || 0, 10),
+      previousAccidents: parseInt(
+        previousAccidentsResult.rows[0]?.total || 0,
+        10
+      ),
       newCases: parseInt(newCasesResult.rows[0]?.total || 0, 10),
       proccessingDrug: parseInt(processingDrugResult.rows[0]?.total, 10) || 0,
       pendingDrug: parseInt(pendingDrugResult.rows[0]?.total || 0, 10),
-      emailConfirmedStudents: parseInt(emailConfirmedStudentCountResult.rows[0]?.total || 0, 10),
-      emailUnconfirmedStudents: parseInt(emailUnconfirmedStudentCountResult.rows[0]?.total || 0, 10),
+      emailUnconfirmedStudentCount: parseInt(
+        emailUnconfirmedStudentCountResult.rows[0]?.total || 0,
+        10
+      ),
+      emailUnconfirmedUserCount: parseInt(
+        emailUnconfirmedUserCountResult.rows[0]?.total_unconfirmed || 0,
+        10
+      ),
       percent:
         parseInt(totalStudentsResult.rows[0]?.total || 0, 10) > 0
           ? Number(
-            (
-              (parseInt(healthyStudentsResult.rows[0]?.total || 0, 10) /
-                parseInt(totalStudentsResult.rows[0]?.total || 0, 10)) *
-              100
-            ).toFixed(2)
-          )
+              (
+                (parseInt(healthyStudentsResult.rows[0]?.total || 0, 10) /
+                  parseInt(totalStudentsResult.rows[0]?.total || 0, 10)) *
+                100
+              ).toFixed(2)
+            )
           : 0,
     };
 
@@ -111,7 +141,6 @@ export async function getSummary(req, res) {
     });
   }
 }
-
 
 export async function getAccidentStats(req, res) {
   try {
@@ -281,7 +310,7 @@ export async function getDiseaseStats(req, res) {
   }
 }
 
-export async function getHealthStats(req, res) { }
+export async function getHealthStats(req, res) {}
 
 export async function getMedicalPlans(req, res) {
   try {
@@ -293,14 +322,14 @@ export async function getMedicalPlans(req, res) {
       FROM (
         SELECT 
           id AS checkup_id,
-		  NULL AS vaccination_id,
+		      NULL AS vaccination_id,
           name AS name,
           start_date AS date,
           CAST(status as varchar) as status
         FROM CheckupCampaign
         UNION ALL
         SELECT 
-		  NULL AS checkup_id,
+		      NULL AS checkup_id,
           id AS vaccination_id,
           title AS name,
           start_date AS date,
@@ -426,29 +455,29 @@ export async function getHealthStatsByGradeID(req, res) {
     // Định dạng dữ liệu trả về
     const data = result.rows[0]
       ? {
-        checkupName: checkupName || "N/A",
-        latestCheckupDate: latestCheckupDate || "N/A",
-        totalChecked: parseInt(result.rows[0].total_checked, 10) || 0,
-        totalStudents: parseInt(result.rows[0].total_students, 10) || 0,
-        maleCount: parseInt(result.rows[0].male_count, 10) || 0,
-        femaleCount: parseInt(result.rows[0].female_count, 10) || 0,
-        maleHeightAvg: result.rows[0].male_height_avg
-          ? parseFloat(result.rows[0].male_height_avg.toFixed(1))
-          : null,
-        maleWeightAvg: result.rows[0].male_weight_avg
-          ? parseFloat(result.rows[0].male_weight_avg.toFixed(1))
-          : null,
-        femaleHeightAvg: result.rows[0].female_height_avg
-          ? parseFloat(result.rows[0].female_height_avg.toFixed(1))
-          : null,
-        femaleWeightAvg: result.rows[0].female_weight_avg
-          ? parseFloat(result.rows[0].female_weight_avg.toFixed(1))
-          : null,
-        grades: gradesResult.rows.map((row) => ({
-          id: row.id,
-          name: row.name,
-        })),
-      }
+          checkupName: checkupName || "N/A",
+          latestCheckupDate: latestCheckupDate || "N/A",
+          totalChecked: parseInt(result.rows[0].total_checked, 10) || 0,
+          totalStudents: parseInt(result.rows[0].total_students, 10) || 0,
+          maleCount: parseInt(result.rows[0].male_count, 10) || 0,
+          femaleCount: parseInt(result.rows[0].female_count, 10) || 0,
+          maleHeightAvg: result.rows[0].male_height_avg
+            ? parseFloat(result.rows[0].male_height_avg.toFixed(1))
+            : null,
+          maleWeightAvg: result.rows[0].male_weight_avg
+            ? parseFloat(result.rows[0].male_weight_avg.toFixed(1))
+            : null,
+          femaleHeightAvg: result.rows[0].female_height_avg
+            ? parseFloat(result.rows[0].female_height_avg.toFixed(1))
+            : null,
+          femaleWeightAvg: result.rows[0].female_weight_avg
+            ? parseFloat(result.rows[0].female_weight_avg.toFixed(1))
+            : null,
+          grades: gradesResult.rows.map((row) => ({
+            id: row.id,
+            name: row.name,
+          })),
+        }
       : {};
 
     return res.status(200).json({
