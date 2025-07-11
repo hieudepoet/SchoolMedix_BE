@@ -175,7 +175,7 @@ export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT vr.*, s.*, c.name as class_name, v.name as vaccine_name, d.name as disease_name
+        SELECT vr.id as id, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id
@@ -241,7 +241,7 @@ export async function getVaccinationRecordsRequestedByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT vr.*, s.*, s.name as student_name, v.*, d.* 
+        SELECT vr.*, s.name as student_name, v.*, d.* 
         FROM vaccination_record vr 
         JOIN student s ON vr.student_id = s.id
         JOIN vaccine v ON vr.vaccine_id = v.id
@@ -515,7 +515,7 @@ export async function getVaccinationRecordByID(req, res) {
   try {
     const records = await query(
       `
-        SELECT vr.*, s.*, v.*, d.* 
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, d.name as disease_name 
         FROM vaccination_record vr
         JOIN student s ON vr.student_id = s.id
         JOIN vaccine v ON vr.vaccine_id = v.id
@@ -554,8 +554,8 @@ export async function getVaccinationRecordsByStudentID(req, res) {
   try {
     const records = await query(
       `
-        SELECT vr.*, s.*, v.*, d.* 
-        FROM vaccination_record vr
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, d.name as disease_name 
+        FROM vaccination_record vr 
         JOIN student s ON vr.student_id = s.id
         JOIN vaccine v ON vr.vaccine_id = v.id
         JOIN disease d ON vr.disease_id = d.id
