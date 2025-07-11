@@ -771,14 +771,6 @@ export async function submitRegister(req, res) {
             return res.status(400).json({ error: true, message: "Không có exams." });
         }
 
-
-        const result_check = await query('SELECT * FROM checkupregister WHERE id = $1 AND status = $2', [id, 'PENDING']);
-
-        if (result_check.rowCount === 0) {
-            return res.status(200).json({ error: true, message: "Không có tồn tại Register or đã CANCEL" });
-        }
-
-
         const result_submit = await query(`UPDATE checkupregister
          SET
            reason      = $1,
