@@ -14,8 +14,8 @@ export async function getSummary(req, res) {
       newCasesResult,
       processingDrugResult,
       pendingDrugResult,
-      emailConfirmedStudentCountResult,
       emailUnconfirmedStudentCountResult,
+      emailUnconfirmedUserCountResult,
     ] = await Promise.all([
       query("SELECT COUNT(*) AS total FROM student"),
       query(`
@@ -65,13 +65,34 @@ export async function getSummary(req, res) {
       query(`
         SELECT COUNT(*) AS total
         FROM student
-        WHERE email_confirmed = true
-      `),
-      query(`
-        SELECT COUNT(*) AS total
-        FROM student
         WHERE email_confirmed = false
       `),
+      query(`
+        SELECT SUM(total) AS total_unconfirmed
+        FROM (
+            SELECT COUNT(*) AS total
+            FROM student
+            WHERE email_confirmed = false
+            
+            UNION ALL
+            
+            SELECT COUNT(*) AS total
+            FROM admin
+            WHERE email_confirmed = false
+            
+            UNION ALL
+            
+            SELECT COUNT(*) AS total
+            FROM nurse
+            WHERE email_confirmed = false
+            
+            UNION ALL
+            
+            SELECT COUNT(*) AS total
+            FROM parent
+            WHERE email_confirmed = false
+        ) AS combined_counts;
+              `),
     ]);
 
     // Extract the total count from each query result
@@ -87,12 +108,12 @@ export async function getSummary(req, res) {
       newCases: parseInt(newCasesResult.rows[0]?.total || 0, 10),
       proccessingDrug: parseInt(processingDrugResult.rows[0]?.total, 10) || 0,
       pendingDrug: parseInt(pendingDrugResult.rows[0]?.total || 0, 10),
-      emailConfirmedStudentCount: parseInt(
-        emailConfirmedStudentCountResult.rows[0]?.total || 0,
-        10
-      ),
       emailUnconfirmedStudentCount: parseInt(
         emailUnconfirmedStudentCountResult.rows[0]?.total || 0,
+        10
+      ),
+      emailUnconfirmedUserCount: parseInt(
+        emailUnconfirmedUserCountResult.rows[0]?.total_unconfirmed || 0,
         10
       ),
       percent:
