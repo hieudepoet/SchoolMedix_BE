@@ -8,7 +8,8 @@ import {
       doneTakingMedicine,
       retrieveRequestByID,
       listRequests,
-      getSendDrugRequestsOfStudent
+      getSendDrugRequestsOfStudent,
+      handleUploadPrescriptionImgs
 }
       from '../controllers/sendDrugRequest.controller.js';
 
@@ -22,6 +23,8 @@ router.patch('/send-drug-request/:id/receive', receiveDrug);
 router.patch('/send-drug-request/:id/done', doneTakingMedicine);
 router.get('/send-drug-request/:id', retrieveRequestByID);
 router.get('/student/:student_id/send-drug-request', getSendDrugRequestsOfStudent);
+
+router.post('/upload-prescription-imgs', handleUploadPrescriptionImgs);
 
 router.get('/send-drug-request', listRequests);
 
