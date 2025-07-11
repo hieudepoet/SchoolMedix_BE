@@ -175,7 +175,7 @@ export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT vr.id as id, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
+        SELECT vr.*, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id
