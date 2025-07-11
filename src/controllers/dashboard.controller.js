@@ -1,4 +1,4 @@
-import { query } from "../config/database.js";
+import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Cái này dùng cho tạo record mà không đăng ký tiêm qua campaign
@@ -166,29 +166,67 @@ export async function getDiseaseStats(req, res) {
   try {
     // Get optional diseaseId from query parameters
     const { diseaseId } = req.query;
+    // console.log("Received diseaseId:", diseaseId); // Debug diseaseId
 
-    // Get current year and ensure at least 5 years are covered
+    // Get current year and ensure 5 years are covered
     const currentYear = new Date().getFullYear();
-    const minYear = currentYear - 4; // At least 5 years (current year + 4 previous)
+    const minYear = currentYear - 4; // 5 years: current year + 4 previous
+    const allYears = Array.from({ length: 5 }, (_, i) =>
+      (minYear + i).toString()
+    );
 
-    // Query to get disease counts grouped by year
+    // Query to count disease records for each year using CTE
     let queryText = `
+      WITH years AS (
+        SELECT generate_series($1::int, $2::int, 1) AS year
+      ),
+      under_treatment AS (
+        SELECT 
+          y.year::text AS date,
+          COUNT(*) AS cases
+        FROM years y
+        INNER JOIN disease_record dr
+          ON EXTRACT(YEAR FROM dr.detect_date) <= y.year
+          AND dr.status = 'UNDER_TREATMENT'
+          AND (dr.pending IS NULL OR dr.pending = 'DONE')
+          ${diseaseId ? "AND dr.disease_id = $3" : ""}
+        GROUP BY y.year
+      ),
+      recover AS (
+        SELECT 
+          y.year::text AS date,
+          COUNT(*) AS cases
+        FROM years y
+        INNER JOIN disease_record dr
+          ON EXTRACT(YEAR FROM dr.cure_date) > y.year
+          AND dr.status = 'RECOVER'
+          ${diseaseId ? "AND dr.disease_id = $3" : ""}
+        GROUP BY y.year
+      )
       SELECT 
-        EXTRACT(YEAR FROM detect_date)::TEXT AS date,
-        COUNT(*) AS total
-      FROM disease_record
-      WHERE status = 'UNDER_TREATMENT' and (pending is NULL OR pending = 'DONE')
+        y.year::text AS date,
+        COALESCE(ut.cases, 0) + COALESCE(r.cases, 0) AS cases
+      FROM years y
+      LEFT JOIN under_treatment ut ON y.year::text = ut.date
+      LEFT JOIN recover r ON y.year::text = r.date
+      ORDER BY y.year
     `;
-    const queryParams = [];
-
+    const queryParams = [minYear, currentYear];
     if (diseaseId) {
-      queryText += ` AND disease_id = $1`;
-      queryParams.push(parseInt(diseaseId, 10));
+      const parsedDiseaseId = parseInt(diseaseId, 10);
+      if (isNaN(parsedDiseaseId)) {
+        return res.status(400).json({
+          error: true,
+          message: "Invalid diseaseId: must be a number",
+          data: null,
+        });
+      }
+      queryParams.push(parsedDiseaseId);
     }
 
-    queryText += ` GROUP BY EXTRACT(YEAR FROM detect_date) ORDER BY EXTRACT(YEAR FROM detect_date)`;
-
+    // console.log("Query:", queryText, "Params:", queryParams); // Debug query
     const result = await query(queryText, queryParams);
+    // console.log("Query result:", result.rows); // Debug result
 
     // Query to get available diseases with records
     const diseasesQuery = `
@@ -198,17 +236,13 @@ export async function getDiseaseStats(req, res) {
       ORDER BY d.name
     `;
     const diseasesResult = await query(diseasesQuery, []);
-
-    // Generate all years from minYear to currentYear
-    const allYears = Array.from({ length: currentYear - minYear + 1 }, (_, i) =>
-      (minYear + i).toString()
-    );
+    // console.log("Available diseases:", diseasesResult.rows); // Debug diseases
 
     // Process data for chart
     const chartData = allYears.map((year) => ({
       date: year,
       cases: parseInt(
-        result.rows.find((row) => row.date === year)?.total || 0,
+        result.rows.find((row) => row.date === year)?.cases || 0,
         10
       ),
     }));
@@ -217,6 +251,7 @@ export async function getDiseaseStats(req, res) {
     const maxCases = Math.max(...chartData.map((item) => item.cases), 0);
 
     return res.status(200).json({
+      error: false,
       data: chartData,
       maxCases,
       availableDiseases: diseasesResult.rows.map((row) => ({
@@ -228,7 +263,7 @@ export async function getDiseaseStats(req, res) {
     console.error("Error fetching disease stats:", error);
     return res.status(500).json({
       error: true,
-      message: "Failed to fetch disease stats: " + error.message,
+      message: `Failed to fetch disease stats: ${error.message}`,
       data: null,
     });
   }
@@ -416,5 +451,52 @@ export async function getHealthStatsByGradeID(req, res) {
       message: "Không thể tải dữ liệu chiều cao cân nặng: " + error.message,
       data: null,
     });
+  }
+}
+
+export async function getPendingRecords(req, res) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Đếm đơn khai báo lịch sử bệnh
+    const diseaseQuery = `
+      SELECT COUNT(*) AS count
+      FROM disease_record
+      WHERE pending = 'PENDING'
+    `;
+    const diseaseResult = await client.query(diseaseQuery);
+
+    // Đếm đơn khai báo lịch sử tiêm chủng
+    const vaccinationQuery = `
+      SELECT COUNT(*) AS count
+      FROM vaccination_record
+      WHERE pending = 'PENDING'
+    `;
+    const vaccinationResult = await client.query(vaccinationQuery);
+
+    await client.query("COMMIT");
+
+    return res.status(200).json({
+      error: false,
+      data: {
+        pendingDiseaseRecords: parseInt(diseaseResult.rows[0].count, 10),
+        pendingVaccinationRecords: parseInt(
+          vaccinationResult.rows[0].count,
+          10
+        ),
+      },
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error fetching pending records:", error);
+    return res.status(500).json({
+      error: true,
+      message: `Failed to fetch pending records: ${error.message}`,
+      data: null,
+    });
+  } finally {
+    client.release();
   }
 }
