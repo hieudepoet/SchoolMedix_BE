@@ -16,7 +16,7 @@ export async function getDiseaseRecordsOfStudent(req, res) {
         dr.status,
         dr.pending,
         dr.student_id,
-        s.*,
+        s.name as student_name,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -78,8 +78,9 @@ export async function getChronicDiseaseRecordsOfStudent(req, res) {
     const result = await query(
       `
       SELECT 
+        dr.id,
         dr.student_id,
-        s.*,
+        s.name as student_name,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -141,8 +142,9 @@ export async function getInfectiousDiseaseRecordsOfStudent(req, res) {
     const result = await query(
       `
       SELECT 
+        dr.id
         dr.student_id,
-        s.*,
+        s.name as student_name,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -201,8 +203,9 @@ export async function getAllChronicDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
+        dr.id,
         dr.student_id,
-        s.*,
+        s.name as student_name,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -259,8 +262,9 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
+        dr.id,
         dr.student_id,
-        s.*,
+        s.name as student_name,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -318,8 +322,9 @@ export async function getAllDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
+        dr.id,
         dr.student_id,
-        s.*,
+        s.name as student_name,
         dr.disease_id,
         dr.diagnosis,
         dr.detect_date,
@@ -495,7 +500,7 @@ export async function getDiseaseDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.*, s.name as student_name, c.name as class_name
+        SELECT dr.*, s.name as student_name, c.name as class_name
         FROM disease_record dr 
         JOIN student s on dr.student_id = s.id
         JOIN class c on s.class_id = c.id
@@ -525,7 +530,7 @@ export async function getDiseaseDeclarationsHistory(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.*, s.name as student_name, c.name as class_name
+        SELECT dr.*, s.name as student_name, c.name as class_name
         FROM disease_record dr 
         JOIN student s on dr.student_id = s.id
         JOIN class c on s.class_id = c.id
@@ -555,7 +560,7 @@ export async function getDiseaseRecordsRequestedByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.* 
+        SELECT dr.*, s.name as student_name
         FROM disease_record dr 
         JOIN student s ON dr.student_id = s.id
         WHERE dr.student_id = $1 AND dr.pending = 'PENDING' 
@@ -582,7 +587,7 @@ export async function getAllDiseaseRecordsRequested(req, res) {
   try {
     const result = await query(
       `
-        SELECT dr.*, s.* 
+        SELECT dr.*, s.name as student_name
         FROM disease_record dr 
         JOIN student s ON dr.student_id = s.id
         WHERE dr.pending = 'PENDING' 
