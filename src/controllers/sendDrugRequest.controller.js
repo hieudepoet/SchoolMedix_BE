@@ -1,4 +1,6 @@
 import { query } from "../config/database.js";
+import multer from "multer";
+import { uploadFileToSupabaseStorage } from "../services/index.js";
 
 export async function createRequest(req, res) {
       const {
@@ -8,7 +10,8 @@ export async function createRequest(req, res) {
             schedule_send_date,
             intake_date,
             note,
-            request_items
+            request_items,
+            prescription_img_urls,
       } = req.body;
 
       console.log(req.body);
@@ -34,10 +37,10 @@ export async function createRequest(req, res) {
             // Step 1: insert SendDrugRequest
             const result = await query(
                   `INSERT INTO SendDrugRequest 
-          (student_id, create_by, diagnosis, schedule_send_date, intake_date, note, status)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          (student_id, create_by, diagnosis, schedule_send_date, intake_date, note, status, prescription_img_urls)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           RETURNING *`,
-                  [student_id, create_by, diagnosis, schedule_send_date, intake_date, note || null, 'PROCESSING']
+                  [student_id, create_by, diagnosis, schedule_send_date, intake_date, note || null, 'PROCESSING', prescription_img_urls]
             );
 
             const sendDrugRequest = result.rows[0];
@@ -201,20 +204,20 @@ export async function retrieveRequestByID(req, res) {
 
       try {
             const result = await query(`
-            SELECT 
-            a.*,
-            json_agg(
-                  json_build_object(
-                  'name', b.name,
-                  'intake_template_time', b.intake_template_time,
-                  'dosage_usage', b.dosage_usage
-                  )
-            ) AS request_items
-            FROM senddrugrequest a
-            LEFT JOIN requestitem b ON a.id = b.request_id
-            WHERE a.id = $1
-            GROUP BY a.id
-            ORDER BY a.id
+                  SELECT 
+                  a.*,
+                  json_agg(
+                        json_build_object(
+                        'name', b.name,
+                        'intake_template_time', b.intake_template_time,
+                        'dosage_usage', b.dosage_usage
+                        )
+                  ) AS request_items
+                  FROM senddrugrequest a
+                  LEFT JOIN requestitem b ON a.id = b.request_id
+                  WHERE a.id = $1
+                  GROUP BY a.id
+                  ORDER BY a.id
             `, [id]); // requestId là số nguyên (int)
 
             if (result.rows.length === 0) {
@@ -297,7 +300,40 @@ export async function listRequests(req, res) {
       }
 }
 
+export async function handleUploadPrescriptionImgs(req, res) {
+      const upload = multer({ storage: multer.memoryStorage() }).array('images');
 
+      upload(req, res, async function (err) {
+            if (err) {
+                  return res.status(500).json({ error: true, message: 'Lỗi khi xử lý file.' });
+            }
 
+            const files = req.files;
 
+            if (!files || files.length === 0) {
+                  return res.status(400).json({ error: true, message: 'Không có file ảnh nào được upload.' });
+            }
 
+            try {
+                  const uploadPromises = files.map(file => {
+                        const fileName = `${Date.now()}-${file.originalname}`;
+                        return uploadFileToSupabaseStorage(file, "prescription-files", fileName);
+                  });
+
+                  const urls = await Promise.all(uploadPromises);
+
+                  return res.status(200).json({
+                        error: false,
+                        message: "Upload ảnh thành công",
+                        prescription_img_urls: urls,
+                  });
+
+            } catch (err) {
+                  console.error("❌ Upload error:", err);
+                  return res.status(500).json({
+                        error: true,
+                        message: `Lỗi hệ thống: ${err.message || err}`,
+                  });
+            }
+      });
+}

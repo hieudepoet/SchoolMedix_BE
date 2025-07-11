@@ -453,20 +453,20 @@ CREATE TYPE senddrugrequest_status AS ENUM (
 
 CREATE TABLE SendDrugRequest (
     id SERIAL PRIMARY KEY,
-	student_id varchar(10) references student(id), 
-	create_by int references parent(id),
+	  student_id varchar(10) references student(id), 
+	  create_by int references parent(id),
     diagnosis TEXT NOT NULL,
     schedule_send_date DATE,
     receive_date DATE,
     intake_date DATE,
     note TEXT,
-    prescription_file_url VARCHAR(512),
+    prescription_img_urls TEXT[],
     status senddrugrequest_status NOT NULL
 );
 
 INSERT INTO SendDrugRequest (
     student_id, create_by, diagnosis, schedule_send_date, receive_date,
-    intake_date, note, prescription_file_url, status
+    intake_date, note, prescription_img_urls, status
 ) VALUES 
 (
     '211000', -- student_id
@@ -476,7 +476,7 @@ INSERT INTO SendDrugRequest (
     NULL,
     '2025-06-11',
     'Cần gửi thuốc sớm',
-    'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg',
+    ARRAY['https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg', 'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg'],
     'PROCESSING'
 ),
 (
@@ -487,7 +487,7 @@ INSERT INTO SendDrugRequest (
     '2025-06-10',
     '2025-06-11',
     'Nhà trường giúp cháu uống thuốc đúng giờ',
-    'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg',
+    ARRAY['https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg'],
     'DONE'
 ),
 (
@@ -498,7 +498,7 @@ INSERT INTO SendDrugRequest (
     NULL,
     '2025-06-09',
     'Gia đình muốn gửi thêm thuốc',
-    'https://static.tuoitre.vn/tto/i/s626/2011/04/12/2FiN0VCC.jpg',
+    ARRAY['https://static.tuoitre.vn/tto/i/s626/2011/04/12/2FiN0VCC.jpg'],
     'CANCELLED'
 );
 
