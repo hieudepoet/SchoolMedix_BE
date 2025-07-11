@@ -857,7 +857,7 @@ INSERT INTO specialistExamRecord (
 )
 VALUES
 -- register_id 1
-(1, 1, 'Không phát hiện bất thường sinh dục.', 'Sinh dục bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(1, 1, 'Không phát hiện bất thường sinh dục.', 'Sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/ktkt_phamthanhkien_sinhduc.jpg']::TEXT[], TRUE, 'DONE'),
 (1, 3, 'Không có dấu hiệu rối loạn tâm thần.', 'Tâm thần ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
 
 -- register_id 2
@@ -1620,4 +1620,3 @@ VALUES (
   3
 );
 ---Blog 5
-
