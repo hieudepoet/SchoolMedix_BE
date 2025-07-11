@@ -281,14 +281,14 @@ export async function getMedicalPlans(req, res) {
       FROM (
         SELECT 
           id AS checkup_id,
-		  NULL AS vaccination_id,
+		      NULL AS vaccination_id,
           name AS name,
           start_date AS date,
           CAST(status as varchar) as status
         FROM CheckupCampaign
         UNION ALL
         SELECT 
-		  NULL AS checkup_id,
+		      NULL AS checkup_id,
           id AS vaccination_id,
           title AS name,
           start_date AS date,
