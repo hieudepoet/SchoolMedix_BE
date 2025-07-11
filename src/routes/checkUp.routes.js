@@ -42,7 +42,8 @@ import {
         getHealthRecordByID,
         updateSpecialRecord,
         uploadDiagnosisURL,
-        getCheckupRegisterStatus
+        getCheckupRegisterStatus,
+        getWaitingSpecialistExams
 } from "../controllers/checkUp.controller.js";
 
 const upload = multer();
@@ -74,6 +75,7 @@ router.get('/checkup-register/:id', getALLRegisterByCampaignID);//Lấy tất c�
 
 router.get('/checkup-register/parent/:id', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get('/checkup-register/student/:id', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
+router.get("/checkup-register/:student_id/:campaign_id/specialist-exams/waiting",getWaitingSpecialistExams); // lấy ra tên khám chuyên khoa đã được khảo sát và chờ khám 
 
 router.get("/parent/:parent_id/checkup-register", getCheckupRegisterByParentID); //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get("/student/:student_id/checkup-register", getCheckupRegisterByStudentID
