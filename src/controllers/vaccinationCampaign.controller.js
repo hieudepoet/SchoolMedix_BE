@@ -459,7 +459,8 @@ export async function getStudentEligibleForCampaign(req, res) {
             WHERE vr.status = 'COMPLETED'
           ), 0) AS completed_doses,
           d.dose_quantity,
-          req.is_registered
+          req.is_registered,
+          s.name
         FROM student s
         CROSS JOIN disease d
         LEFT JOIN vaccination_record vr 
@@ -507,6 +508,7 @@ export async function getStudentEligibleForCampaign(req, res) {
       );
 
       completed_doses_and_record.push({
+        name: student.name,
         student_id: student.student_id,
         completed_doses: student.completed_doses,
         dose_quantity: student.dose_quantity,
