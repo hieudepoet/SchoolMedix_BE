@@ -753,7 +753,68 @@ export async function getCheckupRegisterByStudentID(req, res) {
             });
     }
 }
+export async function getCheckupRegisterStatus(req, res) {
+  const { campaign_id, student_id } = req.params;
 
+  try {
+    // Validate input parameters
+    if (!campaign_id || !student_id) {
+      return res.status(400).json({
+        error: true,
+        message: "Thiếu campaign_id hoặc student_id.",
+      });
+    }
+
+    // Check if student exists
+    const checkStudent = await query("SELECT * FROM student WHERE id = $1", [student_id]);
+    if (checkStudent.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Student ID không tồn tại.",
+      });
+    }
+
+    // Check if campaign exists
+    const checkCampaign = await query("SELECT * FROM checkupcampaign WHERE id = $1", [campaign_id]);
+    if (checkCampaign.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Campaign ID không tồn tại.",
+      });
+    }
+
+    // Execute the provided query
+    const result = await query(
+      `SELECT cr.campaign_id, cr.status
+       FROM checkupregister cr
+       JOIN checkupcampaign cc ON cr.campaign_id = cc.id
+       WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
+      [student_id, campaign_id]
+    );
+
+    // Handle case where no record is found
+    if (result.rowCount === 0) {
+      return res.status(200).json({
+        error: false,
+        message: "Không tìm thấy đăng ký cho học sinh trong chiến dịch này.",
+        data: null,
+      });
+    }
+
+    // Return the result
+    return res.status(200).json({
+      error: false,
+      message: "Lấy dữ liệu thành công.",
+      data: result.rows[0], // Return the first row (single record expected)
+    });
+  } catch (err) {
+    console.error("❌ Error fetching checkup register status:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy trạng thái đăng ký.",
+    });
+  }
+}
 // Parent nhấn Submit Register truyền vào Register_id
 export async function submitRegister(req, res) {
 

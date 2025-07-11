@@ -41,7 +41,8 @@ import {
         getFullRecordOfAStudentInACampaign,
         getHealthRecordByID,
         updateSpecialRecord,
-        uploadDiagnosisURL
+        uploadDiagnosisURL,
+        getCheckupRegisterStatus
 } from "../controllers/checkUp.controller.js";
 
 const upload = multer();
@@ -65,6 +66,10 @@ router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả Sp
 router.get("/health-record/campaign/:campaign_id", getALLHealthRecordOfACampaign); // Lấy tất cả DS Health Record có status DONE // bỏ cái check done đi anh ui
 router.patch("/health-record/:id/done", completeAHealthRecordForStudent)
 
+router.get(
+  "/checkup-register/campaign/:campaign_id/student/:student_id/status",
+  getCheckupRegisterStatus
+);
 router.get('/checkup-register/:id', getALLRegisterByCampaignID);//Lấy tất cả các CheckUp register cần tuyền vào campaign_id 
 
 router.get('/checkup-register/parent/:id', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
