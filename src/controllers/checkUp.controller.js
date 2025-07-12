@@ -1351,7 +1351,7 @@ JOIN (
                 'specialist_name', spe.name,
 				'record_status', rec.status,
 				'record_url', rec.diagnosis_paper_urls,
-				'is_checked', rec.is_checked
+				'is_checked', rec.dr_name,rec.date_record,rec.is_checked
             )
         ) AS records
     FROM student stu
@@ -1361,13 +1361,13 @@ JOIN (
     JOIN campaigncontainspeexam contain ON contain.campaign_id = camp.id
     JOIN specialistexamlist spe ON spe.id = contain.specialist_exam_id
     WHERE rec.status != 'CANNOT_ATTACH'
-      AND stu.id = '211000'
+      AND stu.id = $1
     GROUP BY stu.id, camp.id, camp.name, camp.description
 ) r ON r.student_id = s.id
-WHERE s.id = $1
+WHERE s.id = $2
 GROUP BY s.id, s.name, c.name;
             `,
-            [id]
+            [id,id]
         );
 
         if (rs.rowCount === 0) {
