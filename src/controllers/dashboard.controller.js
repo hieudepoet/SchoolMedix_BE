@@ -542,3 +542,97 @@ export async function getPendingRecords(req, res) {
     client.release();
   }
 }
+
+export async function getParentDashboardStats(req, res) {
+  const { student_id } = req.params;
+  try {
+    // Execute all queries concurrently for better performance
+    const [
+      surveyVaccinationPending,
+      surveyCheckupPending,
+      dailyHealthRecordToday,
+      drugSendPending,
+      declareSendPending,
+    ] = await Promise.all([
+      query(
+        `SELECT COUNT(*) AS total FROM vaccination_campaign_register WHERE student_id = $1 AND is_registered = false`,
+        [student_id]
+      ),
+      query(
+        `
+        SELECT COUNT(*) AS total FROM CheckupRegister WHERE student_id = $1 AND status = 'PENDING'
+      `,
+        [student_id]
+      ),
+      query(
+        `
+        SELECT COUNT(*) AS total FROM daily_health_record WHERE student_id = $1 AND record_date = CURRENT_DATE
+      `,
+        [student_id]
+      ),
+      query(
+        `
+        SELECT COUNT(*) AS total
+        FROM SendDrugRequest
+        WHERE student_id = $1 AND status = 'PROCESSING'
+      `,
+        [student_id]
+      ),
+      query(
+        `
+        SELECT SUM(total) AS total_unconfirmed
+        FROM (
+            SELECT COUNT(*) AS total
+            FROM disease_record
+            WHERE pending = 'PENDING' AND student_id = $1
+            
+            UNION ALL
+            
+            SELECT COUNT(*) AS total
+            FROM vaccination_record
+            WHERE pending = 'PENDING' AND student_id = $1
+        ) AS combined_counts
+      `,
+        [student_id]
+      ),
+    ]);
+
+    const sumNoti =
+      parseInt(surveyVaccinationPending.rows[0]?.total || 0, 10) +
+      parseInt(surveyCheckupPending.rows[0]?.total || 0, 10) +
+      parseInt(dailyHealthRecordToday.rows[0]?.total || 0, 10) +
+      parseInt(drugSendPending.rows[0]?.total || 0, 10) +
+      parseInt(declareSendPending.rows[0]?.total || 0, 10);
+
+    // Extract the total count from each query result
+    const data = {
+      surveyVaccinationPending: parseInt(
+        surveyVaccinationPending.rows[0]?.total || 0,
+        10
+      ),
+      surveyCheckupPending: parseInt(
+        surveyCheckupPending.rows[0]?.total || 0,
+        10
+      ),
+      dailyHealthRecordToday: parseInt(
+        dailyHealthRecordToday.rows[0]?.total || 0,
+        10
+      ),
+      drugSendPending: parseInt(drugSendPending.rows[0]?.total || 0, 10),
+      declareSendPending: parseInt(declareSendPending.rows[0]?.total || 0, 10),
+      sumNoti: parseInt(sumNoti),
+    };
+
+    return res.status(200).json({
+      error: false,
+      message: "Fetching data successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.error("Error fetching summary stats:", error.message);
+    return res.status(500).json({
+      error: true,
+      message: "Failed to fetch summary statistics: " + error.message,
+    });
+  }
+}
