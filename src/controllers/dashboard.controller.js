@@ -560,7 +560,10 @@ export async function getParentDashboardStats(req, res) {
       ),
       query(
         `
-        SELECT COUNT(*) AS total FROM CheckupRegister WHERE student_id = $1 AND status = 'PENDING'
+        SELECT COUNT(*) AS total 
+        FROM CheckupRegister cr
+        JOIN CheckupCampaign cp ON cr.campaign_id = cp.id
+        WHERE cr.student_id = $1 AND cr.status = 'PENDING' AND cp.status = 'PREPARING'
       `,
         [student_id]
       ),
