@@ -79,13 +79,15 @@ export async function getAllVaccines(req, res) {
   try {
     const result = await query(`
       SELECT 
-        v.id, 
-        v.name, 
-        v.description, 
-        d.id AS disease_id, 
-        d.name AS disease_name
+        v.id,
+        v.name,
+        v.origin,
+        v.description,
+        STRING_AGG(d.name, ', ') AS diseases
       FROM vaccine v
-      JOIN disease d ON v.id = d.id
+      LEFT JOIN vaccine_disease vd ON v.id = vd.vaccine_id
+      LEFT JOIN disease d ON vd.disease_id = d.id
+      GROUP BY v.id
       ORDER BY v.id;
     `);
 
@@ -318,7 +320,9 @@ export async function getStudentsByVaccine(req, res) {
 
     // Loại bỏ học sinh trùng lặp dựa trên student_id
     const uniqueStudents = Array.from(
-      new Map(allStudents.map((student) => [student.student_id, student])).values()
+      new Map(
+        allStudents.map((student) => [student.student_id, student])
+      ).values()
     );
 
     return res.status(200).json({
