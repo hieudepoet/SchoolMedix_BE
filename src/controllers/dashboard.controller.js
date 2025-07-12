@@ -455,6 +455,7 @@ export async function getHealthStatsByGradeID(req, res) {
     // Định dạng dữ liệu trả về
     const data = result.rows[0]
       ? {
+          id: latestCampaignResult.rows[0].id,
           checkupName: checkupName || "N/A",
           latestCheckupDate: latestCheckupDate || "N/A",
           totalChecked: parseInt(result.rows[0].total_checked, 10) || 0,
