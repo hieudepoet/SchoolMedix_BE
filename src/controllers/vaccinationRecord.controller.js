@@ -1,5 +1,4 @@
 import { query, pool } from "../config/database.js";
-import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Cái này dùng cho tạo record mà không đăng ký tiêm qua campaign
 export async function createVaccinationRecord(req, res) {
