@@ -112,7 +112,7 @@ export async function acceptVaccinationRecord(req, res) {
           accept.rows[0].description,
           accept.rows[0].location,
           accept.rows[0].vaccination_date,
-          NULL,
+          null,
         ]
       );
     }
@@ -148,7 +148,7 @@ export async function refuseVaccinationRecord(req, res) {
       `
         UPDATE vaccination_record 
         SET
-          pending = 'CANCELLED', status = 'CANCELLED'
+          pending = 'CANCELLED', status = 'CANCELLED',
           reason_by_nurse = $1
         WHERE 
           id = $2
@@ -175,7 +175,7 @@ export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT vr.id as id, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
+        SELECT vr.*, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id
