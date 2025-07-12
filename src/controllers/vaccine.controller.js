@@ -182,7 +182,7 @@ export async function getVaccine(req, res) {
       SELECT 
         v.id, 
         v.name, 
-        v.description, 
+        v.description
       FROM vaccine v
       WHERE v.id = $1;
     `,
@@ -245,6 +245,92 @@ export async function getDiseasesByVaccine(req, res) {
     return res.status(500).json({
       error: true,
       message: "Lỗi server khi lấy danh sách bệnh của vaccine",
+    });
+  }
+}
+
+export async function getStudentsByVaccine(req, res) {
+  const { vaccine_id } = req.params;
+
+  if (!vaccine_id) {
+    return res.status(400).json({
+      error: true,
+      message: "Thiếu vaccine_id",
+    });
+  }
+
+  try {
+    // Lấy danh sách bệnh liên quan đến vaccine
+    const diseases = await query(
+      `
+        SELECT d.id, d.name, d.dose_quantity
+        FROM disease d
+        INNER JOIN vaccine_disease vd ON vd.disease_id = d.id
+        WHERE vd.vaccine_id = $1
+      `,
+      [vaccine_id]
+    );
+
+    if (diseases.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy bệnh nào liên quan đến vaccine này",
+      });
+    }
+
+    let allStudents = [];
+
+    // Lấy danh sách học sinh cho từng bệnh
+    for (const disease of diseases.rows) {
+      const students = await query(
+        `
+          SELECT 
+            s.id AS student_id,
+            s.name,
+            COALESCE(COUNT(vr.id) FILTER (
+              WHERE vr.status = 'COMPLETED' AND vr.vaccine_id = $1
+            ), 0) AS completed_doses,
+            d.dose_quantity,
+            d.name AS disease_name
+          FROM student s
+          CROSS JOIN disease d
+          LEFT JOIN vaccination_record vr 
+            ON vr.student_id = s.id 
+            AND vr.disease_id = d.id
+            AND vr.vaccine_id = $1
+          WHERE d.id = $2
+          GROUP BY s.id, s.name, d.dose_quantity, d.name
+        `,
+        [vaccine_id, disease.id]
+      );
+
+      allStudents = [
+        ...allStudents,
+        ...students.rows.map((student) => ({
+          student_id: student.student_id,
+          name: student.name,
+          completed_doses: student.completed_doses,
+          dose_quantity: student.dose_quantity,
+          disease_name: student.disease_name,
+        })),
+      ];
+    }
+
+    // Loại bỏ học sinh trùng lặp dựa trên student_id
+    const uniqueStudents = Array.from(
+      new Map(allStudents.map((student) => [student.student_id, student])).values()
+    );
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách học sinh thành công",
+      data: uniqueStudents,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách học sinh theo vaccine:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách học sinh",
     });
   }
 }
