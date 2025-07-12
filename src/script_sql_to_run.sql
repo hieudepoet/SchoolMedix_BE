@@ -845,6 +845,7 @@ CREATE TABLE specialistExamRecord (
     diagnosis_paper_urls TEXT[],
     is_checked BOOLEAN DEFAULT FALSE,
     dr_name VARCHAR(255) DEFAULT null,
+    date_record TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status specialist_exam_record_status NOT NULL DEFAULT 'CANNOT_ATTACH',
     PRIMARY KEY (register_id, spe_exam_id),
     FOREIGN KEY (register_id) REFERENCES CheckupRegister(id),
