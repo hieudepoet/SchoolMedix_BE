@@ -42,7 +42,7 @@ import {
         getHealthRecordByID,
         updateSpecialRecord,
         uploadDiagnosisURL,
-        handleDownloadFinalReportOfAStudentInCampaign
+        handleDownloadFinalReportOfAStudentInCampaign,
         getCheckupRegisterStatus,
         getWaitingSpecialistExams
 } from "../controllers/checkUp.controller.js";
