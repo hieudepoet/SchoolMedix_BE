@@ -1406,6 +1406,7 @@ export async function getFullHealthAndSpecialRecordsOfAStudent(req, res) {
         // Lấy health record
         const healthResult = await query(
             `SELECT 
+    campaign.status as campaign_status,
     cr.campaign_id,
     campaign.name AS campaign_name,
     campaign.description AS campaign_description,
