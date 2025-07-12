@@ -2703,7 +2703,8 @@ export async function updateSpecialRecord(req, res) {
     const {
         result,
         diagnosis,
-        diagnosis_url
+        diagnosis_url,
+        dr_name
     } = req.body;
 
     try {
@@ -2733,10 +2734,10 @@ export async function updateSpecialRecord(req, res) {
         const diagnosisUrls = Array.isArray(diagnosis_url) ? diagnosis_url : [diagnosis_url];
 
         const rs = await query(`UPDATE specialistexamrecord
-        SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3
-        WHERE register_id = $4 AND spe_exam_id = $5
+        SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3 ,dr_name = $4
+        WHERE register_id = $5 AND spe_exam_id = $6
         RETURNING *`,
-            [result, diagnosis, diagnosisUrls, register_id, spe_exam_id]);
+            [result, diagnosis, diagnosisUrls,dr_name, register_id, spe_exam_id]);
 
         if (rs.rowCount === 0) {
             return res.status(404).json({
