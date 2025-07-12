@@ -32,7 +32,10 @@ router.post(
 );
 router.patch("/vaccination-campaign/:campaign_id", updateCampaignDetail);
 router.get("/vaccination-campaign", getAllCampaigns);
-router.get("/parent/vaccination-campaign/", getAllCampaignsForParent);
+router.get(
+  "/parent/:student_id/vaccination-campaign/",
+  getAllCampaignsForParent
+);
 router.get("/vaccination-campaign/:campaign_id", getCampaignDetailByID);
 
 router.patch(
