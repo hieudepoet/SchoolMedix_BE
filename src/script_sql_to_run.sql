@@ -405,36 +405,36 @@ VALUES
 -- 15 học sinh lớp 1
 ('211004', 'Nguyễn An Khang', '2015-01-01', false, 'Hà Nội', '0901000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100005, 100004, NULL, '2025-06-30 23:59:59'),
 ('211005', 'Trần Gia Hưng', '2015-01-02', false, 'Hà Nội', '0901000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100007, 100006, NULL, '2025-06-30 23:59:59'),
-('211006', 'Lê Ngọc Bảo', '2015-01-03', false, 'Hà Nội', '0901000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100009, 100008, NULL, '2025-06-30 23:59:59'),
-('211007', 'Phạm Nhật Minh', '2015-01-04', false, 'Hà Nội', '0901000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100011, 100010, NULL, '2025-06-30 23:59:59'),
-('211008', 'Vũ Tuệ Nhi', '2015-01-05', false, 'Hà Nội', '0901000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100013, 100012, NULL, '2025-06-30 23:59:59'),
-('211009', 'Đào Hải Đăng', '2015-01-06', false, 'Hà Nội', '0901000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100015, 100014, NULL, '2025-06-30 23:59:59'),
-('211010', 'Nguyễn Nhật Linh', '2015-01-07', false, 'Hà Nội', '0901000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100017, 100016, NULL, '2025-06-30 23:59:59'),
-('211011', 'Bùi Hoàng Long', '2015-01-08', false, 'Hà Nội', '0901000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100019, 100018, NULL, '2025-06-30 23:59:59'),
-('211012', 'Phạm Mai Chi', '2015-01-09', false, 'Hà Nội', '0901000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100021, 100020, NULL, '2025-06-30 23:59:59'),
-('211013', 'Trịnh Minh Nhật', '2015-01-10', false, 'Hà Nội', '0901000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100023, 100022, NULL, '2025-06-30 23:59:59'),
-('211014', 'Ngô Gia Bảo', '2015-01-11', false, 'Hà Nội', '0901000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100025, 100024, NULL, '2025-06-30 23:59:59'),
-('211015', 'Đinh Hồng Anh', '2015-01-12', false, 'Hà Nội', '0901000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100027, 100026, NULL, '2025-06-30 23:59:59'),
-('211016', 'Trần Quang Duy', '2015-01-13', false, 'Hà Nội', '0901000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100029, 100028, NULL, '2025-06-30 23:59:59'),
-('211017', 'Vũ Thanh Trúc', '2015-01-14', false, 'Hà Nội', '0901000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100031, 100030, NULL, '2025-06-30 23:59:59'),
-('211018', 'Hoàng Nhật Tân', '2015-01-15', false, 'Hà Nội', '0901000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100033, 100032, NULL, '2025-06-30 23:59:59'),
+('211006', 'Lê Ngọc Bảo', '2015-01-03', true, 'Hà Nội', '0901000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100009, 100008, NULL, '2025-06-30 23:59:59'),
+('211007', 'Phạm Nhật Minh', '2015-01-04', true, 'Hà Nội', '0901000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100011, 100010, NULL, '2025-06-30 23:59:59'),
+('211008', 'Vũ Tuệ Nhi', '2015-01-05', true, 'Hà Nội', '0901000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100013, 100012, NULL, '2025-06-30 23:59:59'),
+('211009', 'Đào Hải Đăng', '2015-01-06', true, 'Hà Nội', '0901000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100015, 100014, NULL, '2025-06-30 23:59:59'),
+('211010', 'Nguyễn Nhật Linh', '2015-01-07', true, 'Hà Nội', '0901000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100017, 100016, NULL, '2025-06-30 23:59:59'),
+('211011', 'Bùi Hoàng Long', '2015-01-08', true, 'Hà Nội', '0901000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100019, 100018, NULL, '2025-06-30 23:59:59'),
+('211012', 'Phạm Mai Chi', '2015-01-09', true, 'Hà Nội', '0901000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100021, 100020, NULL, '2025-06-30 23:59:59'),
+('211013', 'Trịnh Minh Nhật', '2015-01-10', true, 'Hà Nội', '0901000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100023, 100022, NULL, '2025-06-30 23:59:59'),
+('211014', 'Ngô Gia Bảo', '2015-01-11', true, 'Hà Nội', '0901000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100025, 100024, NULL, '2025-06-30 23:59:59'),
+('211015', 'Đinh Hồng Anh', '2015-01-12', true, 'Hà Nội', '0901000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100027, 100026, NULL, '2025-06-30 23:59:59'),
+('211016', 'Trần Quang Duy', '2015-01-13', true, 'Hà Nội', '0901000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100029, 100028, NULL, '2025-06-30 23:59:59'),
+('211017', 'Vũ Thanh Trúc', '2015-01-14', true, 'Hà Nội', '0901000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100031, 100030, NULL, '2025-06-30 23:59:59'),
+('211018', 'Hoàng Nhật Tân', '2015-01-15', true, 'Hà Nội', '0901000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100033, 100032, NULL, '2025-06-30 23:59:59'),
 
 -- 15 học sinh lớp 2
-('211019', 'Trần Gia Huy', '2014-01-01', false, 'Hà Nội', '0902000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100005, 100004, NULL, '2025-06-30 23:59:59'),
-('211020', 'Vũ Hải Yến', '2014-01-02', false, 'Hà Nội', '0902000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100007, 100006, NULL, '2025-06-30 23:59:59'),
+('211019', 'Trần Gia Huy', '2014-01-01', true, 'Hà Nội', '0902000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100005, 100004, NULL, '2025-06-30 23:59:59'),
+('211020', 'Vũ Hải Yến', '2014-01-02', true, 'Hà Nội', '0902000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100007, 100006, NULL, '2025-06-30 23:59:59'),
 ('211021', 'Hoàng Minh Khôi', '2014-01-03', false, 'Hà Nội', '0902000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100009, 100008, NULL, '2025-06-30 23:59:59'),
 ('211022', 'Đặng Ngọc Trinh', '2014-01-04', false, 'Hà Nội', '0902000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100011, 100010, NULL, '2025-06-30 23:59:59'),
 ('211023', 'Phan Đức Anh', '2014-01-05', false, 'Hà Nội', '0902000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100013, 100012, NULL, '2025-06-30 23:59:59'),
 ('211024', 'Nguyễn Minh Thư', '2014-01-06', false, 'Hà Nội', '0902000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100015, 100014, NULL, '2025-06-30 23:59:59'),
 ('211025', 'Bùi Nhật Hào', '2014-01-07', false, 'Hà Nội', '0902000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100017, 100016, NULL, '2025-06-30 23:59:59'),
 ('211026', 'Trần Khánh Vy', '2014-01-08', false, 'Hà Nội', '0902000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100019, 100018, NULL, '2025-06-30 23:59:59'),
-('211027', 'Lê Hoàng Anh', '2014-01-09', false, 'Hà Nội', '0902000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100021, 100020, NULL, '2025-06-30 23:59:59'),
-('211028', 'Phạm Thảo Nhi', '2014-01-10', false, 'Hà Nội', '0902000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100023, 100022, NULL, '2025-06-30 23:59:59'),
-('211029', 'Nguyễn Minh Hiếu', '2014-01-11', false, 'Hà Nội', '0902000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100025, 100024, NULL, '2025-06-30 23:59:59'),
+('211027', 'Lê Hoàng Anh', '2014-01-09', true, 'Hà Nội', '0902000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100021, 100020, NULL, '2025-06-30 23:59:59'),
+('211028', 'Phạm Thảo Nhi', '2014-01-10', true, 'Hà Nội', '0902000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100023, 100022, NULL, '2025-06-30 23:59:59'),
+('211029', 'Nguyễn Minh Hiếu', '2014-01-11', true, 'Hà Nội', '0902000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100025, 100024, NULL, '2025-06-30 23:59:59'),
 ('211030', 'Trịnh Hồng Nhung', '2014-01-12', false, 'Hà Nội', '0902000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100027, 100026, NULL, '2025-06-30 23:59:59'),
-('211031', 'Hoàng Thế Anh', '2014-01-13', false, 'Hà Nội', '0902000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100029, 100028, NULL, '2025-06-30 23:59:59'),
+('211031', 'Hoàng Thế Anh', '2014-01-13', true, 'Hà Nội', '0902000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100029, 100028, NULL, '2025-06-30 23:59:59'),
 ('211032', 'Ngô Ánh Tuyết', '2014-01-14', false, 'Hà Nội', '0902000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100031, 100030, NULL, '2025-06-30 23:59:59'),
-('211033', 'Đào Khánh Duy', '2014-01-15', false, 'Hà Nội', '0902000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100033, 100032, NULL, '2025-06-30 23:59:59');
+('211033', 'Đào Khánh Duy', '2014-01-15', true, 'Hà Nội', '0902000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100033, 100032, NULL, '2025-06-30 23:59:59');
 
 
 
@@ -857,44 +857,64 @@ INSERT INTO specialistExamRecord (
 )
 VALUES
 -- register_id 1
-(1, 1, 'Không phát hiện bất thường sinh dục.', 'Sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/ktkt_phamthanhkien_sinhduc.jpg']::TEXT[], TRUE, 'DONE'),
-(1, 3, 'Không có dấu hiệu rối loạn tâm thần.', 'Tâm thần ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(1, 1, 'Không phát hiện bất thường sinh dục.', 'Sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_000.jpg']::TEXT[], TRUE, 'DONE'),
+(1, 3, 'Không có dấu hiệu rối loạn tâm thần.', 'Tâm thần ổn định.', 
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 2
-(2, 1, 'Cơ quan sinh dục phát triển bình thường.', 'Không phát hiện dị tật.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(2, 3, 'Ứng xử phù hợp, không có dấu hiệu loạn thần.', 'Tâm thần trong giới hạn bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(2, 1, 'Cơ quan sinh dục phát triển bình thường.', 'Không phát hiện dị tật.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_001.jpg']::TEXT[], TRUE, 'DONE'),
+(2, 3, 'Ứng xử phù hợp, không có dấu hiệu loạn thần.', 'Tâm thần trong giới hạn bình thường.',
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_001_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_001_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 3
-(3, 1, 'Không có dấu hiệu bất thường bộ phận sinh dục.', 'Sinh dục ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(3, 3, 'Tâm trạng ổn định, không có hành vi bất thường.', 'Không phát hiện rối loạn tâm thần.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(3, 1, 'Không có dấu hiệu bất thường bộ phận sinh dục.', 'Sinh dục ổn định.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_002.jpg']::TEXT[], TRUE, 'DONE'),
+(3, 3, 'Tâm trạng ổn định, không có hành vi bất thường.', 'Không phát hiện rối loạn tâm thần.',
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_002_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_002_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 4
-(4, 1, 'Kiểm tra sinh dục trong giới hạn bình thường.', 'Không có dấu hiệu bệnh lý.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(4, 3, 'Không có dấu hiệu stress hay lo âu kéo dài.', 'Tâm lý ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(4, 1, 'Kiểm tra sinh dục trong giới hạn bình thường.', 'Không có dấu hiệu bệnh lý.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_003.jpg']::TEXT[], TRUE, 'DONE'),
+(4, 3, 'Không có dấu hiệu stress hay lo âu kéo dài.', 'Tâm lý ổn định.', 
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_003_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_003_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 5
-(5, 1, 'Sinh dục không bị tổn thương.', 'Không phát hiện bất thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(5, 3, 'Phản ứng cảm xúc phù hợp, giao tiếp tốt.', 'Tâm thần bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(5, 1, 'Sinh dục không bị tổn thương.', 'Không phát hiện bất thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_004.jpg']::TEXT[], TRUE, 'DONE'),
+(5, 3, 'Phản ứng cảm xúc phù hợp, giao tiếp tốt.', 'Tâm thần bình thường.',
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_004_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_004_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 6
-(6, 1, 'Bộ phận sinh dục phát triển theo độ tuổi.', 'Không có dấu hiệu bệnh lý.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(6, 3, 'Nhận thức rõ ràng, trả lời câu hỏi phù hợp.', 'Tâm thần khỏe mạnh.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(6, 1, 'Bộ phận sinh dục phát triển theo độ tuổi.', 'Không có dấu hiệu bệnh lý.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_005.jpg']::TEXT[], TRUE, 'DONE'),
+(6, 3, 'Nhận thức rõ ràng, trả lời câu hỏi phù hợp.', 'Tâm thần khỏe mạnh.', 
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_005_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_005_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 7
-(7, 1, 'Không phát hiện viêm nhiễm hoặc dị tật.', 'Khám sinh dục bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(7, 3, 'Không có dấu hiệu rối loạn tâm trạng.', 'Tâm thần bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(7, 1, 'Không phát hiện viêm nhiễm hoặc dị tật.', 'Khám sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_006.jpg']::TEXT[], TRUE, 'DONE'),
+(7, 3, 'Không có dấu hiệu rối loạn tâm trạng.', 'Tâm thần bình thường.', 
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_006_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_006_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 8
-(8, 1, 'Sinh dục trong trạng thái khỏe mạnh.', 'Không có biểu hiện lâm sàng bất thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(8, 3, 'Không phát hiện bất ổn tâm lý.', 'Khám tâm thần trong giới hạn bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(8, 1, 'Sinh dục trong trạng thái khỏe mạnh.', 'Không có biểu hiện lâm sàng bất thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_007.jpg']::TEXT[], TRUE, 'DONE'),
+(8, 3, 'Không phát hiện bất ổn tâm lý.', 'Khám tâm thần trong giới hạn bình thường.', 
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_007_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_007_2.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 9
-(9, 1, 'Khám sinh dục không phát hiện bất thường.', 'Tình trạng sinh dục ổn định.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(9, 3, 'Tâm thần tỉnh táo, phản xạ nhanh.', 'Tâm thần tốt.', ARRAY[]::TEXT[], TRUE, 'DONE'),
+(9, 1, 'Khám sinh dục không phát hiện bất thường.', 'Tình trạng sinh dục ổn định.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_008.jpg']::TEXT[], TRUE, 'DONE'),
+(9, 3, 'Tâm thần tỉnh táo, phản xạ nhanh.', 'Tâm thần tốt.', 
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_008_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_1.jpg']::TEXT[], TRUE, 'DONE'),
 
 -- register_id 10
-(10, 1, 'Không có dấu hiệu nhiễm trùng hay tổn thương.', 'Sinh dục trong giới hạn bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE'),
-(10, 3, 'Thái độ hợp tác tốt, không rối loạn hành vi.', 'Khám tâm thần bình thường.', ARRAY[]::TEXT[], TRUE, 'DONE');
+(10, 1, 'Không có dấu hiệu nhiễm trùng hay tổn thương.', 'Sinh dục trong giới hạn bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_009.jpg']::TEXT[], TRUE, 'DONE'),
+(10, 3, 'Thái độ hợp tác tốt, không rối loạn hành vi.', 'Khám tâm thần bình thường.', 
+ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_009_1.jpg',
+'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_009_2.jpg']::TEXT[], TRUE, 'DONE');
 
 ---Campaign 2
 

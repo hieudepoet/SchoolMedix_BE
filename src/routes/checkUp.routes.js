@@ -41,7 +41,10 @@ import {
         getFullRecordOfAStudentInACampaign,
         getHealthRecordByID,
         updateSpecialRecord,
-        uploadDiagnosisURL
+        uploadDiagnosisURL,
+        handleDownloadFinalReportOfAStudentInCampaign,
+        getCheckupRegisterStatus,
+        getWaitingSpecialistExams
 } from "../controllers/checkUp.controller.js";
 
 const upload = multer();
@@ -65,10 +68,15 @@ router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả Sp
 router.get("/health-record/campaign/:campaign_id", getALLHealthRecordOfACampaign); // Lấy tất cả DS Health Record có status DONE // bỏ cái check done đi anh ui
 router.patch("/health-record/:id/done", completeAHealthRecordForStudent)
 
+router.get(
+  "/checkup-register/campaign/:campaign_id/student/:student_id/status",
+  getCheckupRegisterStatus
+);
 router.get('/checkup-register/:id', getALLRegisterByCampaignID);//Lấy tất cả các CheckUp register cần tuyền vào campaign_id 
 
 router.get('/checkup-register/parent/:id', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get('/checkup-register/student/:id', getCheckupRegisterByStudentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ Student_id 
+router.get("/checkup-register/:student_id/:campaign_id/specialist-exams/waiting",getWaitingSpecialistExams); // lấy ra tên khám chuyên khoa đã được khảo sát và chờ khám 
 
 router.get("/parent/:parent_id/checkup-register", getCheckupRegisterByParentID); //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
 router.get("/student/:student_id/checkup-register", getCheckupRegisterByStudentID
@@ -99,8 +107,8 @@ router.get("/checkup-special-record/detail", getSpecialRecordParentDetails); //p
 //Nurse
 
 //Update Special-Exam Record
-router.put('/special-exam-record/:register_id/:spe_exam_id',updateSpecialRecord); //update result , diagnosis cho Spe-Exam-Record
-router.post('/upload-diagnosis_url/:register_id/:spe_exam_id',upload.array("files"),uploadDiagnosisURL); //Lưu  DiagnosisURL vào supabase
+router.put('/special-exam-record/:register_id/:spe_exam_id', updateSpecialRecord); //update result , diagnosis cho Spe-Exam-Record
+router.post('/upload-diagnosis_url/:register_id/:spe_exam_id', upload.array("files"), uploadDiagnosisURL); //Lưu  DiagnosisURL vào supabase
 
 
 //CHECK-IN
@@ -121,6 +129,6 @@ router.patch("/checkup-register/:register_id/specialist-exam/:spe_exam_id/done",
 router.post("/campaign/:campaign_id/upload-health-record-result", handleUploadHealthRecordResult); //excel upload file then retrieve each row to update record result_url
 router.get("/campaign/:campaign_id/import-health-record-form", handleRetrieveSampleImportHealthRecordForm); // trả về form gồm tất cả các record của một chiến dịch để làm smaple mẫu cho nurse cập nhật thông tin khám
 router.get("/campaign/:campaign_id/download-health-record-result", handleRetrieveHealthRecordResultByCampaignID);
-
+router.get("/campaign/:campaign_id/student/:student_id/download-final-report", handleDownloadFinalReportOfAStudentInCampaign); // file pdf chua all general health reccord + kham chuyen sau // ch xong
 
 export default router;

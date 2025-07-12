@@ -753,7 +753,124 @@ export async function getCheckupRegisterByStudentID(req, res) {
             });
     }
 }
+export async function getWaitingSpecialistExams(req, res) {
+  const { student_id, campaign_id } = req.params;
 
+  try {
+    // Validate input parameters
+    if (!student_id || !campaign_id) {
+      return res.status(400).json({
+        error: true,
+        message: "Thiếu student_id hoặc campaign_id.",
+      });
+    }
+
+    // Check if student exists
+    const checkStudent = await query("SELECT * FROM student WHERE id = $1", [student_id]);
+    if (checkStudent.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Student ID không tồn tại.",
+      });
+    }
+
+    // Check if campaign exists
+    const checkCampaign = await query("SELECT * FROM checkupcampaign WHERE id = $1", [campaign_id]);
+    if (checkCampaign.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Campaign ID không tồn tại.",
+      });
+    }
+
+    // Execute the query to get waiting specialist exams
+    const result = await query(
+      `SELECT el.name
+       FROM checkupregister r
+       JOIN specialistexamrecord s ON s.register_id = r.id
+       JOIN specialistexamlist el ON el.id = s.spe_exam_id
+       WHERE r.student_id = $1 AND r.campaign_id = $2 AND s.status = 'WAITING'`,
+      [student_id, campaign_id]
+    );
+
+    // Return the result
+    return res.status(200).json({
+      error: false,
+      message: result.rowCount > 0 
+        ? "Lấy danh sách khám chuyên khoa đang chờ thành công."
+        : "Không có khám chuyên khoa nào đang chờ.",
+      data: result.rows.map(row => row.name), // Return array of specialist exam names
+    });
+  } catch (err) {
+    console.error("❌ Error fetching waiting specialist exams:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách khám chuyên khoa đang chờ.",
+    });
+  }
+}
+export async function getCheckupRegisterStatus(req, res) {
+  const { campaign_id, student_id } = req.params;
+
+  try {
+    // Validate input parameters
+    if (!campaign_id || !student_id) {
+      return res.status(400).json({
+        error: true,
+        message: "Thiếu campaign_id hoặc student_id.",
+      });
+    }
+
+    // Check if student exists
+    const checkStudent = await query("SELECT * FROM student WHERE id = $1", [student_id]);
+    if (checkStudent.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Student ID không tồn tại.",
+      });
+    }
+
+    // Check if campaign exists
+    const checkCampaign = await query("SELECT * FROM checkupcampaign WHERE id = $1", [campaign_id]);
+    if (checkCampaign.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Campaign ID không tồn tại.",
+      });
+    }
+
+    // Execute the provided query
+    const result = await query(
+      `SELECT cr.campaign_id, cr.status
+       FROM checkupregister cr
+       JOIN checkupcampaign cc ON cr.campaign_id = cc.id
+       WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
+      [student_id, campaign_id]
+    );
+
+    // Handle case where no record is found
+    if (result.rowCount === 0) {
+      return res.status(200).json({
+        error: false,
+        message: "Không tìm thấy đăng ký cho học sinh trong chiến dịch này.",
+        data: null,
+      });
+    }
+
+    // Return the result
+    return res.status(200).json({
+      error: false,
+      message: "Lấy dữ liệu thành công.",
+      data: result.rows[0], // Return the first row (single record expected)
+    });
+  } catch (err) {
+    console.error("❌ Error fetching checkup register status:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy trạng thái đăng ký.",
+    });
+  }
+}
 // Parent nhấn Submit Register truyền vào Register_id
 export async function submitRegister(req, res) {
 
@@ -770,14 +887,6 @@ export async function submitRegister(req, res) {
         if (!Array.isArray(exams)) {
             return res.status(400).json({ error: true, message: "Không có exams." });
         }
-
-
-        const result_check = await query('SELECT * FROM checkupregister WHERE id = $1 AND status = $2', [id, 'PENDING']);
-
-        if (result_check.rowCount === 0) {
-            return res.status(200).json({ error: true, message: "Không có tồn tại Register or đã CANCEL" });
-        }
-
 
         const result_submit = await query(`UPDATE checkupregister
          SET
@@ -2587,68 +2696,68 @@ export async function handleRetrieveSampleImportHealthRecordForm(req, res) {
 export async function updateSpecialRecord(req, res) {
 
     const {
-    register_id,
-    spe_exam_id
-} = req.params;
+        register_id,
+        spe_exam_id
+    } = req.params;
 
-const {
-    result,
-    diagnosis,
-    diagnosis_url
-} = req.body;
+    const {
+        result,
+        diagnosis,
+        diagnosis_url
+    } = req.body;
 
-try {
-    if (!register_id || !spe_exam_id || !result || !diagnosis || !diagnosis_url) {
-        return res.status(404).json({
-            error: true,
-            message: "Không nhận được đầy đủ dữ liệu.",
-        });
-    }
+    try {
+        if (!register_id || !spe_exam_id || !result || !diagnosis || !diagnosis_url) {
+            return res.status(404).json({
+                error: true,
+                message: "Không nhận được đầy đủ dữ liệu.",
+            });
+        }
 
-    const check_register = await query(`SELECT * FROM checkupregister WHERE id = $1`, [register_id]);
-    if (check_register.rowCount === 0) {
-        return res.status(404).json({
-            error: true,
-            message: "Register ID không tồn tại.",
-        });
-    }
+        const check_register = await query(`SELECT * FROM checkupregister WHERE id = $1`, [register_id]);
+        if (check_register.rowCount === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "Register ID không tồn tại.",
+            });
+        }
 
-    const check_spe = await query(`SELECT * FROM specialistexamlist WHERE id = $1`, [spe_exam_id]);
-    if (check_spe.rowCount === 0) {
-        return res.status(404).json({
-            error: true,
-            message: "Special-Exam ID không tồn tại.",
-        });
-    }
+        const check_spe = await query(`SELECT * FROM specialistexamlist WHERE id = $1`, [spe_exam_id]);
+        if (check_spe.rowCount === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "Special-Exam ID không tồn tại.",
+            });
+        }
 
-    const diagnosisUrls = Array.isArray(diagnosis_url) ? diagnosis_url : [diagnosis_url];
+        const diagnosisUrls = Array.isArray(diagnosis_url) ? diagnosis_url : [diagnosis_url];
 
-    const rs = await query(`UPDATE specialistexamrecord
+        const rs = await query(`UPDATE specialistexamrecord
         SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3
         WHERE register_id = $4 AND spe_exam_id = $5
         RETURNING *`,
-        [result, diagnosis, diagnosisUrls, register_id, spe_exam_id]);
+            [result, diagnosis, diagnosisUrls, register_id, spe_exam_id]);
 
-    if (rs.rowCount === 0) {
-        return res.status(404).json({
+        if (rs.rowCount === 0) {
+            return res.status(404).json({
+                error: true,
+                message: "Update Special-Exam Record không thành công.",
+            });
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: "Update Special-Exam Record thành công.",
+            data: rs.rows[0],
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
             error: true,
-            message: "Update Special-Exam Record không thành công.",
+            message: "Lỗi server khi Update Special-Exam Record.",
         });
     }
-
-    return res.status(200).json({
-        error: false,
-        message: "Update Special-Exam Record thành công.",
-        data: rs.rows[0],
-    });
-
-} catch (err) {
-    console.error(err);
-    return res.status(500).json({
-        error: true,
-        message: "Lỗi server khi Update Special-Exam Record.",
-    });
-}
 
 }
 export async function uploadDiagnosisURL(req, res) {
@@ -2714,7 +2823,7 @@ export async function uploadDiagnosisURL(req, res) {
             });
         }
 
-       
+
 
         return res.status(200).json({
             error: false,
@@ -2731,3 +2840,52 @@ export async function uploadDiagnosisURL(req, res) {
     }
 }
 
+// duy khanh -- export pdf file for general medical checkup record + specialist exam record
+export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
+    const { student_id, campaign_id } = req.params;
+
+    if (!student_id || !campaign_id) {
+        return res.status(400).json({
+            error: true,
+            message: "Thiếu student_id hoặc campaign_id.",
+        });
+    }
+
+    try {
+        // Truy vấn DB để lấy link hoặc đường dẫn báo cáo
+        const result = await query(`
+      SELECT report_url
+      FROM HealthCheckupResult
+      WHERE student_id = $1 AND campaign_id = $2
+      LIMIT 1
+    `, [student_id, campaign_id]);
+
+        if (result.rows.length === 0 || !result.rows[0].report_url) {
+            return res.status(404).json({
+                error: true,
+                message: "Không tìm thấy báo cáo cho học sinh trong chiến dịch này.",
+            });
+        }
+
+        const reportUrl = result.rows[0].report_url;
+
+        // Redirect hoặc download tùy ý
+        return res.status(200).json({
+            error: false,
+            message: "Lấy link báo cáo thành công.",
+            download_url: reportUrl,
+        });
+
+        // Hoặc nếu bạn dùng local file system:
+        // return res.download(path.resolve(reportUrl));
+
+    } catch (err) {
+        console.error("❌ Error downloading report:", err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi tải báo cáo.",
+            detail: err.message,
+        });
+    }
+
+}

@@ -1,5 +1,4 @@
 import { query, pool } from "../config/database.js";
-import { getProfileOfStudentByUUID } from "../services/index.js";
 
 // Cái này dùng cho tạo record mà không đăng ký tiêm qua campaign
 export async function createVaccinationRecord(req, res) {
@@ -112,7 +111,7 @@ export async function acceptVaccinationRecord(req, res) {
           accept.rows[0].description,
           accept.rows[0].location,
           accept.rows[0].vaccination_date,
-          NULL,
+          null,
         ]
       );
     }
@@ -148,7 +147,7 @@ export async function refuseVaccinationRecord(req, res) {
       `
         UPDATE vaccination_record 
         SET
-          pending = 'CANCELLED', status = 'CANCELLED'
+          pending = 'CANCELLED', status = 'CANCELLED',
           reason_by_nurse = $1
         WHERE 
           id = $2
