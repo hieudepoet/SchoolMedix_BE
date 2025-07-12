@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Báo cáo Y tế Học đường</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 20mm;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #000;
+        background: #fff;
+      }
+      .container {
+        width: 210mm;
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+      }
+      .header-section {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        margin-top: 50px;
+      }
+      .profile-img {
+        width: 150px;
+        height: 200px;
+        border: 2px solid #2c5282;
+        object-fit: cover;
+      }
+      .header-text {
+        text-align: center;
+        font-size: 20pt;
+        font-weight: bold;
+        color: #1a202c;
+        display: flex;
+        flex-direction: column;
+      }
+      .info-meta {
+        text-align: center;
+        font-size: 10pt;
+        color: #555;
+        margin: 10px 0;
+      }
+      .subheader {
+        font-size: 14pt;
+        font-weight: bold;
+        margin: 20px 0 10px;
+        color: #2c5282;
+      }
+      .field {
+        margin-bottom: 8px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .field label {
+        font-weight: bold;
+        width: 130px;
+        color: #2c5282;
+      }
+      .field span {
+        flex: 1;
+      }
+      .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .images {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .images img {
+        width: 100px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      .section {
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+        margin-top: 20px;
+      }
+      .specialty-section {
+        margin-bottom: 15px;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 10px;
+      }
+      .blue-color {
+        color: #2c5282;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Thời gian và địa điểm -->
+      <div class="info-meta">
+        Ngày kiểm tra: 12/07/2025 - Địa điểm: Trường THPT Nguyễn Văn Trỗi,
+        TP.HCM
+      </div>
+
+      <!-- Phần tiêu đề có ảnh bên trái, chữ bên phải -->
+      <div class="header-section">
+        <img
+          src="https://via.placeholder.com/90"
+          alt="Ảnh cá nhân"
+          class="profile-img"
+        />
+        <div class="header-text blue-color">
+          <span>Chiến dịch Sức Khỏe Học Đường 2025</span>
+          <span>Mã hồ sơ: HS2025001</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="subheader">I. Phần thông tin cá nhân của học sinh</div>
+        <div class="grid-container">
+          <div class="field">
+            <label>Họ và tên:</label><span>Nguyễn Văn A</span>
+          </div>
+          <div class="field">
+            <label>Ngày sinh:</label><span>01/01/2010</span>
+          </div>
+          <div class="field"><label>Giới tính:</label><span>Nam</span></div>
+          <div class="field">
+            <label>Địa chỉ:</label><span>123 Đường ABC, Quận 1, TP.HCM</span>
+          </div>
+          <div class="field"><label>SĐT:</label><span>0901234567</span></div>
+          <div class="field">
+            <label>Email:</label><span>nguyenvana@example.com</span>
+          </div>
+          <div class="field"><label>Lớp:</label><span>10A1</span></div>
+          <div class="field">
+            <label>Trạng thái:</label><span>Hoạt động</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phần khám tổng quát dạng bảng -->
+      <div class="section">
+        <div class="subheader">II. Phần khám tổng quát</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 10pt">
+          <tbody>
+            <tr>
+              <td><strong>Chiều cao:</strong> 165 cm</td>
+            </tr>
+            <tr>
+              <td><strong>Cân nặng:</strong> 55 kg</td>
+              <td><strong>Huyết áp:</strong> 120/80 mmHg</td>
+            </tr>
+            <tr>
+              <td><strong>Mắt trái:</strong> 10/10</td>
+              <td><strong>Mắt phải:</strong> 10/10</td>
+            </tr>
+            <tr>
+              <td><strong>Tai:</strong> Bình thường</td>
+              <td><strong>Mũi:</strong> Bình thường</td>
+            </tr>
+            <tr>
+              <td><strong>Họng:</strong> Bình thường</td>
+              <td><strong>Răng:</strong> Khỏe mạnh</td>
+            </tr>
+            <tr>
+              <td><strong>Nướu:</strong> Khỏe mạnh</td>
+              <td><strong>Da:</strong> Không có vấn đề</td>
+            </tr>
+            <tr>
+              <td><strong>Tim:</strong> Bình thường</td>
+              <td><strong>Phổi:</strong> Bình thường</td>
+            </tr>
+            <tr>
+              <td><strong>Cột sống:</strong> Bình thường</td>
+              <td><strong>Tư thế:</strong> Tốt</td>
+            </tr>
+            <tr>
+              <td><strong>Chẩn đoán:</strong> Khỏe mạnh</td>
+              <td><strong>Ngày ghi nhận:</strong> 12/07/2025 20:32</td>
+            </tr>
+            <tr>
+              <td><strong>Đã kiểm tra:</strong> Chưa</td>
+              <td><strong>Trạng thái:</strong> Đang chờ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phần khám chuyên khoa đã đánh số thứ tự -->
+      <div class="section">
+        <div class="subheader">III. Phần khám chuyên khoa</div>
+
+        <div class="specialty-section">
+          <div class="field">
+            <label style="color: #000; font-weight: bold"
+              >1. Chuyên khoa:</label
+            >
+            <span style="color: #000"> Nhãn khoa</span>
+          </div>
+          <div class="field">
+            <label style="color: #000; font-weight: bold">Bác sĩ:</label>
+            <span style="color: #000">Dr. Trần Văn C</span>
+          </div>
+          <div class="field">
+            <label style="color: #000; font-weight: bold">Kết quả:</label>
+            <span style="color: #000">Bình thường</span>
+          </div>
+          <div class="field">
+            <label style="color: #000; font-weight: bold">Chẩn đoán:</label>
+            <span style="color: #000">Thị lực tốt</span>
+          </div>
+          <div class="images">
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 1" />
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 2" />
+          </div>
+        </div>
+
+        <div class="specialty-section">
+          <div class="field">
+            <label style="color: #000; font-weight: bold"
+              >1. Chuyên khoa:</label
+            >
+            <span style="color: #000"> Nhãn khoa</span>
+          </div>
+          <div class="field">
+            <label style="color: #000; font-weight: bold">Bác sĩ:</label>
+            <span style="color: #000">Dr. Trần Văn C</span>
+          </div>
+          <div class="field">
+            <label style="color: #000; font-weight: bold">Kết quả:</label>
+            <span style="color: #000">Khỏe mạnh</span>
+          </div>
+          <div class="field">
+            <label style="color: #000; font-weight: bold">Chẩn đoán:</label>
+            <span style="color: #000">Không có vấn đề</span>
+          </div>
+          <div class="images">
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 3" />
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 4" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

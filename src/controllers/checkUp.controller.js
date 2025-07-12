@@ -1351,7 +1351,7 @@ JOIN (
                 'specialist_name', spe.name,
 				'record_status', rec.status,
 				'record_url', rec.diagnosis_paper_urls,
-				'is_checked', rec.is_checked
+				'is_checked', rec.dr_name,rec.date_record,rec.is_checked
             )
         ) AS records
     FROM student stu
@@ -1361,13 +1361,13 @@ JOIN (
     JOIN campaigncontainspeexam contain ON contain.campaign_id = camp.id
     JOIN specialistexamlist spe ON spe.id = contain.specialist_exam_id
     WHERE rec.status != 'CANNOT_ATTACH'
-      AND stu.id = '211000'
+      AND stu.id = $1
     GROUP BY stu.id, camp.id, camp.name, camp.description
 ) r ON r.student_id = s.id
-WHERE s.id = $1
+WHERE s.id = $2
 GROUP BY s.id, s.name, c.name;
             `,
-            [id]
+            [id,id]
         );
 
         if (rs.rowCount === 0) {
@@ -2703,7 +2703,8 @@ export async function updateSpecialRecord(req, res) {
     const {
         result,
         diagnosis,
-        diagnosis_url
+        diagnosis_url,
+        dr_name
     } = req.body;
 
     try {
@@ -2733,10 +2734,10 @@ export async function updateSpecialRecord(req, res) {
         const diagnosisUrls = Array.isArray(diagnosis_url) ? diagnosis_url : [diagnosis_url];
 
         const rs = await query(`UPDATE specialistexamrecord
-        SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3
-        WHERE register_id = $4 AND spe_exam_id = $5
+        SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3 ,dr_name = $4
+        WHERE register_id = $5 AND spe_exam_id = $6
         RETURNING *`,
-            [result, diagnosis, diagnosisUrls, register_id, spe_exam_id]);
+            [result, diagnosis, diagnosisUrls,dr_name, register_id, spe_exam_id]);
 
         if (rs.rowCount === 0) {
             return res.status(404).json({

@@ -843,116 +843,88 @@ CREATE TABLE specialistExamRecord (
     result TEXT,
     diagnosis TEXT,
     diagnosis_paper_urls TEXT[],
-	is_checked BOOLEAN DEFAULT FALSE,
+    is_checked BOOLEAN DEFAULT FALSE,
+    dr_name VARCHAR(255) DEFAULT null,
+    date_record TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status specialist_exam_record_status NOT NULL DEFAULT 'CANNOT_ATTACH',
     PRIMARY KEY (register_id, spe_exam_id),
     FOREIGN KEY (register_id) REFERENCES CheckupRegister(id),
     FOREIGN KEY (spe_exam_id) REFERENCES SpecialistExamList(id)
 );
 
----Campaign 1
-
 INSERT INTO specialistExamRecord (
-    register_id, spe_exam_id, result, diagnosis, diagnosis_paper_urls, is_checked, status
+    register_id, spe_exam_id, result, diagnosis, diagnosis_paper_urls, is_checked, dr_name, status, date_record
 )
 VALUES
--- register_id 1
-(1, 1, 'Không phát hiện bất thường sinh dục.', 'Sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_000.jpg']::TEXT[], TRUE, 'DONE'),
+(1, 1, 'Không phát hiện bất thường sinh dục.', 'Sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_000.jpg'], TRUE, 'BS. Nguyễn Văn An', 'DONE', '2025-07-10 08:00:00'),
 (1, 3, 'Không có dấu hiệu rối loạn tâm thần.', 'Tâm thần ổn định.', 
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_2.jpg']::TEXT[], TRUE, 'DONE'),
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_2.jpg'
+], TRUE, 'BS. Trần Thị Bích', 'DONE', '2025-07-10 08:05:00'),
 
--- register_id 2
-(2, 1, 'Cơ quan sinh dục phát triển bình thường.', 'Không phát hiện dị tật.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_001.jpg']::TEXT[], TRUE, 'DONE'),
-(2, 3, 'Ứng xử phù hợp, không có dấu hiệu loạn thần.', 'Tâm thần trong giới hạn bình thường.',
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_001_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_001_2.jpg']::TEXT[], TRUE, 'DONE'),
+(2, 1, 'Cơ quan sinh dục phát triển bình thường.', 'Không phát hiện dị tật.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_001.jpg'], TRUE, 'BS. Lê Minh Tuấn', 'DONE', '2025-07-10 08:10:00'),
+(2, 3, 'Ứng xử phù hợp, không có dấu hiệu loạn thần.', 'Tâm thần trong giới hạn bình thường.', 
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_001_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_001_2.jpg'
+], TRUE, 'BS. Phạm Thị Hồng', 'DONE', '2025-07-10 08:15:00'),
 
--- register_id 3
-(3, 1, 'Không có dấu hiệu bất thường bộ phận sinh dục.', 'Sinh dục ổn định.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_002.jpg']::TEXT[], TRUE, 'DONE'),
-(3, 3, 'Tâm trạng ổn định, không có hành vi bất thường.', 'Không phát hiện rối loạn tâm thần.',
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_002_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_002_2.jpg']::TEXT[], TRUE, 'DONE'),
+(3, 1, 'Không có dấu hiệu bất thường bộ phận sinh dục.', 'Sinh dục ổn định.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_002.jpg'], TRUE, 'BS. Đỗ Văn Cường', 'DONE', '2025-07-10 08:20:00'),
+(3, 3, 'Tâm trạng ổn định, không có hành vi bất thường.', 'Không phát hiện rối loạn tâm thần.', 
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_002_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_002_2.jpg'
+], TRUE, 'BS. Nguyễn Thị Mai', 'DONE', '2025-07-10 08:25:00'),
 
--- register_id 4
-(4, 1, 'Kiểm tra sinh dục trong giới hạn bình thường.', 'Không có dấu hiệu bệnh lý.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_003.jpg']::TEXT[], TRUE, 'DONE'),
+(4, 1, 'Kiểm tra sinh dục trong giới hạn bình thường.', 'Không có dấu hiệu bệnh lý.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_003.jpg'], TRUE, 'BS. Vũ Hoàng Nam', 'DONE', '2025-07-10 08:30:00'),
 (4, 3, 'Không có dấu hiệu stress hay lo âu kéo dài.', 'Tâm lý ổn định.', 
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_003_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_003_2.jpg']::TEXT[], TRUE, 'DONE'),
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_003_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_003_2.jpg'
+], TRUE, 'BS. Lê Thị Thảo', 'DONE', '2025-07-10 08:35:00'),
 
--- register_id 5
-(5, 1, 'Sinh dục không bị tổn thương.', 'Không phát hiện bất thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_004.jpg']::TEXT[], TRUE, 'DONE'),
-(5, 3, 'Phản ứng cảm xúc phù hợp, giao tiếp tốt.', 'Tâm thần bình thường.',
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_004_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_004_2.jpg']::TEXT[], TRUE, 'DONE'),
+(5, 1, 'Sinh dục không bị tổn thương.', 'Không phát hiện bất thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_004.jpg'], TRUE, 'BS. Trịnh Văn Hùng', 'DONE', '2025-07-10 08:40:00'),
+(5, 3, 'Phản ứng cảm xúc phù hợp, giao tiếp tốt.', 'Tâm thần bình thường.', 
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_004_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_004_2.jpg'
+], TRUE, 'BS. Bùi Thị Lan', 'DONE', '2025-07-10 08:45:00'),
 
--- register_id 6
-(6, 1, 'Bộ phận sinh dục phát triển theo độ tuổi.', 'Không có dấu hiệu bệnh lý.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_005.jpg']::TEXT[], TRUE, 'DONE'),
+(6, 1, 'Bộ phận sinh dục phát triển theo độ tuổi.', 'Không có dấu hiệu bệnh lý.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_005.jpg'], TRUE, 'BS. Hồ Ngọc Hà', 'DONE', '2025-07-10 08:50:00'),
 (6, 3, 'Nhận thức rõ ràng, trả lời câu hỏi phù hợp.', 'Tâm thần khỏe mạnh.', 
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_005_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_005_2.jpg']::TEXT[], TRUE, 'DONE'),
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_005_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_005_2.jpg'
+], TRUE, 'BS. Nguyễn Quốc Huy', 'DONE', '2025-07-10 08:55:00'),
 
--- register_id 7
-(7, 1, 'Không phát hiện viêm nhiễm hoặc dị tật.', 'Khám sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_006.jpg']::TEXT[], TRUE, 'DONE'),
+(7, 1, 'Không phát hiện viêm nhiễm hoặc dị tật.', 'Khám sinh dục bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_006.jpg'], TRUE, 'BS. Đinh Thị Yến', 'DONE', '2025-07-10 09:00:00'),
 (7, 3, 'Không có dấu hiệu rối loạn tâm trạng.', 'Tâm thần bình thường.', 
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_006_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_006_2.jpg']::TEXT[], TRUE, 'DONE'),
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_006_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_006_2.jpg'
+], TRUE, 'BS. Võ Minh Tâm', 'DONE', '2025-07-10 09:05:00'),
 
--- register_id 8
-(8, 1, 'Sinh dục trong trạng thái khỏe mạnh.', 'Không có biểu hiện lâm sàng bất thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_007.jpg']::TEXT[], TRUE, 'DONE'),
+(8, 1, 'Sinh dục trong trạng thái khỏe mạnh.', 'Không có biểu hiện lâm sàng bất thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_007.jpg'], TRUE, 'BS. Hà Văn Quang', 'DONE', '2025-07-10 09:10:00'),
 (8, 3, 'Không phát hiện bất ổn tâm lý.', 'Khám tâm thần trong giới hạn bình thường.', 
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_007_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_007_2.jpg']::TEXT[], TRUE, 'DONE'),
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_007_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_007_2.jpg'
+], TRUE, 'BS. Lý Thị Hạnh', 'DONE', '2025-07-10 09:15:00'),
 
--- register_id 9
-(9, 1, 'Khám sinh dục không phát hiện bất thường.', 'Tình trạng sinh dục ổn định.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_008.jpg']::TEXT[], TRUE, 'DONE'),
+(9, 1, 'Khám sinh dục không phát hiện bất thường.', 'Tình trạng sinh dục ổn định.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_008.jpg'], TRUE, 'BS. Nguyễn Hữu Tài', 'DONE', '2025-07-10 09:20:00'),
 (9, 3, 'Tâm thần tỉnh táo, phản xạ nhanh.', 'Tâm thần tốt.', 
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_008_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_1.jpg']::TEXT[], TRUE, 'DONE'),
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_008_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_000_1.jpg'
+], TRUE, 'BS. Phan Thị Diễm', 'DONE', '2025-07-10 09:25:00'),
 
--- register_id 10
-(10, 1, 'Không có dấu hiệu nhiễm trùng hay tổn thương.', 'Sinh dục trong giới hạn bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_009.jpg']::TEXT[], TRUE, 'DONE'),
+(10, 1, 'Không có dấu hiệu nhiễm trùng hay tổn thương.', 'Sinh dục trong giới hạn bình thường.', ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/sinh-duc/sd_009.jpg'], TRUE, 'BS. Tô Văn Khánh', 'DONE', '2025-07-10 09:30:00'),
 (10, 3, 'Thái độ hợp tác tốt, không rối loạn hành vi.', 'Khám tâm thần bình thường.', 
-ARRAY['https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_009_1.jpg',
-'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_009_2.jpg']::TEXT[], TRUE, 'DONE');
-
----Campaign 2
-
-INSERT INTO specialistExamRecord (
-    register_id, spe_exam_id, result, diagnosis, diagnosis_paper_urls, is_checked, status
-) VALUES
-
--- register_id 59
-(59, 2, 'Học sinh biểu hiện lo âu nhẹ, tiếp xúc tốt.', 'Khuyến khích tham gia hoạt động nhóm, theo dõi định kỳ.', ARRAY['https://example.com/diag_59.pdf'], true, 'DONE'),
-
--- register_id 60
-(60, 2, 'Ổn định tâm lý, hợp tác tốt trong buổi tư vấn.', 'Không cần can thiệp thêm.', ARRAY['https://example.com/diag_60.pdf'], true, 'DONE'),
-
--- register_id 61
-(61, 2, 'Thể hiện sự căng thẳng khi nói về bài tập.', 'Cần hỗ trợ quản lý thời gian học tập.', ARRAY['https://example.com/diag_61.pdf'], true, 'DONE'),
-
--- register_id 62
-(62, 2, 'Hơi rụt rè khi giao tiếp, không có dấu hiệu rối loạn.', 'Khuyến khích tăng cường giao tiếp.', ARRAY['https://example.com/diag_62.pdf'], true, 'DONE'),
-
--- register_id 63
-(63, 2, 'Chia sẻ tốt, tâm lý ổn định.', 'Không cần can thiệp.', NULL, true, 'DONE'),
-
--- register_id 64 
-(64, 2, 'Có dấu hiệu mất tập trung trong lớp.', 'Đề nghị theo dõi thêm từ giáo viên chủ nhiệm.', NULL, true, 'DONE'),
-
--- register_id 65
-(65, 2, 'Chủ động trao đổi, không có biểu hiện tiêu cực.', 'Không cần hỗ trợ thêm.', ARRAY['https://example.com/diag_65.pdf'], true, 'DONE'),
-
--- register_id 66
-(66, 2, 'Biểu hiện buồn bã, thiếu động lực học tập.', 'Khuyến nghị tham gia thêm buổi tư vấn chuyên sâu.', ARRAY['https://example.com/diag_66.pdf'], true, 'DONE'),
-
--- register_id 67
-(67, 2, 'Tâm lý ổn định, có định hướng học tập rõ ràng.', 'Không cần hỗ trợ thêm.', NULL, true, 'DONE'),
-
--- register_id 68
-(68, 2, 'Khó khăn trong việc thích nghi môi trường học mới.', 'Nên có sự hỗ trợ từ gia đình và giáo viên.', ARRAY['https://example.com/diag_68.pdf'], true, 'DONE');
-
-
+ARRAY[
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_009_1.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/special-health-record/tam-than/tt_009_2.jpg'
+], TRUE, 'BS. Trương Thị Thu', 'DONE', '2025-07-10 09:35:00');
 
 
 
