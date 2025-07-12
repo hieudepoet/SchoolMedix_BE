@@ -602,7 +602,7 @@ export async function getParentDashboardStats(req, res) {
       parseInt(surveyCheckupPending.rows[0]?.total || 0, 10) +
       parseInt(dailyHealthRecordToday.rows[0]?.total || 0, 10) +
       parseInt(drugSendPending.rows[0]?.total || 0, 10) +
-      parseInt(declareSendPending.rows[0]?.total || 0, 10);
+      parseInt(declareSendPending.rows[0]?.total_unconfirmed || 0, 10);
 
     // Extract the total count from each query result
     const data = {
@@ -619,7 +619,10 @@ export async function getParentDashboardStats(req, res) {
         10
       ),
       drugSendPending: parseInt(drugSendPending.rows[0]?.total || 0, 10),
-      declareSendPending: parseInt(declareSendPending.rows[0]?.total || 0, 10),
+      declareSendPending: parseInt(
+        declareSendPending.rows[0]?.total_unconfirmed || 0,
+        10
+      ),
       sumNoti: parseInt(sumNoti),
     };
 
