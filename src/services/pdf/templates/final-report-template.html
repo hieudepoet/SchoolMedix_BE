@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Báo cáo Y tế Học đường</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 20mm;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #000;
+        background: #fff;
+      }
+      .container {
+        width: 210mm;
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        font-size: 20pt;
+        font-weight: bold;
+        color: #1a202c;
+        margin-bottom: 15px;
+      }
+      .subheader {
+        font-size: 14pt;
+        font-weight: bold;
+        margin: 20px 0 10px;
+        border-left: 5px solid #3182ce;
+        padding-left: 10px;
+      }
+      .field {
+        margin-bottom: 8px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .field label {
+        font-weight: bold;
+        width: 130px;
+        color: #2c5282;
+      }
+      .field span {
+        flex: 1;
+      }
+      .profile-img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        border: 2px solid #2c5282;
+        display: block;
+        margin: 0 auto 15px;
+        object-fit: cover;
+      }
+      .timestamp {
+        font-size: 10pt;
+        text-align: right;
+        color: #555;
+        margin-top: -10px;
+      }
+      .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .images {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .images img {
+        width: 100px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      .section {
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+        margin-top: 20px;
+      }
+      .specialty-section {
+        margin-bottom: 15px;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img
+        src="https://via.placeholder.com/90"
+        alt="Ảnh cá nhân"
+        class="profile-img"
+      />
+      <div class="header">Chiến dịch Sức Khỏe Học Đường 2025</div>
+
+      <div class="timestamp">
+        Cập nhật lúc: 08:47 PM +07, Thứ Bảy, 12/07/2025
+      </div>
+
+      <div class="section">
+        <div class="subheader">I. Phần thông tin cá nhân của học sinh</div>
+        <div class="grid-container">
+          <div class="field">
+            <label>Họ và tên:</label><span>Nguyễn Văn A</span>
+          </div>
+          <div class="field">
+            <label>Ngày sinh:</label><span>01/01/2010</span>
+          </div>
+          <div class="field"><label>Giới tính:</label><span>Nam</span></div>
+          <div class="field">
+            <label>Địa chỉ:</label><span>123 Đường ABC, Quận 1, TP.HCM</span>
+          </div>
+          <div class="field"><label>SĐT:</label><span>0901234567</span></div>
+          <div class="field">
+            <label>Email:</label><span>nguyenvana@example.com</span>
+          </div>
+          <div class="field"><label>Lớp:</label><span>10A1</span></div>
+          <div class="field">
+            <label>Trạng thái:</label><span>Hoạt động</span>
+          </div>
+          <div class="field">
+            <label>Mã hồ sơ:</label><span>HS2025001</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="subheader">II. Phần khám tổng quát</div>
+        <div class="field">
+          <label>Bác sĩ:</label><span>Dr. Nguyễn Thị B</span>
+        </div>
+        <div class="field"><label>Chiều cao:</label><span>165 cm</span></div>
+        <div class="field"><label>Cân nặng:</label><span>55 kg</span></div>
+        <div class="field">
+          <label>Huyết áp:</label><span>120/80 mmHg</span>
+        </div>
+        <div class="field"><label>Mắt trái:</label><span>10/10</span></div>
+        <div class="field"><label>Mắt phải:</label><span>10/10</span></div>
+        <div class="field"><label>Tai:</label><span>Bình thường</span></div>
+        <div class="field"><label>Mũi:</label><span>Bình thường</span></div>
+        <div class="field"><label>Họng:</label><span>Bình thường</span></div>
+        <div class="field"><label>Răng:</label><span>Khỏe mạnh</span></div>
+        <div class="field"><label>Nướu:</label><span>Khỏe mạnh</span></div>
+        <div class="field"><label>Da:</label><span>Không có vấn đề</span></div>
+        <div class="field"><label>Tim:</label><span>Bình thường</span></div>
+        <div class="field"><label>Phổi:</label><span>Bình thường</span></div>
+        <div class="field">
+          <label>Cột sống:</label><span>Bình thường</span>
+        </div>
+        <div class="field"><label>Tư thế:</label><span>Tốt</span></div>
+        <div class="field"><label>Chẩn đoán:</label><span>Khỏe mạnh</span></div>
+        <div class="field">
+          <label>Ngày ghi nhận:</label><span>12/07/2025 20:32</span>
+        </div>
+        <div class="field"><label>Đã kiểm tra:</label><span>Chưa</span></div>
+        <div class="field"><label>Trạng thái:</label><span>Đang chờ</span></div>
+      </div>
+
+      <div class="section">
+        <div class="subheader">III. Phần khám chuyên khoa</div>
+
+        <div class="specialty-section">
+          <div class="field">
+            <label>Bác sĩ:</label><span>Dr. Trần Văn C</span>
+          </div>
+          <div class="field">
+            <label>Chuyên khoa:</label><span>Nhãn khoa</span>
+          </div>
+          <div class="field">
+            <label>Mã hồ sơ:</label><span>HS2025001</span>
+          </div>
+          <div class="field">
+            <label>Kết quả:</label><span>Bình thường</span>
+          </div>
+          <div class="field">
+            <label>Chẩn đoán:</label><span>Thị lực tốt</span>
+          </div>
+          <div class="images">
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 1" />
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 2" />
+          </div>
+        </div>
+
+        <div class="specialty-section">
+          <div class="field">
+            <label>Bác sĩ:</label><span>Dr. Lê Thị D</span>
+          </div>
+          <div class="field">
+            <label>Chuyên khoa:</label><span>Răng hàm mặt</span>
+          </div>
+          <div class="field">
+            <label>Mã hồ sơ:</label><span>HS2025001</span>
+          </div>
+          <div class="field"><label>Kết quả:</label><span>Khỏe mạnh</span></div>
+          <div class="field">
+            <label>Chẩn đoán:</label><span>Không có vấn đề</span>
+          </div>
+          <div class="images">
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 3" />
+            <img src="https://via.placeholder.com/100x140" alt="Tài liệu 4" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
