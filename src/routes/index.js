@@ -13,6 +13,7 @@ import diseaseRecordRoutes from "./diseaseRecord.routes.js";
 import specialistexam from "./specialistExam.routes.js";
 import blog from "./blog.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
+import scheduleRoutes from "./schedule.routes.js";
 
 const router = express.Router();
 
@@ -28,5 +29,6 @@ router.use("/", diseaseRecordRoutes);
 router.use("/", specialistexam);
 router.use("/", blog);
 router.use("/", dashboardRoutes);
+router.use("/", scheduleRoutes);
 
 export default router;
