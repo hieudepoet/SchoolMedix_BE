@@ -112,7 +112,7 @@ export async function acceptVaccinationRecord(req, res) {
           accept.rows[0].description,
           accept.rows[0].location,
           accept.rows[0].vaccination_date,
-          NULL,
+          null,
         ]
       );
     }
@@ -148,7 +148,7 @@ export async function refuseVaccinationRecord(req, res) {
       `
         UPDATE vaccination_record 
         SET
-          pending = 'CANCELLED', status = 'CANCELLED'
+          pending = 'CANCELLED', status = 'CANCELLED',
           reason_by_nurse = $1
         WHERE 
           id = $2
