@@ -12,3 +12,6 @@ export * from "./supabase-storage/index.js"
 
 //excel feature
 export * from "./excel/index.js"
+
+// pdf feature
+export * from "./pdf/index.js"
