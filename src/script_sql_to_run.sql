@@ -1171,8 +1171,8 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
 	Trân trọng,
 	Ban Giám Hiệu',
   'School Medix', 
-  '2025-06-15', 
-  '2025-06-17',  
+  '2025-10-15', 
+  '2025-10-17',  
   'DRAFTED'
 );
 --vaccination_campaign_register
