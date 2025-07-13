@@ -1,10 +1,11 @@
 import e from "express";
-import { query } from "../config/database.js";
+import { query, pool } from "../config/database.js";
 
 // Vaccine
 export async function createVaccine(req, res) {
   const { name, description, disease_list } = req.body;
 
+  // Kiểm tra input
   if (!name || !description) {
     return res
       .status(400)
@@ -18,27 +19,26 @@ export async function createVaccine(req, res) {
     });
   }
 
+  const client = await pool.connect();
+
   try {
-    //Kiểm tra xem vaccine đã tồn tại chưa
-    const vaccine = await query("SELECT * FROM vaccine WHERE name = $1", [
-      name,
-    ]);
-    const existing = vaccine.rows[0];
-    if (existing) {
+    // Bắt đầu transaction
+    await client.query("BEGIN");
+
+    // Kiểm tra vaccine đã tồn tại
+    const vaccineCheck = await client.query(
+      "SELECT * FROM vaccine WHERE name = $1",
+      [name]
+    );
+    if (vaccineCheck.rows[0]) {
+      await client.query("ROLLBACK");
       return res
         .status(409)
         .json({ error: true, message: `Vaccine ${name} already exists` });
     }
 
-    //Insert vaccine into database
-    const insertQuery = `
-        INSERT INTO vaccine (name, description)
-        VALUES ($1, $2)
-        RETURNING *;
-    `;
-
-    // Kiểm tra các disease_id trong disease_list có tồn tại không
-    const diseaseCheck = await query(
+    // Kiểm tra disease_id trong disease_list
+    const diseaseCheck = await client.query(
       `SELECT id FROM disease WHERE id = ANY($1::int[])`,
       [disease_list]
     );
@@ -47,30 +47,57 @@ export async function createVaccine(req, res) {
       (id) => !foundDiseaseIds.includes(id)
     );
     if (missingIds.length > 0) {
+      await client.query("ROLLBACK");
       return res.status(400).json({
         error: true,
         message: `Các disease_id sau không tồn tại: ${missingIds.join(", ")}`,
       });
     }
 
-    // Insert vaccine vào bảng vaccine
-    const vaccines = await query(insertQuery, [name, description]);
-    const vaccine_id = vaccines.rows[0].id;
+    // Chèn vaccine
+    const insertVaccineQuery = `
+      INSERT INTO vaccine (name, description)
+      VALUES ($1, $2)
+      RETURNING id, name, description;
+    `;
+    const vaccineResult = await client.query(insertVaccineQuery, [
+      name,
+      description,
+    ]);
+    const newVaccine = vaccineResult.rows[0];
 
-    // Insert vào bảng vaccine_disease
-    for (const disease_id of disease_list) {
-      await query(
-        `INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES ($1, $2)`,
-        [vaccine_id, disease_id]
-      );
-    }
+    // Chèn liên kết vaccine_disease
+    const insertVaccineDiseaseQuery = `
+      INSERT INTO vaccine_disease (vaccine_id, disease_id)
+      VALUES ${disease_list.map((_, i) => `($1, $${i + 2})`).join(", ")}
+    `;
+    await client.query(insertVaccineDiseaseQuery, [
+      newVaccine.id,
+      ...disease_list,
+    ]);
 
-    return res.status(201).json({ error: false, message: "Vaccine created" });
+    // Commit transaction
+    await client.query("COMMIT");
+
+    // Trả về kết quả
+    return res.status(201).json({
+      error: false,
+      data: {
+        id: newVaccine.id,
+        name: newVaccine.name,
+        description: newVaccine.description,
+        disease_list,
+      },
+    });
   } catch (error) {
+    // Rollback nếu có lỗi
+    await client.query("ROLLBACK");
     console.error("Error creating vaccine:", error);
     return res
       .status(500)
       .json({ error: true, message: "Internal server error" });
+  } finally {
+    client.release();
   }
 }
 
