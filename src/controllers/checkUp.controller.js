@@ -2856,50 +2856,56 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
     }
 
     try {
-        const campaignInfoResult = await query(
-            `SELECT * FROM checkupcampaign WHERE id = $1`, [campaign_id]
-        );
-        const studentInfo = await getProfileOfStudentByID(student_id);
+        const [campaignInfoResult, studentInfo, generalHealthResult, specialistExamResult] =
+            await Promise.all([
+                query(`SELECT * FROM checkupcampaign WHERE id = $1`, [campaign_id]),
+                getProfileOfStudentByID(student_id),
+                query(
+                    `SELECT hr.*
+           FROM HealthRecord hr
+           JOIN CheckupRegister cr ON hr.register_id = cr.id
+           WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
+                    [student_id, campaign_id]
+                ),
+                query(
+                    `SELECT json_agg(
+              json_build_object(
+                'spe_exam_id', spe.id,
+                'specialist_name', spe.name,
+                'record_status', rec.status,
+                'record_urls', rec.diagnosis_paper_urls,
+                'doctor_name', rec.dr_name,
+                'result', rec.result,
+                'date_record', rec.date_record,
+                'is_checked', rec.is_checked,
+                'diagnosis', rec.diagnosis
+              )
+            ) AS records
+            FROM student stu
+            JOIN checkupregister reg ON reg.student_id = stu.id
+            JOIN checkupcampaign camp ON camp.id = reg.campaign_id
+            JOIN specialistexamrecord rec ON rec.register_id = reg.id
+            JOIN specialistexamlist spe ON spe.id = rec.spe_exam_id
+            WHERE rec.status != 'CANNOT_ATTACH'
+              AND stu.id = $1
+              AND camp.id = $2
+            GROUP BY stu.id, camp.id`,
+                    [student_id, campaign_id]
+                ),
+            ]);
 
-        const generalHealthResult = await query(
-            `SELECT hr.* 
-       FROM HealthRecord hr
-       JOIN CheckupRegister cr ON hr.register_id = cr.id
-       WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
-            [student_id, campaign_id]
-        );
+        if (!campaignInfoResult.rows.length || !generalHealthResult.rows.length || !studentInfo) {
+            return res.status(404).json({
+                error: true,
+                message: "Không tìm thấy dữ liệu để tạo báo cáo.",
+            });
+        }
 
-        const specialistExamResult = await query(`
-      SELECT json_agg(
-        json_build_object(
-          'spe_exam_id', spe.id,
-          'specialist_name', spe.name,
-          'record_status', rec.status,
-          'record_urls', rec.diagnosis_paper_urls,
-          'doctor_name', rec.dr_name,
-          'result', rec.result,
-          'date_record', rec.date_record,
-          'is_checked', rec.is_checked,
-          'diagnosis', rec.diagnosis
-        )
-      ) AS records
-      FROM student stu
-      JOIN checkupregister reg ON reg.student_id = stu.id
-      JOIN checkupcampaign camp ON camp.id = reg.campaign_id
-      JOIN specialistexamrecord rec ON rec.register_id = reg.id
-      JOIN specialistexamlist spe ON spe.id = rec.spe_exam_id
-      WHERE rec.status != 'CANNOT_ATTACH'
-        AND stu.id = $1
-        AND camp.id = $2
-      GROUP BY stu.id, camp.id;
-    `, [student_id, campaign_id]);
-        console.log(specialistExamResult.rows[0].records);
         const campaign_info = campaignInfoResult.rows[0];
         const student_profile = studentInfo;
         const general_health = generalHealthResult.rows[0];
         const specialist_exam_records = specialistExamResult.rows[0]?.records || [];
 
-        // Generate PDF buffer
         const pdfBuffer = await generatePDFBufferForFinalHealthReport(
             campaign_info,
             student_profile,
@@ -2907,10 +2913,6 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
             specialist_exam_records
         );
 
-        console.log("🔍 pdfBuffer is Buffer:", Buffer.isBuffer(pdfBuffer)); // should print true
-
-
-        // Set headers and return PDF directly as download
         res.set({
             'Content-Type': 'application/pdf',
             'Content-Disposition': `attachment; filename="final_report_${student_id}_${campaign_id}.pdf"`,
@@ -2918,7 +2920,6 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
         });
 
         return res.send(pdfBuffer);
-
     } catch (err) {
         console.error("❌ Error downloading report:", err);
         return res.status(500).json({
