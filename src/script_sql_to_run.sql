@@ -553,6 +553,7 @@ INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, 
 CREATE TABLE SpecialistExamList (
 	id serial primary key,
 	name VARCHAR(100) NOT NULL,
+  is_deleted BOOLEAN DEFAULT false,
     description TEXT
 );
 
