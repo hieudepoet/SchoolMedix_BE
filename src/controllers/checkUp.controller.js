@@ -6,6 +6,8 @@ import { retrieveFileFromSupabaseStorage, uploadFileToSupabaseStorage } from "..
 import multer from 'multer';
 import exceljs from "exceljs";
 import { admin } from "../config/supabase.js";
+import { generatePDFBufferForFinalHealthReport } from "../services/index.js";
+import { getProfileOfStudentByID } from "../services/index.js";
 
 const BUCKET = process.env.SUPABASE_BUCKET || "diagnosis-url";
 
@@ -754,122 +756,122 @@ export async function getCheckupRegisterByStudentID(req, res) {
     }
 }
 export async function getWaitingSpecialistExams(req, res) {
-  const { student_id, campaign_id } = req.params;
+    const { student_id, campaign_id } = req.params;
 
-  try {
-    // Validate input parameters
-    if (!student_id || !campaign_id) {
-      return res.status(400).json({
-        error: true,
-        message: "Thiếu student_id hoặc campaign_id.",
-      });
-    }
+    try {
+        // Validate input parameters
+        if (!student_id || !campaign_id) {
+            return res.status(400).json({
+                error: true,
+                message: "Thiếu student_id hoặc campaign_id.",
+            });
+        }
 
-    // Check if student exists
-    const checkStudent = await query("SELECT * FROM student WHERE id = $1", [student_id]);
-    if (checkStudent.rowCount === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Student ID không tồn tại.",
-      });
-    }
+        // Check if student exists
+        const checkStudent = await query("SELECT * FROM student WHERE id = $1", [student_id]);
+        if (checkStudent.rowCount === 0) {
+            return res.status(400).json({
+                error: true,
+                message: "Student ID không tồn tại.",
+            });
+        }
 
-    // Check if campaign exists
-    const checkCampaign = await query("SELECT * FROM checkupcampaign WHERE id = $1", [campaign_id]);
-    if (checkCampaign.rowCount === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Campaign ID không tồn tại.",
-      });
-    }
+        // Check if campaign exists
+        const checkCampaign = await query("SELECT * FROM checkupcampaign WHERE id = $1", [campaign_id]);
+        if (checkCampaign.rowCount === 0) {
+            return res.status(400).json({
+                error: true,
+                message: "Campaign ID không tồn tại.",
+            });
+        }
 
-    // Execute the query to get waiting specialist exams
-    const result = await query(
-      `SELECT el.name
+        // Execute the query to get waiting specialist exams
+        const result = await query(
+            `SELECT el.name
        FROM checkupregister r
        JOIN specialistexamrecord s ON s.register_id = r.id
        JOIN specialistexamlist el ON el.id = s.spe_exam_id
        WHERE r.student_id = $1 AND r.campaign_id = $2 AND s.status = 'WAITING'`,
-      [student_id, campaign_id]
-    );
+            [student_id, campaign_id]
+        );
 
-    // Return the result
-    return res.status(200).json({
-      error: false,
-      message: result.rowCount > 0 
-        ? "Lấy danh sách khám chuyên khoa đang chờ thành công."
-        : "Không có khám chuyên khoa nào đang chờ.",
-      data: result.rows.map(row => row.name), // Return array of specialist exam names
-    });
-  } catch (err) {
-    console.error("❌ Error fetching waiting specialist exams:", err);
-    return res.status(500).json({
-      error: true,
-      message: "Lỗi server khi lấy danh sách khám chuyên khoa đang chờ.",
-    });
-  }
+        // Return the result
+        return res.status(200).json({
+            error: false,
+            message: result.rowCount > 0
+                ? "Lấy danh sách khám chuyên khoa đang chờ thành công."
+                : "Không có khám chuyên khoa nào đang chờ.",
+            data: result.rows.map(row => row.name), // Return array of specialist exam names
+        });
+    } catch (err) {
+        console.error("❌ Error fetching waiting specialist exams:", err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi lấy danh sách khám chuyên khoa đang chờ.",
+        });
+    }
 }
 export async function getCheckupRegisterStatus(req, res) {
-  const { campaign_id, student_id } = req.params;
+    const { campaign_id, student_id } = req.params;
 
-  try {
-    // Validate input parameters
-    if (!campaign_id || !student_id) {
-      return res.status(400).json({
-        error: true,
-        message: "Thiếu campaign_id hoặc student_id.",
-      });
-    }
+    try {
+        // Validate input parameters
+        if (!campaign_id || !student_id) {
+            return res.status(400).json({
+                error: true,
+                message: "Thiếu campaign_id hoặc student_id.",
+            });
+        }
 
-    // Check if student exists
-    const checkStudent = await query("SELECT * FROM student WHERE id = $1", [student_id]);
-    if (checkStudent.rowCount === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Student ID không tồn tại.",
-      });
-    }
+        // Check if student exists
+        const checkStudent = await query("SELECT * FROM student WHERE id = $1", [student_id]);
+        if (checkStudent.rowCount === 0) {
+            return res.status(400).json({
+                error: true,
+                message: "Student ID không tồn tại.",
+            });
+        }
 
-    // Check if campaign exists
-    const checkCampaign = await query("SELECT * FROM checkupcampaign WHERE id = $1", [campaign_id]);
-    if (checkCampaign.rowCount === 0) {
-      return res.status(400).json({
-        error: true,
-        message: "Campaign ID không tồn tại.",
-      });
-    }
+        // Check if campaign exists
+        const checkCampaign = await query("SELECT * FROM checkupcampaign WHERE id = $1", [campaign_id]);
+        if (checkCampaign.rowCount === 0) {
+            return res.status(400).json({
+                error: true,
+                message: "Campaign ID không tồn tại.",
+            });
+        }
 
-    // Execute the provided query
-    const result = await query(
-      `SELECT cr.campaign_id, cr.status
+        // Execute the provided query
+        const result = await query(
+            `SELECT cr.campaign_id, cr.status
        FROM checkupregister cr
        JOIN checkupcampaign cc ON cr.campaign_id = cc.id
        WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
-      [student_id, campaign_id]
-    );
+            [student_id, campaign_id]
+        );
 
-    // Handle case where no record is found
-    if (result.rowCount === 0) {
-      return res.status(200).json({
-        error: false,
-        message: "Không tìm thấy đăng ký cho học sinh trong chiến dịch này.",
-        data: null,
-      });
+        // Handle case where no record is found
+        if (result.rowCount === 0) {
+            return res.status(200).json({
+                error: false,
+                message: "Không tìm thấy đăng ký cho học sinh trong chiến dịch này.",
+                data: null,
+            });
+        }
+
+        // Return the result
+        return res.status(200).json({
+            error: false,
+            message: "Lấy dữ liệu thành công.",
+            data: result.rows[0], // Return the first row (single record expected)
+        });
+    } catch (err) {
+        console.error("❌ Error fetching checkup register status:", err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi server khi lấy trạng thái đăng ký.",
+        });
     }
-
-    // Return the result
-    return res.status(200).json({
-      error: false,
-      message: "Lấy dữ liệu thành công.",
-      data: result.rows[0], // Return the first row (single record expected)
-    });
-  } catch (err) {
-    console.error("❌ Error fetching checkup register status:", err);
-    return res.status(500).json({
-      error: true,
-      message: "Lỗi server khi lấy trạng thái đăng ký.",
-    });
-  }
 }
 // Parent nhấn Submit Register truyền vào Register_id
 export async function submitRegister(req, res) {
@@ -1367,7 +1369,7 @@ JOIN (
 WHERE s.id = $2
 GROUP BY s.id, s.name, c.name;
             `,
-            [id,id]
+            [id, id]
         );
 
         if (rs.rowCount === 0) {
@@ -2738,7 +2740,7 @@ export async function updateSpecialRecord(req, res) {
         SET result = $1, diagnosis = $2, diagnosis_paper_urls = $3 ,dr_name = $4
         WHERE register_id = $5 AND spe_exam_id = $6
         RETURNING *`,
-            [result, diagnosis, diagnosisUrls,dr_name, register_id, spe_exam_id]);
+            [result, diagnosis, diagnosisUrls, dr_name, register_id, spe_exam_id]);
 
         if (rs.rowCount === 0) {
             return res.status(404).json({
@@ -2854,32 +2856,68 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
     }
 
     try {
-        // Truy vấn DB để lấy link hoặc đường dẫn báo cáo
-        const result = await query(`
-      SELECT report_url
-      FROM HealthCheckupResult
-      WHERE student_id = $1 AND campaign_id = $2
-      LIMIT 1
+        const campaignInfoResult = await query(
+            `SELECT * FROM checkupcampaign WHERE id = $1`, [campaign_id]
+        );
+        const studentInfo = await getProfileOfStudentByID(student_id);
+
+        const generalHealthResult = await query(
+            `SELECT hr.* 
+       FROM HealthRecord hr
+       JOIN CheckupRegister cr ON hr.register_id = cr.id
+       WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
+            [student_id, campaign_id]
+        );
+
+        const specialistExamResult = await query(`
+      SELECT json_agg(
+        json_build_object(
+          'spe_exam_id', spe.id,
+          'specialist_name', spe.name,
+          'record_status', rec.status,
+          'record_urls', rec.diagnosis_paper_urls,
+          'doctor_name', rec.dr_name,
+          'result', rec.result,
+          'date_record', rec.date_record,
+          'is_checked', rec.is_checked,
+          'diagnosis', rec.diagnosis
+        )
+      ) AS records
+      FROM student stu
+      JOIN checkupregister reg ON reg.student_id = stu.id
+      JOIN checkupcampaign camp ON camp.id = reg.campaign_id
+      JOIN specialistexamrecord rec ON rec.register_id = reg.id
+      JOIN specialistexamlist spe ON spe.id = rec.spe_exam_id
+      WHERE rec.status != 'CANNOT_ATTACH'
+        AND stu.id = $1
+        AND camp.id = $2
+      GROUP BY stu.id, camp.id;
     `, [student_id, campaign_id]);
+        console.log(specialistExamResult.rows[0].records);
+        const campaign_info = campaignInfoResult.rows[0];
+        const student_profile = studentInfo;
+        const general_health = generalHealthResult.rows[0];
+        const specialist_exam_records = specialistExamResult.rows[0]?.records || [];
 
-        if (result.rows.length === 0 || !result.rows[0].report_url) {
-            return res.status(404).json({
-                error: true,
-                message: "Không tìm thấy báo cáo cho học sinh trong chiến dịch này.",
-            });
-        }
+        // Generate PDF buffer
+        const pdfBuffer = await generatePDFBufferForFinalHealthReport(
+            campaign_info,
+            student_profile,
+            general_health,
+            specialist_exam_records
+        );
 
-        const reportUrl = result.rows[0].report_url;
+        console.log("🔍 pdfBuffer is Buffer:", Buffer.isBuffer(pdfBuffer)); // should print true
 
-        // Redirect hoặc download tùy ý
-        return res.status(200).json({
-            error: false,
-            message: "Lấy link báo cáo thành công.",
-            download_url: reportUrl,
+
+        // Set headers and return PDF directly as download
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="final_report_${student_id}_${campaign_id}.pdf"`,
+            'Content-Length': pdfBuffer.length,
         });
 
-        // Hoặc nếu bạn dùng local file system:
-        // return res.download(path.resolve(reportUrl));
+        return res.send(pdfBuffer);
 
     } catch (err) {
         console.error("❌ Error downloading report:", err);
@@ -2889,5 +2927,4 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
             detail: err.message,
         });
     }
-
 }
