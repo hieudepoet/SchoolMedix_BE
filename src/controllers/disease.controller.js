@@ -42,7 +42,11 @@ export async function createDisease(req, res) {
 export async function getAllDiseases(req, res) {
   try {
     const result = await query("SELECT * FROM disease ORDER BY id;");
-    return res.status(200).json(result.rows);
+    return res.status(200).json({
+      error: false,
+      message: "Fetching data successfully",
+      data: result.rows,
+    });
   } catch (error) {
     console.error("Error fetching diseases:", error);
     return res
@@ -144,7 +148,10 @@ export async function getVaccinesByDisease(req, res) {
         .json({ error: true, message: "No vaccines found for this disease" });
     }
 
-    return res.status(200).json(result.rows);
+    return res.status(200).json({
+      error: false,
+      data: result.rows,
+    });
   } catch (error) {
     console.error("Error fetching vaccines by disease:", error);
     return res
