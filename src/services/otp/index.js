@@ -62,14 +62,22 @@ export async function verifyOTP(target, inputOTP, purpose = 'DEFAULT') {
         ORDER BY created_at DESC
         LIMIT 1
     `, [target, purpose]);
+
     const record = result.rows[0];
 
-    if (!record || record.expires_at <= new Date()) {
-        updateOTPHasBeenUsed(target, purpose);
-        return false;
+    if (!record) return false;
+
+    const now = new Date();
+    if (record.expires_at <= now) return false;
+
+    const isMatch = record.otp === inputOTP;
+
+    if (isMatch) {
+        await updateOTPHasBeenUsed(record.id);
+        return true;
     }
 
-    return record.otp === inputOTP;
+    return false;
 }
 
 export async function updateOTPHasBeenUsed(target, purpose) {

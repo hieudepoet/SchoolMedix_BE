@@ -23,7 +23,13 @@ import {
       handleCreateNewOTPForgotPassword,
       handleCheckOTPForForgotPassword,
       handleDeleteAccountByAdmin,
-      handleUpdateAccountByAdmin
+      handleUpdateAccountByAdmin,
+      handleCreateOTPForUpdateEmailByUser,
+      handleCheckOTPForUpdateEmailByUser,
+      handleUpdateEmailByUser,
+      handleUpdateProfileByUser,
+      handleSendResetPasswordLink,
+      handleParentRegisterEmailForStudent
 
 } from '../controllers/users.controller.js';
 
@@ -55,14 +61,11 @@ router.delete("/student/:student_id/mom", removeMomFromStudent); // delete mom
 router.delete("/student/:student_id/dad", removeDadFromStudent); // delete dad 
 
 // update thông tin cá nhân (chỉ có luồng cập nhật các trường thông tin bình thường, không cho cập nhật email)
-router.patch("/admin/:admin_id/profile"); // chua
-router.patch("/nurse/:nurse_id/profile"); // chua
-router.patch("/student/:student_id/profile"); // chua
-router.patch("/parent/:parent_id/profile"); // chua
+router.patch("/user-update-profile", handleUpdateProfileByUser); //handleUpdateProfileByUser
 
 // parent cập nhật email cho con thì sẽ cần phải xác thực email trước (bằng otp)
 // chú ý nếu con đã có tài khoản thì sẽ khôgn cho cập nhật nữa
-router.post("/register-email-for-student/:student_id"); // cần truyền vào otp, email sau đó hệ thống sẽ tạo tài khoản
+router.post("/register-email-for-student", handleParentRegisterEmailForStudent);
 // check otp và email
 
 // update thông tin cá nhân cho các role với admin, được quyền cập nhật all info
@@ -122,5 +125,13 @@ router.get("/forgot-password/check-otp", handleCheckOTPForForgotPassword) // tr�
 router.get("/exist-email", handleExistEmail); // check xem có tài khoản với email này trong hệ thống không
 router.post("/forgot-password/send-recovery-link", handleSendRecoveryLinkForForgotPassword); // check otp
 
+// otp for flow update email or add email
+router.post("/user-update-email/create-otp", handleCreateOTPForUpdateEmailByUser);
+router.get("/user-update-email/check-otp", handleCheckOTPForUpdateEmailByUser);
+router.patch("/user-update-email", handleUpdateEmailByUser);
+
+
+// reset password
+router.post("/send-reset-pass-link", handleSendResetPasswordLink);
 
 export default router;

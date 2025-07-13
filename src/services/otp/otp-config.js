@@ -24,4 +24,9 @@ export const OTP_CONFIG = {
         MAX_ATTEMPTS: 3,
         LENGTH: 6,
     },
+    update_email: {
+        EXPIRATION_TIME: 1 * 60 * 1000,
+        MAX_ATTEMPTS: 3,
+        LENGTH: 6,
+    },
 };

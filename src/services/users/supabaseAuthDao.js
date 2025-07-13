@@ -319,6 +319,22 @@ export async function generateRecoveryLink(email) {
     return data.properties.action_link;
 }
 
+export async function generateResetPasswordLink(email) {
+    const { data, error } = await supabaseAdmin.generateLink({
+        email,
+        type: 'recovery',
+        options: {
+            redirectTo: `${process.env.FIREBASE_FE_DEPLOYING_URL}/reset-password`,
+        },
+    });
+
+    if (error) {
+        throw new Error(`Không tạo được reset password link: ${error.message}`);
+    }
+
+    return data.properties.action_link;
+}
+
 export async function getUserByEmail(email) {
     const { data, error } = await supabaseAdmin.listUsers({
         perPage: 100,

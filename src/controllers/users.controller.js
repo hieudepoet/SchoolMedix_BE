@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../config/supabase.js";
+import { supabaseAdmin, supabaseClient } from "../config/supabase.js";
 import multer from "multer";
 
 import {
@@ -35,7 +35,10 @@ import {
       sendRecoveryLinkEmailForForgotPassword,
       updateLastInvitationAtByUUID,
       deleteAccount,
-      createSupabaseAuthUserWithRole
+      createSupabaseAuthUserWithRole,
+      updateEmailForSupabaseAuthUser,
+      generateResetPasswordLink,
+      sendResetPassMail
 
 
 } from "../services/index.js";
@@ -43,6 +46,7 @@ import {
 import ExcelJS from 'exceljs';
 import { query } from "../config/database.js";
 import { hasUsingOTP, insertNewOTP, updateOTPHasBeenUsed, verifyOTP } from "../services/otp/index.js";
+import { updateProfileFor } from "../services/users/userUtils.js";
 
 
 export async function createAdmin(req, res) {
@@ -576,6 +580,24 @@ export async function handleUploadProfileImg(req, res) {
       });
 }
 
+export async function handleSendResetPasswordLink(req, res) {
+      const { email } = req.body;
+      if (!email) {
+            return res.status(400).json({ error: true, message: "Thiếu email." });
+      }
+
+      try {
+            const link = await generateResetPasswordLink(email);
+
+            await sendResetPassMail(email, link);
+
+            return res.json({ error: false, message: "Gửi link thành công. Vui lòng check mail!" });
+      } catch (err) {
+            return res
+                  .status(500)
+                  .json({ error: true, message: err.message || "Lỗi hệ thống" });
+      }
+}
 
 
 export async function deleteAdmin(req, res) {
@@ -1401,6 +1423,120 @@ export async function handleExistEmail(req, res) {
       }
 }
 
+export async function handleCreateOTPForUpdateEmailByUser(req, res) {
+      const { email } = req.body;
+
+      if (!email) {
+            res.status(400).json({
+                  error: true,
+                  message: "Không nhận được email!"
+            })
+      }
+
+      try {
+
+            //check xem đã có otp chưa, rồi thì không tạo nữa
+            const is_otp_using = await hasUsingOTP(email, "update_email");
+            if (is_otp_using) {
+                  return res.status(200).json({
+                        error: true,
+                        message: "OTP còn hiệu lực."
+                  })
+            }
+
+            // tạo mới
+            const newOTP = await insertNewOTP(email, "update_email");
+            // gửi email
+            await sendOTPEmail(email, newOTP);
+            return res.status(200).json({
+                  error: false,
+                  message: "Gửi thành công."
+            })
+      } catch (err) {
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi hệ thống: " + err.message,
+            })
+      }
+}
+
+export async function handleCheckOTPForUpdateEmailByUser(req, res) {
+      const { email, otp } = req.query;
+
+      try {
+            const isValid = await verifyOTP(email, otp, 'update_email');
+
+            return res.status(200).json({
+                  error: false,
+                  is_valid_otp: isValid,
+                  message: isValid ? "OTP hợp lệ." : "OTP không hợp lệ hoặc đã hết hạn."
+            });
+
+      } catch (err) {
+            console.error('Lỗi khi kiểm tra OTP:', err);
+            return res.status(500).json({
+                  error: true,
+                  message: 'Lỗi máy chủ khi xác minh OTP.',
+            });
+      }
+}
+
+export async function handleUpdateEmailByUser(req, res) {
+      const { email, otp, role, id } = req.body;
+
+      try {
+            const isValid = await verifyOTP(email, otp, 'update_email');
+            if (!isValid) {
+                  return res.status(400).json({ error: true, message: 'OTP không hợp lệ hoặc đã hết hạn.' });
+            }
+
+            await updateOTPHasBeenUsed(email, "update_email");
+            const result = await query(`
+                  update ${role} set email = $1 
+                  where id = $2 returning *
+            `, [email, id])
+
+            console.log(result);
+
+            await updateEmailForSupabaseAuthUser(result.rows[0].supabase_uid, email); // cap nhat email tren supabase
+
+            return res.status(200).json({ error: false, message: 'Cập nhật email thành công.' });
+      } catch (err) {
+            console.error('Lỗi khi reset mật khẩu:', err.message);
+            return res.status(500).json({ error: true, message: 'Có lỗi xảy ra khi cập nhật email.' });
+      }
+}
+
+export async function handleParentRegisterEmailForStudent(req, res) {
+      const { email, otp, role, student_id, name } = req.body;
+
+      try {
+            const isValid = await verifyOTP(email, otp, 'update_email');
+            if (!isValid) {
+                  return res.status(400).json({ error: true, message: 'OTP không hợp lệ hoặc đã hết hạn.' });
+            }
+
+            const { supabase_uid, invite_link } = await createSupabaseAuthUserWithRole(email, name, role);
+            console.log(supabase_uid);
+
+            const result = await query(
+                  `
+                        UPDATE ${role}
+                        SET email_confirmed = false, last_invitation_at = now(), supabase_uid = $1, email = $2
+                        WHERE id = $3 returning *
+                        `,
+                  [supabase_uid, email, student_id]
+            );
+            console.log(result.rows[0]);
+
+            return res.status(200).json({ error: false, message: 'Cập nhật email thành công.' });
+      } catch (err) {
+            console.error('Lỗi khi reset mật khẩu:', err.message);
+            return res.status(500).json({ error: true, message: 'Có lỗi xảy ra khi cập nhật email.' });
+      }
+}
+
+
 
 // ------------------------------------------------------------------------ FLOW UPDATE AND ACCOUNT UPDATE
 export async function editUserInfoByAdmin(req, res) {
@@ -1452,6 +1588,54 @@ export async function editUserInfoByAdmin(req, res) {
       try {
             // ONLY EDIT THE NORMAL INFO OF USER
             const result = await editUserProfileByAdmin(id, role, updates);
+
+            if (!result) {
+                  return res.status(404).json({ error: true, message: "Không tìm thấy người dùng." });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Cập nhật thành công.",
+                  data: result
+            });
+
+      } catch (err) {
+            console.error("Lỗi khi cập nhật thông tin người dùng:", err);
+            return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
+      }
+}
+
+export async function handleUpdateProfileByUser(req, res) {
+      const { id, role, updates } = req.body;
+
+
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID người dùng."
+            });
+      }
+
+      if (!role) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu vai trò người dùng (admin, nurse, parent, student)."
+            });
+      }
+
+      if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Trường 'updates' phải là một object chứa thông tin cần cập nhật."
+            });
+      }
+
+      const { profile_img_url, phone_number, address } = updates;
+
+      try {
+            const result = await updateProfileFor(id, role, {
+                  profile_img_url, phone_number, address
+            });
 
             if (!result) {
                   return res.status(404).json({ error: true, message: "Không tìm thấy người dùng." });
