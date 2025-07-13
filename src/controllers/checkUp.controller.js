@@ -1353,7 +1353,10 @@ JOIN (
                 'specialist_name', spe.name,
 				'record_status', rec.status,
 				'record_url', rec.diagnosis_paper_urls,
-				'is_checked', rec.dr_name,rec.date_record,rec.is_checked
+				'doctor_name', rec.dr_name,
+                'result', rec.result,
+                'date_record', rec.date_record,
+                'is_checked', rec.is_checked
             )
         ) AS records
     FROM student stu
