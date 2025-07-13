@@ -920,7 +920,7 @@ export async function getProfileByID(role, id) {
 }
 
 export async function deleteUserByID(role, id) {
-  const sql = `update ${role} set is_deleted = true, supabase_uid = null, email = null WHERE id = $1;`;
+  const sql = `update ${role} set is_deleted = true, supabase_uid = null, email = null WHERE id = $1 returning *;`;
   const result = await query(sql, [id]);
   return result.rows[0];
 }

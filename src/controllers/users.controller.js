@@ -582,8 +582,10 @@ export async function deleteAdmin(req, res) {
       try {
             const { admin_id } = req.params;
 
+            const supabase_uid = await getSupabaseUIDOfAUser('admin', admin_id);
+
             // 1. Soft delete trong bảng admin
-            const supabase_uid = await deleteUserByID('admin', admin_id);
+            await deleteUserByID('admin', admin_id);
 
             // 2. Xóa khỏi Supabase Auth
             if (supabase_uid) {
@@ -601,7 +603,9 @@ export async function deleteNurse(req, res) {
       try {
             const { nurse_id } = req.params;
 
-            const supabase_uid = await deleteUserByID('nurse', nurse_id);
+            const supabase_uid = await getSupabaseUIDOfAUser('nurse', nurse_id);
+
+            await deleteUserByID('nurse', nurse_id);
             if (supabase_uid) await deleteAuthUser(supabase_uid);
 
             return res.status(200).json({ error: false, message: 'Xóa nurse thành công.' });
@@ -615,7 +619,9 @@ export async function deleteParent(req, res) {
       try {
             const { parent_id } = req.params;
 
-            const supabase_uid = await deleteUserByID('parent', parent_id);
+            const supabase_uid = await getSupabaseUIDOfAUser('parent', parent_id);
+
+            await deleteUserByID('parent', parent_id);
             if (supabase_uid) await deleteAuthUser(supabase_uid);
 
             return res.status(200).json({ error: false, message: 'Xóa parent thành công.' });
@@ -629,7 +635,9 @@ export async function deleteStudent(req, res) {
       try {
             const { student_id } = req.params;
 
-            const supabase_uid = await deleteUserByID('student', student_id);
+            const supabase_uid = await getSupabaseUIDOfAUser('student', student_id);
+
+            await deleteUserByID('student', student_id);
             if (supabase_uid) await deleteAuthUser(supabase_uid);
 
             return res.status(200).json({ error: false, message: 'Xóa student thành công.' });
