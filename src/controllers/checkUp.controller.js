@@ -1,7 +1,7 @@
 import { query } from "../config/database.js";
 import { sendCheckupRegister } from "../services/email/index.js";
 import { excelToJson } from "../services/excel/importExcel.js";
-import { generatePDFBufferFromHealthRecord } from "../services/pdf/exportPDF.js";
+import { generatePDFBufferFromHealthRecord } from "../services/pdf/index.js";
 import { retrieveFileFromSupabaseStorage, uploadFileToSupabaseStorage } from "../services/supabase-storage/index.js"
 import multer from 'multer';
 import exceljs from "exceljs";
