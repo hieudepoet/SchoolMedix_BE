@@ -24,8 +24,12 @@ export async function generatePDFBufferFromHealthRecord(record) {
 }
 
 export async function generatePDFBufferForFinalHealthReport(campaign_info, student_profile, general_health, specialist_exam_records) {
-    const html = await generateFinalHealthReportHTML(campaign_info, student_profile, general_health, specialist_exam_records);
+    const html = generateFinalHealthReportHTML(campaign_info, student_profile, general_health, specialist_exam_records);
+    const pdfBuffer = await generatePDFBufferByHTMLText(html);
+    return Buffer.from(pdfBuffer);
+}
 
+export async function generatePDFBufferByHTMLText(html) {
     const browser = await puppeteer.launch({
         headless: 'new',
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
