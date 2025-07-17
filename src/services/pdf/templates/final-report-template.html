@@ -1,261 +1,276 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Báo cáo Y tế Học đường</title>
-    <style>
-      @page {
-        size: A4;
-        margin: 20mm;
-      }
-      body {
-        font-family: "Segoe UI", Tahoma, sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #000;
-        background: #fff;
-      }
-      .container {
-        width: 210mm;
-        max-width: 800px;
-        margin: auto;
-        padding: 20px;
-      }
-      .header-section {
-        display: flex;
-        justify-content: space-between;
-        margin: 50px 0 10px;
-      }
-      .profile-img {
-        width: 150px;
-        height: 200px;
-        border: 2px solid #2c5282;
-        object-fit: cover;
-      }
-      .header-text {
-        flex: 1;
-        text-align: center;
-        font-size: 20pt;
-        font-weight: bold;
-        color: #1a202c;
-        display: flex;
-        flex-direction: column;
-      }
-      .info-meta {
-        text-align: center;
-        font-size: 10pt;
-        color: #555;
-        margin: 10px 0;
-      }
-      .subheader {
-        font-size: 14pt;
-        font-weight: bold;
-        margin: 20px 0 10px;
-        color: #2c5282;
-      }
-      .field {
-        display: flex;
-        flex-wrap: wrap;
-        margin-bottom: 8px;
-      }
-      .field label {
-        width: 130px;
-        font-weight: bold;
-        color: #2c5282;
-      }
-      .field span {
-        flex: 1;
-      }
-      .section {
-        border-top: 1px dashed #ccc;
-        padding-top: 10px;
-        margin-top: 20px;
-      }
-      .images {
-        margin-top: 8px;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-      .images img {
-        width: 100%;
-        margin: 20px auto 0;
-        object-fit: contain;
-      }
-      .parent-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0 20px;
-      } /* 2 cột cho cha & mẹ */
-      .parent-box {
-        border: 1px solid #ccc;
-        padding: 10px;
-        border-radius: 4px;
-      }
-      .parent-box .title {
-        font-weight: bold;
-        color: #2c5282;
-        margin-bottom: 6px;
-      }
-      .blue-color {
-        color: #2c5282;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <!-- Thời gian và địa điểm -->
-      <div class="info-meta">
-        <span>Ngày khám: {{ camp_start_date }} - {{ camp_end_date }} </span
-        ><br />
-        <span>Địa điểm: {{ camp_location }}</span>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Báo cáo Y tế Học đường</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #000;
+      background: #fff;
+    }
+
+    .container {
+      width: 210mm;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      margin: 50px 0 10px;
+    }
+
+    .profile-img {
+      width: 150px;
+      height: 200px;
+      border: 2px solid #2c5282;
+      object-fit: cover;
+    }
+
+    .header-text {
+      flex: 1;
+      text-align: center;
+      font-size: 20pt;
+      font-weight: bold;
+      color: #1a202c;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-meta {
+      text-align: center;
+      font-size: 10pt;
+      color: #555;
+      margin: 10px 0;
+    }
+
+    .subheader {
+      font-size: 14pt;
+      font-weight: bold;
+      margin: 20px 0 10px;
+      color: #2c5282;
+    }
+
+    .field {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .field label {
+      width: 130px;
+      font-weight: bold;
+      color: #2c5282;
+    }
+
+    .field span {
+      flex: 1;
+    }
+
+    .section {
+      border-top: 1px dashed #ccc;
+      padding-top: 10px;
+      margin-top: 20px;
+    }
+
+    .images {
+      margin-top: 8px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .images img {
+      width: 100%;
+      margin: 20px auto 0;
+      object-fit: contain;
+    }
+
+    .parent-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 20px;
+    }
+
+    /* 2 cột cho cha & mẹ */
+    .parent-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .parent-box .title {
+      font-weight: bold;
+      color: #2c5282;
+      margin-bottom: 6px;
+    }
+
+    .blue-color {
+      color: #2c5282;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Thời gian và địa điểm -->
+    <div class="info-meta">
+      <span>Ngày khám: {{ camp_start_date }} - {{ camp_end_date }} </span><br />
+      <span>Địa điểm: {{ camp_location }}</span>
+    </div>
+
+    <!-- Tiêu đề + ảnh -->
+    <div class="header-section">
+      <img src="{{ stu_profile_img_url }}" alt="Ảnh cá nhân" class="profile-img" />
+      <div class="header-text blue-color">
+        <span>{{ camp_name }}</span>
+        <span>Mã hồ sơ: {{ register_id }}</span>
+      </div>
+    </div>
+
+    <!-- Thông tin học sinh -->
+    <div class="section">
+      <div class="subheader">I. Thông tin cá nhân</div>
+      <div class="field">
+        <label>Mã học sinh:</label><span>{{ stu_id }}</span>
+      </div>
+      <div class="field">
+        <label>Họ và tên:</label><span>{{ stu_name }}</span>
+      </div>
+      <div class="field">
+        <label>Ngày sinh:</label><span>{{ stu_dob }}</span>
+      </div>
+      <div class="field">
+        <label>Giới tính:</label><span>{{ stu_sex }}</span>
+      </div>
+      <div class="field">
+        <label>Địa chỉ:</label><span>{{ stu_address }}</span>
+      </div>
+      <div class="field">
+        <label>SĐT:</label><span>{{ stu_phone_number }}</span>
+      </div>
+      <div class="field">
+        <label>Email:</label><span>{{ stu_email }}</span>
+      </div>
+      <div class="field">
+        <label>Năm nhập học:</label><span>{{ stu_year_of_enrollment }}</span>
+      </div>
+      <div class="field">
+        <label>Lớp:</label><span>{{ stu_class_name }}</span>
       </div>
 
-      <!-- Tiêu đề + ảnh -->
-      <div class="header-section">
-        <img
-          src="{{ stu_profile_img_url }}"
-          alt="Ảnh cá nhân"
-          class="profile-img"
-        />
-        <div class="header-text blue-color">
-          <span>{{ camp_name }}</span>
-          <span>Mã hồ sơ: {{ register_id }}</span>
-        </div>
+      <!-- Thông tin cha & mẹ hai cột -->
+      <div class="subheader" style="margin-top: 20px">
+        Thông tin Phụ huynh:
       </div>
-
-      <!-- Thông tin học sinh -->
-      <div class="section">
-        <div class="subheader">I. Thông tin cá nhân</div>
-        <div class="field">
-          <label>Mã học sinh:</label><span>{{ stu_id }}</span>
-        </div>
-        <div class="field">
-          <label>Họ và tên:</label><span>{{ stu_name }}</span>
-        </div>
-        <div class="field">
-          <label>Ngày sinh:</label><span>{{ stu_dob }}</span>
-        </div>
-        <div class="field">
-          <label>Giới tính:</label><span>{{ stu_sex }}</span>
-        </div>
-        <div class="field">
-          <label>Địa chỉ:</label><span>{{ stu_address }}</span>
-        </div>
-        <div class="field">
-          <label>SĐT:</label><span>{{ stu_phone_number }}</span>
-        </div>
-        <div class="field">
-          <label>Email:</label><span>{{ stu_email }}</span>
-        </div>
-        <div class="field">
-          <label>Năm nhập học:</label><span>{{ stu_year_of_enrollment }}</span>
-        </div>
-        <div class="field">
-          <label>Lớp:</label><span>{{ stu_class_name }}</span>
-        </div>
-
-        <!-- Thông tin cha & mẹ hai cột -->
-        <div class="subheader" style="margin-top: 20px">
-          Thông tin Phụ huynh:
-        </div>
-        <div class="parent-grid">
-          <!-- Cha -->
-          <div class="parent-box">
-            <div class="title">Cha</div>
-            <div class="field">
-              <label>Họ và tên:</label><span>{{ dad_name }}</span>
-            </div>
-            <div class="field">
-              <label>Ngày sinh:</label><span>{{ dad_dob }}</span>
-            </div>
-            <div class="field">
-              <label>Nghề nghiệp:</label><span>{{ dad_ocupation }}</span>
-            </div>
-            <div class="field">
-              <label>Email:</label><span>{{ dad_email }}</span>
-            </div>
-            <div class="field">
-              <label>SĐT:</label><span>{{ dad_phone_number }}</span>
-            </div>
-            <div class="field">
-              <label>Nơi ở:</label><span>{{ dad_address }}</span>
-            </div>
+      <div class="parent-grid">
+        <!-- Cha -->
+        <div class="parent-box">
+          <div class="title">Cha</div>
+          <div class="field">
+            <label>Họ và tên:</label><span>{{ dad_name }}</span>
           </div>
-
-          <!-- Mẹ -->
-          <div class="parent-box">
-            <div class="title">Mẹ</div>
-            <div class="field">
-              <label>Họ và tên:</label><span>{{ mom_name }}</span>
-            </div>
-            <div class="field">
-              <label>Ngày sinh:</label><span>{{ mom_dob }}</span>
-            </div>
-            <div class="field">
-              <label>Nghề nghiệp:</label><span>{{ mom_ocupation }}</span>
-            </div>
-            <div class="field">
-              <label>Email:</label><span>{{ mom_email }}</span>
-            </div>
-            <div class="field">
-              <label>SĐT:</label><span>{{ mom_phone_number }}</span>
-            </div>
-            <div class="field">
-              <label>Nơi ở:</label><span>{{ mom_address }}</span>
-            </div>
+          <div class="field">
+            <label>Ngày sinh:</label><span>{{ dad_dob }}</span>
+          </div>
+          <div class="field">
+            <label>Nghề nghiệp:</label><span>{{ dad_ocupation }}</span>
+          </div>
+          <div class="field">
+            <label>Email:</label><span>{{ dad_email }}</span>
+          </div>
+          <div class="field">
+            <label>SĐT:</label><span>{{ dad_phone_number }}</span>
+          </div>
+          <div class="field">
+            <label>Nơi ở:</label><span>{{ dad_address }}</span>
           </div>
         </div>
-      </div>
 
-      <!-- Phần khám tổng quát (dọc) -->
-      <div class="section">
-        <div class="subheader">II. Khám tổng quát</div>
-        <div class="field">
-          <label>Chiều cao:</label><span>{{ height }}cm</span>
-        </div>
-        <div class="field">
-          <label>Cân nặng:</label><span>{{ weight }}kg</span>
-        </div>
-        <div class="field">
-          <label>Huyết áp:</label><span>{{ blood_pressure }} mmHg</span>
-        </div>
-        <div class="field">
-          <label>Mắt trái:</label><span>{{ left_eye }}/10</span>
-        </div>
-        <div class="field">
-          <label>Mắt phải:</label><span>{{ right_eye }}/10</span>
-        </div>
-        <div class="field"><label>Tai:</label><span>{{ ear }}</span></div>
-        <div class="field"><label>Mũi:</label><span>{{ nose }}</span></div>
-        <div class="field"><label>Họng:</label><span>{{ throat }}</span></div>
-        <div class="field"><label>Răng:</label><span>{{ teeth }}</span></div>
-        <div class="field"><label>Nướu:</label><span>{{ gums }}</span></div>
-        <div class="field">
-          <label>Da:</label><span>{{ skin_condition }}</span>
-        </div>
-        <div class="field"><label>Tim:</label><span>{{ heart }}</span></div>
-        <div class="field"><label>Phổi:</label><span>{{ lungs }}</span></div>
-        <div class="field">
-          <label>Cột sống:</label><span>{{ spine }}</span>
-        </div>
-        <div class="field">
-          <label>Tư thế:</label><span>{{ posture }}</span>
-        </div>
-        <div class="field">
-          <label>Chẩn đoán:</label><span>{{ final_diagnosis }}</span>
-        </div>
-        <div class="field">
-          <label>Ngày ghi nhận:</label
-          ><span>{{ general_health_record_date }}</span>
+        <!-- Mẹ -->
+        <div class="parent-box">
+          <div class="title">Mẹ</div>
+          <div class="field">
+            <label>Họ và tên:</label><span>{{ mom_name }}</span>
+          </div>
+          <div class="field">
+            <label>Ngày sinh:</label><span>{{ mom_dob }}</span>
+          </div>
+          <div class="field">
+            <label>Nghề nghiệp:</label><span>{{ mom_ocupation }}</span>
+          </div>
+          <div class="field">
+            <label>Email:</label><span>{{ mom_email }}</span>
+          </div>
+          <div class="field">
+            <label>SĐT:</label><span>{{ mom_phone_number }}</span>
+          </div>
+          <div class="field">
+            <label>Nơi ở:</label><span>{{ mom_address }}</span>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Phần khám chuyên khoa -->
+    <!-- Phần khám tổng quát (dọc) -->
+    <div class="section">
+      <div class="subheader">II. Khám tổng quát</div>
+      <div class="field">
+        <label>Chiều cao:</label><span>{{ height }}cm</span>
+      </div>
+      <div class="field">
+        <label>Cân nặng:</label><span>{{ weight }}kg</span>
+      </div>
+      <div class="field">
+        <label>Huyết áp:</label><span>{{ blood_pressure }} mmHg</span>
+      </div>
+      <div class="field">
+        <label>Mắt trái:</label><span>{{ left_eye }}/10</span>
+      </div>
+      <div class="field">
+        <label>Mắt phải:</label><span>{{ right_eye }}/10</span>
+      </div>
+      <div class="field"><label>Tai:</label><span>{{ ear }}</span></div>
+      <div class="field"><label>Mũi:</label><span>{{ nose }}</span></div>
+      <div class="field"><label>Họng:</label><span>{{ throat }}</span></div>
+      <div class="field"><label>Răng:</label><span>{{ teeth }}</span></div>
+      <div class="field"><label>Nướu:</label><span>{{ gums }}</span></div>
+      <div class="field">
+        <label>Da:</label><span>{{ skin_condition }}</span>
+      </div>
+      <div class="field"><label>Tim:</label><span>{{ heart }}</span></div>
+      <div class="field"><label>Phổi:</label><span>{{ lungs }}</span></div>
+      <div class="field">
+        <label>Cột sống:</label><span>{{ spine }}</span>
+      </div>
+      <div class="field">
+        <label>Tư thế:</label><span>{{ posture }}</span>
+      </div>
+      <div class="field">
+        <label>Chẩn đoán:</label><span>{{ final_diagnosis }}</span>
+      </div>
+      <div class="field">
+        <label>Ngày ghi nhận:</label><span>{{ general_health_record_date }}</span>
+      </div>
+    </div>
+
+    <!-- Phần khám chuyên khoa
       <div class="section">
         <div class="subheader">III. Phần khám chuyên khoa</div>
         {{ specialist_exam_records }}
-      </div>
-    </div>
-  </body>
+      </div> -->
+  </div>
+</body>
+
 </html>

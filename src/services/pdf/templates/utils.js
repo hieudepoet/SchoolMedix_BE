@@ -70,9 +70,9 @@ export function generateFinalHealthReportHTML(campaign_info, student_profile, ge
   const templatePath = path.resolve(__dirname, "final-report-template.html");
   let template = fs.readFileSync(templatePath, 'utf8'); // ✅ FIXED
 
-  const specialistContent = (specialist_exam_records?.length)
-    ? specialist_exam_records.map(generateSpecialListPart).join("")
-    : "<span>Học sinh không đăng ký khám chuyên khoa!</span>";
+  // const specialistContent = (specialist_exam_records?.length)
+  //   ? specialist_exam_records.map(generateSpecialListPart).join("")
+  //   : "<span>Học sinh không đăng ký khám chuyên khoa!</span>";
 
   const replaceMap = {
     "{{ camp_start_date }}": formatDate(campaign_info.start_date),
@@ -119,7 +119,7 @@ export function generateFinalHealthReportHTML(campaign_info, student_profile, ge
     "{{ posture }}": general_health.posture || "--",
     "{{ final_diagnosis }}": general_health.final_diagnosis || "--",
     "{{ general_health_record_date }}": formatDate(general_health.date_record, true) || "--",
-    "{{ specialist_exam_records }}": specialistContent,
+    // "{{ specialist_exam_records }}": specialistContent,
   };
 
   for (const [key, value] of Object.entries(replaceMap)) {

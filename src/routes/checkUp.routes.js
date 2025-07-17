@@ -44,7 +44,8 @@ import {
   uploadDiagnosisURL,
   handleDownloadFinalReportOfAStudentInCampaign,
   getCheckupRegisterStatus,
-  getWaitingSpecialistExams
+  getWaitingSpecialistExams,
+  uploadPdfForDiagnosisUrls
 } from "../controllers/checkUp.controller.js";
 
 const upload = multer();
@@ -130,5 +131,6 @@ router.post("/campaign/:campaign_id/upload-health-record-result", handleUploadHe
 router.get("/campaign/:campaign_id/import-health-record-form", handleRetrieveSampleImportHealthRecordForm); // trả về form gồm tất cả các record của một chiến dịch để làm smaple mẫu cho nurse cập nhật thông tin khám
 router.get("/campaign/:campaign_id/download-health-record-result", handleRetrieveHealthRecordResultByCampaignID);
 router.get("/campaign/:campaign_id/student/:student_id/download-final-report", handleDownloadFinalReportOfAStudentInCampaign); // file pdf chua all general health reccord + kham chuyen sau
-
+//duykhanh
+router.post("/register/:register_id/spe-exam/:spe_exam_id/pdf-diagnosis-urls", upload.array('files'), uploadPdfForDiagnosisUrls);
 export default router;

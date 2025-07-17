@@ -8,6 +8,8 @@ import exceljs from "exceljs";
 import { admin } from "../config/supabase.js";
 import { generatePDFBufferForFinalHealthReport } from "../services/index.js";
 import { getProfileOfStudentByID } from "../services/index.js";
+import { PDFDocument } from 'pdf-lib';
+import axios from 'axios';
 
 const BUCKET = process.env.SUPABASE_BUCKET || "diagnosis-url";
 
@@ -2865,34 +2867,34 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
                 getProfileOfStudentByID(student_id),
                 query(
                     `SELECT hr.*
-           FROM HealthRecord hr
-           JOIN CheckupRegister cr ON hr.register_id = cr.id
-           WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
+            FROM HealthRecord hr
+            JOIN CheckupRegister cr ON hr.register_id = cr.id
+            WHERE cr.student_id = $1 AND cr.campaign_id = $2`,
                     [student_id, campaign_id]
                 ),
                 query(
                     `SELECT json_agg(
-              json_build_object(
-                'spe_exam_id', spe.id,
-                'specialist_name', spe.name,
-                'record_status', rec.status,
-                'record_urls', rec.diagnosis_paper_urls,
-                'doctor_name', rec.dr_name,
-                'result', rec.result,
-                'date_record', rec.date_record,
-                'is_checked', rec.is_checked,
-                'diagnosis', rec.diagnosis
-              )
-            ) AS records
-            FROM student stu
-            JOIN checkupregister reg ON reg.student_id = stu.id
-            JOIN checkupcampaign camp ON camp.id = reg.campaign_id
-            JOIN specialistexamrecord rec ON rec.register_id = reg.id
-            JOIN specialistexamlist spe ON spe.id = rec.spe_exam_id
-            WHERE rec.status != 'CANNOT_ATTACH'
-              AND stu.id = $1
-              AND camp.id = $2
-            GROUP BY stu.id, camp.id`,
+                            json_build_object(
+                                'spe_exam_id', spe.id,
+                                'specialist_name', spe.name,
+                                'record_status', rec.status,
+                                'record_urls', rec.diagnosis_paper_urls,
+                                'doctor_name', rec.dr_name,
+                                'result', rec.result,
+                                'date_record', rec.date_record,
+                                'is_checked', rec.is_checked,
+                                'diagnosis', rec.diagnosis
+                            )
+                            ) AS records
+                        FROM student stu
+                        JOIN checkupregister reg ON reg.student_id = stu.id
+                        JOIN checkupcampaign camp ON camp.id = reg.campaign_id
+                        JOIN specialistexamrecord rec ON rec.register_id = reg.id
+                        JOIN specialistexamlist spe ON spe.id = rec.spe_exam_id
+                        WHERE rec.status != 'CANNOT_ATTACH'
+                        AND stu.id = $1
+                        AND camp.id = $2
+                        GROUP BY stu.id, camp.id`,
                     [student_id, campaign_id]
                 ),
             ]);
@@ -2916,13 +2918,16 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
             specialist_exam_records
         );
 
-        res.set({
+        const finalMergedBuffer = await mergeFinalReportWithSpecialistPdfs(pdfBuffer, specialist_exam_records);
+        console.log("🧾 Final PDF size:", finalMergedBuffer.length);
+        res.writeHead(200, {
             'Content-Type': 'application/pdf',
             'Content-Disposition': `attachment; filename="final_report_${student_id}_${campaign_id}.pdf"`,
-            'Content-Length': pdfBuffer.length,
+            'Content-Length': finalMergedBuffer.length,
         });
+        res.end(finalMergedBuffer);
 
-        return res.send(pdfBuffer);
+
     } catch (err) {
         console.error("❌ Error downloading report:", err);
         return res.status(500).json({
@@ -2931,4 +2936,111 @@ export async function handleDownloadFinalReportOfAStudentInCampaign(req, res) {
             detail: err.message,
         });
     }
+}
+
+
+export async function uploadPdfForDiagnosisUrls(req, res) {
+    const {
+        register_id,
+        spe_exam_id
+    } = req.params;
+    const files = req.files;
+
+    try {
+        if (!register_id || !spe_exam_id) {
+            return res.status(400).json({
+                error: true,
+                message: 'Thiếu register_id hoặc spe_exam_id trong URL.',
+            });
+        }
+
+        if (!files || files.length === 0) {
+            return res.status(400).json({
+                error: true,
+                message: 'Không có file PDF nào được upload.',
+            });
+        }
+
+        const urls = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileExt = file.originalname.split('.').pop().toLowerCase();
+
+            if (fileExt !== 'pdf' || file.mimetype !== 'application/pdf') {
+                console.warn(`❌ File không hợp lệ: ${file.originalname}`);
+                continue;
+            }
+
+            const index = i + 1;
+            const fileName = `${register_id}_${spe_exam_id}_${index}.pdf`;
+            const filePath = `special-exams/${fileName}`;
+
+            const { error: uploadError } = await admin.storage
+                .from(BUCKET)
+                .upload(filePath, file.buffer, {
+                    contentType: 'application/pdf',
+                    upsert: true,
+                });
+
+            if (uploadError) {
+                console.error(`❌ Lỗi khi upload ${fileName}:`, uploadError);
+                continue;
+            }
+
+            const { data } = admin.storage
+                .from(BUCKET)
+                .getPublicUrl(filePath);
+
+            urls.push(data.publicUrl);
+        }
+
+        if (urls.length === 0) {
+            return res.status(500).json({
+                error: true,
+                message: 'Tất cả file PDF đều upload thất bại.',
+            });
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: 'Upload file PDF thành công.',
+            urls: urls
+        });
+
+    } catch (err) {
+        console.error('❌ Lỗi upload file PDF:', err);
+        return res.status(500).json({
+            error: true,
+            message: 'Lỗi server khi upload file PDF.',
+        });
+    }
+}
+
+async function mergeFinalReportWithSpecialistPdfs(mainPdfBuffer, specialistRecords) {
+    const mergedPdf = await PDFDocument.create();
+
+    // 1. Thêm file khám tổng quát
+    const mainPdfDoc = await PDFDocument.load(mainPdfBuffer);
+    const copiedPages = await mergedPdf.copyPages(mainPdfDoc, mainPdfDoc.getPageIndices());
+    copiedPages.forEach((page) => mergedPdf.addPage(page));
+
+    // 2. Thêm từng file từ specialist_exam_records
+    for (const record of specialistRecords) {
+        const urls = record?.record_urls || [];
+        for (const url of urls) {
+            try {
+                const response = await axios.get(url, { responseType: 'arraybuffer' });
+                const pdfDoc = await PDFDocument.load(response.data);
+                const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+                pages.forEach((page) => mergedPdf.addPage(page));
+                console.log(url);
+            } catch (err) {
+                console.warn(`❌ Lỗi tải hoặc xử lý PDF từ URL: ${url}`, err.message);
+            }
+        }
+    }
+
+    const mergedBuffer = await mergedPdf.save();
+    return mergedBuffer;
 }
