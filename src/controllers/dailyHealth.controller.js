@@ -62,7 +62,9 @@ export const createDailyHealthRecord = async (req, res) => {
 export const getDailyHealthRecords = async (req, res) => {
   try {
     const result = await query(
-      "SELECT * FROM daily_health_record JOIN student s ON student_id = s.id ORDER BY record_date DESC;"
+      `SELECT *, d.id as id, s.id as student_id FROM daily_health_record d
+      JOIN student s ON d.student_id = s.id 
+      ORDER BY d.detect_time DESC;`
     );
     return res.status(200).json({ data: result.rows });
   } catch (error) {
@@ -112,7 +114,9 @@ export const getDailyHealthRecordById = async (req, res) => {
 
   try {
     const result = await query(
-      "SELECT * FROM daily_health_record WHERE id = $1;",
+      `SELECT *, d.id as id, s.id as student_id FROM daily_health_record d
+      JOIN student s ON d.student_id = s.id  
+      WHERE d.id = $1;`,
       [id]
     );
 
@@ -125,6 +129,71 @@ export const getDailyHealthRecordById = async (req, res) => {
     return res.status(200).json({ data: result.rows[0] });
   } catch (error) {
     console.error("Error fetching daily health record:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
+  }
+};
+
+// Update a daily health record by ID
+export const updateDailyHealthRecordById = async (req, res) => {
+  const { id } = req.params;
+  const {
+    diagnosis,
+    on_site_treatment,
+    transferred_to,
+    items_usage,
+    status,
+    detect_time,
+  } = req.body;
+
+  if (!diagnosis) {
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing required field: Diagnosis" });
+  }
+
+  try {
+    // Check if the record exists
+    const recordCheck = await query(
+      "SELECT * FROM daily_health_record WHERE id = $1;",
+      [id]
+    );
+    if (recordCheck.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Daily health record not found" });
+    }
+
+    // Update the daily health record
+    const updateQuery = `
+      UPDATE daily_health_record 
+      SET diagnosis = $1, 
+          on_site_treatment = $2, 
+          transferred_to = $3, 
+          items_usage = $4, 
+          status = $5,
+          detect_time = $6 
+      WHERE id = $7 
+      RETURNING *;
+    `;
+    const values = [
+      diagnosis,
+      on_site_treatment || null,
+      transferred_to || null,
+      items_usage || null,
+      status || null,
+      detect_time || null,
+      id,
+    ];
+    const result = await query(updateQuery, values);
+
+    return res.status(200).json({
+      message: "Daily health record updated successfully",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error updating daily health record:", error);
     return res
       .status(500)
       .json({ error: true, message: "Internal server error" });
