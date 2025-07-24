@@ -1069,13 +1069,13 @@ INSERT INTO vaccine (name, origin, description) VALUES
 
 CREATE TABLE vaccine_disease (
     vaccine_id INT PRIMARY KEY,
-    disease_ids INT[] NOT NULL,
+    disease_id INT[] NOT NULL,
     dose_quantity INT NOT NULL DEFAULT 1,
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
 -- Insert data into vaccine_disease table
-INSERT INTO vaccine_disease (vaccine_id, disease_ids, dose_quantity) VALUES
+INSERT INTO vaccine_disease (vaccine_id, disease_id, dose_quantity) VALUES
 (1,  ARRAY[1,2,3,4,5,6,7], 3),         -- Infanrix Hexa
 (2,  ARRAY[1,2,3,4,5,6,7], 3),         -- Hexaxim
 (3,  ARRAY[8], 2),                     -- Rotateq
