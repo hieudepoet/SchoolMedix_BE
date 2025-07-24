@@ -1137,7 +1137,7 @@ INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES
 CREATE TABLE vaccination_campaign (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
-	  disease_id INT NOT NULL,
+	  disease_id INT[] NOT NULL,
     vaccine_id INT NOT NULL,
     description TEXT,
     location VARCHAR(255),
@@ -1195,7 +1195,7 @@ CREATE TABLE vaccination_record (
     student_id varchar(10) NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
     -- campaign_id INT, -- NULL nếu không thuộc campaign khỏi lưu cái này cx đc
-	  disease_id INT NOT NULL,
+	  disease_id INT[] NOT NULL,
     vaccine_id INT, -- khác NULL nếu parent đăng ký tiêm ở chỗ khác mà không thông qua campaign nhà trường
     description TEXT,
     location VARCHAR(255),
@@ -1223,60 +1223,20 @@ INSERT INTO vaccination_record (
   status
 )
 VALUES
-  -- (
-  --   '211000',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-15',
-  --   'Tiêm vaccine BCG phòng bệnh Lao..............',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
   (
     '211000',
     NULL,
-    2,
+    ARRAY[8],
     3,
     '2023-06-15',
     'Tiêm bên ngoài',
     'School Medix',
     'COMPLETED'
   ),
-  -- (
-  --   '211001',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-15',
-  --   'Tiêm vaccine BCG phòng bệnh Lao................',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
-  -- (
-  --   '211002',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-16',
-  --   'Tiêm vaccine BCG phòng bệnh Lao.........',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
-  -- (
-  --   '211003',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-17',
-  --   'Tiêm vaccine BCG phòng bệnh Lao.............',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
   (
     '211002',
     NULL,
-    3,
+    ARRAY[8],
     5,
     '2025-06-20',
     'Tiêm bên ngoài',
@@ -1286,7 +1246,7 @@ VALUES
   (
     '211001',
     NULL,
-    3,
+    ARRAY[8],
     4,
     '2025-06-22',
     'Tiêm bên ngoài',
@@ -1296,7 +1256,7 @@ VALUES
   (
     '211003',
     NULL,
-    4,
+    ARRAY[9],
     7,
     '2025-06-25',
     'Tiêm bên ngoài',
