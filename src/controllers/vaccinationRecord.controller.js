@@ -514,12 +514,13 @@ export async function getVaccinationRecordByID(req, res) {
   try {
     const records = await query(
       `
-        SELECT vr.*, s.name as student_name, v.name as vaccine_name, d.name as disease_name 
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, STRING_AGG(DISTINCT d.name, ', ') AS disease_name
         FROM vaccination_record vr
         JOIN student s ON vr.student_id = s.id
         JOIN vaccine v ON vr.vaccine_id = v.id
-        JOIN disease d ON vr.disease_id = d.id   
-        WHERE vr.id = $1 AND (vr.pending IS NULL OR vr.pending = 'DONE')`,
+        LEFT JOIN disease d ON d.id = ANY(vr.disease_id)
+        WHERE vr.id = $1 AND (vr.pending IS NULL OR vr.pending = 'DONE')
+        GROUP BY vr.id , s.name, v.name`,
       [id]
     );
     if (records.rows.length === 0) {
