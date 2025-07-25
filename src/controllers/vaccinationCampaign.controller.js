@@ -257,6 +257,7 @@ export async function getCampaignDetailByID(req, res) {
         a.id as campaign_id,
         b.id as vaccine_id, 
         b.name as vaccine_name, 
+        a.disease_id,
         STRING_AGG(c.name, ', ') AS disease_name, 
         a.title, 
         a.description as description, 
@@ -546,14 +547,14 @@ export async function getStudentEligibleForCampaign(req, res) {
       vaccine_targets AS (
         SELECT d.disease_id, vd.dose_quantity
         FROM disease_target d
-        JOIN vaccine_disease vd ON vd.disease_id && ARRAY[d.disease_id]
+        JOIN vaccine_disease vd ON vd.disease_id = ARRAY[d.disease_id]
       ),
       student_doses AS (
         SELECT 
           s.id AS student_id,
           d.disease_id,
           COUNT(vr.id) FILTER (
-            WHERE vr.status = 'COMPLETED' AND vr.disease_id && ARRAY[d.disease_id]
+            WHERE vr.status = 'COMPLETED' AND vr.disease_id = ARRAY[d.disease_id]
           ) AS completed_doses,
           d.dose_quantity,
           req.is_registered,
@@ -800,7 +801,7 @@ async function getStudentEligibleForADiseaseID(disease_ids) {
     WITH vaccine_targets AS (
       SELECT DISTINCT unnest(disease_id) AS disease_id, dose_quantity
       FROM vaccine_disease
-      WHERE disease_id && $1::int[]
+      WHERE disease_id = $1::int[]
     ),
     student_doses AS (
       SELECT 
@@ -808,7 +809,7 @@ async function getStudentEligibleForADiseaseID(disease_ids) {
         d.disease_id,
         COUNT(vr.id) FILTER (
           WHERE vr.status = 'COMPLETED'
-            AND vr.disease_id && ARRAY[d.disease_id]
+            AND vr.disease_id = ARRAY[d.disease_id]
         ) AS completed_doses,
         d.dose_quantity
       FROM student s
@@ -1076,7 +1077,7 @@ export async function getCompletedDosesMergedByDisease(req, res) {
           FROM vaccination_record vr_sub
           WHERE 
             vr_sub.student_id = $1 AND
-            vr_sub.disease_id && vd.disease_id AND
+            vr_sub.disease_id = vd.disease_id AND
             vr_sub.status = 'COMPLETED'
         ) AS completed_doses,
         vd.dose_quantity
