@@ -128,7 +128,7 @@ export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
           c.name as class_name, 
           v.name as vaccine_name,
           vd.disease_id, 
-          STRING_AGG(d.name, ',') as disease_name
+          STRING_AGG(d.name, ', ') as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id
@@ -174,7 +174,7 @@ export async function getVaccinationDeclarationsHistory(req, res) {
           c.name as class_name, 
           v.name as vaccine_name,
           vd.disease_id, 
-          STRING_AGG(d.name, ',') as disease_name
+          STRING_AGG(d.name, ', ') as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id

@@ -8,6 +8,7 @@ import {
   deleteVaccine,
   getDiseasesByVaccine,
   getStudentsByVaccine,
+  getStudentsByDiseaseCluster,
 } from "../controllers/vaccine.controller.js";
 
 const router = express.Router();
