@@ -1,7 +1,6 @@
 import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
 
-// Cần kiểm tra
 // Campaign
 export async function createCampaign(req, res) {
   const {
@@ -1044,7 +1043,6 @@ export async function getAllRegisteredRecords(req, res) {
   }
 }
 
-// Cần chỉnh sửa
 export async function getCompletedDosesMergedByDisease(req, res) {
   const { student_id } = req.params;
 
