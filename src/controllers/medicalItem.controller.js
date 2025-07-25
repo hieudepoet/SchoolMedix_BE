@@ -1,250 +1,122 @@
 import { query } from "../config/database.js";
-import { admin } from "../config/supabase.js";
 
-const BUCKET = process.env.SUPABASE_BUCKET || "blog-images";
-
-export async function uploadImgSupabase(req, res) {
-  try {
-    const files = req.files;
-
-    if (!files || !files.length) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Không nhận được Img." });
-    }
-    const urls = [];
-    for (const file of files) {
-      const ext = file.originalname.split(".").pop();
-      const filename = `img_${Date.now()}_${Math.floor(
-        Math.random() * 10000
-      )}.${ext}`;
-      const { data, error } = await admin.storage
-        .from(BUCKET)
-        .upload(filename, file.buffer, {
-          contentType: file.mimetype,
-          upsert: false,
-        });
-      if (error) {
-        return res.status(500).json({ error: true, details: error.message });
-      }
-      const { data: publicUrlData } = admin.storage
-        .from(BUCKET)
-        .getPublicUrl(filename);
-      urls.push(publicUrlData.publicUrl);
-    }
-    return res.json({ urls });
-  } catch (err) {
-    console.error("❌ Error fetching full record:", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi lưu ảnh vào Supabase!." });
-  }
-}
-
-export async function createBlog(req, res) {
-  const { title, content, thumbnail_url, blog_type_id } = req.body;
-
-  try {
-    if (!title || !content || !thumbnail_url || !blog_type_id) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Không nhận được thông tin Blog." });
-    }
-
-    const rs = await query(
-      ` INSERT INTO blog (title, content, thumbnail_url, blog_type_id)
-                                 VALUES ($1, $2, $3, $4) RETURNING *`,
-      [title, content, thumbnail_url, blog_type_id]
-    );
-
-    if (!rs.rows[0]) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Tạo mới Blog không thành công." });
-    }
-
-    return res
-      .status(200)
-      .json({
-        error: false,
-        message: "Tạo mới Blog thành công.",
-        blog: rs.rows[0],
-      });
-  } catch (err) {
-    console.error("❌ Error fetching full record:", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi tạo mới Blog." });
-  }
-}
-
-export async function updateBlog(req, res) {
+export async function getMedicalItemById(req, res) {
   const { id } = req.params;
-
-  const { title, content, thumbnail_url, blog_type_id } = req.body;
-
   try {
-    if (!title || !content || !thumbnail_url || !blog_type_id) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Không nhận được thông tin." });
+    const result = await query("SELECT * FROM MedicalItem WHERE id = $1", [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
     }
-
-    const rs = await query(
-      `UPDATE blog 
-                             SET title = $1, content = $2, updated_at = CURRENT_TIMESTAMP ,thumbnail_url = $3, blog_type_id = $4
-                             WHERE id = $5 
-                             RETURNING * `,
-      [title, content, thumbnail_url, blog_type_id, id]
-    );
-
-    if (!rs.rows[0]) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Update không thành công." });
-    }
-
-    return res
-      .status(200)
-      .json({
-        error: false,
-        message: "Update Blog thành công.",
-        blog: rs.rows[0],
-      });
+    return res.status(200).json({ error: false, message: "ok", data: result.rows[0] });
   } catch (err) {
-    console.error("❌ Error fetching full record:", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi Update Blog." });
+    console.error("getMedicalItemById:", err);
+    return res.status(500).json({ error: true, message: "Lỗi server khi lấy thông tin." });
   }
 }
 
-export async function deleteBlog(req, res) {
+export async function getAllMedicalSupplies(req, res) {
+  try {
+    const result = await query("SELECT * FROM MedicalItem WHERE category = 'MEDICAL_SUPPLY'");
+    return res.status(200).json({ error: false, message: "ok", data: result.rows });
+  } catch (err) {
+    console.error("getAllMedicalSupplies:", err);
+    return res.status(500).json({ error: true, message: "Lỗi server khi lấy vật tư y tế." });
+  }
+}
+
+export async function getAllMedications(req, res) {
+  try {
+    const result = await query("SELECT * FROM MedicalItem WHERE category = 'MEDICATION'");
+    return res.status(200).json({ error: false, message: "ok", data: result.rows });
+  } catch (err) {
+    console.error("getAllMedications:", err);
+    return res.status(500).json({ error: true, message: "Lỗi server khi lấy thuốc." });
+  }
+}
+
+export async function updateMedicalItem(req, res) {
   const { id } = req.params;
+  const { name, unit, description, exp_date } = req.body;
+
+  if (!name || !unit || !exp_date) {
+    return res.status(400).json({
+      error: true,
+      message: "Thiếu tên vật tư, tên đơn vị hoặc ngày hết hạn",
+    });
+  }
 
   try {
-    if (!id) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Không nhận được thông tin." });
-    }
-    const check = await query(
-      `SELECT * FROM blog 
-                                   WHERE id = $1`,
-      [id]
+    const result = await query(
+      `
+      UPDATE MedicalItem 
+      SET name = $1, unit = $2, description = $3, exp_date = $4 
+      WHERE id = $5 
+      RETURNING *
+    `,
+      [name, unit, description, exp_date, id]
     );
 
-    if (check.rowCount === 0) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Blog ID không tồn tại." });
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: true, message: "Không tìm thấy để cập nhật" });
     }
 
-    const rs = await query(
-      `UPDATE blog
-                                SET is_deleted = $1 
-                                WHERE id = $2`,
-      [true, id]
+    return res.status(200).json({ error: false, message: "Cập nhật thành công", data: result.rows[0] });
+  } catch (err) {
+    console.error("updateMedicalItem:", err);
+    return res.status(500).json({ error: true, message: "Lỗi server khi cập nhật." });
+  }
+}
+
+export async function createNewMedication(req, res) {
+  const { name, unit, description, exp_date } = req.body;
+
+  if (!name || !unit || !exp_date) {
+    return res.status(400).json({
+      error: true,
+      message: "Thiếu tên vật tư, tên đơn vị hoặc ngày hết hạn",
+    });
+  }
+
+  try {
+    const result = await query(
+      `
+      INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
+      VALUES ($1, $2, 0, $3, $4, 'MEDICATION')
+      RETURNING *
+    `,
+      [name, unit, description, exp_date]
     );
 
-    if (rs.rowCount === 0) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Deleted Blog không thành công" });
-    }
-
-    return res
-      .status(200)
-      .json({
-        error: false,
-        message: "Deleted Blog thành công.",
-        blog: rs.rows[0],
-      });
+    return res.status(201).json({ error: false, message: "Tạo thuốc thành công", data: result.rows[0] });
   } catch (err) {
-    console.error("❌ Error fetching full record:", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi Delete Blog." });
+    console.error("createNewMedication:", err);
+    return res.status(500).json({ error: true, message: "Lỗi server khi tạo thuốc." });
   }
 }
 
-export async function getAllBlog(req, res) {
-  try {
-    const rs = await query(`SELECT * FROM blog`);
-    if (rs.rowCount === 0) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Lấy Blog không thành công" });
-    }
+export async function createNewMedicalSupply(req, res) {
+  const { name, unit, description, exp_date } = req.body;
 
-    return res
-      .status(200)
-      .json({
-        error: false,
-        message: "Lấy dữ liệu thành công.",
-        blog: rs.rows,
-      });
-  } catch (err) {
-    console.error("❌ Error fetching full record:", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi lấy tất cả Blog." });
+  if (!name || !unit || !exp_date) {
+    return res.status(400).json({
+      error: true,
+      message: "Thiếu tên vật tư, tên đơn vị hoặc ngày hết hạn",
+    });
   }
-}
-
-export async function getBlogType(req, res) {
-  try {
-    const rs = await query(`SELECT * FROM BLOG_TYPE`);
-    if (rs.rowCount === 0) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Lấy Blog Type không thành công" });
-    }
-
-    return res
-      .status(200)
-      .json({
-        error: false,
-        message: "Lấy dữ liệu thành công.",
-        blog: rs.rows,
-      });
-  } catch (err) {
-    console.error("❌ Error fetching full record:", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi lấy tất cả Blog Type." });
-  }
-}
-
-export async function getBlogById(req, res) {
-  const { id } = req.params;
 
   try {
-    if (!id) {
-      return res
-        .status(400)
-        .json({ error: true, message: "Không nhận được ID Blog." });
-    }
+    const result = await query(
+      `
+      INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
+      VALUES ($1, $2, 0, $3, $4, 'MEDICAL_SUPPLY')
+      RETURNING *
+    `,
+      [name, unit, description, exp_date]
+    );
 
-    const rs = await query(`SELECT * FROM blog WHERE id = $1`, [id]);
-
-    if (rs.rowCount === 0) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Blog không tồn tại." });
-    }
-
-    return res
-      .status(200)
-      .json({
-        error: false,
-        message: "Lấy Blog thành công.",
-        blog: rs.rows[0],
-      });
+    return res.status(201).json({ error: false, message: "Tạo vật tư thành công", data: result.rows[0] });
   } catch (err) {
-    console.error("❌ Error fetching blog by id:", err);
-    return res
-      .status(500)
-      .json({ error: true, message: "Lỗi khi lấy Blog theo ID." });
+    console.error("createNewMedicalSupply:", err);
+    return res.status(500).json({ error: true, message: "Lỗi server khi tạo vật tư." });
   }
 }
