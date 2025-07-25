@@ -998,7 +998,8 @@ export async function getAllRegisteredRecords(req, res) {
         rec.vaccine_id,
         rec.status as status,
         rec.description as description,
-        rec.location as location
+        rec.location as location,
+        rec.vaccination_date
         FROM vaccination_campaign_register reg 
         JOIN vaccination_campaign camp ON reg.campaign_id = camp.id
         JOIN student s ON s.id = reg.student_id
