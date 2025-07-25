@@ -1228,7 +1228,7 @@ VALUES
     ARRAY[8],
     3,
     '2023-06-15',
-    'Tiêm bên ngoài',
+    'Không có triệu chứng',
     'School Medix',
     'COMPLETED'
   ),
@@ -1238,7 +1238,7 @@ VALUES
     ARRAY[8],
     5,
     '2025-06-20',
-    'Tiêm bên ngoài',
+    'Không có triệu chứng',
     'School Medix',
     'COMPLETED'
   ),
@@ -1248,7 +1248,7 @@ VALUES
     ARRAY[8],
     4,
     '2025-06-22',
-    'Tiêm bên ngoài',
+    'Không có triệu chứng',
     'School Medix',
     'COMPLETED'
   ),
@@ -1258,7 +1258,7 @@ VALUES
     ARRAY[9],
     7,
     '2025-06-25',
-    'Tiêm bên ngoài',
+    'Không có triệu chứng',
     'School Medix',
     'COMPLETED'
   );
