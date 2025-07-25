@@ -586,6 +586,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(
   res,
   disease_id
 ) {
+  console.log(disease_id);
   const { student_id } = req.params;
   try {
     const { rows } = await query(
@@ -603,6 +604,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(
     );
 
     if (rows.length === 0) {
+      console.log("404");
       return res.status(404).json({
         error: true,
         message: "Không có lịch sử tiêm chủng cho học sinh này với bệnh này",
