@@ -97,9 +97,9 @@ router.patch("/checkup-campaign/:id/finish", finishCampaign); //Admin finish Cam
 //Parent
 router.patch("/checkup-register/:id/submit", submitRegister); // Parent submit form Register
 
-router.get("/student/:id/checkup-health-record", getHealthRecordsOfAStudent);
-router.get("/student/:id/specialist-record", getSpecialRecordsOfAStudent);
-router.get("/student/:id/full-record", getFullHealthAndSpecialRecordsOfAStudent);
+router.get("/student/:id/checkup-health-record", getHealthRecordsOfAStudent); // duy khanh
+router.get("/student/:id/specialist-record", getSpecialRecordsOfAStudent); // duy khanh
+router.get("/student/:id/full-record", getFullHealthAndSpecialRecordsOfAStudent); // duy khanh
 router.get("/checkup-health-record/detail", getHealthRecordParentDetails); //Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
 
 router.get("/checkup-special-record", getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
@@ -131,6 +131,5 @@ router.post("/campaign/:campaign_id/upload-health-record-result", handleUploadHe
 router.get("/campaign/:campaign_id/import-health-record-form", handleRetrieveSampleImportHealthRecordForm); // trả về form gồm tất cả các record của một chiến dịch để làm smaple mẫu cho nurse cập nhật thông tin khám
 router.get("/campaign/:campaign_id/download-health-record-result", handleRetrieveHealthRecordResultByCampaignID);
 router.get("/campaign/:campaign_id/student/:student_id/download-final-report", handleDownloadFinalReportOfAStudentInCampaign); // file pdf chua all general health reccord + kham chuyen sau
-//duykhanh
-router.post("/register/:register_id/spe-exam/:spe_exam_id/pdf-diagnosis-urls", upload.array('files'), uploadPdfForDiagnosisUrls);
+
 export default router;
