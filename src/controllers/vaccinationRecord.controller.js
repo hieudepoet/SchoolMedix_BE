@@ -581,25 +581,23 @@ export async function getVaccinationRecordsByStudentID(req, res) {
   }
 }
 
-export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
-  const { student_id, disease_id } = req.params;
-
+export async function getVaccinationRecordsOfAStudentBasedOnADisease(
+  req,
+  res,
+  disease_id
+) {
+  const { student_id } = req.params;
   try {
     const { rows } = await query(
       `
-      SELECT
-        vr.id,
-        vr.disease_id,
-        vr.vaccine_id,
-        v.name AS vaccine_name,
-        vr.vaccination_date,
-        vr.description,
-        vr.location,
-        vr.status
-      FROM vaccination_record vr
-      JOIN vaccine v ON vr.vaccine_id = v.id
-      WHERE vr.student_id = $1 AND vr.disease_id = $2 AND (vr.pending IS NULL OR vr.pending = 'DONE')
-      ORDER BY vr.vaccination_date
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, STRING_AGG(DISTINCT d.name, ', ') AS disease_name
+        FROM vaccination_record vr
+        JOIN student s ON vr.student_id = s.id
+        JOIN vaccine v ON vr.vaccine_id = v.id
+        LEFT JOIN disease d ON d.id = ANY(vr.disease_id)
+        WHERE vr.student_id = $1 AND vr.disease_id = $2::int[] AND (vr.pending IS NULL OR vr.pending = 'DONE')
+        GROUP BY vr.id , s.name, v.name
+        ORDER BY vr.vaccination_date
     `,
       [student_id, disease_id]
     );
@@ -617,6 +615,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
       data: rows,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({
       error: true,
       message: "Lỗi khi lấy lịch sử tiêm chủng theo bệnh",
