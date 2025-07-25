@@ -22,10 +22,18 @@ router.get(
   "/student/:student_id/vaccination-record",
   getVaccinationRecordsByStudentID
 );
-router.get(
-  "/student/:student_id/disease/:disease_id/vaccination-record",
-  getVaccinationRecordsOfAStudentBasedOnADisease // get detail of vaccination records of a student based on a disease
-);
+router.get("/student/:student_id/disease/vaccination-record", (req, res) => {
+  const { student_id } = req.params;
+  const { diseaseId } = req.query; // diseaseId sẽ là mảng ["1", "2", "3"] hoặc chuỗi nếu chỉ có một giá trị
+
+  // Chuyển đổi thành mảng nếu cần
+  const diseaseIds = Array.isArray(diseaseId)
+    ? diseaseId.map((id) => parseInt(id))
+    : [parseInt(diseaseId)];
+
+  // Xử lý logic
+  getVaccinationRecordsOfAStudentBasedOnADisease(req, res, diseaseIds);
+});
 router.post("/vaccination-record", createVaccinationRecord);
 // router.patch("/vaccination-record/:record_id", updateVaccinationRecord);
 router.get("/vaccination-record/:id", getVaccinationRecordByID);
