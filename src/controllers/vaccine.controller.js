@@ -71,7 +71,7 @@ export async function createVaccine(req, res) {
 
     // Gắn vaccine với mảng disease_ids
     await client.query(
-      `INSERT INTO vaccine_disease (vaccine_id, disease_ids, dose_quantity)
+      `INSERT INTO vaccine_disease (vaccine_id, disease_id, dose_quantity)
        VALUES ($1, $2, $3)`,
       [newVaccine.id, disease_list, dose_quantity]
     );
@@ -114,7 +114,7 @@ export async function getAllVaccines(req, res) {
       LEFT JOIN LATERAL (
         SELECT name
         FROM disease
-        WHERE id = ANY(vd.disease_ids)
+        WHERE id = ANY(vd.disease_id)
       ) d ON TRUE
       GROUP BY v.id, vd.dose_quantity
       ORDER BY v.id;
@@ -211,32 +211,36 @@ export async function getVaccine(req, res) {
     const result = await query(
       `
       SELECT 
-        v.id, 
-        v.name, 
-        v.description
+        v.id,
+        v.name,
+        v.origin,
+        v.description,
+        vd.dose_quantity,
+        STRING_AGG(d.name, ', ') AS diseases
       FROM vaccine v
-      WHERE v.id = $1;
+      LEFT JOIN vaccine_disease vd ON vd.vaccine_id = v.id
+      LEFT JOIN LATERAL (
+        SELECT name
+        FROM disease
+        WHERE id = ANY(vd.disease_id)
+      ) d ON TRUE
+      WHERE v.id = $1
+      GROUP BY v.id, vd.dose_quantity
+
     `,
       [id]
     );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({
-        error: true,
-        message: "Không tìm thấy thông tin vaccine",
-      });
-    }
-
     return res.status(200).json({
       error: false,
-      message: "Lấy thông tin vaccine thành công",
+      message: "Lấy danh sách vaccine thành công",
       data: result.rows,
     });
   } catch (error) {
     console.error("Error fetching vaccines:", error);
     return res.status(500).json({
       error: true,
-      message: "Lỗi server khi lấy thông tin vaccine",
+      message: "Lỗi server khi lấy danh sách vaccine",
     });
   }
 }
