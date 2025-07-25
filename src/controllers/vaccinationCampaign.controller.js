@@ -1,6 +1,7 @@
 import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
 
+// Cần kiểm tra
 // Campaign
 export async function createCampaign(req, res) {
   const {
@@ -133,11 +134,38 @@ export async function updateCampaignDetail(req, res) {
 export async function getAllCampaigns(req, res) {
   try {
     const result = await query(`
-      select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.title, a.description as description, a.location, a.start_date, a.end_date, a.status, dose_quantity
+      select 
+        a.id as campaign_id,
+        b.id as vaccine_id, 
+        b.name as vaccine_name, 
+        STRING_AGG(c.name, ', ') AS disease_name, 
+        a.title, 
+        a.description as description, 
+        a.location, 
+        a.start_date, 
+        a.end_date, 
+        a.status, 
+        d.dose_quantity
       from vaccination_campaign a
       join vaccine b on a.vaccine_id = b.id
-      join disease c on a.disease_id = c.id
-      ORDER BY a.start_date DESC;
+      LEFT JOIN LATERAL (
+        SELECT name
+        FROM disease
+        WHERE id = ANY(a.disease_id)
+      ) c ON TRUE
+      JOIN vaccine_disease d ON d.vaccine_id = b.id 
+      GROUP BY 
+        a.id, 
+        b.id, 
+        vaccine_name, 
+        a.title, 
+        a.description, 
+        a.location, 
+        a.start_date, 
+        a.end_date, 
+        a.status, 
+        d.dose_quantity
+      ORDER BY a.start_date DESC
       `);
 
     return res.status(200).json({
@@ -159,13 +187,40 @@ export async function getAllCampaignsForParent(req, res) {
   try {
     const result = await query(
       `
-      select a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.title, a.description as description, a.location, a.start_date, a.end_date, a.status, dose_quantity
+      select 
+        a.id as campaign_id,
+        b.id as vaccine_id, 
+        b.name as vaccine_name, 
+        STRING_AGG(c.name, ', ') AS disease_name, 
+        a.title, 
+        a.description as description, 
+        a.location, 
+        a.start_date, 
+        a.end_date, 
+        a.status, 
+        d.dose_quantity
       from vaccination_campaign a
-      join vaccination_campaign_register d on a.id = d.campaign_id
-      join student s on s.id = d.student_id
+      join vaccination_campaign_register reg on a.id = reg.campaign_id
+      join student s on reg.student_id = s.id 
       join vaccine b on a.vaccine_id = b.id
-      join disease c on a.disease_id = c.id
+      LEFT JOIN LATERAL (
+        SELECT name
+        FROM disease
+        WHERE id = ANY(a.disease_id)
+      ) c ON TRUE
+      JOIN vaccine_disease d ON d.vaccine_id = b.id 
       WHERE status != 'DRAFTED' and s.id = $1
+      GROUP BY 
+        a.id, 
+        b.id, 
+        vaccine_name, 
+        a.title, 
+        a.description, 
+        a.location, 
+        a.start_date, 
+        a.end_date, 
+        a.status, 
+        d.dose_quantity
       ORDER BY a.start_date DESC;
       `,
       [student_id]
@@ -198,12 +253,38 @@ export async function getCampaignDetailByID(req, res) {
   try {
     const result = await query(
       `
-        select title, a.id as campaign_id, b.id as vaccine_id, b.name as vaccine_name, c.id as disease_id, c.name as disease_name, a.description as description, a.location, a.start_date, a.end_date, a.status
-        from vaccination_campaign a
-        join vaccine b on a.vaccine_id = b.id
-        join disease c on a.disease_id = c.id
-        WHERE a.id = $1
-        LIMIT 1;
+      select 
+        a.id as campaign_id,
+        b.id as vaccine_id, 
+        b.name as vaccine_name, 
+        STRING_AGG(c.name, ', ') AS disease_name, 
+        a.title, 
+        a.description as description, 
+        a.location, 
+        a.start_date, 
+        a.end_date, 
+        a.status, 
+        d.dose_quantity
+      from vaccination_campaign a
+      join vaccine b on a.vaccine_id = b.id
+      LEFT JOIN LATERAL (
+        SELECT name
+        FROM disease
+        WHERE id = ANY(a.disease_id)
+      ) c ON TRUE
+      JOIN vaccine_disease d ON d.vaccine_id = b.id 
+      WHERE a.id = $1
+      GROUP BY 
+        a.id, 
+        b.id, 
+        vaccine_name, 
+        a.title, 
+        a.description, 
+        a.location, 
+        a.start_date, 
+        a.end_date, 
+        a.status, 
+        d.dose_quantity
       `,
       [campaign_id]
     );
@@ -459,23 +540,34 @@ export async function getStudentEligibleForCampaign(req, res) {
     // Lấy danh sách học sinh đủ điều kiện + trạng thái đăng ký (is_registered)
     const studentCompletedDoses = await query(
       `
+      WITH disease_target AS (
+        SELECT unnest($1::int[]) AS disease_id
+      ),
+      vaccine_targets AS (
+        SELECT d.disease_id, vd.dose_quantity
+        FROM disease_target d
+        JOIN vaccine_disease vd ON vd.disease_id && ARRAY[d.disease_id]
+      ),
+      student_doses AS (
         SELECT 
           s.id AS student_id,
-          COALESCE(COUNT(vr.id) FILTER (
-            WHERE vr.status = 'COMPLETED'
-          ), 0) AS completed_doses,
+          d.disease_id,
+          COUNT(vr.id) FILTER (
+            WHERE vr.status = 'COMPLETED' AND vr.disease_id && ARRAY[d.disease_id]
+          ) AS completed_doses,
           d.dose_quantity,
           req.is_registered,
           s.name
         FROM student s
-        CROSS JOIN disease d
-        LEFT JOIN vaccination_record vr 
-          ON vr.student_id = s.id 
-          AND vr.disease_id = d.id
-        LEFT JOIN vaccination_campaign_register req
+        CROSS JOIN vaccine_targets d
+        LEFT JOIN vaccination_record vr ON vr.student_id = s.id
+        LEFT JOIN vaccination_campaign_register req 
           ON req.student_id = s.id AND req.campaign_id = $2
-        WHERE d.id = $1
-        GROUP BY s.id, d.dose_quantity, req.is_registered
+        GROUP BY s.id, d.disease_id, d.dose_quantity, req.is_registered
+      )
+      SELECT *
+      FROM student_doses
+      WHERE completed_doses < dose_quantity
       `,
       [disease_id, campaign_id]
     );
@@ -491,24 +583,38 @@ export async function getStudentEligibleForCampaign(req, res) {
     for (let student of studentCompletedDoses.rows) {
       const records = await query(
         ` 
-          SELECT 
-            req.campaign_id AS campaign_id, 
-            req.is_registered AS register_status,  
-            rec.id AS record_id, 
-            rec.register_id, 
-            rec.description, 
-            rec.location, 
-            rec.vaccination_date, 
-            rec.status, 
-            vac.name AS vaccine_name, 
-            vac.id AS vaccine_id, 
-            dis.id AS disease_id, 
-            dis.name AS disease_name 
-          FROM vaccination_record rec 
-          JOIN vaccine vac ON rec.vaccine_id = vac.id
-          JOIN disease dis ON rec.disease_id = dis.id
-          JOIN vaccination_campaign_register req ON req.student_id = rec.student_id
-          WHERE rec.student_id = $1 AND dis.id = $2
+        SELECT 
+          req.campaign_id AS campaign_id, 
+          req.is_registered AS register_status,  
+          rec.id AS record_id, 
+          rec.register_id, 
+          rec.description, 
+          rec.location, 
+          rec.vaccination_date, 
+          rec.status, 
+          vac.name AS vaccine_name, 
+          vac.id AS vaccine_id,
+          STRING_AGG(DISTINCT d.id::text, ', ') AS disease_id,
+          STRING_AGG(DISTINCT d.name, ', ') AS disease_name
+        FROM vaccination_record rec 
+        JOIN vaccine vac ON rec.vaccine_id = vac.id
+        LEFT JOIN vaccine_disease vd ON vac.id = vd.vaccine_id
+        LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+        JOIN vaccination_campaign_register req ON req.student_id = rec.student_id
+        WHERE rec.student_id = $1 
+          AND rec.disease_id = $2::int[]
+        GROUP BY 
+          req.campaign_id, 
+          req.is_registered,  
+          rec.id, 
+          rec.register_id, 
+          rec.description, 
+          rec.location, 
+          rec.vaccination_date, 
+          rec.status, 
+          vac.name, 
+          vac.id
+
         `,
         [student.student_id, disease_id]
       );
@@ -603,12 +709,9 @@ export async function createPreVaccinationRecord(req, res) {
 
 export async function completeRecord(req, res) {
   const { record_id } = req.params;
-  const client = await pool.connect(); // Sử dụng pool để quản lý kết nối
+  const { description } = req.body;
 
   try {
-    // Bắt đầu transaction
-    await client.query("BEGIN");
-
     const info = await query(
       `
         SELECT vc.location
@@ -632,9 +735,9 @@ export async function completeRecord(req, res) {
       RETURNING *
     `;
 
-    const result = await client.query(updateQuery, [
+    const result = await query(updateQuery, [
       record_id,
-      "Empty",
+      description || NULL,
       info.rows[0].location,
       now,
     ]);
@@ -643,60 +746,17 @@ export async function completeRecord(req, res) {
       throw new Error("Vaccination record not found");
     }
 
-    const vaccine_id = result.rows[0].vaccine_id;
-
-    // Lấy tất cả disease_id được map với vaccine_id này (ngoại trừ disease_id gốc)
-    const diseases = await client.query(
-      `SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id != $2`,
-      [vaccine_id, result.rows[0].disease_id]
-    );
-
-    // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
-    for (const disease of diseases.rows) {
-      await client.query(
-        `INSERT INTO vaccination_record (
-          student_id, 
-          disease_id, 
-          vaccine_id, 
-          status,     
-          description, 
-          location, 
-          vaccination_date
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `,
-        [
-          result.rows[0].student_id,
-          disease.disease_id,
-          vaccine_id,
-          "COMPLETED",
-          result.rows[0].description,
-          result.rows[0].location,
-          result.rows[0].vaccination_date,
-        ]
-      );
-    }
-
-    // Commit transaction
-    await client.query("COMMIT");
-
     return res.status(200).json({
       error: false,
       message: "Vaccination record updated",
       data: result.rows[0],
-      diseases,
     });
   } catch (error) {
-    // Rollback transaction nếu có lỗi
-    await client.query("ROLLBACK");
     console.error("Error updating vaccination record:", error);
     return res.status(500).json({
       error: true,
       message: `Error when updating record: ${error.message}`,
     });
-  } finally {
-    // Giải phóng kết nối
-    client.release();
   }
 }
 
@@ -735,26 +795,34 @@ export async function getAllRegistersOfAStudentWithCampaignID(req, res) {
   }
 }
 
-async function getStudentEligibleForADiseaseID(disease_id) {
+async function getStudentEligibleForADiseaseID(disease_ids) {
   const sql = `
-    SELECT 
+    WITH vaccine_targets AS (
+      SELECT DISTINCT unnest(disease_id) AS disease_id, dose_quantity
+      FROM vaccine_disease
+      WHERE disease_id && $1::int[]
+    ),
+    student_doses AS (
+      SELECT 
         s.id AS student_id,
-        COALESCE(COUNT(vr.id) FILTER (
-            WHERE vr.status = 'COMPLETED'
-        ), 0) AS completed_doses,
+        d.disease_id,
+        COUNT(vr.id) FILTER (
+          WHERE vr.status = 'COMPLETED'
+            AND vr.disease_id && ARRAY[d.disease_id]
+        ) AS completed_doses,
         d.dose_quantity
-    FROM student s
-    LEFT JOIN vaccination_record vr 
-        ON vr.student_id = s.id AND vr.disease_id = $1
-    LEFT JOIN disease d 
-        ON d.id = $2
-    GROUP BY s.id, d.dose_quantity
-    HAVING COALESCE(COUNT(vr.id) FILTER (
-        WHERE vr.status = 'COMPLETED'
-    ), 0) < d.dose_quantity;
+      FROM student s
+      CROSS JOIN vaccine_targets d
+      LEFT JOIN vaccination_record vr ON vr.student_id = s.id
+      GROUP BY s.id, d.disease_id, d.dose_quantity
+    )
+    SELECT *
+    FROM student_doses
+    WHERE completed_doses < dose_quantity
   `;
 
-  return (await query(sql, [disease_id, disease_id])).rows;
+  const result = await query(sql, [disease_ids]);
+  return result.rows;
 }
 
 async function updateCampaignStatus(campaign_id, status, res, successMessage) {
@@ -974,6 +1042,7 @@ export async function getAllRegisteredRecords(req, res) {
   }
 }
 
+// Cần chỉnh sửa
 export async function getCompletedDosesMergedByDisease(req, res) {
   const { student_id } = req.params;
 
