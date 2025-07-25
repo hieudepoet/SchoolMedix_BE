@@ -1069,18 +1069,21 @@ export async function getCompletedDosesMergedByDisease(req, res) {
     const dosesQuery = await query(
       `
       SELECT 
-        d.id AS disease_id,
-        d.name AS disease_name,
-        COUNT(vr.id) AS completed_doses,
-        d.dose_quantity
-      FROM disease d
-      LEFT JOIN vaccination_record vr 
-        ON vr.disease_id = d.id 
-        AND vr.student_id = $1 
-        AND vr.status = 'COMPLETED'
-      where d.vaccine_need = true
-      GROUP BY d.id, d.name, d.dose_quantity
-      ORDER BY d.id
+        vd.disease_id,
+        STRING_AGG(DISTINCT d.name, ', ') AS disease_name,
+        (
+          SELECT COUNT(*) 
+          FROM vaccination_record vr_sub
+          WHERE 
+            vr_sub.student_id = $1 AND
+            vr_sub.disease_id && vd.disease_id AND
+            vr_sub.status = 'COMPLETED'
+        ) AS completed_doses,
+        vd.dose_quantity
+      FROM vaccine_disease vd
+      LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+      GROUP BY vd.disease_id, vd.dose_quantity
+      ORDER BY vd.disease_id
     `,
       [student_id]
     );
