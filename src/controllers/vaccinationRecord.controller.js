@@ -58,83 +58,31 @@ export async function createVaccinationRecord(req, res) {
 
 export async function acceptVaccinationRecord(req, res) {
   const { id } = req.params;
-  const client = await pool.connect(); // Sử dụng pool để quản lý kết nối
 
   try {
-    // Bắt đầu transaction
-    await client.query("BEGIN");
-
-    // Cập nhật bản ghi vaccination_record
-    const accept = await client.query(
+    const accept = await query(
       `
         UPDATE vaccination_record 
-        SET pending = 'DONE', status = 'COMPLETED'
-        WHERE id = $1
+        SET
+          pending = 'DONE', status = 'COMPLETED'
+        WHERE 
+          id = $1
         RETURNING student_id, disease_id, vaccine_id, description, location, vaccination_date
       `,
       [id]
     );
 
-    if (accept.rowCount === 0) {
-      throw new Error("Vaccination record not found");
-    }
-
-    const vaccine_id = accept.rows[0].vaccine_id;
-
-    // Lấy tất cả disease_id được map với vaccine_id này (ngoại trừ disease_id gốc)
-    const diseases = await client.query(
-      `SELECT disease_id FROM vaccine_disease WHERE vaccine_id = $1 AND disease_id != $2`,
-      [vaccine_id, accept.rows[0].disease_id]
-    );
-
-    // Tạo vaccination_record cho các disease_id khác (nếu chưa có)
-    for (const disease of diseases.rows) {
-      await client.query(
-        `
-          INSERT INTO vaccination_record (
-            student_id, 
-            disease_id, 
-            vaccine_id, 
-            status, 
-            description, 
-            location, 
-            vaccination_date, 
-            pending
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        `,
-        [
-          accept.rows[0].student_id,
-          disease.disease_id,
-          vaccine_id,
-          "COMPLETED",
-          accept.rows[0].description,
-          accept.rows[0].location,
-          accept.rows[0].vaccination_date,
-          null,
-        ]
-      );
-    }
-
-    // Commit transaction
-    await client.query("COMMIT");
-
     return res.status(200).json({
       error: false,
       message: "Accept recording request successfully",
-      data: accept.rows[0],
+      data: accept,
     });
   } catch (error) {
-    // Rollback transaction nếu có lỗi
-    await client.query("ROLLBACK");
-    console.error("Error accepting recording request:", error);
+    console.error("Error accepting recording request: " + error);
     return res.status(500).json({
       error: true,
-      message: `Error when accepting record request: ${error.message}`,
+      message: "Error when accepting record request: ",
     });
-  } finally {
-    // Giải phóng kết nối
-    client.release();
   }
 }
 
@@ -174,13 +122,26 @@ export async function getVaccinationDeclarationsHistoryByStudentID(req, res) {
   try {
     const result = await query(
       `
-        SELECT vr.*, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
+        SELECT 
+          vr.*, 
+          s.name as student_name, 
+          c.name as class_name, 
+          v.name as vaccine_name,
+          vd.disease_id, 
+          STRING_AGG(d.name, ',') as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id
-        JOIN disease d on vr.disease_id = d.id 
+        JOIN vaccine_disease vd on vd.vaccine_id = v.id
+        JOIN disease d on d.id = ANY(vr.disease_id) 
         JOIN class c on s.class_id = c.id
         WHERE student_id = $1 AND pending IS NOT NULL
+        GROUP BY           
+          vr.id, 
+          s.name, 
+          c.name, 
+          v.name,
+          vd.disease_id
         ORDER BY vr.created_at DESC
       `,
       [student_id]
@@ -207,14 +168,27 @@ export async function getVaccinationDeclarationsHistory(req, res) {
   try {
     const result = await query(
       `
-        SELECT vr.*, s.name as student_name, c.name as class_name, v.name as vaccine_name, d.name as disease_name
+        SELECT 
+          vr.*, 
+          s.name as student_name, 
+          c.name as class_name, 
+          v.name as vaccine_name,
+          vd.disease_id, 
+          STRING_AGG(d.name, ',') as disease_name
         FROM vaccination_record vr
         JOIN student s on vr.student_id = s.id
         JOIN vaccine v on vr.vaccine_id = v.id
-        JOIN disease d on vr.disease_id = d.id 
+        JOIN vaccine_disease vd on vd.vaccine_id = v.id
+        JOIN disease d on d.id = ANY(vr.disease_id) 
         JOIN class c on s.class_id = c.id
         WHERE pending IS NOT NULL
-        ORDER BY created_at DESC
+        GROUP BY           
+          vr.id, 
+          s.name, 
+          c.name, 
+          v.name,
+          vd.disease_id
+        ORDER BY vr.created_at DESC
       `
     );
 
@@ -514,12 +488,13 @@ export async function getVaccinationRecordByID(req, res) {
   try {
     const records = await query(
       `
-        SELECT vr.*, s.name as student_name, v.name as vaccine_name, d.name as disease_name 
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, STRING_AGG(DISTINCT d.name, ', ') AS disease_name
         FROM vaccination_record vr
         JOIN student s ON vr.student_id = s.id
         JOIN vaccine v ON vr.vaccine_id = v.id
-        JOIN disease d ON vr.disease_id = d.id   
-        WHERE vr.id = $1 AND (vr.pending IS NULL OR vr.pending = 'DONE')`,
+        LEFT JOIN disease d ON d.id = ANY(vr.disease_id)
+        WHERE vr.id = $1 AND (vr.pending IS NULL OR vr.pending = 'DONE')
+        GROUP BY vr.id , s.name, v.name`,
       [id]
     );
     if (records.rows.length === 0) {
@@ -580,30 +555,30 @@ export async function getVaccinationRecordsByStudentID(req, res) {
   }
 }
 
-export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
-  const { student_id, disease_id } = req.params;
-
+export async function getVaccinationRecordsOfAStudentBasedOnADisease(
+  req,
+  res,
+  disease_id
+) {
+  console.log(disease_id);
+  const { student_id } = req.params;
   try {
     const { rows } = await query(
       `
-      SELECT
-        vr.id,
-        vr.disease_id,
-        vr.vaccine_id,
-        v.name AS vaccine_name,
-        vr.vaccination_date,
-        vr.description,
-        vr.location,
-        vr.status
-      FROM vaccination_record vr
-      JOIN vaccine v ON vr.vaccine_id = v.id
-      WHERE vr.student_id = $1 AND vr.disease_id = $2 AND (vr.pending IS NULL OR vr.pending = 'DONE')
-      ORDER BY vr.vaccination_date
+        SELECT vr.*, s.name as student_name, v.name as vaccine_name, STRING_AGG(DISTINCT d.name, ', ') AS disease_name
+        FROM vaccination_record vr
+        JOIN student s ON vr.student_id = s.id
+        JOIN vaccine v ON vr.vaccine_id = v.id
+        LEFT JOIN disease d ON d.id = ANY(vr.disease_id)
+        WHERE vr.student_id = $1 AND vr.disease_id = $2::int[] AND (vr.pending IS NULL OR vr.pending = 'DONE')
+        GROUP BY vr.id , s.name, v.name
+        ORDER BY vr.vaccination_date
     `,
       [student_id, disease_id]
     );
 
     if (rows.length === 0) {
+      console.log("404");
       return res.status(404).json({
         error: true,
         message: "Không có lịch sử tiêm chủng cho học sinh này với bệnh này",
@@ -616,6 +591,7 @@ export async function getVaccinationRecordsOfAStudentBasedOnADisease(req, res) {
       data: rows,
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({
       error: true,
       message: "Lỗi khi lấy lịch sử tiêm chủng theo bệnh",

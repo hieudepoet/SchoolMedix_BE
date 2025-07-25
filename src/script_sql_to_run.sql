@@ -943,62 +943,62 @@ CREATE TABLE disease (
 
 
 -- Insert data into disease table
-INSERT INTO disease (disease_category, name, description, vaccine_need, dose_quantity) VALUES
+INSERT INTO disease (disease_category, name, description, vaccine_need) VALUES
 -- Bệnh truyền nhiễm (giữ nguyên từ dữ liệu trước)
-('Bệnh truyền nhiễm', 'Bạch hầu', 'Bệnh do vi khuẩn Corynebacterium diphtheriae gây ra, ảnh hưởng đến đường hô hấp', TRUE, 3),
-('Bệnh truyền nhiễm', 'Ho gà', 'Bệnh do vi khuẩn Bordetella pertussis gây ra, gây ho kéo dài', TRUE, 3),
-('Bệnh truyền nhiễm', 'Uốn ván', 'Bệnh do vi khuẩn Clostridium tetani gây ra, gây co cơ và co giật', TRUE, 3),
-('Bệnh truyền nhiễm', 'Bại liệt', 'Bệnh do virus polio gây ra, có thể gây liệt', TRUE, 3),
-('Bệnh truyền nhiễm', 'Viêm màng não mủ', 'Bệnh do vi khuẩn Haemophilus influenzae type b (Hib) hoặc não mô cầu gây ra', TRUE, 3),
-('Bệnh truyền nhiễm', 'Viêm phổi do Hib', 'Viêm phổi do vi khuẩn Haemophilus influenzae type b', TRUE, 3),
-('Bệnh truyền nhiễm', 'Viêm gan B', 'Bệnh do virus viêm gan B gây ra, ảnh hưởng đến gan', TRUE, 3),
-('Bệnh truyền nhiễm', 'Tiêu chảy cấp do Rota virus', 'Bệnh tiêu hóa do virus Rota gây ra, phổ biến ở trẻ em', TRUE, 2),
-('Bệnh truyền nhiễm', 'Các bệnh do phế cầu', 'Bệnh do vi khuẩn Streptococcus pneumoniae gây ra, bao gồm viêm phổi, viêm màng não', TRUE, 3),
-('Bệnh truyền nhiễm', 'Lao', 'Bệnh do vi khuẩn Mycobacterium tuberculosis gây ra, ảnh hưởng đến phổi', TRUE, 1),
-('Bệnh truyền nhiễm', 'Viêm màng não do não mô cầu', 'Bệnh do vi khuẩn Neisseria meningitidis gây ra', TRUE, 2),
-('Bệnh truyền nhiễm', 'Sởi', 'Bệnh do virus sởi gây ra, gây sốt và phát ban', TRUE, 2),
-('Bệnh truyền nhiễm', 'Quai bị', 'Bệnh do virus quai bị gây ra, gây sưng tuyến nước bọt', TRUE, 2),
-('Bệnh truyền nhiễm', 'Rubella', 'Bệnh do virus Rubella gây ra, gây phát ban và nguy hiểm cho thai nhi', TRUE, 2),
-('Bệnh truyền nhiễm', 'Thủy đậu', 'Bệnh do virus Varicella-zoster gây ra, gây phát ban và ngứa', TRUE, 2),
-('Bệnh truyền nhiễm', 'Zona thần kinh', 'Bệnh do virus Varicella-zoster tái hoạt động, gây đau và phát ban', TRUE, 2),
-('Bệnh truyền nhiễm', 'Cúm', 'Bệnh do virus cúm gây ra, ảnh hưởng đến đường hô hấp', TRUE, 1),
-('Bệnh mãn tính', 'Ung thư cổ tử cung do HPV', 'Ung thư do virus HPV gây ra, ảnh hưởng đến cổ tử cung', TRUE, 3),
-('Bệnh mãn tính', 'Ung thư hầu họng do HPV', 'Ung thư do virus HPV gây ra, ảnh hưởng đến hầu họng', TRUE, 3),
-('Bệnh mãn tính', 'Sùi mào gà do HPV', 'Bệnh do virus HPV gây ra, gây u nhú ở da và niêm mạc', TRUE, 3),
-('Bệnh truyền nhiễm', 'Sốt xuất huyết', 'Bệnh do virus Dengue gây ra, gây sốt cao và xuất huyết', TRUE, 2),
-('Bệnh truyền nhiễm', 'Viêm não Nhật Bản', 'Bệnh do virus viêm não Nhật Bản gây ra, ảnh hưởng đến não', TRUE, 3),
-('Bệnh truyền nhiễm', 'Dại', 'Bệnh do virus dại gây ra, gây tử vong nếu không điều trị', TRUE, 5),
-('Bệnh truyền nhiễm', 'Viêm gan A', 'Bệnh do virus viêm gan A gây ra, ảnh hưởng đến gan', TRUE, 2),
-('Bệnh truyền nhiễm', 'Thương hàn', 'Bệnh do vi khuẩn Salmonella Typhi gây ra, ảnh hưởng đến đường tiêu hóa', TRUE, 1),
-('Bệnh truyền nhiễm', 'Tả', 'Bệnh do vi khuẩn Vibrio cholerae gây ra, gây tiêu chảy cấp', TRUE, 2),
-('Bệnh truyền nhiễm', 'Sốt vàng', 'Bệnh do virus sốt vàng gây ra, ảnh hưởng đến gan và thận', TRUE, 1),
+('Bệnh truyền nhiễm', 'Bạch hầu', 'Bệnh do vi khuẩn Corynebacterium diphtheriae gây ra, ảnh hưởng đến đường hô hấp', TRUE),
+('Bệnh truyền nhiễm', 'Ho gà', 'Bệnh do vi khuẩn Bordetella pertussis gây ra, gây ho kéo dài', TRUE),
+('Bệnh truyền nhiễm', 'Uốn ván', 'Bệnh do vi khuẩn Clostridium tetani gây ra, gây co cơ và co giật', TRUE),
+('Bệnh truyền nhiễm', 'Bại liệt', 'Bệnh do virus polio gây ra, có thể gây liệt', TRUE),
+('Bệnh truyền nhiễm', 'Viêm màng não mủ', 'Bệnh do vi khuẩn Haemophilus influenzae type b (Hib) hoặc não mô cầu gây ra', TRUE),
+('Bệnh truyền nhiễm', 'Viêm phổi do Hib', 'Viêm phổi do vi khuẩn Haemophilus influenzae type b', TRUE),
+('Bệnh truyền nhiễm', 'Viêm gan B', 'Bệnh do virus viêm gan B gây ra, ảnh hưởng đến gan', TRUE),
+('Bệnh truyền nhiễm', 'Tiêu chảy cấp do Rota virus', 'Bệnh tiêu hóa do virus Rota gây ra, phổ biến ở trẻ em', TRUE),
+('Bệnh truyền nhiễm', 'Các bệnh do phế cầu', 'Bệnh do vi khuẩn Streptococcus pneumoniae gây ra, bao gồm viêm phổi, viêm màng não', TRUE),
+('Bệnh truyền nhiễm', 'Lao', 'Bệnh do vi khuẩn Mycobacterium tuberculosis gây ra, ảnh hưởng đến phổi', TRUE),
+('Bệnh truyền nhiễm', 'Viêm màng não do não mô cầu', 'Bệnh do vi khuẩn Neisseria meningitidis gây ra', TRUE),
+('Bệnh truyền nhiễm', 'Sởi', 'Bệnh do virus sởi gây ra, gây sốt và phát ban', TRUE),
+('Bệnh truyền nhiễm', 'Quai bị', 'Bệnh do virus quai bị gây ra, gây sưng tuyến nước bọt', TRUE),
+('Bệnh truyền nhiễm', 'Rubella', 'Bệnh do virus Rubella gây ra, gây phát ban và nguy hiểm cho thai nhi', TRUE),
+('Bệnh truyền nhiễm', 'Thủy đậu', 'Bệnh do virus Varicella-zoster gây ra, gây phát ban và ngứa', TRUE),
+('Bệnh truyền nhiễm', 'Zona thần kinh', 'Bệnh do virus Varicella-zoster tái hoạt động, gây đau và phát ban', TRUE),
+('Bệnh truyền nhiễm', 'Cúm', 'Bệnh do virus cúm gây ra, ảnh hưởng đến đường hô hấp', TRUE),
+('Bệnh mãn tính', 'Ung thư cổ tử cung do HPV', 'Ung thư do virus HPV gây ra, ảnh hưởng đến cổ tử cung', TRUE),
+('Bệnh mãn tính', 'Ung thư hầu họng do HPV', 'Ung thư do virus HPV gây ra, ảnh hưởng đến hầu họng', TRUE),
+('Bệnh mãn tính', 'Sùi mào gà do HPV', 'Bệnh do virus HPV gây ra, gây u nhú ở da và niêm mạc', TRUE),
+('Bệnh truyền nhiễm', 'Sốt xuất huyết', 'Bệnh do virus Dengue gây ra, gây sốt cao và xuất huyết', TRUE),
+('Bệnh truyền nhiễm', 'Viêm não Nhật Bản', 'Bệnh do virus viêm não Nhật Bản gây ra, ảnh hưởng đến não', TRUE),
+('Bệnh truyền nhiễm', 'Dại', 'Bệnh do virus dại gây ra, gây tử vong nếu không điều trị', TRUE),
+('Bệnh truyền nhiễm', 'Viêm gan A', 'Bệnh do virus viêm gan A gây ra, ảnh hưởng đến gan', TRUE),
+('Bệnh truyền nhiễm', 'Thương hàn', 'Bệnh do vi khuẩn Salmonella Typhi gây ra, ảnh hưởng đến đường tiêu hóa', TRUE),
+('Bệnh truyền nhiễm', 'Tả', 'Bệnh do vi khuẩn Vibrio cholerae gây ra, gây tiêu chảy cấp', TRUE),
+('Bệnh truyền nhiễm', 'Sốt vàng', 'Bệnh do virus sốt vàng gây ra, ảnh hưởng đến gan và thận', TRUE),
 -- Bệnh mãn tính (bổ sung thêm)
-('Bệnh mãn tính', 'Tiểu đường type 1', 'Bệnh tự miễn làm tổn thương tế bào sản xuất insulin trong tuyến tụy', FALSE, NULL),
-('Bệnh mãn tính', 'Tiểu đường type 2', 'Bệnh liên quan đến kháng insulin, thường gặp ở người lớn tuổi hoặc thừa cân', FALSE, NULL),
-('Bệnh mãn tính', 'Tăng huyết áp', 'Tình trạng huyết áp cao kéo dài, gây nguy cơ đột quỵ và bệnh tim', FALSE, NULL),
-('Bệnh mãn tính', 'Bệnh tim mạch', 'Các bệnh liên quan đến tim và mạch máu, bao gồm suy tim, nhồi máu cơ tim', FALSE, NULL),
-('Bệnh mãn tính', 'Suy thận mạn', 'Suy giảm chức năng thận kéo dài, có thể dẫn đến dialysis', FALSE, NULL),
-('Bệnh mãn tính', 'Viêm gan mạn tính không do virus', 'Viêm gan kéo dài do rượu, béo phì hoặc tự miễn, không do virus', FALSE, NULL),
-('Bệnh mãn tính', 'Bệnh phổi tắc nghẽn mạn tính (COPD)', 'Bệnh phổi gây khó thở do tổn thương phế nang, thường do hút thuốc', FALSE, NULL),
-('Bệnh mãn tính', 'Hen suyễn', 'Bệnh phổi mạn tính gây co thắt đường thở, dẫn đến khó thở', FALSE, NULL),
-('Bệnh mãn tính', 'Viêm khớp dạng thấp', 'Bệnh tự miễn gây viêm và đau khớp kéo dài', FALSE, NULL),
-('Bệnh mãn tính', 'Lupus ban đỏ hệ thống', 'Bệnh tự miễn ảnh hưởng đến nhiều cơ quan như da, khớp, thận', FALSE, NULL),
-('Bệnh mãn tính', 'Ung thư phổi', 'Ung thư phát triển từ tế bào phổi, thường liên quan đến hút thuốc', FALSE, NULL),
-('Bệnh mãn tính', 'Ung thư gan', 'Ung thư phát triển từ tế bào gan, thường liên quan đến viêm gan mạn hoặc xơ gan', FALSE, NULL),
-('Bệnh mãn tính', 'Ung thư vú', 'Ung thư phát triển từ tế bào vú, phổ biến ở phụ nữ', FALSE, NULL),
-('Bệnh mãn tính', 'Ung thư đại trực tràng', 'Ung thư phát triển từ đại tràng hoặc trực tràng', FALSE, NULL),
-('Bệnh mãn tính', 'Bệnh Parkinson', 'Rối loạn thần kinh tiến triển gây run, cứng cơ và khó vận động', FALSE, NULL),
-('Bệnh mãn tính', 'Bệnh Alzheimer', 'Bệnh thoái hóa thần kinh gây suy giảm trí nhớ và nhận thức', FALSE, NULL),
-('Bệnh mãn tính', 'Loãng xương', 'Tình trạng xương mất mật độ, dễ gãy, thường gặp ở người lớn tuổi', FALSE, NULL),
-('Bệnh mãn tính', 'Viêm loét dạ dày mạn tính', 'Viêm loét kéo dài ở niêm mạc dạ dày, thường do vi khuẩn HP hoặc stress', FALSE, NULL),
-('Bệnh mãn tính', 'Bệnh gout', 'Bệnh do tích tụ axit uric gây viêm khớp, thường ở ngón chân cái', FALSE, NULL),
-('Bệnh mãn tính', 'Động kinh', 'Rối loạn thần kinh gây co giật tái phát', FALSE, NULL),
-('Bệnh mãn tính', 'Bệnh vảy nến', 'Bệnh tự miễn gây tổn thương da với các mảng đỏ, bong tróc', FALSE, NULL),
-('Bệnh mãn tính', 'Bệnh Crohn', 'Bệnh viêm ruột mạn tính, ảnh hưởng đến đường tiêu hóa', FALSE, NULL),
-('Bệnh mãn tính', 'Viêm đại tràng mạn tính', 'Viêm kéo dài ở đại tràng, gây tiêu chảy và đau bụng', FALSE, NULL),
-('Bệnh mãn tính', 'Xơ gan', 'Tổn thương gan mạn tính do rượu, viêm gan hoặc các nguyên nhân khác', FALSE, NULL),
-('Bệnh mãn tính', 'Suy giáp', 'Tuyến giáp hoạt động kém, gây mệt mỏi và tăng cân', FALSE, NULL),
-('Bệnh mãn tính', 'Cường giáp', 'Tuyến giáp hoạt động quá mức, gây giảm cân và tim đập nhanh', FALSE, NULL);
+('Bệnh mãn tính', 'Tiểu đường type 1', 'Bệnh tự miễn làm tổn thương tế bào sản xuất insulin trong tuyến tụy', FALSE),
+('Bệnh mãn tính', 'Tiểu đường type 2', 'Bệnh liên quan đến kháng insulin, thường gặp ở người lớn tuổi hoặc thừa cân', FALSE),
+('Bệnh mãn tính', 'Tăng huyết áp', 'Tình trạng huyết áp cao kéo dài, gây nguy cơ đột quỵ và bệnh tim', FALSE),
+('Bệnh mãn tính', 'Bệnh tim mạch', 'Các bệnh liên quan đến tim và mạch máu, bao gồm suy tim, nhồi máu cơ tim', FALSE),
+('Bệnh mãn tính', 'Suy thận mạn', 'Suy giảm chức năng thận kéo dài, có thể dẫn đến dialysis', FALSE),
+('Bệnh mãn tính', 'Viêm gan mạn tính không do virus', 'Viêm gan kéo dài do rượu, béo phì hoặc tự miễn, không do virus', FALSE),
+('Bệnh mãn tính', 'Bệnh phổi tắc nghẽn mạn tính (COPD)', 'Bệnh phổi gây khó thở do tổn thương phế nang, thường do hút thuốc', FALSE),
+('Bệnh mãn tính', 'Hen suyễn', 'Bệnh phổi mạn tính gây co thắt đường thở, dẫn đến khó thở', FALSE),
+('Bệnh mãn tính', 'Viêm khớp dạng thấp', 'Bệnh tự miễn gây viêm và đau khớp kéo dài', FALSE),
+('Bệnh mãn tính', 'Lupus ban đỏ hệ thống', 'Bệnh tự miễn ảnh hưởng đến nhiều cơ quan như da, khớp, thận', FALSE),
+('Bệnh mãn tính', 'Ung thư phổi', 'Ung thư phát triển từ tế bào phổi, thường liên quan đến hút thuốc', FALSE),
+('Bệnh mãn tính', 'Ung thư gan', 'Ung thư phát triển từ tế bào gan, thường liên quan đến viêm gan mạn hoặc xơ gan', FALSE),
+('Bệnh mãn tính', 'Ung thư vú', 'Ung thư phát triển từ tế bào vú, phổ biến ở phụ nữ', FALSE),
+('Bệnh mãn tính', 'Ung thư đại trực tràng', 'Ung thư phát triển từ đại tràng hoặc trực tràng', FALSE),
+('Bệnh mãn tính', 'Bệnh Parkinson', 'Rối loạn thần kinh tiến triển gây run, cứng cơ và khó vận động', FALSE),
+('Bệnh mãn tính', 'Bệnh Alzheimer', 'Bệnh thoái hóa thần kinh gây suy giảm trí nhớ và nhận thức', FALSE),
+('Bệnh mãn tính', 'Loãng xương', 'Tình trạng xương mất mật độ, dễ gãy, thường gặp ở người lớn tuổi', FALSE),
+('Bệnh mãn tính', 'Viêm loét dạ dày mạn tính', 'Viêm loét kéo dài ở niêm mạc dạ dày, thường do vi khuẩn HP hoặc stress', FALSE),
+('Bệnh mãn tính', 'Bệnh gout', 'Bệnh do tích tụ axit uric gây viêm khớp, thường ở ngón chân cái', FALSE),
+('Bệnh mãn tính', 'Động kinh', 'Rối loạn thần kinh gây co giật tái phát', FALSE),
+('Bệnh mãn tính', 'Bệnh vảy nến', 'Bệnh tự miễn gây tổn thương da với các mảng đỏ, bong tróc', FALSE),
+('Bệnh mãn tính', 'Bệnh Crohn', 'Bệnh viêm ruột mạn tính, ảnh hưởng đến đường tiêu hóa', FALSE),
+('Bệnh mãn tính', 'Viêm đại tràng mạn tính', 'Viêm kéo dài ở đại tràng, gây tiêu chảy và đau bụng', FALSE),
+('Bệnh mãn tính', 'Xơ gan', 'Tổn thương gan mạn tính do rượu, viêm gan hoặc các nguyên nhân khác', FALSE),
+('Bệnh mãn tính', 'Suy giáp', 'Tuyến giáp hoạt động kém, gây mệt mỏi và tăng cân', FALSE),
+('Bệnh mãn tính', 'Cường giáp', 'Tuyến giáp hoạt động quá mức, gây giảm cân và tim đập nhanh', FALSE);
 
 
 --vaccine
@@ -1068,76 +1068,75 @@ INSERT INTO vaccine (name, origin, description) VALUES
 ('Stamaril', 'Pháp', 'Vắc xin phòng sốt vàng');
 
 CREATE TABLE vaccine_disease (
-    vaccine_id INT NOT NULL,
-    disease_id INT NOT NULL,
-    PRIMARY KEY (vaccine_id, disease_id),
-    FOREIGN KEY (vaccine_id) REFERENCES vaccine(id),
-    FOREIGN KEY (disease_id) REFERENCES disease(id)
+    vaccine_id INT PRIMARY KEY,
+    disease_id INT[] NOT NULL,
+    dose_quantity INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
 -- Insert data into vaccine_disease table
-INSERT INTO vaccine_disease (vaccine_id, disease_id) VALUES
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), -- Infanrix Hexa
-(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), -- Hexaxim
-(3, 8), -- Rotateq
-(4, 8), -- Rotarix
-(5, 8), -- Rotavin
-(6, 9), -- Synflorix
-(7, 9), -- Prevenar 13
-(8, 9), -- Vaxneuvance
-(9, 9), -- Prevenar 20
-(10, 9), -- Pneumovax 23
-(11, 10), -- BCG
-(12, 7), -- Gene Hbvax 1ml
-(13, 7), -- Heberbiovac 1ml
-(14, 7), -- Gene Hbvax 0.5ml
-(15, 7), -- Heberbiovac 0.5ml
-(16, 11), -- Bexsero
-(17, 11), -- VA-Mengoc-BC
-(18, 11), -- MenQuadfi
-(19, 11), -- Menactra
-(20, 12), -- MVVac (Lọ 5ml)
-(21, 12), -- MVVac (Liều 0.5ml)
-(22, 12), (22, 13), (22, 14), -- MMR II
-(23, 12), (23, 13), (23, 14), -- Priorix
-(24, 15), -- Varivax
-(25, 15), -- Varilrix
-(26, 16), -- Shingrix
-(27, 17), -- Vaxigrip Tetra
-(28, 17), -- Influvac Tetra
-(29, 17), -- GC Flu Quadrivalent
-(30, 17), -- Ivacflu-S
-(31, 18), (31, 19), (31, 20), -- Gardasil
-(32, 18), (32, 19), (32, 20), -- Gardasil 9
-(33, 21), -- Qdenga
-(34, 3), -- Vắc xin uốn ván hấp phụ (TT)
-(35, 3), -- Huyết thanh uốn ván (SAT)
-(36, 22), -- Imojev
-(37, 22), -- Jeev
-(38, 22), -- Jevax
-(39, 23), -- Verorab (TB)
-(40, 23), -- Verorab (TTD)
-(41, 23), -- Abhayrab (TB)
-(42, 23), -- Abhayrab (TTD)
-(43, 1), (43, 2), (43, 3), -- Adacel
-(44, 1), (44, 2), (44, 3), -- Boostrix
-(45, 1), (45, 2), (45, 3), (45, 4), -- Tetraxim
-(46, 1), (46, 3), -- Uốn ván, bạch hầu hấp phụ (Td) – Lọ
-(47, 1), (47, 3), -- Uốn ván, bạch hầu hấp phụ (Td) - Liều
-(48, 7), (48, 24), -- Twinrix
-(49, 24), -- Havax
-(50, 24), -- Avaxim 80U
-(51, 25), -- Typhoid VI
-(52, 25), -- Typhim VI
-(53, 5), (53, 6), -- Quimi-Hib
-(54, 26), -- Morcvax
-(55, 27); -- Stamaril
+INSERT INTO vaccine_disease (vaccine_id, disease_id, dose_quantity) VALUES
+(1,  ARRAY[1,2,3,4,5,6,7], 3),         -- Infanrix Hexa
+(2,  ARRAY[1,2,3,4,5,6,7], 3),         -- Hexaxim
+(3,  ARRAY[8], 2),                     -- Rotateq
+(4,  ARRAY[8], 2),                     -- Rotarix
+(5,  ARRAY[8], 2),                     -- Rotavin
+(6,  ARRAY[9], 3),                     -- Synflorix
+(7,  ARRAY[9], 3),                     -- Prevenar 13
+(8,  ARRAY[9], 3),                     -- Vaxneuvance
+(9,  ARRAY[9], 3),                     -- Prevenar 20
+(10, ARRAY[9], 3),                     -- Pneumovax 23
+(11, ARRAY[10], 1),                    -- BCG
+(12, ARRAY[7], 1),                     -- Gene Hbvax 1ml
+(13, ARRAY[7], 1),                     -- Heberbiovac 1ml
+(14, ARRAY[7], 1),                     -- Gene Hbvax 0.5ml
+(15, ARRAY[7], 1),                     -- Heberbiovac 0.5ml
+(16, ARRAY[11], 1),                    -- Bexsero
+(17, ARRAY[11], 1),                    -- VA-Mengoc-BC
+(18, ARRAY[11], 1),                    -- MenQuadfi
+(19, ARRAY[11], 1),                    -- Menactra
+(20, ARRAY[12], 1),                    -- MVVac (5ml)
+(21, ARRAY[12], 1),                    -- MVVac (0.5ml)
+(22, ARRAY[12,13,14], 1),              -- MMR II
+(23, ARRAY[12,13,14], 1),              -- Priorix
+(24, ARRAY[15], 1),                    -- Varivax
+(25, ARRAY[15], 1),                    -- Varilrix
+(26, ARRAY[16], 1),                    -- Shingrix
+(27, ARRAY[17], 1),                    -- Vaxigrip Tetra
+(28, ARRAY[17], 1),                    -- Influvac Tetra
+(29, ARRAY[17], 1),                    -- GC Flu Quadrivalent
+(30, ARRAY[17], 1),                    -- Ivacflu-S
+(31, ARRAY[18,19,20], 1),              -- Gardasil
+(32, ARRAY[18,19,20], 1),              -- Gardasil 9
+(33, ARRAY[21], 1),                    -- Qdenga
+(34, ARRAY[3], 1),                     -- Vắc xin uốn ván hấp phụ (TT)
+(35, ARRAY[3], 1),                     -- Huyết thanh uốn ván (SAT)
+(36, ARRAY[22], 1),                    -- Imojev
+(37, ARRAY[22], 1),                    -- Jeev
+(38, ARRAY[22], 1),                    -- Jevax
+(39, ARRAY[23], 1),                    -- Verorab (TB)
+(40, ARRAY[23], 1),                    -- Verorab (TTD)
+(41, ARRAY[23], 1),                    -- Abhayrab (TB)
+(42, ARRAY[23], 1),                    -- Abhayrab (TTD)
+(43, ARRAY[1,2,3], 1),                 -- Adacel
+(44, ARRAY[1,2,3], 1),                 -- Boostrix
+(45, ARRAY[1,2,3,4], 1),               -- Tetraxim
+(46, ARRAY[1,3], 1),                   -- Uốn ván, bạch hầu hấp phụ (Td) – Lọ
+(47, ARRAY[1,3], 1),                   -- Uốn ván, bạch hầu hấp phụ (Td) – Liều
+(48, ARRAY[7,24], 1),                  -- Twinrix
+(49, ARRAY[24], 1),                    -- Havax
+(50, ARRAY[24], 1),                    -- Avaxim 80U
+(51, ARRAY[25], 1),                    -- Typhoid VI
+(52, ARRAY[25], 1),                    -- Typhim VI
+(53, ARRAY[5,6], 1),                   -- Quimi-Hib
+(54, ARRAY[26], 1),                    -- Morcvax
+(55, ARRAY[27], 1);                    -- Stamaril
        
 --vaccination_campaign
 CREATE TABLE vaccination_campaign (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
-	  disease_id INT NOT NULL,
+	  disease_id INT[] NOT NULL,
     vaccine_id INT NOT NULL,
     description TEXT,
     location VARCHAR(255),
@@ -1152,7 +1151,7 @@ CREATE TABLE vaccination_campaign (
 
 INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, location, start_date, end_date, status) VALUES
 (
-  10, 
+  ARRAY[10], 
   11, 
   'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 
   'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG)
@@ -1195,7 +1194,7 @@ CREATE TABLE vaccination_record (
     student_id varchar(10) NOT NULL,
     register_id INT, -- NULL nếu không đăng ký qua campaign
     -- campaign_id INT, -- NULL nếu không thuộc campaign khỏi lưu cái này cx đc
-	  disease_id INT NOT NULL,
+	  disease_id INT[] NOT NULL,
     vaccine_id INT, -- khác NULL nếu parent đăng ký tiêm ở chỗ khác mà không thông qua campaign nhà trường
     description TEXT,
     location VARCHAR(255),
@@ -1223,60 +1222,20 @@ INSERT INTO vaccination_record (
   status
 )
 VALUES
-  -- (
-  --   '211000',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-15',
-  --   'Tiêm vaccine BCG phòng bệnh Lao..............',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
   (
     '211000',
     NULL,
-    2,
+    ARRAY[8],
     3,
     '2023-06-15',
     'Tiêm bên ngoài',
     'School Medix',
     'COMPLETED'
   ),
-  -- (
-  --   '211001',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-15',
-  --   'Tiêm vaccine BCG phòng bệnh Lao................',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
-  -- (
-  --   '211002',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-16',
-  --   'Tiêm vaccine BCG phòng bệnh Lao.........',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
-  -- (
-  --   '211003',
-  --   1,
-  --   1,
-  --   1,
-  --   '2025-06-17',
-  --   'Tiêm vaccine BCG phòng bệnh Lao.............',
-  --   'School Medix',
-  --   'COMPLETED'
-  -- ),
   (
     '211002',
     NULL,
-    3,
+    ARRAY[8],
     5,
     '2025-06-20',
     'Tiêm bên ngoài',
@@ -1286,7 +1245,7 @@ VALUES
   (
     '211001',
     NULL,
-    3,
+    ARRAY[8],
     4,
     '2025-06-22',
     'Tiêm bên ngoài',
@@ -1296,7 +1255,7 @@ VALUES
   (
     '211003',
     NULL,
-    4,
+    ARRAY[9],
     7,
     '2025-06-25',
     'Tiêm bên ngoài',
