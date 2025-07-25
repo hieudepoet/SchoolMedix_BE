@@ -14,6 +14,7 @@ import specialistexam from "./specialistExam.routes.js";
 import blog from "./blog.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
 import scheduleRoutes from "./schedule.routes.js";
+import medicalItemRoutes from "./medicalItem.routes.js";
 
 const router = express.Router();
 
@@ -30,5 +31,6 @@ router.use("/", specialistexam);
 router.use("/", blog);
 router.use("/", dashboardRoutes);
 router.use("/", scheduleRoutes);
+router.use("/", medicalItemRoutes);
 
 export default router;

@@ -1344,6 +1344,176 @@ VALUES
 
 -----------------------------------------------------------------------------------------END FLOW DaiLyHealthRecord
 
+-----------------------------------------------------------------------------------------FLOW Quản lý thuốc, vật tư
+CREATE TABLE MedicalItem (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    unit VARCHAR(100) NOT NULL,
+    quantity INT CHECK (quantity >= 0),
+    description TEXT,
+    exp_date DATE NOT NULL,
+    category VARCHAR(50) CHECK (category IN ('MEDICAL_ITEM', 'MEDICATION'))
+);
+
+INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
+VALUES
+-- Giảm đau - hạ sốt
+('Paracetamol 500mg', 'viên', 100, 'Giảm đau, hạ sốt', '2026-12-31', 'MEDICATION'),
+('Ibuprofen 200mg', 'viên', 50, 'Giảm đau, kháng viêm', '2026-10-01', 'MEDICATION'),
+('Efferalgan 500mg', 'viên sủi', 80, 'Paracetamol dạng sủi, dễ uống', '2025-11-30', 'MEDICATION'),
+
+-- Kháng sinh
+('Amoxicillin 500mg', 'viên', 60, 'Kháng sinh phổ rộng nhóm penicillin', '2025-09-15', 'MEDICATION'),
+('Azithromycin 250mg', 'viên', 40, 'Kháng sinh nhóm macrolide', '2025-08-20', 'MEDICATION'),
+
+-- Dị ứng - cảm cúm
+('Loratadine 10mg', 'viên', 70, 'Giảm dị ứng, mề đay', '2026-01-01', 'MEDICATION'),
+('Cetirizine 10mg', 'viên', 90, 'Chống dị ứng', '2026-03-15', 'MEDICATION'),
+
+-- Tiêu hóa - đau dạ dày
+('Omeprazole 20mg', 'viên', 120, 'Giảm tiết axit dạ dày', '2027-05-05', 'MEDICATION'),
+('Smecta', 'gói', 200, 'Chống tiêu chảy, bảo vệ niêm mạc ruột', '2026-07-10', 'MEDICATION'),
+
+-- Vitamin
+('Vitamin C 500mg', 'viên', 150, 'Tăng cường sức đề kháng', '2026-04-01', 'MEDICATION'),
+('Centrum Adults', 'viên', 90, 'Vitamin tổng hợp', '2027-01-01', 'MEDICATION'),
+
+-- Kem chống ngứa
+('Kem chống ngứa', 'tuýp', 20, 'Bôi ngoài da, giảm mẩn đỏ', '2026-12-31', 'MEDICATION'),
+
+-- Men tiêu hóa
+('Men tiêu hóa gói', 'gói', 30, 'Hỗ trợ tiêu hóa', '2026-11-30', 'MEDICATION');
+
+INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
+VALUES
+-- Vật tư y tế thông dụng
+('Khẩu trang y tế 3 lớp', 'hộp (50 cái)', 20, 'Dùng trong phòng chống dịch, y tế thường ngày', '2026-12-31', 'MEDICAL_ITEM'),
+('Găng tay y tế không bột', 'hộp (100 cái)', 22, 'Găng tay cao su sử dụng 1 lần', '2026-09-30', 'MEDICAL_ITEM'),
+('Bông y tế tiệt trùng', 'bịch (100g)', 24, 'Dùng để cầm máu, vệ sinh vết thương', '2027-03-01', 'MEDICAL_ITEM'),
+('Băng keo cá nhân', 'hộp (100 miếng)', 18, 'Dán vết thương nhỏ', '2026-05-15', 'MEDICAL_ITEM'),
+('Cồn 70 độ', 'chai (500ml)', 10, 'Sát khuẩn vết thương, khử trùng', '2026-11-01', 'MEDICAL_ITEM'),
+('Dung dịch sát khuẩn tay nhanh', 'chai (500ml)', 20, 'Dùng khử khuẩn tay, nhanh khô', '2026-08-01', 'MEDICAL_ITEM'),
+('Nhiệt kế điện tử', 'cái', 30, 'Đo thân nhiệt chính xác', '2028-01-01', 'MEDICAL_ITEM'),
+('Ống tiêm 5ml', 'hộp (100 cái)', 90, 'Dùng để tiêm thuốc/liều lượng nhỏ', '2027-06-30', 'MEDICAL_ITEM');
+
+
+CREATE TABLE UseMedicalItems (
+    medical_item_id INT NOT NULL,
+    record_id INT NOT NULL,
+    used_quantity INT CHECK (used_quantity >= 0),
+
+    PRIMARY KEY (medical_item_id, record_id),
+    FOREIGN KEY (medical_item_id) REFERENCES MedicalItem(id),
+    FOREIGN KEY (record_id) REFERENCES daily_health_record(id)
+);
+
+-- record_id 1: Chảy máu cam – dùng Bông y tế tiệt trùng (id = 15)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES (15, 1, 2);
+
+-- record_id 2: Đau mắt đỏ – dùng Thuốc nhỏ mắt (Cetirizine 10mg id = 7)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES (7, 2, 1);
+
+-- record_id 3: Ho và sổ mũi – dùng Paracetamol (id = 1), khẩu trang (id = 13)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES 
+(1, 3, 1),     -- Paracetamol 500mg
+(13, 3, 1);    -- Khẩu trang y tế 3 lớp
+
+-- record_id 4: Đau răng – dùng Cồn 70 độ (id = 17)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES (17, 4, 1);
+
+-- record_id 5: Ngã cầu thang nhẹ – Băng keo cá nhân (id = 16), Dung dịch sát khuẩn (id = 18)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES 
+(16, 5, 1),
+(18, 5, 1);
+
+-- record_id 6: Sốt – Paracetamol (id = 1)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES (1, 6, 1);
+
+-- record_id 7: Nổi mẩn đỏ – Kem chống ngứa (id = 12)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES (12, 7, 1);
+
+-- record_id 8: Khó tiêu – Men tiêu hóa gói (id = 13)
+INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
+VALUES (13, 8, 1);
+
+
+--- SUPPLIER
+CREATE TABLE Supplier (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    address TEXT,
+    email VARCHAR(100),
+    phone VARCHAR(20)
+);
+
+INSERT INTO Supplier (name, description, address, email, phone)
+VALUES 
+-- 1
+('Công ty Dược Việt Nam', 'Chuyên cung cấp thuốc và vật tư y tế nội địa', 
+ '123 Đường Lê Lợi, Quận 1, TP.HCM', 'duocvn@example.com', '0909123456'),
+
+-- 2
+('MediSupply Co., Ltd.', 'Nhà cung cấp thiết bị y tế nhập khẩu', 
+ '456 Nguyễn Văn Cừ, Quận 5, TP.HCM', 'contact@medisupply.vn', '02838445566'),
+
+-- 3
+('Thiết Bị Y Tế An Tâm', 'Phân phối thiết bị phòng khám và bệnh viện', 
+ '789 Trường Chinh, Tân Bình, TP.HCM', 'info@antam.com', '0911223344'),
+
+-- 4
+('VietHealth Group', 'Tập đoàn cung ứng thuốc và hóa chất y tế toàn quốc', 
+ '88 Hoàng Quốc Việt, Cầu Giấy, Hà Nội', 'support@viethealth.vn', '0988667788'),
+
+-- 5
+('Y Dược Hồng Phát', 'Cung cấp thuốc theo đơn và không kê đơn', 
+ '22 Hai Bà Trưng, Hoàn Kiếm, Hà Nội', 'hongphat@ydvn.com', '02439283928'),
+
+-- 6
+('TBYT Miền Trung', 'Chuyên phân phối thiết bị y tế khu vực miền Trung', 
+ '95 Hùng Vương, TP. Huế', 'contact@tbytmt.vn', '02343888999'),
+
+-- 7
+('MedicalHub JSC', 'Đối tác cung ứng thuốc và thiết bị từ Nhật Bản và EU', 
+ '15 Pasteur, Quận 3, TP.HCM', 'sales@medicalhub.vn', '0909001122'),
+
+-- 8
+('An Khang Pharma', 'Nhà phân phối độc quyền các dòng vitamin cao cấp', 
+ '19 Lê Đại Hành, TP. Đà Nẵng', 'ankhang@pharma.vn', '02363667788'),
+
+-- 9
+('Siêu Thị Thiết Bị Y Tế', 'Cung cấp thiết bị y tế gia đình và cá nhân', 
+ '45 Võ Thị Sáu, TP. Biên Hòa', 'sieuthiyte@gmail.com', '0913666888'),
+
+-- 10
+('PharmaLink Việt Nam', 'Chuỗi cung ứng thuốc cho bệnh viện và phòng khám', 
+ '200 Lý Thường Kiệt, Quận 10, TP.HCM', 'pharmalink@vn.com', '02838668888');
+
+
+CREATE TABLE InventoryTransaction (
+    id SERIAL PRIMARY KEY,
+    purpose VARCHAR(100), -- ('IMPORT', 'DISPOSE', 'REFUND')),
+    note TEXT,
+    supplier_id INT,
+    FOREIGN KEY (supplier_id) REFERENCES Supplier(id)
+);
+
+CREATE TABLE TransactionItems (
+    transaction_id INT NOT NULL,
+    medical_item_id INT NOT NULL,
+    transaction_quantity INT NOT NULL,
+    
+    PRIMARY KEY (transaction_id, medical_item_id),
+    FOREIGN KEY (transaction_id) REFERENCES InventoryTransaction(id),
+    FOREIGN KEY (medical_item_id) REFERENCES MedicalItem(id)
+);
 
 -----------------------------------------------------------------------------------------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
