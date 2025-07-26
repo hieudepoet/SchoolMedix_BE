@@ -10,6 +10,7 @@ export const createDailyHealthRecord = async (req, res) => {
     transferred_to,
     items_usage,
     status,
+    medical_items
   } = req.body;
 
   if (!student_id || !detect_time) {
@@ -29,6 +30,16 @@ export const createDailyHealthRecord = async (req, res) => {
         .json({ error: true, message: "Student not found" });
     }
 
+    if (!Array.isArray(medical_items)) {
+      return res.status(400).json({ error: true, message: "Thiếu danh sách các vật dụng y tế." });
+    }
+
+
+
+
+    // check if stored quanity is adequate
+
+
     // Insert the daily health record
     const record_date = new Date();
     const insertQuery = `
@@ -47,6 +58,12 @@ export const createDailyHealthRecord = async (req, res) => {
       status,
     ];
     const result = await query(insertQuery, values);
+
+    // insert UseMedicalItems
+    const record_id = result.rows[0]?.id;
+
+
+
     return res
       .status(201)
       .json({ message: "Daily health record created", data: result.rows[0] });
@@ -199,3 +216,4 @@ export const updateDailyHealthRecordById = async (req, res) => {
       .json({ error: true, message: "Internal server error" });
   }
 };
+
