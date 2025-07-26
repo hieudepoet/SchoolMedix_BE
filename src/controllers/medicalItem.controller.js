@@ -308,17 +308,34 @@ export async function checkAdequateQuantityForItems(incoming_medical_items, purp
     for (const row of current_items_quantity) {
       quantity_map.set(row.id, row.quantity);
     }
-
+    console.log(incoming_medical_items);
     for (const item of incoming_medical_items) {
-      const item_quantity = quantity_map.get(item.medical_item_id) ?? 0;
-
-      if (item_quantity + multiply_for * item.transaction_quantity < 0) {
+      const current_quantity = Number(quantity_map.get(item.medical_item_id) ?? 0);
+      if (current_quantity + multiply_for * item.transaction_quantity < 0) {
         is_adequate_all = false;
         break;
       }
     }
   }
   return is_adequate_all;
+}
+
+export async function getMedicalItemsByTransactionID(transaction_id) {
+  const result = await query(
+    `SELECT 
+         mi.id AS medical_item_id,
+         mi.name,
+         mi.unit,
+         mi.description,
+         mi.category,
+         ti.transaction_quantity
+       FROM TransactionItems ti
+       JOIN MedicalItem mi ON ti.medical_item_id = mi.id
+       WHERE ti.transaction_id = $1`,
+    [transaction_id]
+  );
+
+  return result.rows;
 }
 
 
@@ -352,7 +369,7 @@ export async function createNewTransaction(purpose_id, note, transaction_date, m
   const transaction_id = transaction_result.rows[0].id;
 
   // Chèn vào bảng TransactionItems
-  await createNewMedicalItemsForTransaction(transaction_id, medical_items);
+  await createNewMedicalItemsForTransaction(transaction_id, medical_items, purpose_id);
 
   return transaction_id;
 }
@@ -365,22 +382,34 @@ export async function eraseAllTransactionItemsByTransactionID(transaction_id) {
 }
 
 export async function createNewMedicalItemsForTransaction(transaction_id, medical_items, purpose_id) {
-
-  await eraseAllTransactionItemsByTransactionID(transaction_id);
   const purpose_result = await query(`select multiply_for from transactionpurpose where id = $1`, [purpose_id]);
   const multiply_for = purpose_result.rows[0].multiply_for;
-
-  // check if there are enough quanity of medical item to use
-  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, purpose_id);
-  if (!is_valid_transaction_quantity) {
-    return;
-  }
 
   const values = [];
   const placeholders = [];
 
   for (let i = 0; i < medical_items.length; i++) {
     const { medical_item_id, transaction_quantity } = medical_items[i];
+    values.push(transaction_id, medical_item_id, multiply_for * transaction_quantity);
+    placeholders.push(`($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`);
+  }
+
+  if (values.length > 0) {
+    const insert_items_query = `
+        INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+        VALUES ${placeholders.join(", ")}
+      `;
+
+    await query(insert_items_query, values);
+  }
+}
+
+export async function restoreMedicalItemsForTransaction(transaction_id, old_medical_items) {
+  const values = [];
+  const placeholders = [];
+
+  for (let i = 0; i < old_medical_items.length; i++) {
+    const { medical_item_id, transaction_quantity } = old_medical_items[i];
     values.push(transaction_id, medical_item_id, transaction_quantity);
     placeholders.push(`($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`);
   }
@@ -710,7 +739,7 @@ export async function updateInventoryTransaction(req, res) {
       return res.status(404).json({ error: true, message: "Không tìm thấy giao dịch để cập nhật" });
     }
 
-    await createNewMedicalItemsForTransaction(updateResult.rows[0].id, medical_items)
+    await createNewMedicalItemsForTransaction(updateResult.rows[0].id, medical_items);
 
     return res.status(200).json({
       error: false,

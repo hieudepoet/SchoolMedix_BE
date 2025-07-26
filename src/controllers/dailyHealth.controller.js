@@ -1,5 +1,5 @@
 import { query } from "../config/database.js";
-import { checkAdequateQuantityForItems, createNewMedicalItemsForTransaction, createNewTransaction } from "./medicalItem.controller.js";
+import { checkAdequateQuantityForItems, createNewMedicalItemsForTransaction, createNewTransaction, eraseAllTransactionItemsByTransactionID, getMedicalItemsByTransactionID, restoreMedicalItemsForTransaction } from "./medicalItem.controller.js";
 
 //Create a new daily health record
 export const createDailyHealthRecord = async (req, res) => {
@@ -37,7 +37,7 @@ export const createDailyHealthRecord = async (req, res) => {
     if (Array.isArray(medical_items) && medical_items.length > 0) {
       // check if there are enough quanity of medical item to use
       let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, 1);
-      if (!is_valid_transaction_quantity) {
+      if (is_valid_transaction_quantity == false) {
         return res.status(400).json({ error: true, message: "Các vật tư y tế/thuốc không đủ số lượng." });
       }
       // if yes, then inserting new transaction
@@ -269,9 +269,16 @@ export const updateDailyHealthRecordById = async (req, res) => {
         .json({ error: true, message: "Daily health record not found" });
     }
 
-    // update medical items transaction
-    if (transaction_id && Array.isArray(medical_items) && medical_items.length > 0) {
+    const old_medical_items = await getMedicalItemsByTransactionID(transaction_id);
+    await eraseAllTransactionItemsByTransactionID(transaction_id);
+    const is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, 1);
+    if (is_valid_transaction_quantity == true) {
       await createNewMedicalItemsForTransaction(transaction_id, medical_items, 1);
+    } else {
+      await restoreMedicalItemsForTransaction(transaction_id, old_medical_items, 1);
+      return res
+        .status(400)
+        .json({ error: true, message: "Không đủ vật tư/ thuốc để sử dụng!" });
     }
 
     // Update the daily health record

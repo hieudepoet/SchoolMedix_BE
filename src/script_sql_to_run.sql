@@ -1322,16 +1322,18 @@ VALUES
 
 CREATE TABLE TransactionPurpose(
   id serial primary key,
-  title varchar(200)
+  title varchar(200),
+  multiply_for INT CHECK (multiply_for IN (1, -1))
 );
 
-insert into TransactionPurpose (title) VALUES 
+insert into TransactionPurpose (title, multiply_for) VALUES 
 ('Sử dụng cho nhân viên, học sinh', -1),
 ('Nhập hàng từ NCC', 1),
 ('Mua hàng bên ngoài', 1),
 ('Thuốc vật tư chất lượng không đảm bảo', -1), 
 ('Thuốc vật tư hết hạn sử dụng', -1), 
-('Hoàn trả hàng', -1);
+('Hoàn trả hàng', -1),
+('Phụ huynh dặn thuốc', 1);
 
 
 --- SUPPLIER
@@ -1478,12 +1480,12 @@ VALUES
 -- Transaction 1: Nhập thuốc từ Công ty Dược Việt Nam (supplier_id = 1)
 INSERT INTO InventoryTransaction (purpose_id, note, supplier_id, transaction_date)
 VALUES 
-(2, 'Nhập thuốc giảm đau và vitamin', 1, '2025-07-01');  -- id = 1
+(2, 'Nhập thuốc từ Công ty Dược Việt Nam', 1, '2025-07-01');  -- id = 1
 
 -- Transaction 2: Nhập vật tư từ MediSupply (supplier_id = 2)
 INSERT INTO InventoryTransaction (purpose_id, note, supplier_id, transaction_date)
 VALUES 
-(2, 'Nhập vật tư y tế phòng dịch', 2, '2025-07-02');     -- id = 2
+(2, 'Nhập vật tư từ MediSupply', 2, '2025-07-02');     -- id = 2
 
 -- Transaction 3: Tiêu hủy thuốc hết hạn
 INSERT INTO InventoryTransaction (purpose_id, note, supplier_id, transaction_date)
@@ -1499,13 +1501,29 @@ VALUES
 INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
 VALUES
 (9, 1, 100),   -- Paracetamol 500mg
+(9, 2, 50),
+(9, 3, 50),
+(9, 4, 50),
+(9, 5, 50),
+(9, 6, 50),
+(9, 7, 50),
+(9, 8, 50),
+(9, 9, 50),
+(9, 10, 50),
 (9, 11, 200);  -- Vitamin C 500mg
 
 -- Transaction 2: Nhập vật tư (IMPORT)
 INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
 VALUES
-(10, 13, 50),   -- Khẩu trang y tế
-(10, 14, 30);   -- Găng tay y tế
+(10, 12, 50),
+(10, 13, 50),
+(10, 14, 50),
+(10, 15, 50),
+(10, 16, 50),
+(10, 17, 50),
+(10, 18, 50),
+(10, 19, 50),   -- Khẩu trang y tế
+(10, 20, 30);   -- Găng tay y tế
 
 -- Transaction 3: Tiêu hủy thuốc (DISPOSE)
 INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
