@@ -130,17 +130,15 @@ export async function deleteDisease(req, res) {
   }
 }
 
-export async function getVaccinesByDisease(req, res) {
-  const { id } = req.params;
-
+export async function getVaccinesByDisease(req, res, diseaseIds) {
   try {
     const vaccineQuery = `
       SELECT v.*
       FROM vaccine v
       INNER JOIN vaccine_disease vd ON vd.vaccine_id = v.id
-      WHERE vd.disease_id = $1
+      WHERE vd.disease_id = $1::int[]
     `;
-    const result = await query(vaccineQuery, [id]);
+    const result = await query(vaccineQuery, [diseaseIds]);
 
     if (result.rowCount === 0) {
       return res
@@ -154,6 +152,31 @@ export async function getVaccinesByDisease(req, res) {
     });
   } catch (error) {
     console.error("Error fetching vaccines by disease:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
+  }
+}
+
+export async function getSetOfDisease(req, res) {
+  try {
+    const result = await query(
+      `
+      select 
+        vd.disease_id,
+        string_agg(distinct d.name, ', ') as disease_name
+      from vaccine_disease vd
+      left join disease d on d.id = any(vd.disease_id)
+      group by vd.disease_id
+            `
+    );
+    return res.status(200).json({
+      error: false,
+      message: "Fetching data successfully",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching diseases:", error);
     return res
       .status(500)
       .json({ error: true, message: "Internal server error" });
