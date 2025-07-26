@@ -36,7 +36,7 @@ export const createDailyHealthRecord = async (req, res) => {
     let transaction_id = null;
     if (Array.isArray(medical_items) && medical_items.length > 0) {
       // check if there are enough quanity of medical item to use
-      let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items);
+      let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, 1);
       if (!is_valid_transaction_quantity) {
         return res.status(400).json({ error: true, message: "Các vật tư y tế/thuốc không đủ số lượng." });
       }
@@ -271,7 +271,7 @@ export const updateDailyHealthRecordById = async (req, res) => {
 
     // update medical items transaction
     if (transaction_id && Array.isArray(medical_items) && medical_items.length > 0) {
-      await createNewMedicalItemsForTransaction(transaction_id, medical_items);
+      await createNewMedicalItemsForTransaction(transaction_id, medical_items, 1);
     }
 
     // Update the daily health record

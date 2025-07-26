@@ -1326,12 +1326,12 @@ CREATE TABLE TransactionPurpose(
 );
 
 insert into TransactionPurpose (title) VALUES 
-('Sử dụng cho nhân viên, học sinh'),
-('Nhập hàng từ NCC'),
-('Mua hàng bên ngoài'),
-('Thuốc vật tư chất lượng không đảm bảo'), 
-('Thuốc vật tư hết hạn sử dụng'), 
-('Hoàn trả hàng');
+('Sử dụng cho nhân viên, học sinh', -1),
+('Nhập hàng từ NCC', 1),
+('Mua hàng bên ngoài', 1),
+('Thuốc vật tư chất lượng không đảm bảo', -1), 
+('Thuốc vật tư hết hạn sử dụng', -1), 
+('Hoàn trả hàng', -1);
 
 
 --- SUPPLIER

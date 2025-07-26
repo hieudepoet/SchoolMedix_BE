@@ -294,10 +294,13 @@ export async function updateSupplier(req, res) {
 }
 
 
-export async function checkAdequateQuantityForItems(incoming_medical_items) {
+export async function checkAdequateQuantityForItems(incoming_medical_items, purpose_id) {
   let is_adequate_all = true;
 
   if (incoming_medical_items.length !== 0) {
+    const purpose_result = await query(`select multiply_for from transactionpurpose where id = $1`, [purpose_id]);
+    const multiply_for = purpose_result.rows[0].multiply_for;
+
     const current_items_quantity = await getCurrentItems();
 
     const quantity_map = new Map();
@@ -309,7 +312,7 @@ export async function checkAdequateQuantityForItems(incoming_medical_items) {
     for (const item of incoming_medical_items) {
       const item_quantity = quantity_map.get(item.medical_item_id) ?? 0;
 
-      if (item_quantity + item.transaction_quantity < 0) {
+      if (item_quantity + multiply_for * item.transaction_quantity < 0) {
         is_adequate_all = false;
         break;
       }
@@ -332,7 +335,7 @@ export async function getCurrentItems() {
 
 export async function createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id = null) {
   // check if there are enough quanity of medical item to use
-  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items);
+  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, purpose_id);
   if (!is_valid_transaction_quantity) {
     return;
   }
@@ -361,10 +364,14 @@ export async function eraseAllTransactionItemsByTransactionID(transaction_id) {
   );
 }
 
-export async function createNewMedicalItemsForTransaction(transaction_id, medical_items) {
+export async function createNewMedicalItemsForTransaction(transaction_id, medical_items, purpose_id) {
+
   await eraseAllTransactionItemsByTransactionID(transaction_id);
+  const purpose_result = await query(`select multiply_for from transactionpurpose where id = $1`, [purpose_id]);
+  const multiply_for = purpose_result.rows[0].multiply_for;
+
   // check if there are enough quanity of medical item to use
-  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items);
+  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, purpose_id);
   if (!is_valid_transaction_quantity) {
     return;
   }
@@ -611,9 +618,19 @@ export async function getInventoryTransactionsByPurposeID(req, res) {
 
 
 export async function checkAdequateQuantityForAItem(req, res) {
-  const { medical_item_id, incoming_quantity } = req.body;
+  const { medical_item_id, incoming_quantity, purpose_id } = req.body;
 
   try {
+    if (!purpose_id) {
+      return res.status(400).json({
+        error: true,
+        message: "Thieu purpose id",
+      });
+    }
+
+    const purpose_result = await query(`select multiply_for from transactionpurpose where id = $1`, [purpose_id]);
+    const multiply_for = purpose_result.rows[0].multiply_for;
+    console.log(multiply_for);
     const current_items_quantity = await getCurrentItems();
     const quantity_map = new Map();
 
@@ -622,7 +639,7 @@ export async function checkAdequateQuantityForAItem(req, res) {
     }
 
     const current_quantity = quantity_map.get(medical_item_id) ?? 0;
-    const is_adequate = current_quantity + incoming_quantity >= 0;
+    const is_adequate = current_quantity + multiply_for * incoming_quantity >= 0;
 
     return res.status(200).json({
       error: false,
@@ -630,7 +647,7 @@ export async function checkAdequateQuantityForAItem(req, res) {
       data: {
         is_adequate,
         current_quantity: parseInt(current_quantity),
-        incoming_quantity,
+        incoming_quantity: multiply_for * incoming_quantity,
       },
     });
   } catch (err) {
@@ -653,28 +670,12 @@ export async function createInventoryTransaction(req, res) {
   }
 
   try {
-    // 1. Insert inventory transaction
-    const transactionResult = await query(
-      `INSERT INTO InventoryTransaction (purpose_id, note, transaction_date, supplier_id)
-       VALUES ($1, $2, $3, $4)
-       RETURNING *`,
-      [purpose_id, note || "", transaction_date, supplier_id || null]
-    );
-    const transaction_id = transactionResult.rows[0].id;
-
-    // 2. Insert transaction items
-    for (const item of medical_items) {
-      await query(
-        `INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
-         VALUES ($1, $2, $3)`,
-        [transaction_id, item.medical_item_id, item.transaction_quantity]
-      );
-    }
+    const transaction_id = await createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id = null)
 
     return res.status(201).json({
       error: false,
       message: "Tạo giao dịch thành công",
-      data: transactionResult.rows[0],
+      transaction_id
     });
   } catch (err) {
     console.error("createInventoryTransaction:", err);
@@ -689,7 +690,7 @@ export async function updateInventoryTransaction(req, res) {
   const { id } = req.params;
   const { purpose_id, note, transaction_date, medical_items, supplier_id } = req.body;
 
-  if (!purpose_id || !transaction_date || !Array.isArray(medical_items) || medical_items.length === 0) {
+  if (!purpose_id || !transaction_date || !Array.isArray(medical_items)) {
     return res.status(400).json({
       error: true,
       message: "Missing required fields or empty medical_items array",
@@ -697,7 +698,6 @@ export async function updateInventoryTransaction(req, res) {
   }
 
   try {
-    // 1. Update transaction info
     const updateResult = await query(
       `UPDATE InventoryTransaction 
        SET purpose_id = $1, note = $2, transaction_date = $3, supplier_id = $4
@@ -710,17 +710,7 @@ export async function updateInventoryTransaction(req, res) {
       return res.status(404).json({ error: true, message: "Không tìm thấy giao dịch để cập nhật" });
     }
 
-    // 2. Remove old items
-    await query(`DELETE FROM TransactionItems WHERE transaction_id = $1`, [id]);
-
-    // 3. Insert new items
-    for (const item of medical_items) {
-      await query(
-        `INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
-         VALUES ($1, $2, $3)`,
-        [id, item.medical_item_id, item.transaction_quantity]
-      );
-    }
+    await createNewMedicalItemsForTransaction(updateResult.rows[0].id, medical_items)
 
     return res.status(200).json({
       error: false,
