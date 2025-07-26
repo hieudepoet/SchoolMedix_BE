@@ -1,3 +1,4 @@
+
 DO $$ DECLARE
     r RECORD;
 BEGIN
@@ -1349,10 +1350,10 @@ CREATE TABLE MedicalItem (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     unit VARCHAR(100) NOT NULL,
-    quantity INT CHECK (quantity >= 0),
+    quantity INT CHECK (quantity >= 0) DEFAULT 0,
     description TEXT,
     exp_date DATE NOT NULL,
-    category VARCHAR(50) CHECK (category IN ('MEDICAL_ITEM', 'MEDICATION'))
+    category VARCHAR(50) CHECK (category IN ('MEDICAL_SUPPLY', 'MEDICATION'))
 );
 
 INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
@@ -1387,14 +1388,14 @@ VALUES
 INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
 VALUES
 -- Vật tư y tế thông dụng
-('Khẩu trang y tế 3 lớp', 'hộp (50 cái)', 20, 'Dùng trong phòng chống dịch, y tế thường ngày', '2026-12-31', 'MEDICAL_ITEM'),
-('Găng tay y tế không bột', 'hộp (100 cái)', 22, 'Găng tay cao su sử dụng 1 lần', '2026-09-30', 'MEDICAL_ITEM'),
-('Bông y tế tiệt trùng', 'bịch (100g)', 24, 'Dùng để cầm máu, vệ sinh vết thương', '2027-03-01', 'MEDICAL_ITEM'),
-('Băng keo cá nhân', 'hộp (100 miếng)', 18, 'Dán vết thương nhỏ', '2026-05-15', 'MEDICAL_ITEM'),
-('Cồn 70 độ', 'chai (500ml)', 10, 'Sát khuẩn vết thương, khử trùng', '2026-11-01', 'MEDICAL_ITEM'),
-('Dung dịch sát khuẩn tay nhanh', 'chai (500ml)', 20, 'Dùng khử khuẩn tay, nhanh khô', '2026-08-01', 'MEDICAL_ITEM'),
-('Nhiệt kế điện tử', 'cái', 30, 'Đo thân nhiệt chính xác', '2028-01-01', 'MEDICAL_ITEM'),
-('Ống tiêm 5ml', 'hộp (100 cái)', 90, 'Dùng để tiêm thuốc/liều lượng nhỏ', '2027-06-30', 'MEDICAL_ITEM');
+('Khẩu trang y tế 3 lớp', 'hộp (50 cái)', 20, 'Dùng trong phòng chống dịch, y tế thường ngày', '2026-12-31', 'MEDICAL_SUPPLY'),
+('Găng tay y tế không bột', 'hộp (100 cái)', 22, 'Găng tay cao su sử dụng 1 lần', '2026-09-30', 'MEDICAL_SUPPLY'),
+('Bông y tế tiệt trùng', 'bịch (100g)', 24, 'Dùng để cầm máu, vệ sinh vết thương', '2027-03-01', 'MEDICAL_SUPPLY'),
+('Băng keo cá nhân', 'hộp (100 miếng)', 18, 'Dán vết thương nhỏ', '2026-05-15', 'MEDICAL_SUPPLY'),
+('Cồn 70 độ', 'chai (500ml)', 10, 'Sát khuẩn vết thương, khử trùng', '2026-11-01', 'MEDICAL_SUPPLY'),
+('Dung dịch sát khuẩn tay nhanh', 'chai (500ml)', 20, 'Dùng khử khuẩn tay, nhanh khô', '2026-08-01', 'MEDICAL_SUPPLY'),
+('Nhiệt kế điện tử', 'cái', 30, 'Đo thân nhiệt chính xác', '2028-01-01', 'MEDICAL_SUPPLY'),
+('Ống tiêm 5ml', 'hộp (100 cái)', 90, 'Dùng để tiêm thuốc/liều lượng nhỏ', '2027-06-30', 'MEDICAL_SUPPLY');
 
 
 CREATE TABLE UseMedicalItems (
@@ -1451,57 +1452,63 @@ CREATE TABLE Supplier (
     description TEXT,
     address TEXT,
     email VARCHAR(100),
-    phone VARCHAR(20)
+    phone VARCHAR(20),
+    contact_person VARCHAR(100),
+    tax_code VARCHAR(50),
+    status VARCHAR(50) CHECK (status IN ('ACTIVE', 'INACTIVE', 'UNKNOWN')) DEFAULT 'ACTIVE'
 );
 
-INSERT INTO Supplier (name, description, address, email, phone)
+INSERT INTO Supplier (
+    name, description, address, email, phone, contact_person, tax_code, status
+)
 VALUES 
 -- 1
 ('Công ty Dược Việt Nam', 'Chuyên cung cấp thuốc và vật tư y tế nội địa', 
- '123 Đường Lê Lợi, Quận 1, TP.HCM', 'duocvn@example.com', '0909123456'),
+ '123 Đường Lê Lợi, Quận 1, TP.HCM', 'duocvn@example.com', '0909123456', 'Nguyễn Văn A', '0301123234567', 'ACTIVE'),
 
 -- 2
 ('MediSupply Co., Ltd.', 'Nhà cung cấp thiết bị y tế nhập khẩu', 
- '456 Nguyễn Văn Cừ, Quận 5, TP.HCM', 'contact@medisupply.vn', '02838445566'),
+ '456 Nguyễn Văn Cừ, Quận 5, TP.HCM', 'contact@medisupply.vn', '02838445566', 'Trần Thị B', '0312345424678', 'ACTIVE'),
 
 -- 3
 ('Thiết Bị Y Tế An Tâm', 'Phân phối thiết bị phòng khám và bệnh viện', 
- '789 Trường Chinh, Tân Bình, TP.HCM', 'info@antam.com', '0911223344'),
+ '789 Trường Chinh, Tân Bình, TP.HCM', 'info@antam.com', '0911223344', 'Lê Văn C', '0323456725789', 'ACTIVE'),
 
 -- 4
 ('VietHealth Group', 'Tập đoàn cung ứng thuốc và hóa chất y tế toàn quốc', 
- '88 Hoàng Quốc Việt, Cầu Giấy, Hà Nội', 'support@viethealth.vn', '0988667788'),
+ '88 Hoàng Quốc Việt, Cầu Giấy, Hà Nội', 'support@viethealth.vn', '0988667788', 'Phạm Thị D', '0334265567890', 'ACTIVE'),
 
 -- 5
 ('Y Dược Hồng Phát', 'Cung cấp thuốc theo đơn và không kê đơn', 
- '22 Hai Bà Trưng, Hoàn Kiếm, Hà Nội', 'hongphat@ydvn.com', '02439283928'),
+ '22 Hai Bà Trưng, Hoàn Kiếm, Hà Nội', 'hongphat@ydvn.com', '02439283928', 'Vũ Văn E', '03456631278901', 'ACTIVE'),
 
 -- 6
 ('TBYT Miền Trung', 'Chuyên phân phối thiết bị y tế khu vực miền Trung', 
- '95 Hùng Vương, TP. Huế', 'contact@tbytmt.vn', '02343888999'),
+ '95 Hùng Vương, TP. Huế', 'contact@tbytmt.vn', '02343888999', 'Lê Thị F', '03513256789012', 'UNKNOWN'),
 
 -- 7
 ('MedicalHub JSC', 'Đối tác cung ứng thuốc và thiết bị từ Nhật Bản và EU', 
- '15 Pasteur, Quận 3, TP.HCM', 'sales@medicalhub.vn', '0909001122'),
+ '15 Pasteur, Quận 3, TP.HCM', 'sales@medicalhub.vn', '0909001122', 'Trần Văn G', '03513256789012', 'ACTIVE'),
 
 -- 8
 ('An Khang Pharma', 'Nhà phân phối độc quyền các dòng vitamin cao cấp', 
- '19 Lê Đại Hành, TP. Đà Nẵng', 'ankhang@pharma.vn', '02363667788'),
+ '19 Lê Đại Hành, TP. Đà Nẵng', 'ankhang@pharma.vn', '02363667788', 'Ngô Thị H', '03513256789012', 'INACTIVE'),
 
 -- 9
 ('Siêu Thị Thiết Bị Y Tế', 'Cung cấp thiết bị y tế gia đình và cá nhân', 
- '45 Võ Thị Sáu, TP. Biên Hòa', 'sieuthiyte@gmail.com', '0913666888'),
+ '45 Võ Thị Sáu, TP. Biên Hòa', 'sieuthiyte@gmail.com', '0913666888', 'Phan Văn I', '03513256789012', 'ACTIVE'),
 
 -- 10
 ('PharmaLink Việt Nam', 'Chuỗi cung ứng thuốc cho bệnh viện và phòng khám', 
- '200 Lý Thường Kiệt, Quận 10, TP.HCM', 'pharmalink@vn.com', '02838668888');
+ '200 Lý Thường Kiệt, Quận 10, TP.HCM', 'pharmalink@vn.com', '02838668888', 'Đỗ Thị K', '03513256789012', 'INACTIVE');
 
 
 CREATE TABLE InventoryTransaction (
     id SERIAL PRIMARY KEY,
-    purpose VARCHAR(100), -- ('IMPORT', 'DISPOSE', 'REFUND')),
+    purpose text,
     note TEXT,
     supplier_id INT,
+    transaction_date date,
     FOREIGN KEY (supplier_id) REFERENCES Supplier(id)
 );
 
@@ -1514,6 +1521,48 @@ CREATE TABLE TransactionItems (
     FOREIGN KEY (transaction_id) REFERENCES InventoryTransaction(id),
     FOREIGN KEY (medical_item_id) REFERENCES MedicalItem(id)
 );
+
+-- Transaction 1: Nhập thuốc từ Công ty Dược Việt Nam (supplier_id = 1)
+INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+VALUES 
+('Nhập hàng', 'Nhập thuốc giảm đau và vitamin', 1, '2025-07-01');  -- id = 1
+
+-- Transaction 2: Nhập vật tư từ MediSupply (supplier_id = 2)
+INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+VALUES 
+('Nhập hàng', 'Nhập vật tư y tế phòng dịch', 2, '2025-07-02');     -- id = 2
+
+-- Transaction 3: Tiêu hủy thuốc hết hạn
+INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+VALUES 
+('Tiêu hủy', 'Thuốc quá hạn', NULL, '2025-07-05');       -- id = 3
+
+-- Transaction 4: Hoàn hàng lỗi về MediSupply (supplier_id = 2)
+INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+VALUES 
+('Hoàn trả', 'Hoàn trả thuốc bị lỗi đóng gói', 2, '2025-07-10');   -- id = 4
+
+-- Transaction 1: Nhập thuốc (IMPORT)
+INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+VALUES
+(1, 1, 100),   -- Paracetamol 500mg
+(1, 11, 200);  -- Vitamin C 500mg
+
+-- Transaction 2: Nhập vật tư (IMPORT)
+INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+VALUES
+(2, 13, 50),   -- Khẩu trang y tế
+(2, 14, 30);   -- Găng tay y tế
+
+-- Transaction 3: Tiêu hủy thuốc (DISPOSE)
+INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+VALUES
+(3, 5, -20);   -- Azithromycin 250mg
+
+-- Transaction 4: Hoàn hàng (REFUND)
+INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+VALUES
+(4, 7, -10);   -- Cetirizine 10mg
 
 -----------------------------------------------------------------------------------------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------

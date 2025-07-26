@@ -120,3 +120,140 @@ export async function createNewMedicalSupply(req, res) {
     return res.status(500).json({ error: true, message: "Lỗi server khi tạo vật tư." });
   }
 }
+
+export async function getAllSuppliers(req, res) {
+  try {
+    const result = await query(`SELECT * FROM Supplier`);
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách nhà cung cấp thành công",
+      data: result.rows,
+    });
+  } catch (err) {
+    console.error("Error getting suppliers:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách nhà cung cấp",
+    });
+  }
+}
+
+export async function getSupplierById(req, res) {
+  const { id } = req.params;
+  try {
+    const result = await query(`SELECT * FROM Supplier WHERE id = $1`, [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy nhà cung cấp",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy thông tin nhà cung cấp thành công",
+      data: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Error getting supplier by id:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy thông tin nhà cung cấp",
+    });
+  }
+}
+
+export async function createSupplier(req, res) {
+  const {
+    name,
+    description,
+    address,
+    email,
+    phone,
+    contact_person,
+    tax_code,
+  } = req.body;
+
+  if (!name || !address || !email || !phone) {
+    return res.status(400).json({
+      error: true,
+      message: "Thiếu thông tin bắt buộc (name, address, email, phone)",
+    });
+  }
+
+  try {
+    const result = await query(
+      `
+      INSERT INTO Supplier (name, description, address, email, phone, contact_person, tax_code)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+      `,
+      [name, description, address, email, phone, contact_person, tax_code]
+    );
+
+    return res.status(201).json({
+      error: false,
+      message: "Tạo nhà cung cấp thành công",
+      data: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Error creating supplier:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi tạo nhà cung cấp",
+    });
+  }
+}
+
+export async function updateSupplier(req, res) {
+  const { id } = req.params;
+  const {
+    name,
+    description,
+    address,
+    email,
+    phone,
+    contact_person,
+    tax_code,
+    status,
+  } = req.body;
+
+  try {
+    const result = await query(
+      `
+      UPDATE Supplier
+      SET name = $1,
+          description = $2,
+          address = $3,
+          email = $4,
+          phone = $5,
+          contact_person = $6,
+          tax_code = $7,
+          status = $8
+      WHERE id = $9
+      RETURNING *
+      `,
+      [name, description, address, email, phone, contact_person, tax_code, status, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy nhà cung cấp để cập nhật",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật nhà cung cấp thành công",
+      data: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Error updating supplier:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi cập nhật nhà cung cấp",
+    });
+  }
+}
