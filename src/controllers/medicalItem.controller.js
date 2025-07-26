@@ -351,11 +351,7 @@ export async function getCurrentItems() {
 }
 
 export async function createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id = null) {
-  // check if there are enough quanity of medical item to use
-  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, purpose_id);
-  if (!is_valid_transaction_quantity) {
-    return;
-  }
+
   // if yes, then inserting new transaction
   const transaction_result = await query(
     `
@@ -699,7 +695,15 @@ export async function createInventoryTransaction(req, res) {
   }
 
   try {
-    const transaction_id = await createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id = null)
+    // check if there are enough quanity of medical item to use
+    let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, purpose_id);
+    if (is_valid_transaction_quantity == false) {
+      return res.status(400).json({
+        error: true,
+        message: "Khong du vat tu, thuoc men!",
+      });
+    }
+    const transaction_id = await createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id || null)
 
     return res.status(201).json({
       error: false,
@@ -727,6 +731,18 @@ export async function updateInventoryTransaction(req, res) {
   }
 
   try {
+    const old_medical_items = await getMedicalItemsByTransactionID(id);
+    await eraseAllTransactionItemsByTransactionID(id);
+    const is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, 1);
+    if (is_valid_transaction_quantity == true) {
+      await createNewMedicalItemsForTransaction(id, medical_items, 1);
+    } else {
+      await restoreMedicalItemsForTransaction(id, old_medical_items, 1);
+      return res
+        .status(400)
+        .json({ error: true, message: "Không đủ vật tư/ thuốc để sử dụng!" });
+    }
+
     const updateResult = await query(
       `UPDATE InventoryTransaction 
        SET purpose_id = $1, note = $2, transaction_date = $3, supplier_id = $4
@@ -738,8 +754,6 @@ export async function updateInventoryTransaction(req, res) {
     if (updateResult.rowCount === 0) {
       return res.status(404).json({ error: true, message: "Không tìm thấy giao dịch để cập nhật" });
     }
-
-    await createNewMedicalItemsForTransaction(updateResult.rows[0].id, medical_items);
 
     return res.status(200).json({
       error: false,
