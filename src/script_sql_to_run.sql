@@ -1069,7 +1069,7 @@ INSERT INTO vaccine (name, origin, description) VALUES
 ('Stamaril', 'Pháp', 'Vắc xin phòng sốt vàng');
 
 CREATE TABLE vaccine_disease (
-    vaccine_id INT PRIMARY KEY,
+     vaccine_id INT PRIMARY KEY,
     disease_id INT[] NOT NULL,
     dose_quantity INT NOT NULL DEFAULT 1,
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
@@ -1152,7 +1152,7 @@ CREATE TABLE vaccination_campaign (
 
 INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, location, start_date, end_date, status) VALUES
 (
-  ARRAY[10], 
+  ARRAY[10],
   11, 
   'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 
   'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG)
@@ -1233,7 +1233,7 @@ VALUES
     'School Medix',
     'COMPLETED'
   ),
-  (
+(
     '211002',
     NULL,
     ARRAY[8],
@@ -1268,41 +1268,6 @@ VALUES
 ---------------------------------------------------------------------------------------------------------------------------------------END FLOW VACCINATION
 
 
----------------------------------------------------------------------------------------------------------------------------------------FLOW DaiLyHealthRecord
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-CREATE TABLE daily_health_record (
-    id SERIAL PRIMARY KEY,
-    student_id VARCHAR(10) NOT NULL,
-    detect_time DATE NOT NULL,
-    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    diagnosis TEXT,
-    on_site_treatment TEXT,
-    transferred_to TEXT,
-    items_usage TEXT,
-    status VARCHAR(50) CHECK (status IN ('MILD', 'SERIOUS')),
-    FOREIGN KEY (student_id) REFERENCES student(id)
-);
-
-CREATE INDEX idx_daily_health_record_detect_time ON daily_health_record(detect_time);
-CREATE INDEX idx_daily_health_record_status ON daily_health_record(status);
-
-INSERT INTO daily_health_record (
-    student_id, detect_time, diagnosis, on_site_treatment, transferred_to, items_usage, status
-)
-VALUES 
-('211000', '2025-07-05', 'Chảy máu cam', 'Nằm nghỉ, nghiêng đầu về trước', NULL, 'Bông gòn', 'MILD'),
-('211000', '2025-07-01', 'Đau mắt đỏ', 'Nhỏ mắt Natri Clorid 0.9%', NULL, 'Thuốc nhỏ mắt', 'MILD'),
-
-('211001', '2025-07-08', 'Ho và sổ mũi', 'Uống thuốc ho thảo dược', NULL, 'Thuốc ho, giấy lau', 'MILD'),
-('211001', '2025-07-02', 'Đau răng', 'Súc miệng nước muối, thông báo phụ huynh', NULL, 'Nước muối sinh lý', 'MILD'),
-
-('211002', '2025-07-03', 'Ngã cầu thang nhẹ', 'Kiểm tra vết thương, theo dõi 15 phút', NULL, 'Băng dán, nước sát khuẩn', 'SERIOUS'),
-('211002', '2025-07-31', 'Sốt 38.5°C', 'Đặt khăn lạnh, uống hạ sốt', NULL, 'Paracetamol 250mg', 'MILD'),
-
-('211003', '2025-07-07', 'Nổi mẩn đỏ toàn thân', 'Thông báo phụ huynh, theo dõi phản ứng', 'Trạm Y tế Phường 3', 'Kem chống ngứa', 'SERIOUS'),
-('211003', '2025-07-03', 'Khó tiêu', 'Uống men tiêu hóa', NULL, 'Men tiêu hóa gói', 'MILD');
-
------------------------------------------------------------------------------------------END FLOW DaiLyHealthRecord
 
 -----------------------------------------------------------------------------------------FLOW Quản lý thuốc, vật tư
 CREATE TABLE MedicalItem (
@@ -1356,52 +1321,18 @@ VALUES
 ('Nhiệt kế điện tử', 'cái', 30, 'Đo thân nhiệt chính xác', '2028-01-01', 'MEDICAL_SUPPLY'),
 ('Ống tiêm 5ml', 'hộp (100 cái)', 90, 'Dùng để tiêm thuốc/liều lượng nhỏ', '2027-06-30', 'MEDICAL_SUPPLY');
 
-
-CREATE TABLE UseMedicalItems (
-    medical_item_id INT NOT NULL,
-    record_id INT NOT NULL,
-    used_quantity INT CHECK (used_quantity >= 0),
-
-    PRIMARY KEY (medical_item_id, record_id),
-    FOREIGN KEY (medical_item_id) REFERENCES MedicalItem(id),
-    FOREIGN KEY (record_id) REFERENCES daily_health_record(id)
+CREATE TABLE TransactionPurpose(
+  id serial primary key,
+  title varchar(200)
 );
 
--- record_id 1: Chảy máu cam – dùng Bông y tế tiệt trùng (id = 15)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES (15, 1, 2);
-
--- record_id 2: Đau mắt đỏ – dùng Thuốc nhỏ mắt (Cetirizine 10mg id = 7)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES (7, 2, 1);
-
--- record_id 3: Ho và sổ mũi – dùng Paracetamol (id = 1), khẩu trang (id = 13)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES 
-(1, 3, 1),     -- Paracetamol 500mg
-(13, 3, 1);    -- Khẩu trang y tế 3 lớp
-
--- record_id 4: Đau răng – dùng Cồn 70 độ (id = 17)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES (17, 4, 1);
-
--- record_id 5: Ngã cầu thang nhẹ – Băng keo cá nhân (id = 16), Dung dịch sát khuẩn (id = 18)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES 
-(16, 5, 1),
-(18, 5, 1);
-
--- record_id 6: Sốt – Paracetamol (id = 1)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES (1, 6, 1);
-
--- record_id 7: Nổi mẩn đỏ – Kem chống ngứa (id = 12)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES (12, 7, 1);
-
--- record_id 8: Khó tiêu – Men tiêu hóa gói (id = 13)
-INSERT INTO UseMedicalItems (medical_item_id, record_id, used_quantity) 
-VALUES (13, 8, 1);
+insert into TransactionPurpose (title) VALUES 
+('Sử dụng cho nhân viên, học sinh'),
+('Nhập hàng từ NCC'),
+('Mua hàng bên ngoài'),
+('Thuốc vật tư chất lượng không đảm bảo'), 
+('Thuốc vật tư hết hạn sử dụng'), 
+('Hoàn trả hàng');
 
 
 --- SUPPLIER
@@ -1464,11 +1395,12 @@ VALUES
 
 CREATE TABLE InventoryTransaction (
     id SERIAL PRIMARY KEY,
-    purpose text,
+    purpose_id int,
     note TEXT,
-    supplier_id INT,
-    transaction_date date,
-    FOREIGN KEY (supplier_id) REFERENCES Supplier(id)
+    supplier_id INT default null,
+    transaction_date DATE,
+    FOREIGN KEY (supplier_id) REFERENCES Supplier(id),
+    FOREIGN KEY (purpose_id) REFERENCES TransactionPurpose(id)
 );
 
 CREATE TABLE TransactionItems (
@@ -1481,47 +1413,110 @@ CREATE TABLE TransactionItems (
     FOREIGN KEY (medical_item_id) REFERENCES MedicalItem(id)
 );
 
--- Transaction 1: Nhập thuốc từ Công ty Dược Việt Nam (supplier_id = 1)
-INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+insert into InventoryTransaction (purpose_id, note, transaction_date) VALUES
+(1, 'Dùng cho học sinh bị chảy máu cam', '2025-07-05'),
+(1, 'Hoc sinh bị đau mắt đỏ', '2025-07-01'),
+(1, 'Hoc sinh ho, sổ mũi dịch nhầy', '2025-07-08'),
+(1, 'hoc sinh đau răng', '2025-07-02'),
+(1, 'học sinh té cầu thang', '2025-07-31'),
+(1, 'học sinh sốt', '2025-07-07'),
+(1, 'nổi mẩn đỏ', '2025-07-07'),
+(1, 'học sinh tiêu chảy, khó tiêu', '2025-07-03');
+
+insert into TransactionItems (transaction_id, medical_item_id, transaction_quantity) VALUES
+(1, 15, -2),
+(2, 7, -1),
+(3, 1, -1),
+(3, 13, -1),
+(4, 17, -1),
+(5, 16, -1),
+(5, 18, -1),
+(6, 1, -1),
+(7, 12, -1),
+(8, 13, -1);
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE daily_health_record (
+    id SERIAL PRIMARY KEY,
+    student_id VARCHAR(10) NOT NULL,
+    detect_time DATE NOT NULL,
+    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    diagnosis TEXT,
+    on_site_treatment TEXT,
+    transferred_to TEXT,
+    items_usage TEXT,
+    transaction_id INT,
+    status VARCHAR(50) CHECK (status IN ('MILD', 'SERIOUS')),
+    FOREIGN KEY (student_id) REFERENCES student(id),
+    FOREIGN KEY (transaction_id) REFERENCES InventoryTransaction(id)
+);
+
+CREATE INDEX idx_daily_health_record_detect_time ON daily_health_record(detect_time);
+CREATE INDEX idx_daily_health_record_status ON daily_health_record(status);
+
+INSERT INTO daily_health_record (
+    student_id, detect_time, diagnosis, on_site_treatment, transferred_to, items_usage, status, transaction_id
+)
 VALUES 
-('Nhập hàng', 'Nhập thuốc giảm đau và vitamin', 1, '2025-07-01');  -- id = 1
+('211000', '2025-07-05', 'Chảy máu cam', 'Nằm nghỉ, nghiêng đầu về trước', NULL, 'Bông gòn', 'MILD', 1),
+('211000', '2025-07-01', 'Đau mắt đỏ', 'Nhỏ mắt Natri Clorid 0.9%', NULL, 'Thuốc nhỏ mắt', 'MILD', 2),
+
+('211001', '2025-07-08', 'Ho và sổ mũi', 'Uống thuốc ho thảo dược', NULL, 'Thuốc ho, giấy lau', 'MILD', 3),
+('211001', '2025-07-02', 'Đau răng', 'Súc miệng nước muối, thông báo phụ huynh', NULL, 'Nước muối sinh lý', 'MILD', 4),
+
+('211002', '2025-07-03', 'Ngã cầu thang nhẹ', 'Kiểm tra vết thương, theo dõi 15 phút', NULL, 'Băng dán, nước sát khuẩn', 'SERIOUS', 5),
+('211002', '2025-07-31', 'Sốt 38.5°C', 'Đặt khăn lạnh, uống hạ sốt', NULL, 'Paracetamol 250mg', 'MILD', 6),
+
+('211003', '2025-07-07', 'Nổi mẩn đỏ toàn thân', 'Thông báo phụ huynh, theo dõi phản ứng', 'Trạm Y tế Phường 3', 'Kem chống ngứa', 'SERIOUS', 7),
+('211003', '2025-07-03', 'Khó tiêu', 'Uống men tiêu hóa', NULL, 'Men tiêu hóa gói', 'MILD', 8);
+
+
+
+-----------------------------------------------------------------------------------------END FLOW DaiLyHealthRecord
+
+
+
+-- Transaction 1: Nhập thuốc từ Công ty Dược Việt Nam (supplier_id = 1)
+INSERT INTO InventoryTransaction (purpose_id, note, supplier_id, transaction_date)
+VALUES 
+(2, 'Nhập thuốc giảm đau và vitamin', 1, '2025-07-01');  -- id = 1
 
 -- Transaction 2: Nhập vật tư từ MediSupply (supplier_id = 2)
-INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+INSERT INTO InventoryTransaction (purpose_id, note, supplier_id, transaction_date)
 VALUES 
-('Nhập hàng', 'Nhập vật tư y tế phòng dịch', 2, '2025-07-02');     -- id = 2
+(2, 'Nhập vật tư y tế phòng dịch', 2, '2025-07-02');     -- id = 2
 
 -- Transaction 3: Tiêu hủy thuốc hết hạn
-INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+INSERT INTO InventoryTransaction (purpose_id, note, supplier_id, transaction_date)
 VALUES 
-('Tiêu hủy', 'Thuốc quá hạn', NULL, '2025-07-05');       -- id = 3
+(5, 'Thuốc quá hạn', NULL, '2025-07-05');       -- id = 3
 
 -- Transaction 4: Hoàn hàng lỗi về MediSupply (supplier_id = 2)
-INSERT INTO InventoryTransaction (purpose, note, supplier_id, transaction_date)
+INSERT INTO InventoryTransaction (purpose_id, note, supplier_id, transaction_date)
 VALUES 
-('Hoàn trả', 'Hoàn trả thuốc bị lỗi đóng gói', 2, '2025-07-10');   -- id = 4
+(6, 'Hoàn trả thuốc bị lỗi đóng gói', 2, '2025-07-10');   -- id = 4
 
 -- Transaction 1: Nhập thuốc (IMPORT)
 INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
 VALUES
-(1, 1, 100),   -- Paracetamol 500mg
-(1, 11, 200);  -- Vitamin C 500mg
+(9, 1, 100),   -- Paracetamol 500mg
+(9, 11, 200);  -- Vitamin C 500mg
 
 -- Transaction 2: Nhập vật tư (IMPORT)
 INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
 VALUES
-(2, 13, 50),   -- Khẩu trang y tế
-(2, 14, 30);   -- Găng tay y tế
+(10, 13, 50),   -- Khẩu trang y tế
+(10, 14, 30);   -- Găng tay y tế
 
 -- Transaction 3: Tiêu hủy thuốc (DISPOSE)
 INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
 VALUES
-(3, 5, -20);   -- Azithromycin 250mg
+(11, 5, -20);   -- Azithromycin 250mg
 
 -- Transaction 4: Hoàn hàng (REFUND)
 INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
 VALUES
-(4, 7, -10);   -- Cetirizine 10mg
+(12, 7, -10);   -- Cetirizine 10mg
 
 -----------------------------------------------------------------------------------------FLOW GIÁM SÁT BỆNH MÃN TÍNH VÀ BỆNH TRUYỀN NHIỄM
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
