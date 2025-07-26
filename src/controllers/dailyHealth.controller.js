@@ -98,7 +98,7 @@ export const getDailyHealthRecords = async (req, res) => {
             'unit', mi.unit,
             'description', mi.description,
             'category', mi.category,
-            'transaction_quantity', ti.transaction_quantity
+            'transaction_quantity', ABS(ti.transaction_quantity)
           )
         ) FILTER (WHERE mi.id IS NOT NULL), '[]') AS medical_items
       FROM daily_health_record d
@@ -143,7 +143,7 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
             'medical_item_id', mi.id,
             'name', mi.name,
             'unit', mi.unit,
-            'transaction_quantity', ti.transaction_quantity
+            'transaction_quantity', ABS(ti.transaction_quantity)
           )
         ) FILTER (WHERE mi.id IS NOT NULL), '[]') AS medical_items
       FROM daily_health_record d
@@ -204,7 +204,7 @@ export const getDailyHealthRecordById = async (req, res) => {
             'medical_item_id', mi.id,
             'name', mi.name,
             'unit', mi.unit,
-            'transaction_quantity', ti.transaction_quantity
+            'transaction_quantity', ABS(ti.transaction_quantity)
           )
         ) FILTER (WHERE mi.id IS NOT NULL), '[]') AS medical_items
       FROM daily_health_record d
