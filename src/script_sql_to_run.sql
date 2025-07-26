@@ -1274,52 +1274,51 @@ CREATE TABLE MedicalItem (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     unit VARCHAR(100) NOT NULL,
-    quantity INT CHECK (quantity >= 0) DEFAULT 0,
     description TEXT,
     exp_date DATE NOT NULL,
     category VARCHAR(50) CHECK (category IN ('MEDICAL_SUPPLY', 'MEDICATION'))
 );
 
-INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
+INSERT INTO MedicalItem (name, unit, description, exp_date, category)
 VALUES
 -- Giảm đau - hạ sốt
-('Paracetamol 500mg', 'viên', 100, 'Giảm đau, hạ sốt', '2026-12-31', 'MEDICATION'),
-('Ibuprofen 200mg', 'viên', 50, 'Giảm đau, kháng viêm', '2026-10-01', 'MEDICATION'),
-('Efferalgan 500mg', 'viên sủi', 80, 'Paracetamol dạng sủi, dễ uống', '2025-11-30', 'MEDICATION'),
+('Paracetamol 500mg', 'viên', 'Giảm đau, hạ sốt', '2026-12-31', 'MEDICATION'),
+('Ibuprofen 200mg', 'viên',  'Giảm đau, kháng viêm', '2026-10-01', 'MEDICATION'),
+('Efferalgan 500mg', 'viên sủi', 'Paracetamol dạng sủi, dễ uống', '2025-11-30', 'MEDICATION'),
 
 -- Kháng sinh
-('Amoxicillin 500mg', 'viên', 60, 'Kháng sinh phổ rộng nhóm penicillin', '2025-09-15', 'MEDICATION'),
-('Azithromycin 250mg', 'viên', 40, 'Kháng sinh nhóm macrolide', '2025-08-20', 'MEDICATION'),
+('Amoxicillin 500mg', 'viên',  'Kháng sinh phổ rộng nhóm penicillin', '2025-09-15', 'MEDICATION'),
+('Azithromycin 250mg', 'viên', 'Kháng sinh nhóm macrolide', '2025-08-20', 'MEDICATION'),
 
 -- Dị ứng - cảm cúm
-('Loratadine 10mg', 'viên', 70, 'Giảm dị ứng, mề đay', '2026-01-01', 'MEDICATION'),
-('Cetirizine 10mg', 'viên', 90, 'Chống dị ứng', '2026-03-15', 'MEDICATION'),
+('Loratadine 10mg', 'viên', 'Giảm dị ứng, mề đay', '2026-01-01', 'MEDICATION'),
+('Cetirizine 10mg', 'viên', 'Chống dị ứng', '2026-03-15', 'MEDICATION'),
 
 -- Tiêu hóa - đau dạ dày
-('Omeprazole 20mg', 'viên', 120, 'Giảm tiết axit dạ dày', '2027-05-05', 'MEDICATION'),
-('Smecta', 'gói', 200, 'Chống tiêu chảy, bảo vệ niêm mạc ruột', '2026-07-10', 'MEDICATION'),
+('Omeprazole 20mg', 'viên', 'Giảm tiết axit dạ dày', '2027-05-05', 'MEDICATION'),
+('Smecta', 'gói', 'Chống tiêu chảy, bảo vệ niêm mạc ruột', '2026-07-10', 'MEDICATION'),
 
 -- Vitamin
-('Vitamin C 500mg', 'viên', 150, 'Tăng cường sức đề kháng', '2026-04-01', 'MEDICATION'),
-('Centrum Adults', 'viên', 90, 'Vitamin tổng hợp', '2027-01-01', 'MEDICATION'),
+('Vitamin C 500mg', 'viên', 'Tăng cường sức đề kháng', '2026-04-01', 'MEDICATION'),
+('Centrum Adults', 'viên', 'Vitamin tổng hợp', '2027-01-01', 'MEDICATION'),
 
 -- Kem chống ngứa
-('Kem chống ngứa', 'tuýp', 20, 'Bôi ngoài da, giảm mẩn đỏ', '2026-12-31', 'MEDICATION'),
+('Kem chống ngứa', 'tuýp', 'Bôi ngoài da, giảm mẩn đỏ', '2026-12-31', 'MEDICATION'),
 
 -- Men tiêu hóa
-('Men tiêu hóa gói', 'gói', 30, 'Hỗ trợ tiêu hóa', '2026-11-30', 'MEDICATION');
+('Men tiêu hóa gói', 'gói', 'Hỗ trợ tiêu hóa', '2026-11-30', 'MEDICATION');
 
-INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
+INSERT INTO MedicalItem (name, unit, description, exp_date, category)
 VALUES
 -- Vật tư y tế thông dụng
-('Khẩu trang y tế 3 lớp', 'hộp (50 cái)', 20, 'Dùng trong phòng chống dịch, y tế thường ngày', '2026-12-31', 'MEDICAL_SUPPLY'),
-('Găng tay y tế không bột', 'hộp (100 cái)', 22, 'Găng tay cao su sử dụng 1 lần', '2026-09-30', 'MEDICAL_SUPPLY'),
-('Bông y tế tiệt trùng', 'bịch (100g)', 24, 'Dùng để cầm máu, vệ sinh vết thương', '2027-03-01', 'MEDICAL_SUPPLY'),
-('Băng keo cá nhân', 'hộp (100 miếng)', 18, 'Dán vết thương nhỏ', '2026-05-15', 'MEDICAL_SUPPLY'),
-('Cồn 70 độ', 'chai (500ml)', 10, 'Sát khuẩn vết thương, khử trùng', '2026-11-01', 'MEDICAL_SUPPLY'),
-('Dung dịch sát khuẩn tay nhanh', 'chai (500ml)', 20, 'Dùng khử khuẩn tay, nhanh khô', '2026-08-01', 'MEDICAL_SUPPLY'),
-('Nhiệt kế điện tử', 'cái', 30, 'Đo thân nhiệt chính xác', '2028-01-01', 'MEDICAL_SUPPLY'),
-('Ống tiêm 5ml', 'hộp (100 cái)', 90, 'Dùng để tiêm thuốc/liều lượng nhỏ', '2027-06-30', 'MEDICAL_SUPPLY');
+('Khẩu trang y tế 3 lớp', 'hộp (50 cái)',  'Dùng trong phòng chống dịch, y tế thường ngày', '2026-12-31', 'MEDICAL_SUPPLY'),
+('Găng tay y tế không bột', 'hộp (100 cái)', 'Găng tay cao su sử dụng 1 lần', '2026-09-30', 'MEDICAL_SUPPLY'),
+('Bông y tế tiệt trùng', 'bịch (100g)',  'Dùng để cầm máu, vệ sinh vết thương', '2027-03-01', 'MEDICAL_SUPPLY'),
+('Băng keo cá nhân', 'hộp (100 miếng)',  'Dán vết thương nhỏ', '2026-05-15', 'MEDICAL_SUPPLY'),
+('Cồn 70 độ', 'chai (500ml)',  'Sát khuẩn vết thương, khử trùng', '2026-11-01', 'MEDICAL_SUPPLY'),
+('Dung dịch sát khuẩn tay nhanh', 'chai (500ml)', 'Dùng khử khuẩn tay, nhanh khô', '2026-08-01', 'MEDICAL_SUPPLY'),
+('Nhiệt kế điện tử', 'cái', 'Đo thân nhiệt chính xác', '2028-01-01', 'MEDICAL_SUPPLY'),
+('Ống tiêm 5ml', 'hộp (100 cái)', 'Dùng để tiêm thuốc/liều lượng nhỏ', '2027-06-30', 'MEDICAL_SUPPLY');
 
 CREATE TABLE TransactionPurpose(
   id serial primary key,

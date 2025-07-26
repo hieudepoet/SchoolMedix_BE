@@ -1,4 +1,5 @@
 import { query } from "../config/database.js";
+import { checkAdequateQuantityForItems, createNewMedicalItemsForTransaction, createNewTransaction } from "./medicalItem.controller.js";
 
 //Create a new daily health record
 export const createDailyHealthRecord = async (req, res) => {
@@ -13,7 +14,7 @@ export const createDailyHealthRecord = async (req, res) => {
     medical_items
   } = req.body;
 
-  if (!student_id || !detect_time) {
+  if (!student_id || !detect_time || !medical_items) {
     return res
       .status(400)
       .json({ error: false, message: "Missing required fields" });
@@ -30,21 +31,23 @@ export const createDailyHealthRecord = async (req, res) => {
         .json({ error: true, message: "Student not found" });
     }
 
-    if (!Array.isArray(medical_items)) {
-      return res.status(400).json({ error: true, message: "Thiếu danh sách các vật dụng y tế." });
+
+    const record_date = new Date();
+    let transaction_id = null;
+    if (Array.isArray(medical_items) && medical_items.length > 0) {
+      // check if there are enough quanity of medical item to use
+      let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items);
+      if (!is_valid_transaction_quantity) {
+        return res.status(400).json({ error: true, message: "Các vật tư y tế/thuốc không đủ số lượng." });
+      }
+      // if yes, then inserting new transaction
+      transaction_id = await createNewTransaction(1, 'Sử dụng thuốc/vật tư cho học sinh', record_date, medical_items);
     }
 
-
-
-
-    // check if stored quanity is adequate
-
-
     // Insert the daily health record
-    const record_date = new Date();
     const insertQuery = `
-           INSERT INTO daily_health_record (student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage, status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           INSERT INTO daily_health_record (student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage, status, transaction_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING *;
         `;
     const values = [
@@ -56,13 +59,9 @@ export const createDailyHealthRecord = async (req, res) => {
       transferred_to || null,
       items_usage || null,
       status,
+      transaction_id
     ];
     const result = await query(insertQuery, values);
-
-    // insert UseMedicalItems
-    const record_id = result.rows[0]?.id;
-
-
 
     return res
       .status(201)
@@ -79,9 +78,36 @@ export const createDailyHealthRecord = async (req, res) => {
 export const getDailyHealthRecords = async (req, res) => {
   try {
     const result = await query(
-      `SELECT *, d.id as id, s.id as student_id FROM daily_health_record d
-      JOIN student s ON d.student_id = s.id 
-      ORDER BY d.detect_time DESC;`
+      `SELECT 
+        d.id AS id,
+        d.student_id,
+        s.name AS student_name,
+        s.class_id,
+        d.detect_time,
+        d.record_date,
+        d.diagnosis,
+        d.on_site_treatment,
+        d.transferred_to,
+        d.items_usage,
+        d.transaction_id,
+        d.status,
+        COALESCE(json_agg(
+          json_build_object(
+            'medical_item_id', mi.id,
+            'name', mi.name,
+            'unit', mi.unit,
+            'description', mi.description,
+            'category', mi.category,
+            'transaction_quantity', ti.transaction_quantity
+          )
+        ) FILTER (WHERE mi.id IS NOT NULL), '[]') AS medical_items
+      FROM daily_health_record d
+      JOIN student s ON d.student_id = s.id
+      LEFT JOIN TransactionItems ti ON ti.transaction_id = d.transaction_id
+      LEFT JOIN MedicalItem mi ON mi.id = ti.medical_item_id
+      GROUP BY d.id, s.id
+      ORDER BY d.detect_time DESC;
+`
     );
     return res.status(200).json({ data: result.rows });
   } catch (error) {
@@ -98,9 +124,36 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
 
   try {
     const result = await query(
-      `SELECT * FROM daily_health_record 
-       WHERE student_id = $1 
-       ORDER BY record_date DESC;`,
+      `
+      SELECT 
+        d.id AS id,
+        d.student_id,
+        s.name AS student_name,
+        s.class_id,
+        d.detect_time,
+        d.record_date,
+        d.diagnosis,
+        d.on_site_treatment,
+        d.transferred_to,
+        d.items_usage,
+        d.transaction_id,
+        d.status,
+        COALESCE(json_agg(
+          json_build_object(
+            'medical_item_id', mi.id,
+            'name', mi.name,
+            'unit', mi.unit,
+            'transaction_quantity', ti.transaction_quantity
+          )
+        ) FILTER (WHERE mi.id IS NOT NULL), '[]') AS medical_items
+      FROM daily_health_record d
+      JOIN student s ON d.student_id = s.id
+      LEFT JOIN TransactionItems ti ON ti.transaction_id = d.transaction_id
+      LEFT JOIN MedicalItem mi ON mi.id = ti.medical_item_id
+      WHERE d.student_id = $1
+      GROUP BY d.id, s.id
+      ORDER BY d.record_date DESC;
+      `,
       [student_id]
     );
 
@@ -125,15 +178,42 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
   }
 };
 
+
 // Get a daily health record by ID
 export const getDailyHealthRecordById = async (req, res) => {
   const { id } = req.params;
 
   try {
     const result = await query(
-      `SELECT *, d.id as id, s.id as student_id FROM daily_health_record d
-      JOIN student s ON d.student_id = s.id  
-      WHERE d.id = $1;`,
+      `
+      SELECT 
+        d.id AS id,
+        d.student_id,
+        s.name AS student_name,
+        s.class_id,
+        d.detect_time,
+        d.record_date,
+        d.diagnosis,
+        d.on_site_treatment,
+        d.transferred_to,
+        d.items_usage,
+        d.transaction_id,
+        d.status,
+        COALESCE(json_agg(
+          json_build_object(
+            'medical_item_id', mi.id,
+            'name', mi.name,
+            'unit', mi.unit,
+            'transaction_quantity', ti.transaction_quantity
+          )
+        ) FILTER (WHERE mi.id IS NOT NULL), '[]') AS medical_items
+      FROM daily_health_record d
+      JOIN student s ON d.student_id = s.id
+      LEFT JOIN TransactionItems ti ON ti.transaction_id = d.transaction_id
+      LEFT JOIN MedicalItem mi ON mi.id = ti.medical_item_id
+      WHERE d.id = $1
+      GROUP BY d.id, s.id
+      `,
       [id]
     );
 
@@ -143,7 +223,11 @@ export const getDailyHealthRecordById = async (req, res) => {
         .json({ error: true, message: "Daily health record not found" });
     }
 
-    return res.status(200).json({ data: result.rows[0] });
+    return res.status(200).json({
+      error: false,
+      message: "Daily health record retrieved successfully.",
+      data: result.rows[0],
+    });
   } catch (error) {
     console.error("Error fetching daily health record:", error);
     return res
@@ -151,6 +235,7 @@ export const getDailyHealthRecordById = async (req, res) => {
       .json({ error: true, message: "Internal server error" });
   }
 };
+
 
 // Update a daily health record by ID
 export const updateDailyHealthRecordById = async (req, res) => {
@@ -162,6 +247,8 @@ export const updateDailyHealthRecordById = async (req, res) => {
     items_usage,
     status,
     detect_time,
+    transaction_id,
+    medical_items
   } = req.body;
 
   if (!diagnosis) {
@@ -180,6 +267,11 @@ export const updateDailyHealthRecordById = async (req, res) => {
       return res
         .status(404)
         .json({ error: true, message: "Daily health record not found" });
+    }
+
+    // update medical items transaction
+    if (transaction_id && Array.isArray(medical_items) && medical_items.length > 0) {
+      await createNewMedicalItemsForTransaction(transaction_id, medical_items);
     }
 
     // Update the daily health record
@@ -216,4 +308,3 @@ export const updateDailyHealthRecordById = async (req, res) => {
       .json({ error: true, message: "Internal server error" });
   }
 };
-

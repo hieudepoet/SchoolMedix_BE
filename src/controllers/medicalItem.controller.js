@@ -3,7 +3,14 @@ import { query } from "../config/database.js";
 export async function getMedicalItemById(req, res) {
   const { id } = req.params;
   try {
-    const result = await query("SELECT * FROM MedicalItem WHERE id = $1", [id]);
+    const result = await query(`
+        SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+        FROM MedicalItem mi
+        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
+        WHERE MI.ID = $1
+        GROUP BY mi.id
+        ORDER BY mi.id
+      `, [id]);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
     }
@@ -14,9 +21,32 @@ export async function getMedicalItemById(req, res) {
   }
 }
 
+export async function getAllMedicalItems(req, res) {
+  try {
+    const result = await query(`
+        SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+        FROM MedicalItem mi
+        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
+        GROUP BY mi.id
+        ORDER BY mi.id
+      `);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
+    }
+    return res.status(200).json({ error: false, message: "ok", data: result.rows });
+  } catch (err) {
+    return res.status(500).json({ error: true, message: "Lỗi server khi lấy thông tin." });
+  }
+}
+
 export async function getAllMedicalSupplies(req, res) {
   try {
-    const result = await query("SELECT * FROM MedicalItem WHERE category = 'MEDICAL_SUPPLY'");
+    const result = await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+        FROM MedicalItem mi
+        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
+        WHERE mi.category = 'MEDICAL_SUPPLY'
+        GROUP BY mi.id
+        ORDER BY mi.id`);
     return res.status(200).json({ error: false, message: "ok", data: result.rows });
   } catch (err) {
     console.error("getAllMedicalSupplies:", err);
@@ -26,7 +56,12 @@ export async function getAllMedicalSupplies(req, res) {
 
 export async function getAllMedications(req, res) {
   try {
-    const result = await query("SELECT * FROM MedicalItem WHERE category = 'MEDICATION'");
+    const result = await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+        FROM MedicalItem mi
+        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
+        WHERE mi.category = 'MEDICATION'
+        GROUP BY mi.id
+        ORDER BY mi.id`);
     return res.status(200).json({ error: false, message: "ok", data: result.rows });
   } catch (err) {
     console.error("getAllMedications:", err);
@@ -254,6 +289,449 @@ export async function updateSupplier(req, res) {
     return res.status(500).json({
       error: true,
       message: "Lỗi server khi cập nhật nhà cung cấp",
+    });
+  }
+}
+
+
+export async function checkAdequateQuantityForItems(incoming_medical_items) {
+  let is_adequate_all = true;
+
+  if (incoming_medical_items.length !== 0) {
+    const current_items_quantity = await getCurrentItems();
+
+    const quantity_map = new Map();
+
+    for (const row of current_items_quantity) {
+      quantity_map.set(row.id, row.quantity);
+    }
+
+    for (const item of incoming_medical_items) {
+      const item_quantity = quantity_map.get(item.medical_item_id) ?? 0;
+
+      if (item_quantity + item.transaction_quantity < 0) {
+        is_adequate_all = false;
+        break;
+      }
+    }
+  }
+  return is_adequate_all;
+}
+
+
+export async function getCurrentItems() {
+  const result = await query(`
+    SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+    FROM MedicalItem mi
+    LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
+    GROUP BY mi.id
+	  ORDER BY mi.id
+  `);
+  return result.rows;
+}
+
+export async function createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id = null) {
+  // check if there are enough quanity of medical item to use
+  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items);
+  if (!is_valid_transaction_quantity) {
+    return;
+  }
+  // if yes, then inserting new transaction
+  const transaction_result = await query(
+    `
+      INSERT INTO InventoryTransaction (purpose_id, note, transaction_date, supplier_id)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id
+      `,
+    [purpose_id, note, transaction_date, supplier_id]
+  );
+
+  const transaction_id = transaction_result.rows[0].id;
+
+  // Chèn vào bảng TransactionItems
+  await createNewMedicalItemsForTransaction(transaction_id, medical_items);
+
+  return transaction_id;
+}
+
+export async function eraseAllTransactionItemsByTransactionID(transaction_id) {
+  const result = await query(
+    `DELETE FROM TransactionItems WHERE transaction_id = $1`,
+    [transaction_id]
+  );
+}
+
+export async function createNewMedicalItemsForTransaction(transaction_id, medical_items) {
+  await eraseAllTransactionItemsByTransactionID(transaction_id);
+  // check if there are enough quanity of medical item to use
+  let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items);
+  if (!is_valid_transaction_quantity) {
+    return;
+  }
+
+  const values = [];
+  const placeholders = [];
+
+  for (let i = 0; i < medical_items.length; i++) {
+    const { medical_item_id, transaction_quantity } = medical_items[i];
+    values.push(transaction_id, medical_item_id, transaction_quantity);
+    placeholders.push(`($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`);
+  }
+
+
+  if (values.length > 0) {
+    const insert_items_query = `
+        INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+        VALUES ${placeholders.join(", ")}
+      `;
+
+    await query(insert_items_query, values);
+  }
+}
+
+
+export async function getAllInventoryTransactions(req, res) {
+  try {
+    const result = await query(`
+      SELECT 
+  it.*, 
+  tp.title AS purpose_title,
+  s.name AS supplier_name,
+  json_agg(
+    json_build_object(
+      'id', mi.id,
+      'name', mi.name,
+      'unit', mi.unit,
+      'description', mi.description,
+      'exp_date', mi.exp_date,
+      'category', mi.category,
+      'transaction_quantity', ti.transaction_quantity
+    )
+  ) AS medical_items
+FROM InventoryTransaction it
+LEFT JOIN TransactionPurpose tp ON it.purpose_id = tp.id
+LEFT JOIN Supplier s ON it.supplier_id = s.id
+LEFT JOIN TransactionItems ti ON it.id = ti.transaction_id
+LEFT JOIN MedicalItem mi ON ti.medical_item_id = mi.id
+GROUP BY it.id, tp.title, s.name
+ORDER BY it.transaction_date DESC;
+
+    `);
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách giao dịch thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("getAllInventoryTransactions:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách giao dịch",
+    });
+  }
+}
+
+export async function getInventoryTransactionById(req, res) {
+  const { id } = req.params;
+
+  try {
+    const result = await query(
+      `
+      SELECT 
+        it.*, 
+        tp.title AS purpose_title, 
+        s.name AS supplier_name,
+        json_agg(
+          json_build_object(
+            'id', mi.id,
+            'name', mi.name,
+            'unit', mi.unit,
+            'description', mi.description,
+            'exp_date', mi.exp_date,
+            'category', mi.category,
+            'transaction_quantity', ti.transaction_quantity
+          )
+        ) AS medical_items
+      FROM InventoryTransaction it
+      LEFT JOIN TransactionPurpose tp ON it.purpose_id = tp.id
+      LEFT JOIN Supplier s ON it.supplier_id = s.id
+      LEFT JOIN TransactionItems ti ON it.id = ti.transaction_id
+      LEFT JOIN MedicalItem mi ON ti.medical_item_id = mi.id
+      WHERE it.id = $1
+      GROUP BY it.id, tp.title, s.name
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Không tìm thấy giao dịch",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy giao dịch thành công",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("getInventoryTransactionById:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy giao dịch",
+    });
+  }
+}
+
+export async function getInventoryTransactionsBySupplier(req, res) {
+  const { id } = req.params;
+
+  try {
+    const result = await query(
+      `
+      SELECT 
+        it.*, 
+        tp.title AS purpose_title,
+        json_agg(
+          json_build_object(
+            'id', mi.id,
+            'name', mi.name,
+            'unit', mi.unit,
+            'description', mi.description,
+            'exp_date', mi.exp_date,
+            'category', mi.category,
+            'transaction_quantity', ti.transaction_quantity
+          )
+        ) AS medical_items
+      FROM InventoryTransaction it
+      LEFT JOIN TransactionPurpose tp ON it.purpose_id = tp.id
+      LEFT JOIN TransactionItems ti ON it.id = ti.transaction_id
+      LEFT JOIN MedicalItem mi ON ti.medical_item_id = mi.id
+      WHERE it.supplier_id = $1
+      GROUP BY it.id, tp.title
+      ORDER BY it.transaction_date DESC
+      `,
+      [id]
+    );
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy giao dịch theo nhà cung cấp thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("getInventoryTransactionsBySupplier:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy giao dịch theo nhà cung cấp",
+    });
+  }
+}
+
+export async function getTransactionsForDailyHealthRecords(req, res) {
+  try {
+    const result = await query(`
+      SELECT 
+        it.*, 
+        tp.title AS purpose_title,
+        json_agg(
+          json_build_object(
+            'id', mi.id,
+            'name', mi.name,
+            'unit', mi.unit,
+            'description', mi.description,
+            'exp_date', mi.exp_date,
+            'category', mi.category,
+            'transaction_quantity', ti.transaction_quantity
+          )
+        ) AS medical_items
+      FROM InventoryTransaction it
+      JOIN TransactionPurpose tp ON it.purpose_id = tp.id
+      LEFT JOIN TransactionItems ti ON it.id = ti.transaction_id
+      LEFT JOIN MedicalItem mi ON ti.medical_item_id = mi.id
+      WHERE it.purpose_id = 1
+      GROUP BY it.id, tp.title
+      ORDER BY it.transaction_date DESC
+    `);
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy giao dịch dùng cho học sinh / nhân viên thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("getTransactionsForDailyHealthRecords:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy giao dịch",
+    });
+  }
+}
+
+export async function getInventoryTransactionsByPurposeID(req, res) {
+  const { id } = req.params;
+
+  try {
+    const result = await query(`
+      SELECT it.*, tp.title AS purpose_title, s.name AS supplier_name,
+             json_agg(json_build_object(
+               'id', mi.id,
+               'name', mi.name,
+               'unit', mi.unit,
+               'description', mi.description,
+               'exp_date', mi.exp_date,
+               'category', mi.category,
+               'transaction_quantity', ti.transaction_quantity
+             )) AS medical_items
+      FROM InventoryTransaction it
+      LEFT JOIN TransactionPurpose tp ON it.purpose_id = tp.id
+      LEFT JOIN Supplier s ON it.supplier_id = s.id
+      LEFT JOIN TransactionItems ti ON it.id = ti.transaction_id
+      LEFT JOIN MedicalItem mi ON ti.medical_item_id = mi.id
+      WHERE it.purpose_id = $1
+      GROUP BY it.id, tp.title, s.name
+      ORDER BY it.transaction_date DESC
+    `, [id]);
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy giao dịch theo purpose thành công",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("getInventoryTransactionsByPurposeId:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy giao dịch theo purpose",
+    });
+  }
+}
+
+
+export async function checkAdequateQuantityForAItem(req, res) {
+  const { medical_item_id, incoming_quantity } = req.body;
+
+  try {
+    const current_items_quantity = await getCurrentItems();
+    const quantity_map = new Map();
+
+    for (const row of current_items_quantity) {
+      quantity_map.set(row.id, row.quantity);
+    }
+
+    const current_quantity = quantity_map.get(medical_item_id) ?? 0;
+    const is_adequate = current_quantity + incoming_quantity >= 0;
+
+    return res.status(200).json({
+      error: false,
+      message: "Check adequate quantity success",
+      data: {
+        is_adequate,
+        current_quantity: parseInt(current_quantity),
+        incoming_quantity,
+      },
+    });
+  } catch (err) {
+    console.error("checkAdequateQuantityForAItem:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi kiểm tra số lượng tồn kho",
+    });
+  }
+}
+
+export async function createInventoryTransaction(req, res) {
+  const { purpose_id, note, transaction_date, medical_items, supplier_id } = req.body;
+
+  if (!purpose_id || !transaction_date || !Array.isArray(medical_items) || medical_items.length === 0) {
+    return res.status(400).json({
+      error: true,
+      message: "Missing required fields or empty medical_items array",
+    });
+  }
+
+  try {
+    // 1. Insert inventory transaction
+    const transactionResult = await query(
+      `INSERT INTO InventoryTransaction (purpose_id, note, transaction_date, supplier_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [purpose_id, note || "", transaction_date, supplier_id || null]
+    );
+    const transaction_id = transactionResult.rows[0].id;
+
+    // 2. Insert transaction items
+    for (const item of medical_items) {
+      await query(
+        `INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+         VALUES ($1, $2, $3)`,
+        [transaction_id, item.medical_item_id, item.transaction_quantity]
+      );
+    }
+
+    return res.status(201).json({
+      error: false,
+      message: "Tạo giao dịch thành công",
+      data: transactionResult.rows[0],
+    });
+  } catch (err) {
+    console.error("createInventoryTransaction:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi tạo giao dịch",
+    });
+  }
+}
+
+export async function updateInventoryTransaction(req, res) {
+  const { id } = req.params;
+  const { purpose_id, note, transaction_date, medical_items, supplier_id } = req.body;
+
+  if (!purpose_id || !transaction_date || !Array.isArray(medical_items) || medical_items.length === 0) {
+    return res.status(400).json({
+      error: true,
+      message: "Missing required fields or empty medical_items array",
+    });
+  }
+
+  try {
+    // 1. Update transaction info
+    const updateResult = await query(
+      `UPDATE InventoryTransaction 
+       SET purpose_id = $1, note = $2, transaction_date = $3, supplier_id = $4
+       WHERE id = $5
+       RETURNING *`,
+      [purpose_id, note || "", transaction_date, supplier_id || null, id]
+    );
+
+    if (updateResult.rowCount === 0) {
+      return res.status(404).json({ error: true, message: "Không tìm thấy giao dịch để cập nhật" });
+    }
+
+    // 2. Remove old items
+    await query(`DELETE FROM TransactionItems WHERE transaction_id = $1`, [id]);
+
+    // 3. Insert new items
+    for (const item of medical_items) {
+      await query(
+        `INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
+         VALUES ($1, $2, $3)`,
+        [id, item.medical_item_id, item.transaction_quantity]
+      );
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật giao dịch thành công",
+      data: updateResult.rows[0],
+    });
+  } catch (err) {
+    console.error("updateInventoryTransaction:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi cập nhật giao dịch",
     });
   }
 }
