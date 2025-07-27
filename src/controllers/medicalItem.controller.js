@@ -28,7 +28,7 @@ export async function getAllMedicalItems(req, res) {
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
         GROUP BY mi.id
-        ORDER BY mi.id
+        ORDER BY mi.id desc
       `);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
@@ -46,7 +46,7 @@ export async function getAllMedicalSupplies(req, res) {
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
         WHERE mi.category = 'MEDICAL_SUPPLY'
         GROUP BY mi.id
-        ORDER BY mi.id`);
+        ORDER BY mi.id desc`);
     return res.status(200).json({ error: false, message: "ok", data: result.rows });
   } catch (err) {
     console.error("getAllMedicalSupplies:", err);
@@ -61,7 +61,7 @@ export async function getAllMedications(req, res) {
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
         WHERE mi.category = 'MEDICATION'
         GROUP BY mi.id
-        ORDER BY mi.id`);
+        ORDER BY mi.id desc`);
     return res.status(200).json({ error: false, message: "ok", data: result.rows });
   } catch (err) {
     console.error("getAllMedications:", err);
@@ -158,7 +158,7 @@ export async function createNewMedicalSupply(req, res) {
 
 export async function getAllSuppliers(req, res) {
   try {
-    const result = await query(`SELECT * FROM Supplier`);
+    const result = await query(`SELECT * FROM Supplier order by id desc`);
     return res.status(200).json({
       error: false,
       message: "Lấy danh sách nhà cung cấp thành công",
