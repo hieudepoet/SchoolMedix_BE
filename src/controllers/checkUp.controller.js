@@ -100,6 +100,9 @@ export async function createCampaign(req, res) {
         specialist_exam_ids, // Admin chon các Special  Exam List
     } = req.body;
 
+
+
+
     if (
         !name ||
         !description ||
@@ -125,7 +128,6 @@ export async function createCampaign(req, res) {
         );
 
         const campaign = result_campaign.rows[0]; //Lấy Record đầu tiên trong  ( Phải có RETURNING mới có Record)
-        console.log("tao campaign: ", campaign);
         if (campaign === 0) {
             return res
                 .status(400)
@@ -140,7 +142,6 @@ export async function createCampaign(req, res) {
                     [campaign.id, exam_id]
                 );
 
-                console.log("gắn spe exam id vào campaign: ", exam_id);
 
                 if (result_campagincontain.rowCount === 0) {
                     return res
@@ -170,7 +171,7 @@ export async function createCampaign(req, res) {
 //Truyền vào ID campaign để gửi Register cho phụ huynh ( Status: PREPARING --> UPCOMING )
 export async function sendRegister(req, res) {
     const { campaign_id } = req.params;
-    console.log(campaign_id);
+
     try {
 
         if (!campaign_id) {
@@ -238,26 +239,30 @@ export async function sendRegister(req, res) {
 
         const specialist_exam_ids = rs.rows;
 
+        console.log(specialist_exam_ids);
 
         //Step 3: Tạo specialistExamRecord
-        for (const registerId of checkup_register) {
-            for (const examId of specialist_exam_ids) {
-                const result_update_speciallist = await query(
-                    `INSERT INTO specialistExamRecord (register_id,spe_exam_id,status)
+        if (specialist_exam_ids || !specialist_exam_ids.length === 0) {
+            for (const registerId of checkup_register) {
+                for (const examId of specialist_exam_ids) {
+                    const result_update_speciallist = await query(
+                        `INSERT INTO specialistExamRecord (register_id,spe_exam_id,status)
                         VALUES ($1, $2, $3)`,
-                    [registerId.id, examId.specialist_exam_id, "CANNOT_ATTACH"]
-                );
+                        [registerId.id, examId.specialist_exam_id, "CANNOT_ATTACH"]
+                    );
 
-                if (result_update_speciallist.rowCount === 0) {
-                    return res
-                        .status(400)
-                        .json({
-                            error: true,
-                            message: "Create Special List Exam Record không thành công.",
-                        });
+                    if (result_update_speciallist.rowCount === 0) {
+                        return res
+                            .status(400)
+                            .json({
+                                error: true,
+                                message: "Create Special List Exam Record không thành công.",
+                            });
+                    }
                 }
             }
         }
+
 
         //Step 4: tạo Health Record
 
@@ -413,33 +418,6 @@ export async function updateCampaign(req, res) {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export async function getAllCheckupCampaigns(req, res) {
     try {
@@ -3044,4 +3022,79 @@ async function mergeFinalReportWithSpecialistPdfs(mainPdfBuffer, specialistRecor
 
     const mergedBuffer = await mergedPdf.save();
     return mergedBuffer;
+}
+
+
+export async function sendMailRegister(req, res) {
+
+    const { campaign_id } = req.params;
+
+    if (
+        !campaign_id
+    ) {
+        return res.status(400).json({
+            error: true,
+            message: 'Thiếu dữ liệu!',
+        });
+    }
+
+    try {
+
+
+        const check = await query(`SELECT * FROM checkupcampaign 
+            WHERE id = $1 `, [campaign_id]);
+
+        if (check.rowCount === 0) {
+            return res.status(400).json({
+                error: true,
+                message: 'Không tìm thấy Campaign!',
+            });
+        }
+
+        const campaign = check.rows;
+
+        
+
+        const parentList = await query(`
+SELECT 
+    p.id AS parent_id,
+    p.name AS parent_name,
+    p.email AS email,
+    s.id AS student_id,
+    s.name AS student_name
+FROM parent p
+LEFT JOIN student s 
+    ON s.mom_id = p.id OR s.dad_id = p.id
+WHERE p.email IS NOT NULL
+ORDER BY p.id;`);
+
+        const parent_list = parentList.rows;
+
+        if (!parent_list || parent_list.length === 0) {
+            return res.status(400).json({
+                error: true,
+                message: 'Không tìm thấy Parent List!',
+            });
+        }
+
+        const result = await sendCheckupRegister(parent_list
+            , campaign[0].name
+            , campaign[0].description
+            , campaign[0].location
+            , campaign[0].start_date
+            , campaign[0].end_date
+        );
+        return res.status(200).json({
+            error: false,
+            message: `Đã gửi email thành công`,
+        });
+
+    } catch (err) {
+        console.error("❌ Error:", err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi khi gửi mail",
+            detail: err.message,
+        });
+    }
 }

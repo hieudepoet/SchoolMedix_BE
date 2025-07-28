@@ -45,7 +45,8 @@ import {
   handleDownloadFinalReportOfAStudentInCampaign,
   getCheckupRegisterStatus,
   getWaitingSpecialistExams,
-  uploadPdfForDiagnosisUrls
+  uploadPdfForDiagnosisUrls,
+  sendMailRegister
 } from "../controllers/checkUp.controller.js";
 
 const upload = multer();
@@ -53,6 +54,7 @@ const router = express.Router();
 
 //Orther
 
+router.post('/checkup/:campaign_id/send-mail-register',sendMailRegister) // API gửi mail cho phụ huynh để thông báo có Register mới 
 
 router.post('/checkup/:campaign_id/send-register', sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
 router.put('/checkup/:campaign_id/update-info', updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
@@ -120,7 +122,6 @@ router.patch('/checkup/:record_id/record', updateHealthRecord) // Doctor or Nurs
 router.get('/checkup-register/student/:id', getCheckupRegisterStudent);  // Student lấy các lịch sử registers
 router.get('/health-record/campaign/:campaign_id/student/:student_id', getHealthRecordStudent);//Student view Health Record
 
-// duy khanh
 router.get("/full-record/campaign/:campaign_id/student/:student_id", getFullRecordOfAStudentInACampaign); // lấy toàn bộ khám chuyên khoa, khám tổng quát của một học sinh trong một đợt khám định kỳ
 router.get("/health-record/:record_id/detail", getHealthRecordByID);
 router.get("/specialist-exam", getALLSpeciaListExams); // lấy toàn bộ các chuyên môn khám có sẵn
