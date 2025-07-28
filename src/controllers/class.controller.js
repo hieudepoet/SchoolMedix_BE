@@ -79,3 +79,26 @@ export async function getInfoOfClasses(req, res) {
             return res.status(500).json({ error: true, message: "Internal server error" });
       }
 }
+
+
+export async function getClassInfoOfAStudent(req, res) {
+      const { student_id } = req.params;
+
+      try {
+            const result = await query(`
+                  SELECT 
+                  c.*, 
+                  g.*, 
+                  COUNT(s2.id) AS total_students
+                  FROM class c
+                  JOIN student s1 ON s1.class_id = c.id AND s1.id = $1
+                  JOIN grade g ON c.grade_id = g.id
+                  LEFT JOIN student s2 ON s2.class_id = c.id
+                  GROUP BY c.id, g.id, c.name, g.name
+            `, [student_id]);
+
+            return res.status(200).json({ error: false, data: result.rows[0] });
+      } catch (error) {
+            return res.status(500).json({ error: true, message: "Internal server error" });
+      }
+} 

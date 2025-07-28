@@ -1,12 +1,10 @@
 import express from "express";
-import {
-    getAIChatResponse
-} from "../controllers/aiChat.controller.js";
+import { getResponseFromAI } from "../controllers/aiChat.controller.js";
 
 
 const router = express.Router();
 
-router.get('/blog-type');
+router.post('/ai-response', getResponseFromAI);
 
 export default router;
 

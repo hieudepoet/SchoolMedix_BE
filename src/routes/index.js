@@ -15,6 +15,8 @@ import blog from "./blog.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
 import scheduleRoutes from "./schedule.routes.js";
 import medicalItemRoutes from "./medicalItem.routes.js";
+import aiChatRoutes from "./aiChat.routes.js";
+import classRoutes from "./class.routes.js"
 
 const router = express.Router();
 
@@ -32,5 +34,7 @@ router.use("/", blog);
 router.use("/", dashboardRoutes);
 router.use("/", scheduleRoutes);
 router.use("/", medicalItemRoutes);
+router.use("/", aiChatRoutes);
+router.use("/", classRoutes);
 
 export default router;

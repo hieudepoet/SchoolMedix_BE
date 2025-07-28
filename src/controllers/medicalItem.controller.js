@@ -115,8 +115,8 @@ export async function createNewMedication(req, res) {
   try {
     const result = await query(
       `
-      INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
-      VALUES ($1, $2, 0, $3, $4, 'MEDICATION')
+      INSERT INTO MedicalItem (name, unit, description, exp_date, category)
+      VALUES ($1, $2, $3, $4, 'MEDICATION')
       RETURNING *
     `,
       [name, unit, description, exp_date]
@@ -142,8 +142,8 @@ export async function createNewMedicalSupply(req, res) {
   try {
     const result = await query(
       `
-      INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
-      VALUES ($1, $2, 0, $3, $4, 'MEDICAL_SUPPLY')
+      INSERT INTO MedicalItem (name, unit, description, exp_date, category)
+      VALUES ($1, $2, $3, $4, 'MEDICAL_SUPPLY')
       RETURNING *
     `,
       [name, unit, description, exp_date]
