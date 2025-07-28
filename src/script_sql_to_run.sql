@@ -548,8 +548,8 @@ CREATE TABLE CheckupCampaign (
 INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, status) VALUES
 ('Khám sức khỏe định kỳ học sinh năm 2022', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2022-08-01', '2022-08-02', 'DONE'),
 ('Khám sức khỏe định kỳ học sinh năm 2023', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2023-8-05', '2023-08-06', 'DONE'),
-('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-05-15', '2025-05-16', 'CANCELLED');
--- ('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đà năng tầng 4', '2024-08-15', '2025-08-26', 'DONE');
+('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đa năng tầng 4', '2024-05-15', '2025-05-16', 'DONE'),
+('Khám sức khỏe định kỳ học sinh năm 2025', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đa năng tầng 4', '2025-08-15', '2025-08-26', 'DONE');
 
 CREATE TABLE SpecialistExamList (
 	id serial primary key,
@@ -559,10 +559,10 @@ CREATE TABLE SpecialistExamList (
 );
 
 INSERT INTO SpecialistExamList (name, description) VALUES
-('Khám sinh dục', 'Đánh giá sức khỏe sinh dục, đặc biệt ở lứa tuổi dậy thì.'),
-('Khám tâm lý', 'Tư vấn tâm lý học đường, hỗ trợ điều chỉnh cảm xúc, hành vi.'),
-('Khám tâm thần', 'Phát hiện các rối loạn tâm thần, cần bác sĩ chuyên khoa can thiệp.'),
-('Khám xâm lấn', 'Các thủ thuật có can thiệp trực tiếp vào cơ thể như lấy máu xét nghiệm, tiêm phòng, sinh thiết.');
+('Khám sinh dục', 'Khám sinh dục nhằm đánh giá tình trạng phát triển cơ quan sinh dục ở trẻ em và thanh thiếu niên, phát hiện các dấu hiệu bất thường liên quan đến cơ quan sinh sản, dậy thì sớm hoặc muộn, và tư vấn các vấn đề vệ sinh cá nhân, phòng tránh các bệnh lây qua đường tình dục. Đây là bước quan trọng trong việc theo dõi sự phát triển toàn diện của học sinh.'),
+('Khám tâm lý', 'Khám tâm lý học đường giúp phát hiện sớm các vấn đề liên quan đến tâm lý, cảm xúc và hành vi của học sinh như lo âu, trầm cảm, rối loạn hành vi, căng thẳng học tập hoặc xung đột với gia đình. Các chuyên gia tâm lý sẽ đánh giá và tư vấn các chiến lược hỗ trợ phù hợp để học sinh ổn định tâm lý, phát triển kỹ năng sống và học tập hiệu quả.'),
+('Khám tâm thần', 'Khám tâm thần là quá trình đánh giá các triệu chứng liên quan đến rối loạn tâm thần như rối loạn cảm xúc, rối loạn lo âu, rối loạn phát triển, hoặc các vấn đề về hành vi có tính nghiêm trọng hơn. Bác sĩ chuyên khoa tâm thần sẽ tiến hành khai thác bệnh sử, đánh giá lâm sàng và có thể chỉ định điều trị hoặc can thiệp chuyên sâu khi cần thiết.'),
+('Khám xâm lấn', 'Khám xâm lấn bao gồm các thủ thuật có tác động trực tiếp đến cơ thể như lấy máu để làm xét nghiệm, tiêm ngừa vaccine, hoặc thực hiện các thủ thuật chẩn đoán như sinh thiết. Các thủ thuật này đòi hỏi tuân thủ nghiêm ngặt quy trình vô trùng và an toàn y khoa, nhằm đảm bảo độ chính xác trong chẩn đoán cũng như hạn chế tối đa rủi ro cho học sinh.');
 
 CREATE TABLE CampaignContainSpeExam (
     campaign_id INT NOT NULL,
@@ -648,6 +648,11 @@ INSERT INTO CheckupRegister (campaign_id, student_id, status) VALUES
 (1, '211032', 'PENDING'),
 (1, '211033', 'PENDING');
 
+
+UPDATE CheckupRegister
+SET status = 'CANCELLED'
+WHERE status = 'PENDING' AND campaign_id = 1;
+
 ---Campaign 2
 -- 24 bản ghi đầu: status = PENDING (mặc định)
 INSERT INTO CheckupRegister (campaign_id, student_id)
@@ -677,6 +682,10 @@ VALUES
 (2, '211022'),
 (2, '211023');
 
+UPDATE CheckupRegister
+SET status = 'CANCELLED'
+WHERE status = 'PENDING' AND campaign_id = 2;
+
 -- 10 bản ghi cuối: status = SUBMITTED, submit_by = 1, submit_time từ 2023-06-01 đến 2023-06-07
 INSERT INTO CheckupRegister (campaign_id, student_id, status, submit_by, submit_time, reason)
 VALUES
@@ -691,6 +700,109 @@ VALUES
 (2, '211032', 'SUBMITTED', 100030, '2023-06-06 16:45:00', 'Chấp nhận tham gia'),
 (2, '211033', 'SUBMITTED', 100033, '2023-06-07 10:20:00', 'Đồng ý tham gia khám chuyên khoa');
 
+---Campaign 3
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211000', 100003, '2024-05-07 07:36:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211001', 100003, '2024-05-10 16:51:00', 'Đồng ý khám sức khỏe', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211002', 100000, '2024-05-09 15:13:00', 'Phụ huynh đồng thuận', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211003', 100000, '2024-05-07 20:33:00', 'Đã trao đổi với giáo viên', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211004', 100004, '2024-05-07 08:13:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211005', 100006, '2024-05-09 01:37:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211006', 100008, '2024-05-10 07:56:00', 'Phụ huynh xác nhận tham gia', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211007', 100010, '2024-05-07 13:55:00', 'Không có lý do đặc biệt, đồng ý', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211008', 100012, '2024-05-07 19:52:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211009', 100014, '2024-05-10 08:11:00', 'Đồng ý tham gia', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211010', 100017, '2024-05-10 23:48:00', 'Sẵn sàng cho buổi khám', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211011', 100018, '2024-05-10 08:00:00', 'Đã trao đổi với giáo viên', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211012', 100020, '2024-05-07 12:46:00', 'Đã trao đổi với giáo viên', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211013', 100022, '2024-05-09 07:46:00', 'Sẵn sàng cho buổi khám', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211014', 100024, '2024-05-07 14:26:00', 'Đã trao đổi với giáo viên', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211015', 100026, '2024-05-08 04:52:00', 'Không có lý do đặc biệt, đồng ý', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211016', 100028, '2024-05-09 02:51:00', 'Không có lý do đặc biệt, đồng ý', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211017', 100030, '2024-05-08 20:35:00', 'Đồng ý khám sức khỏe', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211018', 100032, '2024-05-07 07:02:00', 'Được gia đình cho phép', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211019', 100005, '2024-05-10 19:58:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211020', 100006, '2024-05-10 01:23:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211021', 100009, '2024-05-08 18:09:00', 'Không có lý do đặc biệt, đồng ý', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211022', 100010, '2024-05-10 07:56:00', 'Sẵn sàng cho buổi khám', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211023', 100013, '2024-05-10 15:43:00', 'Đồng ý khám sức khỏe', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211024', 100014, '2024-05-07 21:05:00', 'Đã đăng ký qua giáo viên chủ nhiệm', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211025', 100017, '2024-05-07 10:27:00', 'Đã trao đổi với giáo viên', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211026', 100018, '2024-05-07 18:20:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211027', 100021, '2024-05-09 01:34:00', 'Đã trao đổi với giáo viên', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211028', 100023, '2024-05-10 13:24:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211029', 100025, '2024-05-09 03:50:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211030', 100027, '2024-05-07 08:11:00', 'Phụ huynh đồng thuận', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211031', 100029, '2024-05-09 21:50:00', 'Không có lý do đặc biệt, đồng ý', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211032', 100031, '2024-05-09 14:19:00', 'Đồng ý khám sức khỏe', 'SUBMITTED');
+
+INSERT INTO CheckupRegister (campaign_id, student_id, submit_by, submit_time, reason, status)
+VALUES (3, '211033', 100033, '2024-05-10 11:01:00', 'Chấp thuận theo yêu cầu nhà trường', 'SUBMITTED');
 
 
 create type health_record_status as enum ('CANCELLED','WAITING', 'DONE');
@@ -811,32 +923,74 @@ INSERT INTO HealthRecord (
  'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thừa cân nhẹ', true, 'DONE', '2023-08-06'),
 (55, '153', '44', '110/70', '10/10', '10/10', 'Viêm tai', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường',
  'Tốt', 'Tốt', 'Thẳng', 'Lệch nhẹ', NULL, 'Cần theo dõi tai', true, 'DONE', '2023-08-06'),
-(56, '160', '49', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô',
+(56, '165', '49', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Sâu nhẹ', 'Viêm lợi nhẹ', 'Da khô',
  'Tốt', 'Tốt', 'Thẳng', 'Hơi gù', NULL, 'Đánh răng đều', true, 'DONE', '2023-08-06'),
- (57, '149', '40', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+ (57, '162', '40', '100/65', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
  'Không sâu', 'Tốt', 'Da mẫn cảm', 'Tốt', 'Tốt', 'Cong nhẹ', 'Lệch nhẹ', NULL, 'Viêm da dị ứng', true, 'DONE', '2023-08-06'),
-(58, '154', '56', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+(58, '160', '56', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
  'Không sâu', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
-(59, '147', '39', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+(59, '157', '39', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
  'Sâu nhẹ', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Cong nhẹ', 'Hơi lệch', NULL, 'Thiếu cân, cận nhẹ', true, 'DONE', '2023-08-06'),
-(60, '152', '44', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định',
+(60, '168', '44', '110/70', '10/10', '10/10', 'Bình thường', 'Viêm nhẹ', 'Ổn định',
  'Không sâu', 'Bình thường', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', 'https://example.com/record60.pdf', 'Cần theo dõi viêm mũi', true, 'DONE', '2023-08-06'),
 (61, '157', '49', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi đỏ',
  'Không sâu', 'Bình thường', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Hơi lệch', NULL, 'Viêm họng nhẹ', true, 'DONE', '2023-08-06'),
-(62, '150', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định',
+(62, '165', '40', '100/65', '10/10', '9/10', 'Bình thường', 'Không viêm', 'Ổn định',
  'Sâu nhẹ', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Thị lực phải giảm nhẹ', true, 'DONE', '2023-08-06'),
-(63, '162', '54', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè',
+(63, '155', '54', '110/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Hơi khò khè',
  'Không sâu', 'Tốt', 'Da thường', 'Tốt', 'Khò nhẹ', 'Thẳng', 'Bình thường', NULL, 'Cần theo dõi hô hấp', true, 'DONE', '2023-08-06'),
-(64, '144', '37', '90/60', '9/10', '9/10', 'Viêm tai nhẹ', 'Không viêm', 'Ổn định',
+(64, '168', '37', '90/60', '9/10', '9/10', 'Viêm tai nhẹ', 'Không viêm', 'Ổn định',
  'Không sâu', 'Tốt', 'Da khô', 'Tốt', 'Tốt', 'Thẳng', 'Lệch vai nhẹ', NULL, 'Viêm tai giữa nhẹ', true, 'DONE', '2023-08-06'),
-(65, '166', '59', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+(65, '156', '59', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
  'Không sâu', 'Tốt', 'Da thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', 'https://example.com/record65.pdf', 'Khỏe mạnh', true, 'DONE', '2023-08-06'),
-(66, '158', '64', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ',
+(66, '162', '64', '120/80', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Viêm nhẹ',
  'Sâu nặng', 'Viêm lợi', 'Không bệnh ngoài da', 'Tốt', 'Tốt', 'Cong nặng', 'Lệch hông', NULL, 'Cần điều trị răng miệng', true, 'DONE', '2023-08-06'),
 (67, '160', '46', '100/70', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
  'Không sâu', 'Tốt', 'Da bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Khỏe mạnh', true, 'DONE', '2023-08-06'),
-(68, '153', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
+(68, '163', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định',
  'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Hơi gầy', true, 'DONE', '2023-08-06');
+
+--Campaign 3
+INSERT INTO HealthRecord (
+    register_id, height, weight, blood_pressure, left_eye, right_eye,
+    ear, nose, throat, teeth, gums, skin_condition,
+    heart, lungs, spine, posture,
+    record_url, final_diagnosis, is_checked, status, date_record
+) VALUES
+(69, '154', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(70, '154', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(71, '160', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(72, '154', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(73, '163', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(74, '155', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(75, '170', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(76, '163', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(77, '162', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(78, '161', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(79, '175', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(80, '162', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(81, '165', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(82, '163', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(83, '162', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(84, '164', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(85, '162', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(86, '163', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(87, '162', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(88, '164', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(89, '161', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(90, '167', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(91, '166', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(92, '162', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(93, '161', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(94, '173', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(95, '161', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(96, '168', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(97, '162', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(98, '172', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(99, '161', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(100, '166', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(101, '163', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06'),
+(102, '164', '42', '100/60', '10/10', '10/10', 'Bình thường', 'Không viêm', 'Ổn định', 'Không sâu', 'Tốt', 'Bình thường', 'Tốt', 'Tốt', 'Thẳng', 'Bình thường', NULL, 'Bình thường', true, 'DONE', '2023-08-06');
 
 CREATE TYPE specialist_exam_record_status AS ENUM ('CANNOT_ATTACH', 'WAITING', 'DONE');
 CREATE TABLE specialistExamRecord (
