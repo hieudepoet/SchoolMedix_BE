@@ -100,6 +100,9 @@ export async function createCampaign(req, res) {
         specialist_exam_ids, // Admin chon các Special  Exam List
     } = req.body;
 
+
+
+
     if (
         !name ||
         !description ||
@@ -125,7 +128,6 @@ export async function createCampaign(req, res) {
         );
 
         const campaign = result_campaign.rows[0]; //Lấy Record đầu tiên trong  ( Phải có RETURNING mới có Record)
-        console.log("tao campaign: ", campaign);
         if (campaign === 0) {
             return res
                 .status(400)
@@ -140,7 +142,6 @@ export async function createCampaign(req, res) {
                     [campaign.id, exam_id]
                 );
 
-                console.log("gắn spe exam id vào campaign: ", exam_id);
 
                 if (result_campagincontain.rowCount === 0) {
                     return res
@@ -170,7 +171,7 @@ export async function createCampaign(req, res) {
 //Truyền vào ID campaign để gửi Register cho phụ huynh ( Status: PREPARING --> UPCOMING )
 export async function sendRegister(req, res) {
     const { campaign_id } = req.params;
-    console.log(campaign_id);
+
     try {
 
         if (!campaign_id) {
@@ -238,26 +239,30 @@ export async function sendRegister(req, res) {
 
         const specialist_exam_ids = rs.rows;
 
+        console.log(specialist_exam_ids);
 
         //Step 3: Tạo specialistExamRecord
-        for (const registerId of checkup_register) {
-            for (const examId of specialist_exam_ids) {
-                const result_update_speciallist = await query(
-                    `INSERT INTO specialistExamRecord (register_id,spe_exam_id,status)
+        if (specialist_exam_ids || !specialist_exam_ids.length === 0) {
+            for (const registerId of checkup_register) {
+                for (const examId of specialist_exam_ids) {
+                    const result_update_speciallist = await query(
+                        `INSERT INTO specialistExamRecord (register_id,spe_exam_id,status)
                         VALUES ($1, $2, $3)`,
-                    [registerId.id, examId.specialist_exam_id, "CANNOT_ATTACH"]
-                );
+                        [registerId.id, examId.specialist_exam_id, "CANNOT_ATTACH"]
+                    );
 
-                if (result_update_speciallist.rowCount === 0) {
-                    return res
-                        .status(400)
-                        .json({
-                            error: true,
-                            message: "Create Special List Exam Record không thành công.",
-                        });
+                    if (result_update_speciallist.rowCount === 0) {
+                        return res
+                            .status(400)
+                            .json({
+                                error: true,
+                                message: "Create Special List Exam Record không thành công.",
+                            });
+                    }
                 }
             }
         }
+
 
         //Step 4: tạo Health Record
 
