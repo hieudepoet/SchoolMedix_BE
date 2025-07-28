@@ -15,15 +15,6 @@ const BUCKET = process.env.SUPABASE_BUCKET || "diagnosis-url";
 
 
 
-async function checkCampaignExists(campaignID) {
-    const result = await query("SELECT * FROM checkupcampaign  WHERE id = $1", [
-        campaignID,
-    ]);
-    if (result.rowCount === 0) {
-        return false;
-    } else return true;
-}
-
 export async function getAllHealthRecordOfStudent(req, res) {
 
     const { student_id } = req.params;
@@ -36,8 +27,6 @@ export async function getAllHealthRecordOfStudent(req, res) {
                 message: "Không nhận được Student.",
             });
     }
-
-
 
     try {
 
@@ -99,9 +88,6 @@ WHERE
             .json({ error: true, message: "Lỗi server khi lấy Health Record." });
     }
 }
-
-
-
 
 
 export async function createCampaign(req, res) {
@@ -1024,11 +1010,26 @@ export async function cancelRegister(req, res) {
                 .json({ error: true, message: "Không tìm thấy id Campaign ." });
         }
 
+        const status = result_check.rows[0].status;
+
+        if (status === 'DRAFTED') {
+            const result = await query(
+                "UPDATE CheckupCampaign SET status = $1 WHERE id = $2",
+                ["CANCELLED", id]
+            );
+            return res
+                .status(200)
+                .json({ error: false, message: "CANCEL thành công" });
+
+        }
+
         //Cập nhật trạng thái Cancel cho CheckUpCampaign
         const result = await query(
             "UPDATE CheckupCampaign SET status = $1 WHERE id = $2",
             ["CANCELLED", id]
         );
+
+
         //Cập nhật trạng thái cho CheckUp Register
         const result_checkup_register = await query(
             "UPDATE checkupregister SET status = $1 WHERE campaign_id = $2",
