@@ -18,7 +18,8 @@ import {
      checkAdequateQuantityForAItem,
      createInventoryTransaction,
      updateInventoryTransaction,
-     getInventoryTransactionsByPurposeID
+     getInventoryTransactionsByPurposeID,
+     getAllTransactionPurpose
 } from "../controllers/medicalItem.controller.js";
 
 const router = express.Router();
@@ -49,5 +50,8 @@ router.post("/check-quantity", checkAdequateQuantityForAItem); // get a bool to 
 
 router.post("/inventory-transaction", createInventoryTransaction); // create new transaction along with medical items
 router.put("/inventory-transaction/:id", updateInventoryTransaction); // update transaction with new medical items
+
+//transaction purpose
+router.get("/transaction-purpose", getAllTransactionPurpose);
 
 export default router;
