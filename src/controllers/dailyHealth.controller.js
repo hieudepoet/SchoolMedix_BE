@@ -1,7 +1,14 @@
-import { query } from "../config/database.js";
-import { checkAdequateQuantityForItems, createNewMedicalItemsForTransaction, createNewTransaction, eraseAllTransactionItemsByTransactionID, getMedicalItemsByTransactionID, restoreMedicalItemsForTransaction } from "./medicalItem.controller.js";
+import { query, pool } from "../config/database.js";
+import {
+  checkAdequateQuantityForItems,
+  createNewMedicalItemsForTransaction,
+  createNewTransaction,
+  eraseAllTransactionItemsByTransactionID,
+  getMedicalItemsByTransactionID,
+  restoreMedicalItemsForTransaction,
+} from "./medicalItem.controller.js";
 
-//Create a new daily health record
+// Create a new daily health record
 export const createDailyHealthRecord = async (req, res) => {
   const {
     student_id,
@@ -11,45 +18,55 @@ export const createDailyHealthRecord = async (req, res) => {
     transferred_to,
     items_usage,
     status,
-    medical_items
+    medical_items,
   } = req.body;
 
-  if (!student_id || !detect_time || !medical_items) {
+  if (!student_id || !detect_time) {
     return res
       .status(400)
       .json({ error: false, message: "Missing required fields" });
   }
 
+  const client = await pool.connect();
   try {
-    // Check if the student exists
-    const students = await query("SELECT id FROM student WHERE id = $1;", [
-      student_id,
-    ]);
-    if (students.rowCount === 0) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Student not found" });
-    }
+    await client.query("BEGIN");
 
+    // Check if the student exists
+    const students = await query(
+      "SELECT id FROM student WHERE id = $1;",
+      [student_id],
+      { client }
+    );
+    if (students.rowCount === 0) {
+      throw new Error("Student not found");
+    }
 
     const record_date = new Date();
     let transaction_id = null;
     if (Array.isArray(medical_items) && medical_items.length > 0) {
-      // check if there are enough quanity of medical item to use
-      let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, 1);
-      if (is_valid_transaction_quantity == false) {
-        return res.status(400).json({ error: true, message: "Các vật tư y tế/thuốc không đủ số lượng." });
+      // Check if there are enough quantity of medical item to use
+      let is_valid_transaction_quantity = await checkAdequateQuantityForItems(
+        medical_items,
+        1
+      );
+      if (is_valid_transaction_quantity === false) {
+        throw new Error("Các vật tư y tế/thuốc không đủ số lượng.");
       }
-      // if yes, then inserting new transaction
-      transaction_id = await createNewTransaction(1, 'Sử dụng thuốc/vật tư cho học sinh', record_date, medical_items);
+      // If yes, then inserting new transaction
+      transaction_id = await createNewTransaction(
+        1,
+        "Sử dụng thuốc/vật tư cho học sinh",
+        record_date,
+        medical_items
+      );
     }
 
     // Insert the daily health record
     const insertQuery = `
-           INSERT INTO daily_health_record (student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage, status, transaction_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING *;
-        `;
+      INSERT INTO daily_health_record (student_id, detect_time, record_date, diagnosis, on_site_treatment, transferred_to, items_usage, status, transaction_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING *;
+    `;
     const values = [
       student_id,
       detect_time,
@@ -59,18 +76,22 @@ export const createDailyHealthRecord = async (req, res) => {
       transferred_to || null,
       items_usage || null,
       status,
-      transaction_id
+      transaction_id,
     ];
-    const result = await query(insertQuery, values);
+    const result = await query(insertQuery, values, { client });
 
+    await client.query("COMMIT");
     return res
       .status(201)
       .json({ message: "Daily health record created", data: result.rows[0] });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error creating daily health record:", error);
     return res
       .status(500)
-      .json({ error: true, message: "Internal server error" });
+      .json({ error: true, message: error.message || "Internal server error" });
+  } finally {
+    client.release();
   }
 };
 
@@ -178,7 +199,6 @@ export const getDailyHealthRecordsByStudentId = async (req, res) => {
   }
 };
 
-
 // Get a daily health record by ID
 export const getDailyHealthRecordById = async (req, res) => {
   const { id } = req.params;
@@ -236,7 +256,6 @@ export const getDailyHealthRecordById = async (req, res) => {
   }
 };
 
-
 // Update a daily health record by ID
 export const updateDailyHealthRecordById = async (req, res) => {
   const { id } = req.params;
@@ -248,7 +267,7 @@ export const updateDailyHealthRecordById = async (req, res) => {
     status,
     detect_time,
     transaction_id,
-    medical_items
+    medical_items,
   } = req.body;
 
   if (!diagnosis) {
@@ -257,28 +276,41 @@ export const updateDailyHealthRecordById = async (req, res) => {
       .json({ error: true, message: "Missing required field: Diagnosis" });
   }
 
+  const client = await pool.connect();
   try {
+    await client.query("BEGIN");
+
     // Check if the record exists
     const recordCheck = await query(
       "SELECT * FROM daily_health_record WHERE id = $1;",
-      [id]
+      [id],
+      { client }
     );
     if (recordCheck.rowCount === 0) {
-      return res
-        .status(404)
-        .json({ error: true, message: "Daily health record not found" });
+      throw new Error("Daily health record not found");
     }
 
-    const old_medical_items = await getMedicalItemsByTransactionID(transaction_id);
+    const old_medical_items = await getMedicalItemsByTransactionID(
+      transaction_id
+    );
     await eraseAllTransactionItemsByTransactionID(transaction_id);
-    const is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, 1);
-    if (is_valid_transaction_quantity == true) {
-      await createNewMedicalItemsForTransaction(transaction_id, medical_items, 1);
+    const is_valid_transaction_quantity = await checkAdequateQuantityForItems(
+      medical_items,
+      1
+    );
+    if (is_valid_transaction_quantity === true) {
+      await createNewMedicalItemsForTransaction(
+        transaction_id,
+        medical_items,
+        1
+      );
     } else {
-      await restoreMedicalItemsForTransaction(transaction_id, old_medical_items, 1);
-      return res
-        .status(400)
-        .json({ error: true, message: "Không đủ vật tư/ thuốc để sử dụng!" });
+      await restoreMedicalItemsForTransaction(
+        transaction_id,
+        old_medical_items,
+        1
+      );
+      throw new Error("Không đủ vật tư/ thuốc để sử dụng!");
     }
 
     // Update the daily health record
@@ -302,16 +334,20 @@ export const updateDailyHealthRecordById = async (req, res) => {
       detect_time || null,
       id,
     ];
-    const result = await query(updateQuery, values);
+    const result = await query(updateQuery, values, { client });
 
+    await client.query("COMMIT");
     return res.status(200).json({
       message: "Daily health record updated successfully",
       data: result.rows[0],
     });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error updating daily health record:", error);
     return res
       .status(500)
-      .json({ error: true, message: "Internal server error" });
+      .json({ error: true, message: error.message || "Internal server error" });
+  } finally {
+    client.release();
   }
 };

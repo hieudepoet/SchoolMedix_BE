@@ -1,23 +1,32 @@
-import { query } from "../config/database.js";
+import { query, pool } from "../config/database.js";
 
 export async function getMedicalItemById(req, res) {
   const { id } = req.params;
   try {
-    const result = await query(`
+    const result = await query(
+      `
         SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
         WHERE MI.ID = $1
         GROUP BY mi.id
         ORDER BY mi.id
-      `, [id]);
+      `,
+      [id]
+    );
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
     }
-    return res.status(200).json({ error: false, message: "ok", data: result.rows[0] });
+    return res
+      .status(200)
+      .json({ error: false, message: "ok", data: result.rows[0] });
   } catch (err) {
     console.error("getMedicalItemById:", err);
-    return res.status(500).json({ error: true, message: "Lỗi server khi lấy thông tin." });
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi lấy thông tin." });
   }
 }
 
@@ -31,41 +40,57 @@ export async function getAllMedicalItems(req, res) {
         ORDER BY mi.id desc
       `);
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Không tìm thấy vật tư / thuốc" });
     }
-    return res.status(200).json({ error: false, message: "ok", data: result.rows });
+    return res
+      .status(200)
+      .json({ error: false, message: "ok", data: result.rows });
   } catch (err) {
-    return res.status(500).json({ error: true, message: "Lỗi server khi lấy thông tin." });
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi lấy thông tin." });
   }
 }
 
 export async function getAllMedicalSupplies(req, res) {
   try {
-    const result = await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+    const result =
+      await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
         WHERE mi.category = 'MEDICAL_SUPPLY'
         GROUP BY mi.id
         ORDER BY mi.id desc`);
-    return res.status(200).json({ error: false, message: "ok", data: result.rows });
+    return res
+      .status(200)
+      .json({ error: false, message: "ok", data: result.rows });
   } catch (err) {
     console.error("getAllMedicalSupplies:", err);
-    return res.status(500).json({ error: true, message: "Lỗi server khi lấy vật tư y tế." });
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi lấy vật tư y tế." });
   }
 }
 
 export async function getAllMedications(req, res) {
   try {
-    const result = await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+    const result =
+      await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
         WHERE mi.category = 'MEDICATION'
         GROUP BY mi.id
         ORDER BY mi.id desc`);
-    return res.status(200).json({ error: false, message: "ok", data: result.rows });
+    return res
+      .status(200)
+      .json({ error: false, message: "ok", data: result.rows });
   } catch (err) {
     console.error("getAllMedications:", err);
-    return res.status(500).json({ error: true, message: "Lỗi server khi lấy thuốc." });
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi lấy thuốc." });
   }
 }
 
@@ -92,13 +117,23 @@ export async function updateMedicalItem(req, res) {
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: true, message: "Không tìm thấy để cập nhật" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Không tìm thấy để cập nhật" });
     }
 
-    return res.status(200).json({ error: false, message: "Cập nhật thành công", data: result.rows[0] });
+    return res
+      .status(200)
+      .json({
+        error: false,
+        message: "Cập nhật thành công",
+        data: result.rows[0],
+      });
   } catch (err) {
     console.error("updateMedicalItem:", err);
-    return res.status(500).json({ error: true, message: "Lỗi server khi cập nhật." });
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi cập nhật." });
   }
 }
 
@@ -115,17 +150,25 @@ export async function createNewMedication(req, res) {
   try {
     const result = await query(
       `
-      INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
-      VALUES ($1, $2, 0, $3, $4, 'MEDICATION')
+      INSERT INTO MedicalItem (name, unit, description, exp_date, category)
+      VALUES ($1, $2, $3, $4, 'MEDICATION')
       RETURNING *
     `,
       [name, unit, description, exp_date]
     );
 
-    return res.status(201).json({ error: false, message: "Tạo thuốc thành công", data: result.rows[0] });
+    return res
+      .status(201)
+      .json({
+        error: false,
+        message: "Tạo thuốc thành công",
+        data: result.rows[0],
+      });
   } catch (err) {
     console.error("createNewMedication:", err);
-    return res.status(500).json({ error: true, message: "Lỗi server khi tạo thuốc." });
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi tạo thuốc." });
   }
 }
 
@@ -142,17 +185,25 @@ export async function createNewMedicalSupply(req, res) {
   try {
     const result = await query(
       `
-      INSERT INTO MedicalItem (name, unit, quantity, description, exp_date, category)
-      VALUES ($1, $2, 0, $3, $4, 'MEDICAL_SUPPLY')
+      INSERT INTO MedicalItem (name, unit, description, exp_date, category)
+      VALUES ($1, $2, $3, $4, 'MEDICAL_SUPPLY')
       RETURNING *
     `,
       [name, unit, description, exp_date]
     );
 
-    return res.status(201).json({ error: false, message: "Tạo vật tư thành công", data: result.rows[0] });
+    return res
+      .status(201)
+      .json({
+        error: false,
+        message: "Tạo vật tư thành công",
+        data: result.rows[0],
+      });
   } catch (err) {
     console.error("createNewMedicalSupply:", err);
-    return res.status(500).json({ error: true, message: "Lỗi server khi tạo vật tư." });
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi tạo vật tư." });
   }
 }
 
@@ -200,15 +251,8 @@ export async function getSupplierById(req, res) {
 }
 
 export async function createSupplier(req, res) {
-  const {
-    name,
-    description,
-    address,
-    email,
-    phone,
-    contact_person,
-    tax_code,
-  } = req.body;
+  const { name, description, address, email, phone, contact_person, tax_code } =
+    req.body;
 
   if (!name || !address || !email || !phone) {
     return res.status(400).json({
@@ -269,7 +313,17 @@ export async function updateSupplier(req, res) {
       WHERE id = $9
       RETURNING *
       `,
-      [name, description, address, email, phone, contact_person, tax_code, status, id]
+      [
+        name,
+        description,
+        address,
+        email,
+        phone,
+        contact_person,
+        tax_code,
+        status,
+        id,
+      ]
     );
 
     if (result.rowCount === 0) {
@@ -293,12 +347,17 @@ export async function updateSupplier(req, res) {
   }
 }
 
-
-export async function checkAdequateQuantityForItems(incoming_medical_items, purpose_id) {
+export async function checkAdequateQuantityForItems(
+  incoming_medical_items,
+  purpose_id
+) {
   let is_adequate_all = true;
 
   if (incoming_medical_items.length !== 0) {
-    const purpose_result = await query(`select multiply_for from transactionpurpose where id = $1`, [purpose_id]);
+    const purpose_result = await query(
+      `select multiply_for from transactionpurpose where id = $1`,
+      [purpose_id]
+    );
     const multiply_for = purpose_result.rows[0].multiply_for;
 
     const current_items_quantity = await getCurrentItems();
@@ -310,7 +369,9 @@ export async function checkAdequateQuantityForItems(incoming_medical_items, purp
     }
     console.log(incoming_medical_items);
     for (const item of incoming_medical_items) {
-      const current_quantity = Number(quantity_map.get(item.medical_item_id) ?? 0);
+      const current_quantity = Number(
+        quantity_map.get(item.medical_item_id) ?? 0
+      );
       if (current_quantity + multiply_for * item.transaction_quantity < 0) {
         is_adequate_all = false;
         break;
@@ -338,7 +399,6 @@ export async function getMedicalItemsByTransactionID(transaction_id) {
   return result.rows;
 }
 
-
 export async function getCurrentItems() {
   const result = await query(`
     SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
@@ -350,24 +410,54 @@ export async function getCurrentItems() {
   return result.rows;
 }
 
-export async function createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id = null) {
+export async function createNewTransaction(
+  purpose_id,
+  note,
+  transaction_date,
+  medical_items,
+  supplier_id = null
+) {
+  let client;
+  try {
+    client = await pool.connect();
+    await client.query("BEGIN");
 
-  // if yes, then inserting new transaction
-  const transaction_result = await query(
-    `
-      INSERT INTO InventoryTransaction (purpose_id, note, transaction_date, supplier_id)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id
-      `,
-    [purpose_id, note, transaction_date, supplier_id]
-  );
+    // Inserting new transaction
+    const transaction_result = await client.query(
+      `
+        INSERT INTO InventoryTransaction (purpose_id, note, transaction_date, supplier_id)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+        `,
+      [purpose_id, note, transaction_date, supplier_id]
+    );
 
-  const transaction_id = transaction_result.rows[0].id;
+    const transaction_id = transaction_result.rows[0].id;
+    console.log("Create new transaction with id: ", transaction_result.rows[0]);
 
-  // Chèn vào bảng TransactionItems
-  await createNewMedicalItemsForTransaction(transaction_id, medical_items, purpose_id);
+    // Insert into TransactionItems
+    try {
+      await createNewMedicalItemsForTransaction(
+        transaction_id,
+        medical_items,
+        purpose_id,
+        client
+      );
+    } catch (err) {
+      if (client) await client.query("ROLLBACK");
+      console.error("Error creating new transaction:", err);
+      throw err; // Re-throw error to be handled by calling function
+    }
 
-  return transaction_id;
+    await client.query("COMMIT");
+    return transaction_id;
+  } catch (err) {
+    if (client) await client.query("ROLLBACK");
+    console.error("Error creating new transaction:", err);
+    throw err; // Re-throw error to be handled by calling function
+  } finally {
+    if (client) client.release();
+  }
 }
 
 export async function eraseAllTransactionItemsByTransactionID(transaction_id) {
@@ -377,16 +467,28 @@ export async function eraseAllTransactionItemsByTransactionID(transaction_id) {
   );
 }
 
-export async function createNewMedicalItemsForTransaction(transaction_id, medical_items, purpose_id) {
-  const purpose_result = await query(`select multiply_for from transactionpurpose where id = $1`, [purpose_id]);
+export async function createNewMedicalItemsForTransaction(
+  transaction_id,
+  medical_items,
+  purpose_id,
+  client
+) {
+  const purpose_result = await query(
+    `select multiply_for from transactionpurpose where id = $1`,
+    [purpose_id]
+  );
   const multiply_for = purpose_result.rows[0].multiply_for;
 
   const values = [];
   const placeholders = [];
 
+  if (Number.isInteger(multiply_for)) console.log("Multiply: ", multiply_for);
+  else console.log("Multiply NaN");
+
   for (let i = 0; i < medical_items.length; i++) {
-    const { medical_item_id, transaction_quantity } = medical_items[i];
-    values.push(transaction_id, medical_item_id, multiply_for * transaction_quantity);
+    const { id, quantity } = medical_items[i];
+    console.log("MedicalIID: ", id);
+    values.push(transaction_id, id, multiply_for * parseInt(quantity));
     placeholders.push(`($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`);
   }
 
@@ -396,11 +498,18 @@ export async function createNewMedicalItemsForTransaction(transaction_id, medica
         VALUES ${placeholders.join(", ")}
       `;
 
-    await query(insert_items_query, values);
+    try {
+      await client.query(insert_items_query, values);
+    } catch (err) {
+      throw err;
+    }
   }
 }
 
-export async function restoreMedicalItemsForTransaction(transaction_id, old_medical_items) {
+export async function restoreMedicalItemsForTransaction(
+  transaction_id,
+  old_medical_items
+) {
   const values = [];
   const placeholders = [];
 
@@ -410,7 +519,6 @@ export async function restoreMedicalItemsForTransaction(transaction_id, old_medi
     placeholders.push(`($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`);
   }
 
-
   if (values.length > 0) {
     const insert_items_query = `
         INSERT INTO TransactionItems (transaction_id, medical_item_id, transaction_quantity)
@@ -420,7 +528,6 @@ export async function restoreMedicalItemsForTransaction(transaction_id, old_medi
     await query(insert_items_query, values);
   }
 }
-
 
 export async function getAllInventoryTransactions(req, res) {
   try {
@@ -606,7 +713,8 @@ export async function getInventoryTransactionsByPurposeID(req, res) {
   const { id } = req.params;
 
   try {
-    const result = await query(`
+    const result = await query(
+      `
       SELECT it.*, tp.title AS purpose_title, s.name AS supplier_name,
              json_agg(json_build_object(
                'id', mi.id,
@@ -625,7 +733,9 @@ export async function getInventoryTransactionsByPurposeID(req, res) {
       WHERE it.purpose_id = $1
       GROUP BY it.id, tp.title, s.name
       ORDER BY it.transaction_date DESC
-    `, [id]);
+    `,
+      [id]
+    );
 
     return res.status(200).json({
       error: false,
@@ -641,7 +751,6 @@ export async function getInventoryTransactionsByPurposeID(req, res) {
   }
 }
 
-
 export async function checkAdequateQuantityForAItem(req, res) {
   const { medical_item_id, incoming_quantity, purpose_id } = req.body;
 
@@ -653,7 +762,10 @@ export async function checkAdequateQuantityForAItem(req, res) {
       });
     }
 
-    const purpose_result = await query(`select multiply_for from transactionpurpose where id = $1`, [purpose_id]);
+    const purpose_result = await query(
+      `select multiply_for from transactionpurpose where id = $1`,
+      [purpose_id]
+    );
     const multiply_for = purpose_result.rows[0].multiply_for;
     console.log(multiply_for);
     const current_items_quantity = await getCurrentItems();
@@ -664,7 +776,8 @@ export async function checkAdequateQuantityForAItem(req, res) {
     }
 
     const current_quantity = quantity_map.get(medical_item_id) ?? 0;
-    const is_adequate = current_quantity + multiply_for * incoming_quantity >= 0;
+    const is_adequate =
+      current_quantity + multiply_for * incoming_quantity >= 0;
 
     return res.status(200).json({
       error: false,
@@ -685,9 +798,15 @@ export async function checkAdequateQuantityForAItem(req, res) {
 }
 
 export async function createInventoryTransaction(req, res) {
-  const { purpose_id, note, transaction_date, medical_items, supplier_id } = req.body;
+  const { purpose_id, note, transaction_date, medical_items, supplier_id } =
+    req.body;
 
-  if (!purpose_id || !transaction_date || !Array.isArray(medical_items) || medical_items.length === 0) {
+  if (
+    !purpose_id ||
+    !transaction_date ||
+    !Array.isArray(medical_items) ||
+    medical_items.length === 0
+  ) {
     return res.status(400).json({
       error: true,
       message: "Missing required fields or empty medical_items array",
@@ -696,19 +815,28 @@ export async function createInventoryTransaction(req, res) {
 
   try {
     // check if there are enough quanity of medical item to use
-    let is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, purpose_id);
+    let is_valid_transaction_quantity = await checkAdequateQuantityForItems(
+      medical_items,
+      purpose_id
+    );
     if (is_valid_transaction_quantity == false) {
       return res.status(400).json({
         error: true,
         message: "Khong du vat tu, thuoc men!",
       });
     }
-    const transaction_id = await createNewTransaction(purpose_id, note, transaction_date, medical_items, supplier_id || null)
+    const transaction_id = await createNewTransaction(
+      purpose_id,
+      note,
+      transaction_date,
+      medical_items,
+      supplier_id || null
+    );
 
     return res.status(201).json({
       error: false,
       message: "Tạo giao dịch thành công",
-      transaction_id
+      transaction_id,
     });
   } catch (err) {
     console.error("createInventoryTransaction:", err);
@@ -721,7 +849,8 @@ export async function createInventoryTransaction(req, res) {
 
 export async function updateInventoryTransaction(req, res) {
   const { id } = req.params;
-  const { purpose_id, note, transaction_date, medical_items, supplier_id } = req.body;
+  const { purpose_id, note, transaction_date, medical_items, supplier_id } =
+    req.body;
 
   if (!purpose_id || !transaction_date || !Array.isArray(medical_items)) {
     return res.status(400).json({
@@ -733,7 +862,10 @@ export async function updateInventoryTransaction(req, res) {
   try {
     const old_medical_items = await getMedicalItemsByTransactionID(id);
     await eraseAllTransactionItemsByTransactionID(id);
-    const is_valid_transaction_quantity = await checkAdequateQuantityForItems(medical_items, 1);
+    const is_valid_transaction_quantity = await checkAdequateQuantityForItems(
+      medical_items,
+      1
+    );
     if (is_valid_transaction_quantity == true) {
       await createNewMedicalItemsForTransaction(id, medical_items, 1);
     } else {
@@ -752,7 +884,9 @@ export async function updateInventoryTransaction(req, res) {
     );
 
     if (updateResult.rowCount === 0) {
-      return res.status(404).json({ error: true, message: "Không tìm thấy giao dịch để cập nhật" });
+      return res
+        .status(404)
+        .json({ error: true, message: "Không tìm thấy giao dịch để cập nhật" });
     }
 
     return res.status(200).json({
@@ -770,9 +904,7 @@ export async function updateInventoryTransaction(req, res) {
 }
 export async function getAllTransactionPurpose(req, res) {
   try {
-    const result = await query(
-      `select * from transactionpurpose`
-    );
+    const result = await query(`select * from transactionpurpose`);
 
     return res.status(200).json({
       error: false,
