@@ -5,6 +5,7 @@ import {
   getDailyHealthRecordsByStudentId,
   getDailyHealthRecordById,
   updateDailyHealthRecordById,
+  deleteDailyHealthRecordById,
 } from "../controllers/dailyHealth.controller.js";
 
 const router = express.Router();
@@ -17,4 +18,5 @@ router.get(
 );
 router.get("/daily-health-record/:id", getDailyHealthRecordById);
 router.put("/daily-health-record/:id", updateDailyHealthRecordById);
+router.delete("/daily-health-record/:id", deleteDailyHealthRecordById);
 export default router;

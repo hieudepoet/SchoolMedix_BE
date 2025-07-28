@@ -122,13 +122,11 @@ export async function updateMedicalItem(req, res) {
         .json({ error: true, message: "Không tìm thấy để cập nhật" });
     }
 
-    return res
-      .status(200)
-      .json({
-        error: false,
-        message: "Cập nhật thành công",
-        data: result.rows[0],
-      });
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật thành công",
+      data: result.rows[0],
+    });
   } catch (err) {
     console.error("updateMedicalItem:", err);
     return res
@@ -157,13 +155,11 @@ export async function createNewMedication(req, res) {
       [name, unit, description, exp_date]
     );
 
-    return res
-      .status(201)
-      .json({
-        error: false,
-        message: "Tạo thuốc thành công",
-        data: result.rows[0],
-      });
+    return res.status(201).json({
+      error: false,
+      message: "Tạo thuốc thành công",
+      data: result.rows[0],
+    });
   } catch (err) {
     console.error("createNewMedication:", err);
     return res
@@ -192,13 +188,11 @@ export async function createNewMedicalSupply(req, res) {
       [name, unit, description, exp_date]
     );
 
-    return res
-      .status(201)
-      .json({
-        error: false,
-        message: "Tạo vật tư thành công",
-        data: result.rows[0],
-      });
+    return res.status(201).json({
+      error: false,
+      message: "Tạo vật tư thành công",
+      data: result.rows[0],
+    });
   } catch (err) {
     console.error("createNewMedicalSupply:", err);
     return res
@@ -473,6 +467,7 @@ export async function createNewMedicalItemsForTransaction(
   purpose_id,
   client
 ) {
+  console.log("create items: ", medical_items);
   const purpose_result = await query(
     `select multiply_for from transactionpurpose where id = $1`,
     [purpose_id]
