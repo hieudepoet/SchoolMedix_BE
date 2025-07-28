@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import { query } from "../config/database.js";
-import { checkAdequateQuantityForItems, createNewMedicalItemsForTransaction, createNewTransaction, eraseAllTransactionItemsByTransactionID, getMedicalItemsByTransactionID, restoreMedicalItemsForTransaction } from "./medicalItem.controller.js";
-import { pool } from "../config/database.js";
-=======
 import { query, pool } from "../config/database.js";
 import {
   checkAdequateQuantityForItems,
@@ -12,7 +7,6 @@ import {
   getMedicalItemsByTransactionID,
   restoreMedicalItemsForTransaction,
 } from "./medicalItem.controller.js";
->>>>>>> 4b02587cba8a61318c0523d3c1e16e27992054ba
 
 // Create a new daily health record
 export const createDailyHealthRecord = async (req, res) => {
@@ -357,66 +351,3 @@ export const updateDailyHealthRecordById = async (req, res) => {
     client.release();
   }
 };
-<<<<<<< HEAD
-
-export const deleteDailyHealthRecordById = async (req, res) => {
-  const { id } = req.params;
-
-  if (!id) {
-    return res
-      .status(400)
-      .json({ error: true, message: "Missing required field: id" });
-  }
-
-  const client = await pool.connect(); // lấy client để dùng transaction
-
-  try {
-    await client.query("BEGIN");
-
-    // Kiểm tra bản ghi tồn tại
-    const recordCheck = await client.query(
-      "SELECT * FROM daily_health_record WHERE id = $1;",
-      [id]
-    );
-
-    if (recordCheck.rowCount === 0) {
-      await client.query("ROLLBACK");
-      return res
-        .status(404)
-        .json({ error: true, message: "Daily health record not found" });
-    }
-
-    const transaction_id = recordCheck.rows[0].transaction_id;
-
-    // Xóa các item liên quan trong bảng con (nếu cần)
-    await eraseAllTransactionItemsByTransactionID(transaction_id, client); // truyền client
-
-    // Xóa transaction chính
-    await client.query(
-      `DELETE FROM inventorytransaction WHERE id = $1;`,
-      [transaction_id]
-    );
-
-    // Xóa daily health record
-    await client.query(
-      `DELETE FROM daily_health_record WHERE id = $1;`,
-      [id]
-    );
-
-    await client.query("COMMIT");
-
-    return res.status(200).json({
-      message: "Daily health record deleted successfully",
-    });
-  } catch (error) {
-    await client.query("ROLLBACK");
-    console.error("Error deleting daily health record:", error);
-    return res
-      .status(500)
-      .json({ error: true, message: "Internal server error" });
-  } finally {
-    client.release();
-  }
-};
-=======
->>>>>>> 4b02587cba8a61318c0523d3c1e16e27992054ba
