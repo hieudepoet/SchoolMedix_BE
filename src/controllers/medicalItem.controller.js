@@ -768,3 +768,20 @@ export async function updateInventoryTransaction(req, res) {
     });
   }
 }
+export async function getAllTransactionPurpose(req, res) {
+  try {
+    const result = await query(
+      `select * from transactionpurpose`
+    );
+
+    return res.status(200).json({
+      error: false,
+      data: result.rows,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server!",
+    });
+  }
+}
