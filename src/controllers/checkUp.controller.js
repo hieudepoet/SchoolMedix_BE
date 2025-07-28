@@ -419,33 +419,6 @@ export async function updateCampaign(req, res) {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export async function getAllCheckupCampaigns(req, res) {
     try {
         // Lấy tất cả các chiến dịch
@@ -3049,4 +3022,79 @@ async function mergeFinalReportWithSpecialistPdfs(mainPdfBuffer, specialistRecor
 
     const mergedBuffer = await mergedPdf.save();
     return mergedBuffer;
+}
+
+
+export async function sendMailRegister(req, res) {
+
+    const { campaign_id } = req.params;
+
+    if (
+        !campaign_id
+    ) {
+        return res.status(400).json({
+            error: true,
+            message: 'Thiếu dữ liệu!',
+        });
+    }
+
+    try {
+
+
+        const check = await query(`SELECT * FROM checkupcampaign 
+            WHERE id = $1 `, [campaign_id]);
+
+        if (check.rowCount === 0) {
+            return res.status(400).json({
+                error: true,
+                message: 'Không tìm thấy Campaign!',
+            });
+        }
+
+        const campaign = check.rows;
+
+        
+
+        const parentList = await query(`
+SELECT 
+    p.id AS parent_id,
+    p.name AS parent_name,
+    p.email AS email,
+    s.id AS student_id,
+    s.name AS student_name
+FROM parent p
+LEFT JOIN student s 
+    ON s.mom_id = p.id OR s.dad_id = p.id
+WHERE p.email IS NOT NULL
+ORDER BY p.id;`);
+
+        const parent_list = parentList.rows;
+
+        if (!parent_list || parent_list.length === 0) {
+            return res.status(400).json({
+                error: true,
+                message: 'Không tìm thấy Parent List!',
+            });
+        }
+
+        const result = await sendCheckupRegister(parent_list
+            , campaign[0].name
+            , campaign[0].description
+            , campaign[0].location
+            , campaign[0].start_date
+            , campaign[0].end_date
+        );
+        return res.status(200).json({
+            error: false,
+            message: `Đã gửi email thành công`,
+        });
+
+    } catch (err) {
+        console.error("❌ Error:", err);
+        return res.status(500).json({
+            error: true,
+            message: "Lỗi khi gửi mail",
+            detail: err.message,
+        });
+    }
 }
