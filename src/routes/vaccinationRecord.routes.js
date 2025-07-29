@@ -15,8 +15,11 @@ import {
   getVaccinationDeclarationsHistoryByStudentID,
   getVaccinationDeclarationsHistory,
 } from "../controllers/vaccinationRecord.controller.js";
+import { sendMailRegister } from "../controllers/vaccinationCampaign.controller.js";
 
 const router = express.Router();
+
+router.post('/vaccine/:campaign_id/send-register',sendMailRegister)
 
 router.get(
   "/student/:student_id/vaccination-record",
