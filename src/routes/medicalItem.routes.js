@@ -28,7 +28,8 @@ import {
      getAllImportTransaction,
      getAllImportTransactionPurpose,
      getAllExportTransaction,
-     deletePermanentlyATransaction
+     deletePermanentlyATransaction,
+     restoreTransactionFromSoftDelete
 } from "../controllers/medicalItem.controller.js";
 
 const router = express.Router();
@@ -67,6 +68,7 @@ router.get('/deleted-inventory-transaction', getAllDeletedInventoryTransaction);
 
 router.get("/export-inventory-transaction", getAllExportTransaction);
 router.get("/import-inventory-transaction", getAllImportTransaction);
+router.get('/inventory-transaction/:id/restore', restoreTransactionFromSoftDelete);
 
 //transaction purpose
 router.get("/transaction-purpose", getAllTransactionPurpose);
