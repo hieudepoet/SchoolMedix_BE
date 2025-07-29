@@ -20,6 +20,7 @@ import {
   getAllRegisteredRecords,
   completeRecord,
   getCompletedDosesMergedByDisease,
+  getCompletedDosesMergedByDiseaseVNVC,
   getAcceptedRegisteredRecords,
 } from "../controllers/vaccinationCampaign.controller.js";
 
@@ -53,6 +54,11 @@ router.patch(
 router.get(
   "/student/:student_id/completed-doses",
   getCompletedDosesMergedByDisease
+);
+
+router.get(
+  "/student/:student_id/vnvc/completed-doses",
+  getCompletedDosesMergedByDiseaseVNVC
 );
 
 router.patch("/vaccination-register/:id/accept", acceptRegister);
