@@ -644,6 +644,7 @@ export async function getStudentEligibleForCampaign(req, res) {
     );
 
     if (!result.rows || result.rows.length === 0) {
+      console.log("Error: Campaign not found or no associated disease");
       return res.status(404).json({
         error: true,
         message: "Campaign not found or no associated disease",
@@ -656,19 +657,19 @@ export async function getStudentEligibleForCampaign(req, res) {
     const studentCompletedDoses = await query(
       `
       WITH disease_target AS (
-        SELECT unnest($1::int[]) AS disease_id
+        SELECT $1::int[] AS disease_id
       ),
       vaccine_targets AS (
         SELECT d.disease_id, vd.dose_quantity
         FROM disease_target d
-        JOIN vaccine_disease vd ON vd.disease_id = ARRAY[d.disease_id]
+        JOIN vaccine_disease vd ON vd.disease_id = d.disease_id
       ),
       student_doses AS (
         SELECT 
           s.id AS student_id,
           d.disease_id,
           COUNT(vr.id) FILTER (
-            WHERE vr.status = 'COMPLETED' AND vr.disease_id = ARRAY[d.disease_id]
+            WHERE vr.status = 'COMPLETED' AND vr.disease_id = d.disease_id
           ) AS completed_doses,
           d.dose_quantity,
           req.is_registered,
@@ -688,8 +689,9 @@ export async function getStudentEligibleForCampaign(req, res) {
     );
 
     if (studentCompletedDoses.rowCount === 0) {
+      console.log("No eligible students found for disease:", disease_id);
       return res
-        .status(404)
+        .status(500)
         .json({ error: true, message: "No eligible students found" });
     }
 
@@ -698,7 +700,7 @@ export async function getStudentEligibleForCampaign(req, res) {
     for (let student of studentCompletedDoses.rows) {
       const records = await query(
         ` 
-        SELECT 
+        SELECT DISTINCT ON (rec.id)
           req.campaign_id AS campaign_id, 
           req.is_registered AS register_status,  
           rec.id AS record_id, 
@@ -738,6 +740,142 @@ export async function getStudentEligibleForCampaign(req, res) {
         name: student.name,
         student_id: student.student_id,
         completed_doses: student.completed_doses,
+        dose_quantity: student.dose_quantity,
+        is_registered: student.is_registered,
+        records: records.rows,
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Eligible students retrieved",
+      data: completed_doses_and_record,
+    });
+  } catch (error) {
+    console.error("Error retrieving eligible students:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal server error" });
+  }
+}
+
+export async function getStudentEligibleAndCompletedForCampaign(req, res) {
+  const { campaign_id } = req.params;
+
+  if (!campaign_id) {
+    return res
+      .status(400)
+      .json({ error: true, message: "Missing campaign_id" });
+  }
+
+  try {
+    // Truy vấn disease_id từ chiến dịch
+    const result = await query(
+      `
+        SELECT disease_id
+        FROM vaccination_campaign
+        WHERE id = $1
+      `,
+      [campaign_id]
+    );
+
+    if (!result.rows || result.rows.length === 0) {
+      console.log("Error: Campaign not found or no associated disease");
+      return res.status(404).json({
+        error: true,
+        message: "Campaign not found or no associated disease",
+      });
+    }
+
+    const disease_id = result.rows[0].disease_id;
+
+    // Lấy danh sách học sinh đủ điều kiện + trạng thái đăng ký (is_registered)
+    const studentCompletedDoses = await query(
+      `
+      WITH disease_target AS (
+        SELECT $1::int[] AS disease_id
+      ),
+      vaccine_targets AS (
+        SELECT d.disease_id, vd.dose_quantity
+        FROM disease_target d
+        JOIN vaccine_disease vd ON vd.disease_id = d.disease_id
+      ),
+      student_doses AS (
+        SELECT 
+          s.id AS student_id,
+          d.disease_id,
+          COUNT(vr.id) FILTER (
+            WHERE vr.status = 'COMPLETED' AND vr.disease_id = d.disease_id
+          ) AS completed_doses,
+          d.dose_quantity,
+          req.is_registered,
+          s.name
+        FROM student s
+        CROSS JOIN vaccine_targets d
+        LEFT JOIN vaccination_record vr ON vr.student_id = s.id
+        LEFT JOIN vaccination_campaign_register req 
+          ON req.student_id = s.id AND req.campaign_id = $2
+        GROUP BY s.id, d.disease_id, d.dose_quantity, req.is_registered
+      )
+      SELECT *
+      FROM student_doses
+      ORDER BY student_id
+      `,
+      [disease_id, campaign_id]
+    );
+
+    if (studentCompletedDoses.rowCount === 0) {
+      console.log("No eligible students found for disease:", disease_id);
+      return res
+        .status(500)
+        .json({ error: true, message: "No eligible students found" });
+    }
+
+    let completed_doses_and_record = [];
+
+    for (let student of studentCompletedDoses.rows) {
+      const records = await query(
+        ` 
+        SELECT DISTINCT ON (rec.id)
+          req.campaign_id AS campaign_id, 
+          req.is_registered AS register_status,  
+          rec.id AS record_id, 
+          rec.register_id, 
+          rec.description, 
+          rec.location, 
+          rec.vaccination_date, 
+          rec.status, 
+          vac.name AS vaccine_name, 
+          vac.id AS vaccine_id,
+          STRING_AGG(DISTINCT d.id::text, ', ') AS disease_id,
+          STRING_AGG(DISTINCT d.name, ', ') AS disease_name
+        FROM vaccination_record rec 
+        JOIN vaccine vac ON rec.vaccine_id = vac.id
+        LEFT JOIN vaccine_disease vd ON vac.id = vd.vaccine_id
+        LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+        JOIN vaccination_campaign_register req ON req.student_id = rec.student_id
+        WHERE rec.student_id = $1 
+          AND rec.disease_id = $2::int[]
+        GROUP BY 
+          req.campaign_id, 
+          req.is_registered,  
+          rec.id, 
+          rec.register_id, 
+          rec.description, 
+          rec.location, 
+          rec.vaccination_date, 
+          rec.status, 
+          vac.name, 
+          vac.id
+
+        `,
+        [student.student_id, disease_id]
+      );
+
+      completed_doses_and_record.push({
+        name: student.name,
+        student_id: student.student_id,
+        completed_doses: records.rowCount,
         dose_quantity: student.dose_quantity,
         is_registered: student.is_registered,
         records: records.rows,
@@ -1196,6 +1334,65 @@ export async function getCompletedDosesMergedByDisease(req, res) {
         vd.dose_quantity
       FROM vaccine_disease vd
       LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+      GROUP BY vd.disease_id, vd.dose_quantity
+      ORDER BY vd.disease_id
+    `,
+      [student_id]
+    );
+
+    res.json({
+      student_id: studentInfo.student_id,
+      student_name: studentInfo.student_name,
+      class_id: studentInfo.class_id,
+      class_name: studentInfo.class_name,
+      diseases: dosesQuery.rows,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Lỗi khi lấy thông tin", detail: err.message });
+  }
+}
+
+export async function getCompletedDosesMergedByDiseaseVNVC(req, res) {
+  const { student_id } = req.params;
+
+  try {
+    // 1. Lấy thông tin học sinh và lớp
+    const studentQuery = await query(
+      `
+      SELECT s.id AS student_id, s.name AS student_name, s.class_id, c.name AS class_name
+      FROM student s
+      JOIN class c ON s.class_id = c.id
+      WHERE s.id = $1
+    `,
+      [student_id]
+    );
+
+    if (studentQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Không tìm thấy học sinh" });
+    }
+
+    const studentInfo = studentQuery.rows[0];
+
+    // 2. Lấy danh sách bệnh, số liều đã tiêm (COMPLETED), và tổng số liều cần tiêm
+    const dosesQuery = await query(
+      `
+      SELECT 
+        vd.disease_id,
+        STRING_AGG(DISTINCT d.name, ', ') AS disease_name,
+        (
+          SELECT COUNT(*) 
+          FROM vaccination_record vr_sub
+          WHERE 
+            vr_sub.student_id = $1 AND
+            vr_sub.disease_id = vd.disease_id AND
+            vr_sub.status = 'COMPLETED'
+        ) AS completed_doses,
+        vd.dose_quantity
+      FROM vaccine_disease vd
+      LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+      WHERE vd.vnvc = true
       GROUP BY vd.disease_id, vd.dose_quantity
       ORDER BY vd.disease_id
     `,

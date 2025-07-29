@@ -20,7 +20,9 @@ import {
   getAllRegisteredRecords,
   completeRecord,
   getCompletedDosesMergedByDisease,
+  getCompletedDosesMergedByDiseaseVNVC,
   getAcceptedRegisteredRecords,
+  getStudentEligibleAndCompletedForCampaign,
 } from "../controllers/vaccinationCampaign.controller.js";
 
 const router = express.Router();
@@ -55,12 +57,22 @@ router.get(
   getCompletedDosesMergedByDisease
 );
 
+router.get(
+  "/student/:student_id/vnvc/completed-doses",
+  getCompletedDosesMergedByDiseaseVNVC
+);
+
 router.patch("/vaccination-register/:id/accept", acceptRegister);
 router.patch("/vaccination-register/:id/refuse", refuseRegister);
 
 router.get(
   "/vaccination-campaign/:campaign_id/student-eligible",
   getStudentEligibleForCampaign
+);
+
+router.get(
+  "/vaccination-campaign/:campaign_id/student-eligible-completed",
+  getStudentEligibleAndCompletedForCampaign
 );
 
 router.post("/pre-vaccination-record/:campaign_id", createPreVaccinationRecord);
