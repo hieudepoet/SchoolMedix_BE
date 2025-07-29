@@ -22,7 +22,13 @@ import {
      getAllTransactionPurpose,
      deleteAMedicalItemByID,
      deleteSupplier,
-     deleteATransaction
+     deleteATransaction,
+     getAllDeletedInventoryTransaction,
+     getAllExportTransactionPurpose,
+     getAllImportTransaction,
+     getAllImportTransactionPurpose,
+     getAllExportTransaction,
+     deletePermanentlyATransaction
 } from "../controllers/medicalItem.controller.js";
 
 const router = express.Router();
@@ -55,7 +61,16 @@ router.post("/check-quantity", checkAdequateQuantityForAItem); // get a bool to 
 router.post("/inventory-transaction", createInventoryTransaction); // create new transaction along with medical items
 router.put("/inventory-transaction/:id", updateInventoryTransaction); // update transaction with new medical items
 router.delete("/inventory-transaction/:id", deleteATransaction);
+router.delete("/inventory-transaction/:id/permanent-delete", deletePermanentlyATransaction);
+
+router.get('/deleted-inventory-transaction', getAllDeletedInventoryTransaction);
+
+router.get("/export-inventory-transaction", getAllExportTransaction);
+router.get("/import-inventory-transaction", getAllImportTransaction);
+
 //transaction purpose
 router.get("/transaction-purpose", getAllTransactionPurpose);
+router.get("/transaction-purpose/export", getAllExportTransactionPurpose);
+router.get("/transaction-purpose/import", getAllImportTransactionPurpose);
 
 export default router;
