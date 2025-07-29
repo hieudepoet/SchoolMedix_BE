@@ -927,39 +927,39 @@ export async function closeRegister(req, res) {
 
         // 2.1 Lấy tất cả các Register từ campaign_id và Status = 'PENDING'
 
-        const result_checkup_register = await query(
-            "SELECT * FROM checkupregister WHERE status = $1 AND campaign_id = $2",
-            ["PENDING", id]
-        );
-        const data = result_checkup_register.rows;
+        // const result_checkup_register = await query(
+        //     "SELECT * FROM checkupregister WHERE status = $1 AND campaign_id = $2",
+        //     ["PENDING", id]
+        // );
+        // const data = result_checkup_register.rows;
 
-        if (data.length < 0) {
-            return res
-                .status(400)
-                .json({ error: true, message: "Không tìm thấy Register." });
-        }
+        // if (data.length < 0) {
+        //     return res
+        //         .status(400)
+        //         .json({ error: true, message: "Không tìm thấy Register." });
+        // }
 
         // 2.2 Chuyển trạng thái Register sang CANCELLED
-        const rs = [];
+        // const rs = [];
 
-        for (const register_id of data) {
-            const res = await query(
-                "UPDATE checkupregister SET status = $1 WHERE id = $2",
-                ["CANCELLED", register_id.id]
-            );
+        // for (const register_id of data) {
+        //     const res = await query(
+        //         "UPDATE checkupregister SET status = $1 WHERE id = $2",
+        //         ["CANCELLED", register_id.id]
+        //     );
 
-            rs.push(res.rows[0]);
-        }
+        //     rs.push(res.rows[0]);
+        // }
 
-        if (result.rowCount === 0 || rs.length < 0) {
+        if (result.rowCount === 0 ) {
             return res
                 .status(400)
                 .json({
                     error: true,
                     message: "Đóng form Register không thành công .",
                 });
-        } else
-            return res
+        } 
+         return res
                 .status(200)
                 .json({ error: false, message: "Đóng form Register thành công" });
     } catch (err) {
@@ -3077,7 +3077,8 @@ ORDER BY p.id;`);
             });
         }
 
-        const result = await sendCheckupRegister(parent_list
+        const result = await sendCheckupRegister(
+            parent_list 
             , campaign[0].name
             , campaign[0].description
             , campaign[0].location
