@@ -21,7 +21,8 @@ import {
      getInventoryTransactionsByPurposeID,
      getAllTransactionPurpose,
      deleteAMedicalItemByID,
-     deleteSupplier
+     deleteSupplier,
+     deleteATransaction
 } from "../controllers/medicalItem.controller.js";
 
 const router = express.Router();
@@ -53,7 +54,7 @@ router.post("/check-quantity", checkAdequateQuantityForAItem); // get a bool to 
 
 router.post("/inventory-transaction", createInventoryTransaction); // create new transaction along with medical items
 router.put("/inventory-transaction/:id", updateInventoryTransaction); // update transaction with new medical items
-
+router.delete("/inventory-transaction/:id", deleteATransaction);
 //transaction purpose
 router.get("/transaction-purpose", getAllTransactionPurpose);
 
