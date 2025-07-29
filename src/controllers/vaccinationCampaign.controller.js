@@ -1,5 +1,6 @@
 import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
+import { sendVaccineRegister } from "../services/email/index.js"
 
 // Campaign
 export async function createCampaign(req, res) {
@@ -507,6 +508,120 @@ export async function refuseRegister(req, res) {
       .json({ error: true, message: "Internal server error" });
   }
 }
+
+export async function getStudentEligib(campaign_id) {
+  try {
+    // Truy vấn disease_id từ chiến dịch
+    const result = await query(
+      `
+        SELECT disease_id
+        FROM vaccination_campaign
+        WHERE id = $1
+      `,
+      [campaign_id]
+    );
+
+
+
+    const disease_id = result.rows[0].disease_id;
+
+    // Lấy danh sách học sinh đủ điều kiện + trạng thái đăng ký (is_registered)
+    const studentCompletedDoses = await query(
+      `
+      WITH disease_target AS (
+        SELECT unnest($1::int[]) AS disease_id
+      ),
+      vaccine_targets AS (
+        SELECT d.disease_id, vd.dose_quantity
+        FROM disease_target d
+        JOIN vaccine_disease vd ON vd.disease_id = ARRAY[d.disease_id]
+      ),
+      student_doses AS (
+        SELECT 
+          s.id AS student_id,
+          d.disease_id,
+          COUNT(vr.id) FILTER (
+            WHERE vr.status = 'COMPLETED' AND vr.disease_id = ARRAY[d.disease_id]
+          ) AS completed_doses,
+          d.dose_quantity,
+          req.is_registered,
+          s.name
+        FROM student s
+        CROSS JOIN vaccine_targets d
+        LEFT JOIN vaccination_record vr ON vr.student_id = s.id
+        LEFT JOIN vaccination_campaign_register req 
+          ON req.student_id = s.id AND req.campaign_id = $2
+        GROUP BY s.id, d.disease_id, d.dose_quantity, req.is_registered
+      )
+      SELECT *
+      FROM student_doses
+      WHERE completed_doses < dose_quantity
+      `,
+      [disease_id, campaign_id]
+    );
+
+
+    let completed_doses_and_record = [];
+
+    for (let student of studentCompletedDoses.rows) {
+      const records = await query(
+        ` 
+        SELECT 
+          req.campaign_id AS campaign_id, 
+          req.is_registered AS register_status,  
+          rec.id AS record_id, 
+          rec.register_id, 
+          rec.description, 
+          rec.location, 
+          rec.vaccination_date, 
+          rec.status, 
+          vac.name AS vaccine_name, 
+          vac.id AS vaccine_id,
+          STRING_AGG(DISTINCT d.id::text, ', ') AS disease_id,
+          STRING_AGG(DISTINCT d.name, ', ') AS disease_name
+        FROM vaccination_record rec 
+        JOIN vaccine vac ON rec.vaccine_id = vac.id
+        LEFT JOIN vaccine_disease vd ON vac.id = vd.vaccine_id
+        LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+        JOIN vaccination_campaign_register req ON req.student_id = rec.student_id
+        WHERE rec.student_id = $1 
+          AND rec.disease_id = $2::int[]
+        GROUP BY 
+          req.campaign_id, 
+          req.is_registered,  
+          rec.id, 
+          rec.register_id, 
+          rec.description, 
+          rec.location, 
+          rec.vaccination_date, 
+          rec.status, 
+          vac.name, 
+          vac.id
+
+        `,
+        [student.student_id, disease_id]
+      );
+
+      completed_doses_and_record.push({
+        name: student.name,
+        student_id: student.student_id,
+        completed_doses: student.completed_doses,
+        dose_quantity: student.dose_quantity,
+        is_registered: student.is_registered,
+        records: records.rows,
+      });
+    }
+
+
+    return completed_doses_and_record;
+
+  } catch (error) {
+    console.error("Error retrieving eligible students:", error);
+    return null
+  }
+}
+
+
 
 export async function getStudentEligibleForCampaign(req, res) {
   const { campaign_id } = req.params;
@@ -1162,4 +1277,95 @@ export async function getAcceptedRegisteredRecords(req, res) {
         "Lỗi server khi lấy toàn bộ record của học sinh đã đăng ký đồng ý tiêm.",
     });
   }
+}
+
+export async function sendMailRegister(req, res) {
+
+  const { campaign_id } = req.params;
+
+  if (
+    !campaign_id
+  ) {
+    return res.status(400).json({
+      error: true,
+      message: 'Thiếu dữ liệu!',
+    });
+  }
+
+  try {
+
+
+    const check = await query(`
+      SELECT c.*, v.name AS vaccine_name
+      FROM vaccination_campaign c
+      JOIN vaccine v ON v.id = c.vaccine_id
+      WHERE c.id = $1 `, [campaign_id]);
+
+    if (check.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: 'Không tìm thấy Campaign!',
+      });
+    }
+
+    const campaign = check.rows;
+
+    console.log(campaign);
+
+    const student_list = await getStudentEligib(campaign_id);
+
+
+    if (!student_list || student_list.length === 0) {
+      return res.status(400).json({
+        error: true,
+        message: 'Không tìm thấy Student List!',
+      });
+    }
+
+    const getNameDisease = await query(`SELECT name FROM disease WHERE id = ANY($1::int[])`, [campaign[0].disease_id]);
+
+    const diseaseNames = getNameDisease.rows.map(row => row.name).join(' + ');
+    
+    const student_ids = student_list.map(student => student.student_id);
+
+
+
+    const result = await query(`
+  SELECT DISTINCT s.name AS student_name, p.name AS parent_name, p.email
+  FROM student s
+  JOIN parent p ON p.id = s.mom_id OR p.id = s.dad_id
+  WHERE s.id = ANY($1::text[]) AND p.email IS NOT NULL
+`, [student_ids]);
+
+if(result.rowCount === 0){
+  return res.status(400).json({
+        error: true,
+        message: 'Không tìm thấy Parent List!',
+      });
+}
+
+     const rs = await sendVaccineRegister(result.rows
+      ,campaign[0].title
+      ,diseaseNames
+      ,campaign[0].vaccine_name
+      ,campaign[0].description
+      ,campaign[0].location
+      ,campaign[0].start_date
+      ,campaign[0].end_date
+    );
+
+    return res.status(200).json({
+      error: false,
+      message: `Đã gửi email thành công`,
+    });
+
+  } catch (err) {
+    console.error("❌ Error:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi khi gửi mail",
+      detail: err.message,
+    });
+  }
+
 }
