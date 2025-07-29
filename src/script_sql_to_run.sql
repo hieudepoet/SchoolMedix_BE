@@ -1399,17 +1399,17 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
   ARRAY[12, 13, 14], -- Sởi, Quai bị, Rubella
   22, -- MMR II
   'Tiêm phòng bệnh Sởi, Quai bi, Rubella (MMR II) 2018',
-  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH SỞI (MMR II) 2018 \n
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH SỞI (MMR II) 2018 
   Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin MMR II để bảo vệ học sinh khỏi bệnh Sởi – một bệnh truyền nhiễm nguy hiểm gây sốt và phát ban. Chiến dịch nhằm tăng cường miễn dịch cho trẻ em trong độ tuổi tiểu học.\n
-  \n
-  Thông tin chi tiết:\n
-  - Thời gian: Từ ngày 15/03/2018 đến ngày 17/03/2018 \n
-  - Địa điểm: School Medix, Phòng Y tế Trường học \n
-  - Đối tượng: Học sinh lớp 1 và lớp 2 \n
-  - Vắc xin: MMR II (sản xuất tại Mỹ, an toàn và hiệu quả) \n
-  \n
-  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 10/03/2018. \n
-  Trân trọng, \n
+  
+  Thông tin chi tiết:
+  - Thời gian: Từ ngày 15/03/2018 đến ngày 17/03/2018 
+  - Địa điểm: School Medix, Phòng Y tế Trường học 
+  - Đối tượng: Học sinh lớp 1 và lớp 2 
+  - Vắc xin: MMR II (sản xuất tại Mỹ, an toàn và hiệu quả) 
+  
+  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 10/03/2018. 
+  Trân trọng, 
   Ban Giám Hiệu',
   'School Medix',
   '2018-03-15',
@@ -1420,17 +1420,17 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
   ARRAY[7], -- Viêm gan B
   12, -- Gene Hbvax 1ml
   'Tiêm phòng Viêm gan B (Gene Hbvax) 2020',
-  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG VIÊM GAN B 2020 \n
-  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin Gene Hbvax để bảo vệ học sinh khỏi bệnh Viêm gan B – một bệnh truyền nhiễm nguy hiểm ảnh hưởng đến gan. Chiến dịch tập trung vào học sinh chưa hoàn thành liều tiêm.\n
-  \n
-  Thông tin chi tiết:\n
-  - Thời gian: Từ ngày 10/06/2020 đến ngày 12/06/2020 \n
-  - Địa điểm: School Medix, Phòng Y tế Trường học \n
-  - Đối tượng: Học sinh lớp 1 và lớp 2 \n
-  - Vắc xin: Gene Hbvax 1ml (sản xuất tại Việt Nam) \n
-  \n
-  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 05/06/2020. \n
-  Trân trọng, \n
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG VIÊM GAN B 2020 
+  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin Gene Hbvax để bảo vệ học sinh khỏi bệnh Viêm gan B – một bệnh truyền nhiễm nguy hiểm ảnh hưởng đến gan. Chiến dịch tập trung vào học sinh chưa hoàn thành liều tiêm.
+  
+  Thông tin chi tiết:
+  - Thời gian: Từ ngày 10/06/2020 đến ngày 12/06/2020 
+  - Địa điểm: School Medix, Phòng Y tế Trường học 
+  - Đối tượng: Học sinh lớp 1 và lớp 2 
+  - Vắc xin: Gene Hbvax 1ml (sản xuất tại Việt Nam) 
+  
+  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 05/06/2020. 
+  Trân trọng, 
   Ban Giám Hiệu',
   'School Medix',
   '2020-06-10',
@@ -1441,17 +1441,17 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
   ARRAY[15], -- Thủy đậu
   24, -- Varivax
   'Tiêm phòng Thủy đậu (Varivax) 2022',
-  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG THỦY ĐẬU 2022 \n
-  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin Varivax để bảo vệ học sinh khỏi bệnh Thủy đậu – một bệnh truyền nhiễm gây phát ban và ngứa. Chiến dịch nhằm tăng cường miễn dịch cho trẻ em.\n
-  \n
-  Thông tin chi tiết:\n
-  - Thời gian: Từ ngày 20/09/2022 đến ngày 22/09/2022 \n
-  - Địa điểm: School Medix, Phòng Y tế Trường học \n
-  - Đối tượng: Học sinh lớp 1 và lớp 2 \n
-  - Vắc xin: Varivax (sản xuất tại Mỹ) \n
-  \n
-  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 15/09/2022. \n
-  Trân trọng, \n
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG THỦY ĐẬU 2022 
+  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin Varivax để bảo vệ học sinh khỏi bệnh Thủy đậu – một bệnh truyền nhiễm gây phát ban và ngứa. Chiến dịch nhằm tăng cường miễn dịch cho trẻ em.
+  
+  Thông tin chi tiết:
+  - Thời gian: Từ ngày 20/09/2022 đến ngày 22/09/2022 
+  - Địa điểm: School Medix, Phòng Y tế Trường học 
+  - Đối tượng: Học sinh lớp 1 và lớp 2 
+  - Vắc xin: Varivax (sản xuất tại Mỹ) 
+  
+  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 15/09/2022. 
+  Trân trọng, 
   Ban Giám Hiệu',
   'School Medix',
   '2022-09-20',
@@ -1464,20 +1464,20 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
   ARRAY[10],
   11, 
   'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 
-  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG) \n
-	Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin BCG nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn Mycobacterium tuberculosis gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.\n
-	\n
-	Thông tin chi tiết:\n
-	- Thời gian: Từ ngày 15/06/2025 đến ngày 17/06/2025 \n
-	- Địa điểm: School Medix, Phòng Y tế Trường học \n
-	- Đối tượng: Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh) \n
-	- Vắc xin: BCG (sản xuất tại Việt Nam, an toàn và hiệu quả) \n
-	\n
-	Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email health@schoolmedix.edu.vn trước ngày 10/06/2025 để sắp xếp lịch tiêm. \n
-	\n
-	Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: (+84) 123 456 789. \n
-	\n
-	Trân trọng, \n
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG) 
+	Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin BCG nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn Mycobacterium tuberculosis gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.
+	
+	Thông tin chi tiết:
+	- Thời gian: Từ ngày 15/06/2025 đến ngày 17/06/2025 
+	- Địa điểm: School Medix, Phòng Y tế Trường học 
+	- Đối tượng: Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh) 
+	- Vắc xin: BCG (sản xuất tại Việt Nam, an toàn và hiệu quả) 
+	
+	Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email health@schoolmedix.edu.vn trước ngày 10/06/2025 để sắp xếp lịch tiêm. 
+	
+	Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: (+84) 123 456 789. 
+	
+	Trân trọng, 
 	Ban Giám Hiệu',
   'School Medix', 
   '2025-10-15', 
