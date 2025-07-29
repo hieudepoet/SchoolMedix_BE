@@ -14,6 +14,7 @@ import {
   getDiseaseRecordsRequestedByStudentID,
   getDiseaseDeclarationsHistoryByStudentID,
   getDiseaseDeclarationsHistory,
+  getDiseaseRecordById,
 } from "../controllers/diseaseRecord.controller.js";
 
 const router = express.Router();
@@ -49,6 +50,8 @@ router.get(
   "/disease-record/requests/history", // lấy ra lịch sử khai báo bệnh của tất cả học sinh xem đơn đã được duyệt hay chưa
   getDiseaseDeclarationsHistory
 );
+
+router.get("/disease-record/:id", getDiseaseRecordById); // lấy thông tin bệnh theo id
 
 // router.patch("/student/:id/disease-record", updateDiseaseRecord); // update disease record
 
