@@ -1226,67 +1226,68 @@ CREATE TABLE vaccine_disease (
      vaccine_id INT PRIMARY KEY,
     disease_id INT[] NOT NULL,
     dose_quantity INT NOT NULL DEFAULT 1,
+    vnvc BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
 -- Insert data into vaccine_disease table
-INSERT INTO vaccine_disease (vaccine_id, disease_id, dose_quantity) VALUES
-(1,  ARRAY[1,2,3,4,5,6,7], 3),         -- Infanrix Hexa
-(2,  ARRAY[1,2,3,4,5,6,7], 3),         -- Hexaxim
-(3,  ARRAY[8], 2),                     -- Rotateq
-(4,  ARRAY[8], 2),                     -- Rotarix
-(5,  ARRAY[8], 2),                     -- Rotavin
-(6,  ARRAY[9], 3),                     -- Synflorix
-(7,  ARRAY[9], 3),                     -- Prevenar 13
-(8,  ARRAY[9], 3),                     -- Vaxneuvance
-(9,  ARRAY[9], 3),                     -- Prevenar 20
-(10, ARRAY[9], 3),                     -- Pneumovax 23
-(11, ARRAY[10], 1),                    -- BCG
-(12, ARRAY[7], 1),                     -- Gene Hbvax 1ml
-(13, ARRAY[7], 1),                     -- Heberbiovac 1ml
-(14, ARRAY[7], 1),                     -- Gene Hbvax 0.5ml
-(15, ARRAY[7], 1),                     -- Heberbiovac 0.5ml
-(16, ARRAY[11], 1),                    -- Bexsero
-(17, ARRAY[11], 1),                    -- VA-Mengoc-BC
-(18, ARRAY[11], 1),                    -- MenQuadfi
-(19, ARRAY[11], 1),                    -- Menactra
-(20, ARRAY[12], 1),                    -- MVVac (5ml)
-(21, ARRAY[12], 1),                    -- MVVac (0.5ml)
-(22, ARRAY[12,13,14], 1),              -- MMR II
-(23, ARRAY[12,13,14], 1),              -- Priorix
-(24, ARRAY[15], 1),                    -- Varivax
-(25, ARRAY[15], 1),                    -- Varilrix
-(26, ARRAY[16], 1),                    -- Shingrix
-(27, ARRAY[17], 1),                    -- Vaxigrip Tetra
-(28, ARRAY[17], 1),                    -- Influvac Tetra
-(29, ARRAY[17], 1),                    -- GC Flu Quadrivalent
-(30, ARRAY[17], 1),                    -- Ivacflu-S
-(31, ARRAY[18,19,20], 1),              -- Gardasil
-(32, ARRAY[18,19,20], 1),              -- Gardasil 9
-(33, ARRAY[21], 1),                    -- Qdenga
-(34, ARRAY[3], 1),                     -- Vắc xin uốn ván hấp phụ (TT)
-(35, ARRAY[3], 1),                     -- Huyết thanh uốn ván (SAT)
-(36, ARRAY[22], 1),                    -- Imojev
-(37, ARRAY[22], 1),                    -- Jeev
-(38, ARRAY[22], 1),                    -- Jevax
-(39, ARRAY[23], 1),                    -- Verorab (TB)
-(40, ARRAY[23], 1),                    -- Verorab (TTD)
-(41, ARRAY[23], 1),                    -- Abhayrab (TB)
-(42, ARRAY[23], 1),                    -- Abhayrab (TTD)
-(43, ARRAY[1,2,3], 1),                 -- Adacel
-(44, ARRAY[1,2,3], 1),                 -- Boostrix
-(45, ARRAY[1,2,3,4], 1),               -- Tetraxim
-(46, ARRAY[1,3], 1),                   -- Uốn ván, bạch hầu hấp phụ (Td) – Lọ
-(47, ARRAY[1,3], 1),                   -- Uốn ván, bạch hầu hấp phụ (Td) – Liều
-(48, ARRAY[7,24], 1),                  -- Twinrix
-(49, ARRAY[24], 1),                    -- Havax
-(50, ARRAY[24], 1),                    -- Avaxim 80U
-(51, ARRAY[25], 1),                    -- Typhoid VI
-(52, ARRAY[25], 1),                    -- Typhim VI
-(53, ARRAY[5,6], 1),                   -- Quimi-Hib
-(54, ARRAY[26], 1),                    -- Morcvax
-(55, ARRAY[27], 1);                    -- Stamaril
-       
+INSERT INTO vaccine_disease (vaccine_id, disease_id, dose_quantity, vnvc) VALUES
+(1,  ARRAY[1,2,3,4,5,6,7], 5, TRUE),         -- Infanrix Hexa
+(2,  ARRAY[1,2,3,4,5,6,7], 5, TRUE),         -- Hexaxim
+(3,  ARRAY[8], 3, TRUE),                     -- Rotateq
+(4,  ARRAY[8], 3, TRUE),                     -- Rotarix
+(5,  ARRAY[8], 3, TRUE),                     -- Rotavin
+(6,  ARRAY[9], 4, TRUE),                     -- Synflorix
+(7,  ARRAY[9], 4, TRUE),                     -- Prevenar 13
+(8,  ARRAY[9], 4, TRUE),                     -- Vaxneuvance
+(9,  ARRAY[9], 4, TRUE),                     -- Prevenar 20
+(10, ARRAY[9], 4, TRUE),                     -- Pneumovax 23
+(11, ARRAY[10], 1, TRUE),                    -- BCG
+(12, ARRAY[7], 2, TRUE),                     -- Gene Hbvax 1ml
+(13, ARRAY[7], 2, TRUE),                       -- Heberbiovac 1ml
+(14, ARRAY[7], 2, TRUE),                     -- Gene Hbvax 0.5ml
+(15, ARRAY[7], 2, TRUE),                       -- Heberbiovac 0.5ml
+(16, ARRAY[11], 2, TRUE),                    -- Bexsero
+(17, ARRAY[11], 2, TRUE),                    -- VA-Mengoc-BC
+(18, ARRAY[11], 2, TRUE),                    -- MenQuadfi
+(19, ARRAY[11], 2, TRUE),                    -- Menactra
+(20, ARRAY[12], 1, FALSE),                    -- MVVac (5ml)
+(21, ARRAY[12], 2, FALSE),                    -- MVVac (0.5ml)
+(22, ARRAY[12,13,14], 2, TRUE),              -- MMR II
+(23, ARRAY[12,13,14], 2, TRUE),              -- Priorix
+(24, ARRAY[15], 2, TRUE),                    -- Varivax
+(25, ARRAY[15], 2, TRUE),                    -- Varilrix
+(26, ARRAY[16], 1, FALSE),                   -- Shingrix
+(27, ARRAY[17], 3, TRUE),                    -- Vaxigrip Tetra
+(28, ARRAY[17], 3, TRUE),                    -- Influvac Tetra
+(29, ARRAY[17], 3, TRUE),                    -- GC Flu Quadrivalent
+(30, ARRAY[17], 3, TRUE),                    -- Ivacflu-S
+(31, ARRAY[18,19,20], 3, TRUE),              -- Gardasil
+(32, ARRAY[18,19,20], 3, TRUE),              -- Gardasil 9
+(33, ARRAY[21], 2, TRUE),                    -- Qdenga
+(34, ARRAY[3], 1, FALSE),                     -- Vắc xin uốn ván hấp phụ (TT)
+(35, ARRAY[3], 1, FALSE),                     -- Huyết thanh uốn ván (SAT)
+(36, ARRAY[22], 2, TRUE),                    -- Imojev
+(37, ARRAY[22], 2, TRUE),                    -- Jeev
+(38, ARRAY[22], 2, TRUE),                    -- Jevax
+(39, ARRAY[23], 1, FALSE),                    -- Verorab (TB)
+(40, ARRAY[23], 1, FALSE),                    -- Verorab (TTD)
+(41, ARRAY[23], 1, FALSE),                    -- Abhayrab (TB)
+(42, ARRAY[23], 1, FALSE),                    -- Abhayrab (TTD)
+(43, ARRAY[1,2,3], 1, FALSE),                 -- Adacel
+(44, ARRAY[1,2,3], 1, FALSE),                 -- Boostrix
+(45, ARRAY[1,2,3,4], 1, FALSE),               -- Tetraxim
+(46, ARRAY[1,3], 1, FALSE),                   -- Uốn ván, bạch hầu hấp phụ (Td) – Lọ
+(47, ARRAY[1,3], 1, FALSE),                   -- Uốn ván, bạch hầu hấp phụ (Td) – Liều
+(48, ARRAY[7,24], 2, TRUE),                  -- Twinrix
+(49, ARRAY[24], 1, FALSE),                    -- Havax
+(50, ARRAY[24], 1, FALSE),                    -- Avaxim 80U
+(51, ARRAY[25], 1, FALSE),                    -- Typhoid VI
+(52, ARRAY[25], 1, FALSE),                    -- Typhim VI
+(53, ARRAY[5,6], 2, FALSE),                   -- Quimi-Hib
+(54, ARRAY[26], 2, TRUE),                    -- Morcvax
+(55, ARRAY[27], 1, FALSE);                    -- Stamaril
+
 --vaccination_campaign
 CREATE TABLE vaccination_campaign (
     id SERIAL PRIMARY KEY,
@@ -1301,34 +1302,6 @@ CREATE TABLE vaccination_campaign (
     FOREIGN KEY (vaccine_id) REFERENCES vaccine(id)
 );
 
--- INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, location, start_date, end_date, status) VALUES
--- (10, 11, 'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 'School Medix', '2025-06-15', '2025-06-17', 'DRAFTED');
-
-INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, location, start_date, end_date, status) VALUES
-(
-  ARRAY[10],
-  11, 
-  'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 
-  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG)
-	Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin BCG nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn Mycobacterium tuberculosis gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.
-	
-	Thông tin chi tiết:
-	- Thời gian: Từ ngày 15/06/2025 đến ngày 17/06/2025
-	- Địa điểm: School Medix, Phòng Y tế Trường học
-	- Đối tượng: Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh)
-	- Vắc xin: BCG (sản xuất tại Việt Nam, an toàn và hiệu quả)
-	
-	Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email health@schoolmedix.edu.vn trước ngày 10/06/2025 để sắp xếp lịch tiêm.
-	
-	Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: (+84) 123 456 789.
-	
-	Trân trọng,
-	Ban Giám Hiệu',
-  'School Medix', 
-  '2025-10-15', 
-  '2025-10-17',  
-  'DRAFTED'
-);
 --vaccination_campaign_register
 CREATE TABLE vaccination_campaign_register (
     id SERIAL PRIMARY KEY,
@@ -1384,7 +1357,7 @@ VALUES
     3,
     '2023-06-15',
     'Không có triệu chứng',
-    'School Medix',
+    'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
     'COMPLETED'
   ),
 (
@@ -1394,7 +1367,7 @@ VALUES
     5,
     '2025-06-20',
     'Không có triệu chứng',
-    'School Medix',
+    'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
     'COMPLETED'
   ),
   (
@@ -1404,7 +1377,7 @@ VALUES
     4,
     '2025-06-22',
     'Không có triệu chứng',
-    'School Medix',
+    'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
     'COMPLETED'
   ),
   (
@@ -1414,10 +1387,319 @@ VALUES
     7,
     '2025-06-25',
     'Không có triệu chứng',
-    'School Medix',
+    'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
     'COMPLETED'
   );
 
+
+---SAMPLE DATA
+-- Insert 3 vaccination campaigns in the past (already defined, kept as is)
+INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, location, start_date, end_date, status) VALUES
+(
+  ARRAY[12, 13, 14], -- Sởi, Quai bị, Rubella
+  22, -- MMR II
+  'Tiêm phòng bệnh Sởi, Quai bi, Rubella (MMR II) 2018',
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH SỞI (MMR II) 2018 \n
+  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin MMR II để bảo vệ học sinh khỏi bệnh Sởi – một bệnh truyền nhiễm nguy hiểm gây sốt và phát ban. Chiến dịch nhằm tăng cường miễn dịch cho trẻ em trong độ tuổi tiểu học.\n
+  \n
+  Thông tin chi tiết:\n
+  - Thời gian: Từ ngày 15/03/2018 đến ngày 17/03/2018 \n
+  - Địa điểm: School Medix, Phòng Y tế Trường học \n
+  - Đối tượng: Học sinh lớp 1 và lớp 2 \n
+  - Vắc xin: MMR II (sản xuất tại Mỹ, an toàn và hiệu quả) \n
+  \n
+  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 10/03/2018. \n
+  Trân trọng, \n
+  Ban Giám Hiệu',
+  'School Medix',
+  '2018-03-15',
+  '2018-03-17',
+  'COMPLETED'
+),
+(
+  ARRAY[7], -- Viêm gan B
+  12, -- Gene Hbvax 1ml
+  'Tiêm phòng Viêm gan B (Gene Hbvax) 2020',
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG VIÊM GAN B 2020 \n
+  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin Gene Hbvax để bảo vệ học sinh khỏi bệnh Viêm gan B – một bệnh truyền nhiễm nguy hiểm ảnh hưởng đến gan. Chiến dịch tập trung vào học sinh chưa hoàn thành liều tiêm.\n
+  \n
+  Thông tin chi tiết:\n
+  - Thời gian: Từ ngày 10/06/2020 đến ngày 12/06/2020 \n
+  - Địa điểm: School Medix, Phòng Y tế Trường học \n
+  - Đối tượng: Học sinh lớp 1 và lớp 2 \n
+  - Vắc xin: Gene Hbvax 1ml (sản xuất tại Việt Nam) \n
+  \n
+  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 05/06/2020. \n
+  Trân trọng, \n
+  Ban Giám Hiệu',
+  'School Medix',
+  '2020-06-10',
+  '2020-06-12',
+  'COMPLETED'
+),
+(
+  ARRAY[15], -- Thủy đậu
+  24, -- Varivax
+  'Tiêm phòng Thủy đậu (Varivax) 2022',
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG THỦY ĐẬU 2022 \n
+  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin Varivax để bảo vệ học sinh khỏi bệnh Thủy đậu – một bệnh truyền nhiễm gây phát ban và ngứa. Chiến dịch nhằm tăng cường miễn dịch cho trẻ em.\n
+  \n
+  Thông tin chi tiết:\n
+  - Thời gian: Từ ngày 20/09/2022 đến ngày 22/09/2022 \n
+  - Địa điểm: School Medix, Phòng Y tế Trường học \n
+  - Đối tượng: Học sinh lớp 1 và lớp 2 \n
+  - Vắc xin: Varivax (sản xuất tại Mỹ) \n
+  \n
+  Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường trước ngày 15/09/2022. \n
+  Trân trọng, \n
+  Ban Giám Hiệu',
+  'School Medix',
+  '2022-09-20',
+  '2022-09-22',
+  'COMPLETED'
+);
+
+INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, location, start_date, end_date, status) VALUES
+(
+  ARRAY[10],
+  11, 
+  'Tiêm phòng bệnh lao (BCG), tiêm sớm sau sinh', 
+  'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH LAO (BCG) \n
+	Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin BCG nhằm bảo vệ trẻ sơ sinh và trẻ nhỏ khỏi bệnh lao – một bệnh truyền nhiễm nguy hiểm do vi khuẩn Mycobacterium tuberculosis gây ra. Vắc xin BCG được khuyến cáo tiêm sớm sau sinh để tăng cường khả năng miễn dịch cho trẻ.\n
+	\n
+	Thông tin chi tiết:\n
+	- Thời gian: Từ ngày 15/06/2025 đến ngày 17/06/2025 \n
+	- Địa điểm: School Medix, Phòng Y tế Trường học \n
+	- Đối tượng: Trẻ sơ sinh và trẻ dưới 1 tháng tuổi (ưu tiên tiêm sớm sau sinh) \n
+	- Vắc xin: BCG (sản xuất tại Việt Nam, an toàn và hiệu quả) \n
+	\n
+	Chiến dịch được thực hiện bởi đội ngũ y tế chuyên nghiệp, đảm bảo an toàn và tuân thủ các quy định y tế. Quý phụ huynh vui lòng đăng ký trước tại văn phòng nhà trường hoặc qua email health@schoolmedix.edu.vn trước ngày 10/06/2025 để sắp xếp lịch tiêm. \n
+	\n
+	Để biết thêm chi tiết, vui lòng liên hệ Phòng Y tế qua số điện thoại: (+84) 123 456 789. \n
+	\n
+	Trân trọng, \n
+	Ban Giám Hiệu',
+  'School Medix', 
+  '2025-10-15', 
+  '2025-10-17',  
+  'DRAFTED'
+);
+
+-- Insert vaccination campaign registrations for all students
+INSERT INTO vaccination_campaign_register (student_id, campaign_id, reason, is_registered, submit_time, submit_by) VALUES
+-- Campaign 1: Sởi 2018
+('211000', 1, 'Đăng ký tiêm phòng Sởi cho con', TRUE, '2018-03-01 09:00:00', 100003),
+('211001', 1, 'Đăng ký tiêm phòng Sởi để bảo vệ sức khỏe', TRUE, '2018-03-01 09:05:00', 100003),
+('211002', 1, 'Đăng ký theo khuyến nghị y tế', TRUE, '2018-03-01 09:10:00', 100000),
+('211003', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:15:00', 100001),
+('211004', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:20:00', 100005),
+('211005', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:25:00', 100007),
+('211006', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:30:00', 100009),
+('211007', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:35:00', 100011),
+('211008', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:40:00', 100013),
+('211009', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:45:00', 100015),
+('211010', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:50:00', 100017),
+('211011', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 09:55:00', 100019),
+('211012', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:00:00', 100021),
+('211013', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:05:00', 100023),
+('211014', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:10:00', 100025),
+('211015', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:15:00', 100027),
+('211016', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:20:00', 100029),
+('211017', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:25:00', 100031),
+('211018', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:30:00', 100033),
+('211019', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:35:00', 100005),
+('211020', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:40:00', 100007),
+('211021', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:45:00', 100009),
+('211022', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:50:00', 100011),
+('211023', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 10:55:00', 100013),
+('211024', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:00:00', 100015),
+('211025', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:05:00', 100017),
+('211026', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:10:00', 100019),
+('211027', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:15:00', 100021),
+('211028', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:20:00', 100023),
+('211029', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:25:00', 100025),
+('211030', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:30:00', 100027),
+('211031', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:35:00', 100029),
+('211032', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:40:00', 100031),
+('211033', 1, 'Đăng ký tiêm phòng Sởi', TRUE, '2018-03-01 11:45:00', 100033),
+-- Campaign 2: Viêm gan B 2020
+('211000', 2, 'Đăng ký tiêm liều bổ sung Viêm gan B', TRUE, '2020-06-01 09:00:00', 100003),
+('211001', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:05:00', 100003),
+('211002', 2, 'Đăng ký theo lịch tiêm chủng', TRUE, '2020-06-01 09:10:00', 100000),
+('211003', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:15:00', 100001),
+('211004', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:20:00', 100005),
+('211005', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:25:00', 100007),
+('211006', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:30:00', 100009),
+('211007', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:35:00', 100011),
+('211008', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:40:00', 100013),
+('211009', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:45:00', 100015),
+('211010', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:50:00', 100017),
+('211011', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 09:55:00', 100019),
+('211012', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:00:00', 100021),
+('211013', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:05:00', 100023),
+('211014', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:10:00', 100025),
+('211015', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:15:00', 100027),
+('211016', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:20:00', 100029),
+('211017', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:25:00', 100031),
+('211018', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:30:00', 100033),
+('211019', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:35:00', 100005),
+('211020', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:40:00', 100007),
+('211021', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:45:00', 100009),
+('211022', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:50:00', 100011),
+('211023', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 10:55:00', 100013),
+('211024', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:00:00', 100015),
+('211025', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:05:00', 100017),
+('211026', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:10:00', 100019),
+('211027', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:15:00', 100021),
+('211028', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:20:00', 100023),
+('211029', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:25:00', 100025),
+('211030', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:30:00', 100027),
+('211031', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:35:00', 100029),
+('211032', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:40:00', 100031),
+('211033', 2, 'Đăng ký tiêm phòng Viêm gan B', TRUE, '2020-06-01 11:45:00', 100033),
+-- Campaign 3: Thủy đậu 2022
+('211000', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:00:00', 100003),
+('211001', 3, 'Đăng ký để bảo vệ con khỏi Thủy đậu', TRUE, '2022-09-01 09:05:00', 100003),
+('211002', 3, 'Đăng ký theo khuyến nghị trường', TRUE, '2022-09-01 09:10:00', 100000),
+('211003', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:15:00', 100001),
+('211004', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:20:00', 100005),
+('211005', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:25:00', 100007),
+('211006', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:30:00', 100009),
+('211007', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:35:00', 100011),
+('211008', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:40:00', 100013),
+('211009', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:45:00', 100015),
+('211010', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:50:00', 100017),
+('211011', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 09:55:00', 100019),
+('211012', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:00:00', 100021),
+('211013', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:05:00', 100023),
+('211014', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:10:00', 100025),
+('211015', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:15:00', 100027),
+('211016', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:20:00', 100029),
+('211017', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:25:00', 100031),
+('211018', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:30:00', 100033),
+('211019', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:35:00', 100005),
+('211020', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:40:00', 100007),
+('211021', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:45:00', 100009),
+('211022', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:50:00', 100011),
+('211023', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 10:55:00', 100013),
+('211024', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:00:00', 100015),
+('211025', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:05:00', 100017),
+('211026', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:10:00', 100019),
+('211027', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:15:00', 100021),
+('211028', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:20:00', 100023),
+('211029', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:25:00', 100025),
+('211030', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:30:00', 100027),
+('211031', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:35:00', 100029),
+('211032', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:40:00', 100031),
+('211033', 3, 'Đăng ký tiêm phòng Thủy đậu', TRUE, '2022-09-01 11:45:00', 100033);
+
+-- Insert vaccination records for all students
+INSERT INTO vaccination_record (student_id, register_id, disease_id, vaccine_id, description, location, vaccination_date, status) VALUES
+-- Campaign 1: Sởi 2018
+('211000', 1, ARRAY[12], 22, 'Không có phản ứng sau tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211001', 2, ARRAY[12], 22, 'Sốt nhẹ 24h, đã được theo dõi', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211002', 3, ARRAY[12], 22, 'Phát ban nhẹ, đã hồi phục sau 2 ngày', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211003', 4, ARRAY[12], 22, 'Không có triệu chứng bất thường', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211004', 5, ARRAY[12], 22, 'Sốt nhẹ 12h, đã dùng paracetamol', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211005', 6, ARRAY[12], 22, 'Không có phản ứng sau tiêm', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211006', 7, ARRAY[12], 22, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211007', 8, ARRAY[12], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211008', 9, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211009', 10, ARRAY[12], 22, 'Phát ban nhẹ, đã ổn định', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211010', 11, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211011', 12, ARRAY[12], 22, 'Sốt nhẹ 24h', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211012', 13, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211013', 14, ARRAY[12], 22, 'Mệt mỏi nhẹ', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211014', 15, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211015', 16, ARRAY[12], 22, 'Sốt nhẹ 12h', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211016', 17, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211017', 18, ARRAY[12], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211018', 19, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211019', 20, ARRAY[12], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211020', 21, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211021', 22, ARRAY[12], 22, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211022', 23, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211023', 24, ARRAY[12], 22, 'Sốt nhẹ 24h', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211024', 25, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211025', 26, ARRAY[12], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211026', 27, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211027', 28, ARRAY[12], 22, 'Sốt nhẹ 12h', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211028', 29, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211029', 30, ARRAY[12], 22, 'Mệt mỏi nhẹ', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211030', 31, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211031', 32, ARRAY[12], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211032', 33, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211033', 34, ARRAY[12], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-16', 'COMPLETED'),
+-- Campaign 2: Viêm gan B 2020
+('211000', 35, ARRAY[7], 12, 'Không có phản ứng sau tiêm', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211001', 36, ARRAY[7], 12, 'Sốt nhẹ 24h, đã được theo dõi', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211002', 37, ARRAY[7], 12, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211003', 38, ARRAY[7], 12, 'Không có triệu chứng bất thường', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211004', 39, ARRAY[7], 12, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211005', 40, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211006', 41, ARRAY[7], 12, 'Sốt nhẹ 12h', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211007', 42, ARRAY[7], 12, 'Không có triệu chứng', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211008', 43, ARRAY[7], 12, 'Phát ban nhẹ, đã ổn định', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211009', 44, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211010', 45, ARRAY[7], 12, 'Sốt nhẹ 24h', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211011', 46, ARRAY[7], 12, 'Không có triệu chứng', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211012', 47, ARRAY[7], 12, 'Mệt mỏi nhẹ', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211013', 48, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211014', 49, ARRAY[7], 12, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211015', 50, ARRAY[7], 12, 'Không có triệu chứng', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211016', 51, ARRAY[7], 12, 'Sốt nhẹ 12h', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211017', 52, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211018', 53, ARRAY[7], 12, 'Phát ban nhẹ', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211019', 54, ARRAY[7], 12, 'Không có triệu chứng', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211020', 55, ARRAY[7], 12, 'Sốt nhẹ 24h', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211021', 56, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211022', 57, ARRAY[7], 12, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211023', 58, ARRAY[7], 12, 'Không có triệu chứng', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211024', 59, ARRAY[7], 12, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211025', 60, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211026', 61, ARRAY[7], 12, 'Sốt nhẹ 12h', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211027', 62, ARRAY[7], 12, 'Không có triệu chứng', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211028', 63, ARRAY[7], 12, 'Phát ban nhẹ', 'School Medix', '2020-06-11', 'COMPLETED'),
+('211029', 64, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211030', 65, ARRAY[7], 12, 'Mệt mỏi nhẹ', 'School Medix', '2020-06-12', 'COMPLETED'),
+('211031', 66, ARRAY[7], 12, 'Không có triệu chứng', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211032', 67, ARRAY[7], 12, 'Sốt nhẹ 24h', 'School Medix', '2020-06-10', 'COMPLETED'),
+('211033', 68, ARRAY[7], 12, 'Không có phản ứng', 'School Medix', '2020-06-11', 'COMPLETED'),
+-- Campaign 3: Thủy đậu 2022
+('211000', 69, ARRAY[15], 24, 'Không có phản ứng sau tiêm', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211001', 70, ARRAY[15], 24, 'Sốt nhẹ 12h, đã dùng paracetamol', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211002', 71, ARRAY[15], 24, 'Phát ban nhẹ, đã hồi phục', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211003', 72, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211004', 73, ARRAY[15], 24, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211005', 74, ARRAY[15], 24, 'Không có phản ứng', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211006', 75, ARRAY[15], 24, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211007', 76, ARRAY[15], 24, 'Sốt nhẹ 24h', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211008', 77, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211009', 78, ARRAY[15], 24, 'Phát ban nhẹ', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211010', 79, ARRAY[15], 24, 'Không có phản ứng', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211011', 80, ARRAY[15], 24, 'Sốt nhẹ 12h', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211012', 81, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211013', 82, ARRAY[15], 24, 'Mệt mỏi nhẹ', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211014', 83, ARRAY[15], 24, 'Không có phản ứng', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211015', 84, ARRAY[15], 24, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211016', 85, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211017', 86, ARRAY[15], 24, 'Sốt nhẹ 24h', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211018', 87, ARRAY[15], 24, 'Không có phản ứng', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211019', 88, ARRAY[15], 24, 'Phát ban nhẹ', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211020', 89, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211021', 90, ARRAY[15], 24, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211022', 91, ARRAY[15], 24, 'Không có phản ứng', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211023', 92, ARRAY[15], 24, 'Sốt nhẹ 12h', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211024', 93, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211025', 94, ARRAY[15], 24, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211026', 95, ARRAY[15], 24, 'Không có phản ứng', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211027', 96, ARRAY[15], 24, 'Phát ban nhẹ', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211028', 97, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-21', 'COMPLETED'),
+('211029', 98, ARRAY[15], 24, 'Sốt nhẹ 24h', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211030', 99, ARRAY[15], 24, 'Không có phản ứng', 'School Medix', '2022-09-22', 'COMPLETED'),
+('211031', 100, ARRAY[15], 24, 'Mệt mỏi nhẹ', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211032', 101, ARRAY[15], 24, 'Không có triệu chứng', 'School Medix', '2022-09-20', 'COMPLETED'),
+('211033', 102, ARRAY[15], 24, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2022-09-21', 'COMPLETED');
 
 ---------------------------------------------------------------------------------------------------------------------------------------END FLOW VACCINATION
 
