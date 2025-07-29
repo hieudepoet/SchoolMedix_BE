@@ -1101,6 +1101,65 @@ export async function getCompletedDosesMergedByDisease(req, res) {
   }
 }
 
+export async function getCompletedDosesMergedByDiseaseVNVC(req, res) {
+  const { student_id } = req.params;
+
+  try {
+    // 1. Lấy thông tin học sinh và lớp
+    const studentQuery = await query(
+      `
+      SELECT s.id AS student_id, s.name AS student_name, s.class_id, c.name AS class_name
+      FROM student s
+      JOIN class c ON s.class_id = c.id
+      WHERE s.id = $1
+    `,
+      [student_id]
+    );
+
+    if (studentQuery.rows.length === 0) {
+      return res.status(404).json({ error: "Không tìm thấy học sinh" });
+    }
+
+    const studentInfo = studentQuery.rows[0];
+
+    // 2. Lấy danh sách bệnh, số liều đã tiêm (COMPLETED), và tổng số liều cần tiêm
+    const dosesQuery = await query(
+      `
+      SELECT 
+        vd.disease_id,
+        STRING_AGG(DISTINCT d.name, ', ') AS disease_name,
+        (
+          SELECT COUNT(*) 
+          FROM vaccination_record vr_sub
+          WHERE 
+            vr_sub.student_id = $1 AND
+            vr_sub.disease_id = vd.disease_id AND
+            vr_sub.status = 'COMPLETED'
+        ) AS completed_doses,
+        vd.dose_quantity
+      FROM vaccine_disease vd
+      LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+      WHERE vd.vnvc = true
+      GROUP BY vd.disease_id, vd.dose_quantity
+      ORDER BY vd.disease_id
+    `,
+      [student_id]
+    );
+
+    res.json({
+      student_id: studentInfo.student_id,
+      student_name: studentInfo.student_name,
+      class_id: studentInfo.class_id,
+      class_name: studentInfo.class_name,
+      diseases: dosesQuery.rows,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Lỗi khi lấy thông tin", detail: err.message });
+  }
+}
+
 export async function getAcceptedRegisteredRecords(req, res) {
   const { campaign_id } = req.params;
   if (!campaign_id) {
