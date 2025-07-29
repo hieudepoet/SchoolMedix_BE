@@ -8,9 +8,8 @@ export async function getMedicalItemById(req, res) {
         SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        WHERE MI.ID = $1
+        WHERE MI.ID = $1 and mi.is_deleted = false
         GROUP BY mi.id
-        ORDER BY mi.id
       `,
       [id]
     );
@@ -36,6 +35,7 @@ export async function getAllMedicalItems(req, res) {
         SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
+        where mi.is_deleted = false
         GROUP BY mi.id
         ORDER BY mi.id desc
       `);
@@ -60,7 +60,7 @@ export async function getAllMedicalSupplies(req, res) {
       await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        WHERE mi.category = 'MEDICAL_SUPPLY'
+        WHERE mi.category = 'MEDICAL_SUPPLY' and mi.is_deleted = false
         GROUP BY mi.id
         ORDER BY mi.id desc`);
     return res
@@ -80,7 +80,7 @@ export async function getAllMedications(req, res) {
       await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        WHERE mi.category = 'MEDICATION'
+        WHERE mi.category = 'MEDICATION' and mi.is_deleted = false
         GROUP BY mi.id
         ORDER BY mi.id desc`);
     return res
@@ -114,6 +114,44 @@ export async function updateMedicalItem(req, res) {
       RETURNING *
     `,
       [name, unit, description, exp_date, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Không tìm thấy để cập nhật" });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật thành công",
+      data: result.rows[0],
+    });
+  } catch (err) {
+    console.error("updateMedicalItem:", err);
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi cập nhật." });
+  }
+}
+
+export async function deleteAMedicalItemByID(req, res) {
+  const { id } = req.params;
+
+  if (!id) {
+    res
+      .status(404)
+      .json({ error: true, message: "Không tìm thấy id thuốc vật tư để xóa!" });
+  }
+  try {
+    const result = await query(
+      `
+        UPDATE MedicalItem 
+        SET is_deleted = true
+        WHERE id = $1 
+        RETURNING *
+      `,
+      [id]
     );
 
     if (result.rowCount === 0) {
@@ -203,7 +241,7 @@ export async function createNewMedicalSupply(req, res) {
 
 export async function getAllSuppliers(req, res) {
   try {
-    const result = await query(`SELECT * FROM Supplier order by id desc`);
+    const result = await query(`SELECT * FROM Supplier where is_deleted = false order by id desc`);
     return res.status(200).json({
       error: false,
       message: "Lấy danh sách nhà cung cấp thành công",
@@ -221,7 +259,7 @@ export async function getAllSuppliers(req, res) {
 export async function getSupplierById(req, res) {
   const { id } = req.params;
   try {
-    const result = await query(`SELECT * FROM Supplier WHERE id = $1`, [id]);
+    const result = await query(`SELECT * FROM Supplier WHERE id = $1 and is_deleted = false`, [id]);
 
     if (result.rowCount === 0) {
       return res.status(404).json({
@@ -338,6 +376,44 @@ export async function updateSupplier(req, res) {
       error: true,
       message: "Lỗi server khi cập nhật nhà cung cấp",
     });
+  }
+}
+
+
+export async function deleteSupplier(req, res) {
+  const { id } = req.params;
+
+  if (!id) {
+    res
+      .status(404)
+      .json({ error: true, message: "Không tìm thấy id NCC!" });
+  }
+  try {
+    const result = await query(
+      `
+        UPDATE Supplier 
+        SET is_deleted = true
+        WHERE id = $1 
+        RETURNING *
+      `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: true, message: "Không tìm thấy để cập nhật" });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Cập nhật thành công",
+      data: result.rows[0],
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: true, message: "Lỗi server khi cập nhật." });
   }
 }
 
