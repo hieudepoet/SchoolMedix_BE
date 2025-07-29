@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function sendVaccineRegister(parent_list,titel, disease_name, vaccine_name, description, location, start_date, end_date) {
+export async function sendVaccineRegister(parent_list, titel, disease_name, vaccine_name, description, location, start_date, end_date) {
     const templatePath = path.resolve(__dirname, '../templates', 'registerVaccine.html');
     console.log("Using template path:", templatePath);
     const template = fs.readFileSync(templatePath, 'utf8');
@@ -22,7 +22,8 @@ export async function sendVaccineRegister(parent_list,titel, disease_name, vacci
                 .replace('{{ vaccine_campaign_location }}', location)
                 .replace('{{ start_date }}', start_date)
                 .replace('{{ end_date }}', end_date)
-                .replace('{{ description }}', description);
+                .replace('{{ description }}', description)
+                .replace('{{ link }}', `${process.env.FIREBASE_FE_DEPLOYING_URL}/parent`);
 
             return transporter.sendMail({
                 from: 'schoolmedix.official@gmail.com',
