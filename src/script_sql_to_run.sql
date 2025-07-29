@@ -1430,7 +1430,8 @@ CREATE TABLE MedicalItem (
     unit VARCHAR(100) NOT NULL,
     description TEXT,
     exp_date DATE NOT NULL,
-    category VARCHAR(50) CHECK (category IN ('MEDICAL_SUPPLY', 'MEDICATION'))
+    category VARCHAR(50) CHECK (category IN ('MEDICAL_SUPPLY', 'MEDICATION')),
+    is_deleted BOOLEAN default false
 );
 
 INSERT INTO MedicalItem (name, unit, description, exp_date, category)
@@ -1500,7 +1501,8 @@ CREATE TABLE Supplier (
     phone VARCHAR(20),
     contact_person VARCHAR(100),
     tax_code VARCHAR(50),
-    status VARCHAR(50) CHECK (status IN ('ACTIVE', 'INACTIVE', 'UNKNOWN')) DEFAULT 'ACTIVE'
+    status VARCHAR(50) CHECK (status IN ('ACTIVE', 'INACTIVE', 'UNKNOWN')) DEFAULT 'ACTIVE',
+    is_deleted BOOLEAN default false
 );
 
 INSERT INTO Supplier (
@@ -1555,7 +1557,8 @@ CREATE TABLE InventoryTransaction (
     supplier_id INT default null,
     transaction_date DATE,
     FOREIGN KEY (supplier_id) REFERENCES Supplier(id),
-    FOREIGN KEY (purpose_id) REFERENCES TransactionPurpose(id)
+    FOREIGN KEY (purpose_id) REFERENCES TransactionPurpose(id),
+    is_deleted BOOLEAN default false
 );
 
 CREATE TABLE TransactionItems (

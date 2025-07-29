@@ -213,8 +213,8 @@ HƯỚNG DẪN SỬ DỤNG API:
 Bạn PHẢI gọi API khi người dùng hỏi về:
 - Thông tin cá nhân → getStudentProfile/getParentProfile
 - Lớp học → getClassByStudentID
-- Khám sức khỏe → getHealthRecordOfStudent/getAllCheckupCampaignInfo/getCheckupCampaignDetail
-- Tiêm chủng → getVaccinationRecordsOfStudent/getAllVaccinationCampaigns/getVaccinationCampaignDetail
+- Khám sức khỏe → getHealthRecordOfStudent + getAllCheckupCampaignInfo + getCheckupCampaignDetail
+- Tiêm chủng → getVaccinationRecordsOfStudent + getAllVaccinationCampaigns + getVaccinationCampaignDetail
 - Bệnh tật → getDiseaseRecordsOfStudent
 - Gửi thuốc → getSendDrugRequestsOfStudent
 - Sự kiện y tế → getDailyHealthRecordsOfStudent
