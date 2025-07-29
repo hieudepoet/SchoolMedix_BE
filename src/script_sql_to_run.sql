@@ -549,7 +549,7 @@ INSERT INTO CheckupCampaign (name, description, location, start_date, end_date, 
 ('Khám sức khỏe định kỳ học sinh năm 2022', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2022-08-01', '2022-08-02', 'DONE'),
 ('Khám sức khỏe định kỳ học sinh năm 2023', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường. Thời gian dự kiến: 8h sáng.', 'nhà đà năng tầng 4', '2023-8-05', '2023-08-06', 'DONE'),
 ('Khám sức khỏe định kỳ học sinh năm 2024', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đa năng tầng 4', '2024-05-15', '2025-05-16', 'DONE'),
-('Khám sức khỏe định kỳ học sinh năm 2025', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đa năng tầng 4', '2025-08-15', '2025-08-26', 'DONE');
+('Khám sức khỏe định kỳ học sinh năm 2025', 'Chiến dịch khám sức khỏe tổng quát cho toàn bộ học sinh trong trường', 'nhà đa năng tầng 4', '2025-08-15', '2025-08-26', 'DRAFTED');
 
 CREATE TABLE SpecialistExamList (
 	id serial primary key,
@@ -1743,6 +1743,7 @@ CREATE INDEX idx_otp_lookup ON otps (target, purpose, is_used);
 
 -------------------------------------------------------------------------------------------------------------------------------------- Blog
 
+
 CREATE TABLE BLOG_TYPE (
 	ID SERIAL PRIMARY KEY,
 	NAME TEXT,
@@ -1753,7 +1754,7 @@ INSERT INTO
 	BLOG_TYPE (NAME, DESCRIPTION)
 VALUES	
 	(
-		'Tin tức',
+		'Dinh Dưỡng',
 		'Kiến thức về chế độ ăn, dinh dưỡng cho học sinh'
 	),
 	(
@@ -1761,11 +1762,11 @@ VALUES
 		'Các phương pháp, hoạt động giữ gìn và nâng cao sức khỏe cho học sinh'
 	),
 	(
-		'Đánh giá',
+		'Chia sẻ',
 		'Chia sẻ, tư vấn về tâm lý lứa tuổi học sinh, cách vượt qua áp lực học tập'
 	),
 	(
-		'Chia sẻ',
+		'Kiến thức',
 		'Thông tin về phòng ngừa các bệnh thường gặp ở trường học'
 );
 	
@@ -1865,7 +1866,7 @@ VALUES (
   <li><strong>Rau củ:</strong> Cà rốt, cải xanh, đậu que, súp lơ.</li>
   <li><strong>Trái cây:</strong> Chuối, táo, dưa hấu, cam.</li>
 </ul>
-<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/hop-com-hoc-duong.jpg" alt="Hộp cơm học đường" style="max-width:100%"></p>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//hopcom4ngan.jpg" alt="Hộp cơm học đường" style="max-width:100%"></p>
 
 <h2>V. Vai trò của phụ huynh và nhà trường</h2>
 <blockquote>
@@ -1873,7 +1874,7 @@ VALUES (
 </blockquote>
 
 <p><em><strong>Lưu ý:</strong> Hãy để trẻ tham gia vào quá trình chuẩn bị bữa ăn để tăng hứng thú, giáo dục trẻ chọn thực phẩm tốt và xây dựng thói quen ăn chậm, nhai kỹ.</em></p>',
-  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039066915_4033.gif',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//hopcom.jpg',
   1
 );
 
@@ -1906,7 +1907,7 @@ VALUES (
   <li>Thi đua thể thao giữa các lớp nhằm khuyến khích vận động.</li>
   <li>Bố trí cán bộ y tế học đường túc trực, xử lý tình huống y tế cơ bản.</li>
 </ul>
-<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/suc-khoe-hoc-duong.jpg" alt="Hoạt động sức khỏe học đường" style="max-width:100%"></p>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//chamsocsuskhoe.jpg" alt="Hoạt động sức khỏe học đường" style="max-width:100%"></p>
 
 <h2>V. Gợi ý cho phụ huynh và nhà trường</h2>
 <blockquote>
@@ -1914,7 +1915,7 @@ VALUES (
 </blockquote>
 
 <p><em><strong>Lưu ý:</strong> Ngoài sức khỏe thể chất, cần quan tâm đến sức khỏe tâm lý học đường: phòng chống bạo lực học đường, áp lực học tập, trầm cảm học sinh...</em></p>',
-  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039118375_7282.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//chamsocs.jpg',
   2
 );
 
@@ -1948,7 +1949,7 @@ VALUES (
   <li><strong>Khuyến khích vận động và giải trí lành mạnh:</strong> Thể thao, âm nhạc, hội họa giúp giải tỏa căng thẳng.</li>
   <li><strong>Kết nối với chuyên gia tâm lý học đường:</strong> Khi có dấu hiệu bất ổn, cần tư vấn chuyên môn kịp thời.</li>
 </ul>
-<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/tam-ly-hoc-duong.jpg" alt="Tư vấn tâm lý học đường" style="max-width:100%"></p>
+<p><img src="https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//tamlyhocduong.jpg" alt="Tư vấn tâm lý học đường" style="max-width:100%"></p>
 
 <h2>V. Thông điệp dành cho phụ huynh và nhà trường</h2>
 <blockquote>
@@ -1956,7 +1957,7 @@ VALUES (
 </blockquote>
 
 <p><em><strong>Lưu ý:</strong> Đừng xem nhẹ những biểu hiện tâm lý ở học sinh. Việc đồng hành, chia sẻ đúng lúc có thể giúp trẻ vượt qua khủng hoảng và phát triển tích cực hơn.</em></p>',
-  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images/img_1752039012599_4286.jpg',
+  'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/blog-images//aplkuc.jpg',
   3
 );
 ---Blog 5
