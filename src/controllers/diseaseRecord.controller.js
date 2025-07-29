@@ -666,3 +666,67 @@ export async function updateDiseaseRecord(req, res) {
     });
   }
 }
+
+export async function getDiseaseRecordById(req, res) {
+  const { id } = req.params;
+  try {
+    const result = await query(
+      `
+      SELECT 
+        dr.id,
+        dr.student_id,
+        s.name as student_name,
+        dr.disease_id,
+        dr.diagnosis,
+        dr.detect_date,
+        dr.cure_date,
+        dr.location_cure,
+        dr.created_at,
+        dr.updated_at,
+        dr.status,
+        d.id as disease_id,
+        d.disease_category,
+        d.name AS disease_name,
+        d.description,
+        d.vaccine_need,
+        d.dose_quantity,
+        s.supabase_uid,
+        c.name as class_name
+      FROM 
+        disease_record dr
+      JOIN 
+        disease d ON dr.disease_id = d.id
+      JOIN 
+        student s ON dr.student_id = s.id
+      JOIN 
+        class c ON s.class_id = c.id
+      WHERE dr.id = $1 AND (dr.pending IS NULL OR dr.pending = 'DONE')
+      ORDER BY dr.created_at DESC
+    `,
+      [id]
+    );
+
+    // Gắn profile từ Supabase
+    const studentsWithProfiles = await Promise.all(
+      result.rows.map(async (student) => {
+        const profile = await getProfileOfStudentByUUID(student.supabase_uid);
+        return {
+          ...student,
+          profile,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      error: false,
+      message: "Lấy danh sách tất cả hồ sơ bệnh thành công",
+      data: studentsWithProfiles, // Trả về bản ghi đầu tiên hoặc null nếu không tìm thấy
+    });
+  } catch (error) {
+    console.error("Error fetching all disease records:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy danh sách hồ sơ bệnh",
+    });
+  }
+}
