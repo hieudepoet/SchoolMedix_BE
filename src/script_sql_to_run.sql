@@ -1347,7 +1347,8 @@ INSERT INTO vaccination_record (
   vaccination_date,
   description,
   location,
-  status
+  status,
+  pending
 )
 VALUES
   (
@@ -1358,7 +1359,8 @@ VALUES
     '2023-06-15',
     'Không có triệu chứng',
     'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
-    'COMPLETED'
+    'COMPLETED',
+    'DONE'
   ),
 (
     '211002',
@@ -1368,7 +1370,8 @@ VALUES
     '2025-06-20',
     'Không có triệu chứng',
     'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
-    'COMPLETED'
+    'COMPLETED',
+    'DONE'
   ),
   (
     '211001',
@@ -1378,7 +1381,8 @@ VALUES
     '2025-06-22',
     'Không có triệu chứng',
     'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
-    'COMPLETED'
+    'COMPLETED',
+    'DONE'
   ),
   (
     '211003',
@@ -1388,7 +1392,8 @@ VALUES
     '2025-06-25',
     'Không có triệu chứng',
     'Trung tâm tiêm chủng VNVC (Tiêm ở ngoài trường)',
-    'COMPLETED'
+    'COMPLETED',
+    'DONE'
   );
 
 
@@ -1595,41 +1600,41 @@ INSERT INTO vaccination_campaign_register (student_id, campaign_id, reason, is_r
 
 -- Insert vaccination records for all students
 INSERT INTO vaccination_record (student_id, register_id, disease_id, vaccine_id, description, location, vaccination_date, status) VALUES
--- Campaign 1: Sởi 2018
-('211000', 1, ARRAY[12], 22, 'Không có phản ứng sau tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211001', 2, ARRAY[12], 22, 'Sốt nhẹ 24h, đã được theo dõi', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211002', 3, ARRAY[12], 22, 'Phát ban nhẹ, đã hồi phục sau 2 ngày', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211003', 4, ARRAY[12], 22, 'Không có triệu chứng bất thường', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211004', 5, ARRAY[12], 22, 'Sốt nhẹ 12h, đã dùng paracetamol', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211005', 6, ARRAY[12], 22, 'Không có phản ứng sau tiêm', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211006', 7, ARRAY[12], 22, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211007', 8, ARRAY[12], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211008', 9, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211009', 10, ARRAY[12], 22, 'Phát ban nhẹ, đã ổn định', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211010', 11, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211011', 12, ARRAY[12], 22, 'Sốt nhẹ 24h', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211012', 13, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211013', 14, ARRAY[12], 22, 'Mệt mỏi nhẹ', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211014', 15, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211015', 16, ARRAY[12], 22, 'Sốt nhẹ 12h', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211016', 17, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211017', 18, ARRAY[12], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211018', 19, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211019', 20, ARRAY[12], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211020', 21, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211021', 22, ARRAY[12], 22, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211022', 23, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211023', 24, ARRAY[12], 22, 'Sốt nhẹ 24h', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211024', 25, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211025', 26, ARRAY[12], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211026', 27, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211027', 28, ARRAY[12], 22, 'Sốt nhẹ 12h', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211028', 29, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-16', 'COMPLETED'),
-('211029', 30, ARRAY[12], 22, 'Mệt mỏi nhẹ', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211030', 31, ARRAY[12], 22, 'Không có triệu chứng', 'School Medix', '2018-03-17', 'COMPLETED'),
-('211031', 32, ARRAY[12], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211032', 33, ARRAY[12], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
-('211033', 34, ARRAY[12], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-16', 'COMPLETED'),
+-- Campaign 1: Sởi, Quai bị, Rubella 2018
+('211000', 1, ARRAY[12, 13, 14], 22, 'Không có phản ứng sau tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211001', 2, ARRAY[12, 13, 14], 22, 'Sốt nhẹ 24h, đã được theo dõi', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211002', 3, ARRAY[12, 13, 14], 22, 'Phát ban nhẹ, đã hồi phục sau 2 ngày', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211003', 4, ARRAY[12, 13, 14], 22, 'Không có triệu chứng bất thường', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211004', 5, ARRAY[12, 13, 14], 22, 'Sốt nhẹ 12h, đã dùng paracetamol', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211005', 6, ARRAY[12, 13, 14], 22, 'Không có phản ứng sau tiêm', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211006', 7, ARRAY[12, 13, 14], 22, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211007', 8, ARRAY[12, 13, 14], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211008', 9, ARRAY[12, 13, 14], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211009', 10, ARRAY[12, 13, 14], 22, 'Phát ban nhẹ, đã ổn định', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211010', 11, ARRAY[12, 13, 14], 22, 'Không có triệu chứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211011', 12, ARRAY[12, 13, 14], 22, 'Sốt nhẹ 24h', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211012', 13, ARRAY[12, 13, 14], 22, 'Không có phản ứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211013', 14, ARRAY[12, 13, 14], 22, 'Mệt mỏi nhẹ', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211014', 15, ARRAY[12, 13, 14], 22, 'Không có triệu chứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211015', 16, ARRAY[12, 13, 14], 22, 'Sốt nhẹ 12h', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211016', 17, ARRAY[12, 13, 14], 22, 'Không có phản ứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211017', 18, ARRAY[12, 13, 14], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211018', 19, ARRAY[12, 13, 14], 22, 'Không có triệu chứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211019', 20, ARRAY[12, 13, 14], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211020', 21, ARRAY[12, 13, 14], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211021', 22, ARRAY[12, 13, 14], 22, 'Mệt mỏi nhẹ 1 ngày', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211022', 23, ARRAY[12, 13, 14], 22, 'Không có triệu chứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211023', 24, ARRAY[12, 13, 14], 22, 'Sốt nhẹ 24h', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211024', 25, ARRAY[12, 13, 14], 22, 'Không có phản ứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211025', 26, ARRAY[12, 13, 14], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211026', 27, ARRAY[12, 13, 14], 22, 'Không có triệu chứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211027', 28, ARRAY[12, 13, 14], 22, 'Sốt nhẹ 12h', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211028', 29, ARRAY[12, 13, 14], 22, 'Không có phản ứng', 'School Medix', '2018-03-16', 'COMPLETED'),
+('211029', 30, ARRAY[12, 13, 14], 22, 'Mệt mỏi nhẹ', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211030', 31, ARRAY[12, 13, 14], 22, 'Không có triệu chứng', 'School Medix', '2018-03-17', 'COMPLETED'),
+('211031', 32, ARRAY[12, 13, 14], 22, 'Sưng nhẹ tại vị trí tiêm', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211032', 33, ARRAY[12, 13, 14], 22, 'Không có phản ứng', 'School Medix', '2018-03-15', 'COMPLETED'),
+('211033', 34, ARRAY[12, 13, 14], 22, 'Phát ban nhẹ', 'School Medix', '2018-03-16', 'COMPLETED'),
 -- Campaign 2: Viêm gan B 2020
 ('211000', 35, ARRAY[7], 12, 'Không có phản ứng sau tiêm', 'School Medix', '2020-06-10', 'COMPLETED'),
 ('211001', 36, ARRAY[7], 12, 'Sốt nhẹ 24h, đã được theo dõi', 'School Medix', '2020-06-10', 'COMPLETED'),
@@ -1996,19 +2001,19 @@ CREATE TABLE disease_record (
 );
 
 INSERT INTO disease_record (
-    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status
+    student_id, disease_id, diagnosis, detect_date, cure_date, location_cure, transferred_to, status, pending
 ) 
 VALUES
-('211000', 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED'),
-('211001', 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT'),
-('211002', 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED'),
-('211003', 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211000', 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED'),
-('211001', 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211002', 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT'),
-('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED'),
-('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT'),
-('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT');
+('211000', 1, 'Phát ban và sốt nhẹ', '2025-05-01', '2025-05-05', 'Trạm Y tế Quận 1', NULL, 'RECOVERED', 'DONE'),
+('211001', 2, 'Ho và nổi mẩn nhẹ', '2025-04-10', NULL, 'Tự theo dõi tại nhà', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211002', 1, 'Sốt, viêm họng', '2025-03-15', '2025-03-20', 'Phòng khám Nhi', NULL, 'RECOVERED', 'DONE'),
+('211003', 2, 'Cảm lạnh nhẹ', '2025-02-01', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211000', 3, 'Mụn nước toàn thân, ngứa', '2025-06-01', '2025-06-06', 'Bệnh viện Nhi Đồng 1', NULL, 'RECOVERED', 'DONE'),
+('211001', 4, 'Phát ban tay chân, lở miệng', '2025-05-10', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211002', 5, 'Mệt mỏi, vàng da nhẹ', '2025-04-20', NULL, 'Trạm y tế phường 5', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211003', 6, 'Khó thở, đau họng nặng', '2025-03-25', '2025-04-01', 'Phòng khám chuyên khoa', NULL, 'RECOVERED', 'DONE'),
+('211000', 7, 'Thở khò khè, cần dùng ống hít', '2025-01-12', NULL, 'Nhà theo dõi', NULL, 'UNDER_TREATMENT', 'DONE'),
+('211001', 8, 'Cân nặng vượt chuẩn, bác sĩ tư vấn giảm cân', '2025-01-05', NULL, 'Bệnh viện dinh dưỡng', NULL, 'UNDER_TREATMENT', 'DONE');
     
 -------------------------------------------------------------------------------------------------------------------------------------- OTP
 CREATE TABLE otps (
