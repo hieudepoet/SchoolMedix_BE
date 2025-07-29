@@ -1029,6 +1029,48 @@ export async function deleteATransaction(req, res) {
   }
 }
 
+export async function restoreTransactionFromSoftDelete(req, res) {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({
+      error: true,
+      message: "Không tìm thấy id transaction để khôi phục!",
+    });
+  }
+
+  try {
+    const result = await query(
+      `
+        UPDATE InventoryTransaction 
+        SET is_deleted = false
+        WHERE id = $1 
+        RETURNING *
+      `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Không tìm thấy để cập nhật",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      message: "Khôi phục giao dịch thành công",
+      data: result.rows[0],
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi cập nhật.",
+    });
+  }
+}
+
+
 export async function deletePermanentlyATransaction(req, res) {
   const { id } = req.params;
 
