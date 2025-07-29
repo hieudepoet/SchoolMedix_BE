@@ -22,3 +22,11 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
 });
+
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://schoolmedix.web.app"],
+    credentials: true,
+  })
+);
+
