@@ -19,7 +19,7 @@ import { sendMailRegister } from "../controllers/vaccinationCampaign.controller.
 
 const router = express.Router();
 
-router.post('/vaccine/:campaign_id/send-register',sendMailRegister)
+router.post('/vaccine/:campaign_id/send-mail-register',sendMailRegister)
 
 router.get(
   "/student/:student_id/vaccination-record",
