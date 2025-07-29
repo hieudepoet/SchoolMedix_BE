@@ -1400,7 +1400,7 @@ INSERT INTO vaccination_campaign (disease_id, vaccine_id, title, description, lo
   22, -- MMR II
   'Tiêm phòng bệnh Sởi, Quai bi, Rubella (MMR II) 2018',
   'THÔNG BÁO VỀ CHIẾN DỊCH TIÊM PHÒNG BỆNH SỞI (MMR II) 2018 
-  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin MMR II để bảo vệ học sinh khỏi bệnh Sởi – một bệnh truyền nhiễm nguy hiểm gây sốt và phát ban. Chiến dịch nhằm tăng cường miễn dịch cho trẻ em trong độ tuổi tiểu học.\n
+  Nhà trường phối hợp với Trung tâm Y tế tổ chức Chiến dịch tiêm phòng vắc xin MMR II để bảo vệ học sinh khỏi bệnh Sởi – một bệnh truyền nhiễm nguy hiểm gây sốt và phát ban. Chiến dịch nhằm tăng cường miễn dịch cho trẻ em trong độ tuổi tiểu học.
   
   Thông tin chi tiết:
   - Thời gian: Từ ngày 15/03/2018 đến ngày 17/03/2018 
