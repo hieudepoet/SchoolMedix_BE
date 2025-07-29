@@ -1,6 +1,6 @@
 import { query, pool } from "../config/database.js";
 import { getProfileOfStudentByUUID } from "../services/index.js";
-import { sendVaccineRegister } from "../services/email/index.js"
+import { sendVaccineRegister } from "../services/email/index.js";
 
 // Campaign
 export async function createCampaign(req, res) {
@@ -521,8 +521,6 @@ export async function getStudentEligib(campaign_id) {
       [campaign_id]
     );
 
-
-
     const disease_id = result.rows[0].disease_id;
 
     // Lấy danh sách học sinh đủ điều kiện + trạng thái đăng ký (is_registered)
@@ -559,7 +557,6 @@ export async function getStudentEligib(campaign_id) {
       `,
       [disease_id, campaign_id]
     );
-
 
     let completed_doses_and_record = [];
 
@@ -612,16 +609,12 @@ export async function getStudentEligib(campaign_id) {
       });
     }
 
-
     return completed_doses_and_record;
-
   } catch (error) {
     console.error("Error retrieving eligible students:", error);
-    return null
+    return null;
   }
 }
-
-
 
 export async function getStudentEligibleForCampaign(req, res) {
   const { campaign_id } = req.params;
@@ -720,6 +713,7 @@ export async function getStudentEligibleForCampaign(req, res) {
         JOIN vaccination_campaign_register req ON req.student_id = rec.student_id
         WHERE rec.student_id = $1 
           AND rec.disease_id = $2::int[]
+          AND rec.status = 'COMPLETED'
         GROUP BY 
           req.campaign_id, 
           req.is_registered,  
@@ -856,6 +850,7 @@ export async function getStudentEligibleAndCompletedForCampaign(req, res) {
         JOIN vaccination_campaign_register req ON req.student_id = rec.student_id
         WHERE rec.student_id = $1 
           AND rec.disease_id = $2::int[]
+          AND rec.status = 'COMPLETED'
         GROUP BY 
           req.campaign_id, 
           req.is_registered,  
@@ -1477,31 +1472,29 @@ export async function getAcceptedRegisteredRecords(req, res) {
 }
 
 export async function sendMailRegister(req, res) {
-
   const { campaign_id } = req.params;
 
-  if (
-    !campaign_id
-  ) {
+  if (!campaign_id) {
     return res.status(400).json({
       error: true,
-      message: 'Thiếu dữ liệu!',
+      message: "Thiếu dữ liệu!",
     });
   }
 
   try {
-
-
-    const check = await query(`
+    const check = await query(
+      `
       SELECT c.*, v.name AS vaccine_name
       FROM vaccination_campaign c
       JOIN vaccine v ON v.id = c.vaccine_id
-      WHERE c.id = $1 `, [campaign_id]);
+      WHERE c.id = $1 `,
+      [campaign_id]
+    );
 
     if (check.rowCount === 0) {
       return res.status(400).json({
         error: true,
-        message: 'Không tìm thấy Campaign!',
+        message: "Không tìm thấy Campaign!",
       });
     }
 
@@ -1511,51 +1504,54 @@ export async function sendMailRegister(req, res) {
 
     const student_list = await getStudentEligib(campaign_id);
 
-
     if (!student_list || student_list.length === 0) {
       return res.status(400).json({
         error: true,
-        message: 'Không tìm thấy Student List!',
+        message: "Không tìm thấy Student List!",
       });
     }
 
-    const getNameDisease = await query(`SELECT name FROM disease WHERE id = ANY($1::int[])`, [campaign[0].disease_id]);
+    const getNameDisease = await query(
+      `SELECT name FROM disease WHERE id = ANY($1::int[])`,
+      [campaign[0].disease_id]
+    );
 
-    const diseaseNames = getNameDisease.rows.map(row => row.name).join(' + ');
-    
-    const student_ids = student_list.map(student => student.student_id);
+    const diseaseNames = getNameDisease.rows.map((row) => row.name).join(" + ");
 
+    const student_ids = student_list.map((student) => student.student_id);
 
-
-    const result = await query(`
+    const result = await query(
+      `
   SELECT DISTINCT s.name AS student_name, p.name AS parent_name, p.email
   FROM student s
   JOIN parent p ON p.id = s.mom_id OR p.id = s.dad_id
   WHERE s.id = ANY($1::text[]) AND p.email IS NOT NULL
-`, [student_ids]);
+`,
+      [student_ids]
+    );
 
-if(result.rowCount === 0){
-  return res.status(400).json({
+    if (result.rowCount === 0) {
+      return res.status(400).json({
         error: true,
-        message: 'Không tìm thấy Parent List!',
+        message: "Không tìm thấy Parent List!",
       });
-}
+    }
 
-     const rs = await sendVaccineRegister(result.rows
-      ,campaign[0].title
-      ,diseaseNames
-      ,campaign[0].vaccine_name
-      ,campaign[0].description
-      ,campaign[0].location
-      ,campaign[0].start_date
-      ,campaign[0].end_date
+    const rs = await sendVaccineRegister(
+      result.rows,
+      campaign[0].title,
+      diseaseNames,
+      campaign[0].vaccine_name,
+      campaign[0].description,
+      campaign[0].location,
+      campaign[0].start_date,
+      campaign[0].end_date
     );
 
     return res.status(200).json({
       error: false,
       message: `Đã gửi email thành công`,
     });
-
   } catch (err) {
     console.error("❌ Error:", err);
     return res.status(500).json({
@@ -1564,5 +1560,4 @@ if(result.rowCount === 0){
       detail: err.message,
     });
   }
-
 }
