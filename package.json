@@ -6,8 +6,9 @@
       "main": "src/index.js",
       "scripts": {
             "start": "node src/index.js",
-            "dev": "nodemon src/index.js",
-            "test": "jest"
+            "dev": "npm run swagger & nodemon src/index.js",
+            "test": "jest",
+            "swagger": "node src/swagger.js"
       },
       "dependencies": {
             "@google/generative-ai": "^0.24.1",
