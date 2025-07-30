@@ -4,15 +4,23 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import routes from "./routes/index.js";
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+
+// Sửa đường dẫn để trỏ đến file trong thư mục src
+const swaggerOutput = JSON.parse(fs.readFileSync("./src/swagger-output.json", "utf-8"));
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
-app.use(cors()); // Cho phép mọi origin (hoặc cấu hình cụ thể)
-app.use(helmet()); // Bảo mật
-app.use(morgan("dev")); // Log ra console theo format "dev"
-app.use(express.json()); // Đọc body JSON
-app.use("/api", routes); // Mount tất cả routes con vào đường dẫn /api
+app.use(cors());
+app.use(helmet());
+app.use(morgan("dev"));
+app.use(express.json());
+app.use("/api", routes);
+
+// Route cho Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
 // Route mặc định
 app.get("/", (req, res) => {
@@ -21,4 +29,5 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
+  console.log(`📖 Swagger UI is available at http://localhost:${PORT}/api-docs`);
 });
