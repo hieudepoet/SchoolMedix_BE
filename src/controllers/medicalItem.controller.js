@@ -239,7 +239,9 @@ export async function createNewMedicalSupply(req, res) {
 
 export async function getAllSuppliers(req, res) {
   try {
-    const result = await query(`SELECT * FROM Supplier where is_deleted = false order by id desc`);
+    const result = await query(
+      `SELECT * FROM Supplier where is_deleted = false order by id desc`
+    );
     return res.status(200).json({
       error: false,
       message: "Lấy danh sách nhà cung cấp thành công",
@@ -257,7 +259,10 @@ export async function getAllSuppliers(req, res) {
 export async function getSupplierById(req, res) {
   const { id } = req.params;
   try {
-    const result = await query(`SELECT * FROM Supplier WHERE id = $1 and is_deleted = false`, [id]);
+    const result = await query(
+      `SELECT * FROM Supplier WHERE id = $1 and is_deleted = false`,
+      [id]
+    );
 
     if (result.rowCount === 0) {
       return res.status(400).json({
@@ -377,14 +382,11 @@ export async function updateSupplier(req, res) {
   }
 }
 
-
 export async function deleteSupplier(req, res) {
   const { id } = req.params;
 
   if (!id) {
-    res
-      .status(400)
-      .json({ error: true, message: "Không tìm thấy id NCC!" });
+    res.status(400).json({ error: true, message: "Không tìm thấy id NCC!" });
   }
   try {
     const result = await query(
@@ -448,7 +450,6 @@ export async function checkAdequateQuantityForItems(
         is_adequate_all = false;
         break;
       }
-
     }
   }
   return is_adequate_all;
@@ -518,16 +519,22 @@ export async function createNewTransaction(
         purpose_id,
         client
       );
+
+      await client.query("COMMIT");
     } catch (err) {
       throw err;
     }
+
     return transaction_id;
   } catch (error) {
     throw error;
   }
 }
 
-export async function eraseAllTransactionItemsByTransactionID(transaction_id, client) {
+export async function eraseAllTransactionItemsByTransactionID(
+  transaction_id,
+  client
+) {
   const result = await client.query(
     `DELETE FROM TransactionItems WHERE transaction_id = $1`,
     [transaction_id]
@@ -563,12 +570,12 @@ export async function createNewMedicalItemsForTransaction(
 
     try {
       await client.query(insert_items_query, values);
+      await client.query("COMMIT");
     } catch (err) {
       throw err;
     }
   }
 }
-
 
 export async function restoreMedicalItemsForTransaction(
   transaction_id,
@@ -841,7 +848,8 @@ export async function checkAdequateQuantityForAItem(req, res) {
     }
 
     const current_quantity = quantity_map.get(medical_item_id) ?? 0;
-    const is_adequate = current_quantity + multiply_for * incoming_quantity >= 0;
+    const is_adequate =
+      current_quantity + multiply_for * incoming_quantity >= 0;
 
     return res.status(200).json({
       error: false,
@@ -861,7 +869,8 @@ export async function checkAdequateQuantityForAItem(req, res) {
 }
 
 export async function createInventoryTransaction(req, res) {
-  const { purpose_id, note, transaction_date, medical_items, supplier_id } = req.body;
+  const { purpose_id, note, transaction_date, medical_items, supplier_id } =
+    req.body;
 
   if (
     !purpose_id ||
@@ -922,10 +931,10 @@ export async function createInventoryTransaction(req, res) {
   }
 }
 
-
 export async function updateInventoryTransaction(req, res) {
   const { id } = req.params;
-  const { purpose_id, note, transaction_date, medical_items, supplier_id } = req.body;
+  const { purpose_id, note, transaction_date, medical_items, supplier_id } =
+    req.body;
 
   if (!purpose_id || !transaction_date || !Array.isArray(medical_items)) {
     return res.status(400).json({
@@ -943,7 +952,11 @@ export async function updateInventoryTransaction(req, res) {
     await eraseAllTransactionItemsByTransactionID(id, client);
 
     // Kiểm tra số lượng tồn kho
-    const is_valid = await checkAdequateQuantityForItems(medical_items, purpose_id, client);
+    const is_valid = await checkAdequateQuantityForItems(
+      medical_items,
+      purpose_id,
+      client
+    );
     if (!is_valid) {
       await client.query("ROLLBACK");
       return res.status(400).json({
@@ -953,7 +966,12 @@ export async function updateInventoryTransaction(req, res) {
     }
 
     // Tạo mới vật tư cho giao dịch
-    await createNewMedicalItemsForTransaction(id, medical_items, purpose_id, client);
+    await createNewMedicalItemsForTransaction(
+      id,
+      medical_items,
+      purpose_id,
+      client
+    );
 
     // Cập nhật thông tin giao dịch
     const updateResult = await client.query(
@@ -989,8 +1007,6 @@ export async function updateInventoryTransaction(req, res) {
     client.release();
   }
 }
-
-
 
 export async function deleteATransaction(req, res) {
   const { id } = req.params;
@@ -1070,7 +1086,6 @@ export async function restoreTransactionFromSoftDelete(req, res) {
   }
 }
 
-
 export async function deletePermanentlyATransaction(req, res) {
   const { id } = req.params;
 
@@ -1117,8 +1132,6 @@ export async function deletePermanentlyATransaction(req, res) {
       });
     }
 
-
-
     await client.query("COMMIT");
 
     return res.status(200).json({
@@ -1137,11 +1150,6 @@ export async function deletePermanentlyATransaction(req, res) {
     console.log("🔚 Connection released");
   }
 }
-
-
-
-
-
 
 export async function getAllDeletedInventoryTransaction(req, res) {
   try {
@@ -1183,8 +1191,6 @@ export async function getAllDeletedInventoryTransaction(req, res) {
   }
 }
 
-
-
 export async function getAllTransactionPurpose(req, res) {
   try {
     const result = await query(`select * from transactionpurpose`);
@@ -1201,10 +1207,11 @@ export async function getAllTransactionPurpose(req, res) {
   }
 }
 
-
 export async function getAllExportTransactionPurpose(req, res) {
   try {
-    const result = await query(`select * from transactionpurpose where multiply_for = -1`);
+    const result = await query(
+      `select * from transactionpurpose where multiply_for = -1`
+    );
 
     return res.status(200).json({
       error: false,
@@ -1220,7 +1227,9 @@ export async function getAllExportTransactionPurpose(req, res) {
 
 export async function getAllImportTransactionPurpose(req, res) {
   try {
-    const result = await query(`select * from transactionpurpose where multiply_for = 1`);
+    const result = await query(
+      `select * from transactionpurpose where multiply_for = 1`
+    );
 
     return res.status(200).json({
       error: false,
@@ -1233,7 +1242,6 @@ export async function getAllImportTransactionPurpose(req, res) {
     });
   }
 }
-
 
 export async function getAllExportTransaction(req, res) {
   try {
@@ -1314,4 +1322,3 @@ export async function getAllImportTransaction(req, res) {
     });
   }
 }
-

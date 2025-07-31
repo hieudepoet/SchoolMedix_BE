@@ -57,7 +57,9 @@ export const createDailyHealthRecord = async (req, res) => {
         1,
         "Sử dụng thuốc/vật tư cho học sinh",
         record_date,
-        medical_items
+        medical_items,
+        null,
+        client
       );
     }
 
