@@ -176,6 +176,16 @@ CREATE TABLE Parent (
 -- start parent id from 100000
 ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
 
+-- Hộ gia đình
+create table home (
+  id serial primary key,
+  dad_id int references parent(id),
+  mom_id int references parent(id),
+  contact_phone_number varchar(20),
+  contact_email varchar(200)
+);
+
+
 INSERT INTO parent (
   supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url,
   email_confirmed, last_invitation_at, created_at
@@ -194,7 +204,7 @@ INSERT INTO parent (
     '2025-06-14 07:26:19'
   ),
   (
-    '3dfa7d35-7f0f-449f-afbf-bb6e420016d2',
+    '257042a9-1194-42aa-b1ef-6e799d17417d',
     'dathtse196321@gmail.com',
     'Đinh Việt Hiếu',
     '1974-03-10',

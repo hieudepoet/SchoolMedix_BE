@@ -31,3 +31,11 @@ app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
   console.log(`📖 Swagger UI is available at http://localhost:${PORT}/api-docs`);
 });
+
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://schoolmedix.web.app"],
+    credentials: true,
+  })
+);
+
