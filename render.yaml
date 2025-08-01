@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: schoolmedix-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run dev
+    autoDeploy: true
+    pullRequestPreviewsEnabled: true
+    envVars:
+      # DB config
+      - key: DB_USER
+        value: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_NAME
+        value: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_PORT
+        value: false
+
+      # Supabase
+      - key: SUPABASE_URL
+        value: https://mwbzaadpjjoqtwnmfrnm.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+
+      # Mailer
+      - key: MAIL_USER
+        value: schoolmedix.official@gmail.com
+      - key: MAIL_PASS
+        sync: false
+
+      # Public image
+      - key: DEFAULT_AVATAR_URL
+        value: https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg
+
+      # URLs
+      - key: FIREBASE_FE_DEPLOYING_URL
+        value: http://schoolmedix.web.app
+      - key: RAILWAY_BE_DEPLOYING_URL
+        value: false
+
+      # Gemini key
+      - key: GEMINI_API_KEY
+        sync: false

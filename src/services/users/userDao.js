@@ -381,6 +381,8 @@ export async function getProfileOfStudentByUUID(supabase_uid) {
   s.email_confirmed,
   s.class_id,
   c.name AS class_name,
+  g.name as grade_name,
+  g.id as grade_id,
   s.last_invitation_at,
   s.created_at,
 
@@ -426,6 +428,7 @@ FROM student s
 LEFT JOIN parent m ON m.id = s.mom_id
 LEFT JOIN parent d ON d.id = s.dad_id
 JOIN class c ON c.id = s.class_id
+JOIN grade g ON g.id = c.grade_id
 WHERE s.supabase_uid = $1 AND s.is_deleted = false;
 `,
     [supabase_uid]
@@ -497,6 +500,7 @@ FROM (
   LEFT JOIN class c ON c.id = s.class_id
   WHERE p.is_deleted = false
   GROUP BY p.id
+  order by p.id
 ) p_with_students;
 
   `);
@@ -522,6 +526,8 @@ export async function getAllStudents() {
   'email_confirmed', s.email_confirmed,
   'class_id', c.id,
   'class_name', c.name,
+  'grade_id', g.id,
+  'grade_name', g.name,
   'last_invitation_at', s.last_invitation_at,
   'created_at', s.created_at,
 
@@ -567,6 +573,7 @@ FROM student s
 LEFT JOIN parent m ON m.id = s.mom_id
 LEFT JOIN parent d ON d.id = s.dad_id
 LEFT JOIN class c ON c.id = s.class_id
+LEFT JOIN grade g ON g.id = c.grade_id
 WHERE s.is_deleted = false
 ORDER BY s.id;
 
