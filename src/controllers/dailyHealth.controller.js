@@ -304,10 +304,9 @@ export const updateDailyHealthRecordById = async (req, res) => {
     await client.query("BEGIN");
 
     // Check if the record exists
-    const recordCheck = await query(
+    const recordCheck = await client.query(
       "SELECT * FROM daily_health_record WHERE id = $1;",
-      [id],
-      { client }
+      [id]
     );
     if (recordCheck.rowCount === 0) {
       throw new Error("Daily health record not found");
@@ -317,6 +316,7 @@ export const updateDailyHealthRecordById = async (req, res) => {
       transaction_id,
       client
     );
+
     await eraseAllTransactionItemsByTransactionID(transaction_id, client);
     const is_valid_transaction_quantity = await checkAdequateQuantityForItems(
       medical_items,
@@ -334,7 +334,7 @@ export const updateDailyHealthRecordById = async (req, res) => {
       await restoreMedicalItemsForTransaction(
         transaction_id,
         old_medical_items,
-        1
+        client
       );
       throw new Error("Không đủ vật tư/ thuốc để sử dụng!");
     }
@@ -351,6 +351,7 @@ export const updateDailyHealthRecordById = async (req, res) => {
       WHERE id = $7 
       RETURNING *;
     `;
+    console.log("UPDATE");
     const values = [
       diagnosis,
       on_site_treatment || null,
@@ -360,7 +361,7 @@ export const updateDailyHealthRecordById = async (req, res) => {
       detect_time || null,
       id,
     ];
-    const result = await query(updateQuery, values, { client });
+    const result = await client.query(updateQuery, values);
 
     await client.query("COMMIT");
     return res.status(200).json({
