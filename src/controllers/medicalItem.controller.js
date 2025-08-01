@@ -419,12 +419,13 @@ export async function deleteSupplier(req, res) {
 
 export async function checkAdequateQuantityForItems(
   incoming_medical_items,
-  purpose_id
+  purpose_id,
+  client
 ) {
   let is_adequate_all = true;
 
   if (incoming_medical_items.length !== 0) {
-    const purpose_result = await query(
+    const purpose_result = await client.query(
       `select multiply_for from transactionpurpose where id = $1`,
       [purpose_id]
     );
@@ -535,10 +536,13 @@ export async function eraseAllTransactionItemsByTransactionID(
   transaction_id,
   client
 ) {
+  console.log("ERASE: eraseAllTransactionItemsByTransactionID");
+
   const result = await client.query(
     `DELETE FROM TransactionItems WHERE transaction_id = $1`,
     [transaction_id]
   );
+  client.query("COMMIT");
 }
 
 export async function createNewMedicalItemsForTransaction(
@@ -547,6 +551,7 @@ export async function createNewMedicalItemsForTransaction(
   purpose_id,
   client
 ) {
+  console.log("Create: createNewMedicalItemsForTransaction");
   const purpose_result = await client.query(
     `SELECT multiply_for FROM transactionpurpose WHERE id = $1`,
     [purpose_id]
@@ -579,8 +584,10 @@ export async function createNewMedicalItemsForTransaction(
 
 export async function restoreMedicalItemsForTransaction(
   transaction_id,
-  old_medical_items
+  old_medical_items,
+  client
 ) {
+  console.log("Restore: restoreMedicalItemsForTransaction");
   const values = [];
   const placeholders = [];
 
@@ -596,8 +603,10 @@ export async function restoreMedicalItemsForTransaction(
         VALUES ${placeholders.join(", ")}
       `;
 
-    await query(insert_items_query, values);
+    await client.query(insert_items_query, values);
   }
+
+  client.query("COMMIT");
 }
 
 export async function getAllInventoryTransactions(req, res) {
