@@ -360,6 +360,7 @@ export async function getResponseFromAI(req, res) {
     let try_number = 1;
     const chosen = candidates.find(c => {
         console.log("Lần thử thứ: " + try_number++);
+        console.log(c.content.parts);
         try {
             return hasFunctionCallInArray(c.content.parts);
         } catch {
@@ -385,7 +386,7 @@ export async function getResponseFromAI(req, res) {
     const api_response_text = `API_RESPONSE: ĐÂY LÀ KẾT QUẢ TRẢ VỀ TỪ CÁC API. DÙ KẾT QUẢ RA SAO, TÔi SẼ TRẢ LỜI NGƯỜI DÙNG DỰA TRÊN NỘI DUNG NÀY. NẾU BỊ LỖI, HÃY BÁO RÕ LÝ DO. NẾU KHÔNG CÓ DỮ LIỆU, HÃY NÓI RÕ KHÔNG CÓ THÔNG TIN: ${responses.join("\n\n")}`;
 
     const api_response_content = {
-        role: "model",
+        role: "function",
         parts: [
             { text: api_response_text }
         ]

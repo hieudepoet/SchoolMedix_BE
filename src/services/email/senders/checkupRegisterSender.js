@@ -24,7 +24,8 @@ export async function sendCheckupRegister(parent_list, name, description, locati
                         .replace('{{ location }}', location)
                         .replace('{{ start_date }}', start_date)
                         .replace('{{ end_date }}', end_date)
-                        .replace('{{ description }}', description);
+                        .replace('{{ description }}', description)
+                        .replace('{{ link }}', `${process.env.FIREBASE_FE_DEPLOYING_URL}/parent`);
 
                   return transporter.sendMail({
                         from: 'schoolmedix.official@gmail.com',
