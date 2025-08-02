@@ -155,7 +155,6 @@ VALUES (
 
 
 
-
 -- Parent
 CREATE TABLE Parent (
   id SERIAL PRIMARY KEY,
@@ -176,14 +175,16 @@ CREATE TABLE Parent (
 -- start parent id from 100000
 ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
 
--- Hộ gia đình
-create table home (
-  id serial primary key,
-  dad_id int references parent(id),
-  mom_id int references parent(id),
-  contact_phone_number varchar(20),
-  contact_email varchar(200)
+CREATE TABLE home (
+  id SERIAL PRIMARY KEY,
+  mom_id INT REFERENCES parent(id),
+  dad_id INT REFERENCES parent(id),
+  contact_email VARCHAR(200),
+  contact_phone_number VARCHAR(20)
 );
+
+ALTER SEQUENCE home_id_seq RESTART WITH 100000;
+
 
 
 INSERT INTO parent (
@@ -291,24 +292,27 @@ insert into student_code_counter (year_of_enrollment, last_number) VALUES
 (2021, 1003); -- bắt đầu với 4 học sinh trong data mẫu 211000, 211001, 211002, 211003
 
 CREATE TABLE Student (
-      id varchar(10) PRIMARY KEY,
-	    supabase_uid UUID unique,
-      email VARCHAR(255) UNIQUE,
-      name VARCHAR(255) not null,
-      dob DATE not null,
-      isMale BOOLEAN not null,
-      address TEXT not null,
-      phone_number VARCHAR(20),
-      profile_img_url TEXT,
-      year_of_enrollment int not null,
-      email_confirmed BOOLEAN DEFAULT false not null,
-      class_id INT REFERENCES class(id) not null,
-      mom_id int REFERENCES parent(id),
-      dad_id int REFERENCES parent(id),
+  id varchar(10) PRIMARY KEY,
+  supabase_uid UUID unique,
+  email VARCHAR(255) UNIQUE,
+  name VARCHAR(255) not null,
+  dob DATE not null,
+  isMale BOOLEAN not null,
+  address TEXT not null,
+  phone_number VARCHAR(20),
+  profile_img_url TEXT,
+  year_of_enrollment int not null,
+  email_confirmed BOOLEAN DEFAULT false not null,
+  class_id INT REFERENCES class(id) not null,
+  home_id int REFERENCES home(id),
   is_deleted BOOLEAN DEFAULT false not null,
   last_invitation_at TIMESTAMP DEFAULT null,
   created_at TIMESTAMP DEFAULT now()
 );
+
+INSERT INTO home (mom_id, dad_id, contact_email, contact_phone_number) VALUES
+(100003, 100002, 'mndkhanh.alt3@gmail.com', '0123456789'),
+(100001, 100000, 'phamthanhqb2005@gmail.com', '0123456789');
 
 INSERT INTO Student (
   id,
@@ -322,11 +326,10 @@ INSERT INTO Student (
   profile_img_url,
   year_of_enrollment,
   email_confirmed,
-  class_id,
-  mom_id,
-  dad_id,
   last_invitation_at,
-  created_at
+  class_id,
+  created_at,
+  home_id
 )
 VALUES 
 (
@@ -341,11 +344,10 @@ VALUES
   'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
   2021,
   true,
-  1,
-  100003,
-  NULL,
   '2025-06-15 12:00:00',
-  '2025-06-15 12:00:00'
+  1,
+  '2025-06-15 12:00:00',
+  100000
 ),
 (
   '211001',
@@ -359,11 +361,10 @@ VALUES
   'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
   2021,
   true,
-  2,
-  100003,
-  100002,
   '2025-06-15 12:00:00',
-  '2025-06-15 12:00:00'
+  2,
+  '2025-06-15 12:00:00',
+  100000
 ),
 (
   '211002',
@@ -377,11 +378,10 @@ VALUES
   'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
   2021,
   true,
-  2,
-  NULL,
-  100000,
   '2025-06-15 12:00:00',
-  '2025-06-15 12:00:00'
+  2,
+  '2025-06-15 12:00:00',
+  100001
 ),
 (
   '211003',
@@ -395,17 +395,35 @@ VALUES
   'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
   2021,
   true,
-  2,
-  100001,
-  100000,
   '2025-06-15 12:00:00',
-  '2025-06-15 12:00:00'
+  2,
+  '2025-06-15 12:00:00',
+  100001
 );
+
 
 -- Cập nhật student_code_counter để phản ánh số học sinh mới
 UPDATE student_code_counter
 SET last_number = 1033
 WHERE year_of_enrollment = 2021;
+
+INSERT INTO home (mom_id, dad_id, contact_email, contact_phone_number) VALUES
+(100005, 100004, NULL, '0900000002'),
+(100007, 100006, NULL, '0900000004'),
+(100009, 100008, NULL, '0900000006'),
+(100011, 100010, NULL, '0900000008'),
+(100013, 100012, NULL, '0900000010'),
+(100015, 100014, NULL, '0900000012'),
+(100017, 100016, NULL, '0900000014'),
+(100019, 100018, NULL, '0900000016'),
+(100021, 100020, NULL, '0900000018'),
+(100023, 100022, NULL, '0900000020'),
+(100025, 100024, NULL, '0900000022'),
+(100027, 100026, NULL, '0900000024'),
+(100029, 100028, NULL, '0900000026'),
+(100031, 100030, NULL, '0900000028'),
+(100033, 100032, NULL, '0900000030');
+
 
 INSERT INTO student (
   id, name, dob, isMale, address, phone_number, profile_img_url,
