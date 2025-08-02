@@ -169,7 +169,8 @@ CREATE TABLE Parent (
   email_confirmed BOOLEAN DEFAULT false not null,
   is_deleted BOOLEAN DEFAULT false not null,
   last_invitation_at TIMESTAMP DEFAULT null,
-  created_at TIMESTAMP DEFAULT now()
+  created_at TIMESTAMP DEFAULT now(),
+  profile_updated BOOLEAN DEFAULT false not null
 );
 
 -- start parent id from 100000
@@ -189,7 +190,7 @@ ALTER SEQUENCE home_id_seq RESTART WITH 100000;
 
 INSERT INTO parent (
   supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url,
-  email_confirmed, last_invitation_at, created_at
+  email_confirmed, last_invitation_at, created_at, profile_updated
 ) VALUES
   (
     'be258789-4fe3-421c-baed-53ef3ed87f3b',
@@ -202,7 +203,8 @@ INSERT INTO parent (
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
     true,
     '2025-06-14 07:26:19',
-    '2025-06-14 07:26:19'
+    '2025-06-14 07:26:19',
+    true
   ),
   (
     '257042a9-1194-42aa-b1ef-6e799d17417d',
@@ -215,7 +217,8 @@ INSERT INTO parent (
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
     true,
     '2025-06-14 07:26:19',
-    '2025-06-14 07:26:19'
+    '2025-06-14 07:26:19',
+    true
   ),
   (
     '00f7f4c0-4998-4593-b9c4-6b8d74596cd9',
@@ -228,7 +231,8 @@ INSERT INTO parent (
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
     true,
     '2025-06-14 07:26:19',
-    '2025-06-14 07:26:19'
+    '2025-06-14 07:26:19',
+    true
   ),
   (
     '81705d11-3052-4d70-82f2-1c11e8077dbe',
@@ -241,45 +245,46 @@ INSERT INTO parent (
     'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg',
     true,
     '2025-06-14 07:26:19',
-    '2025-06-14 07:26:19'
+    '2025-06-14 07:26:19',
+    true
   );
 
 -- RESTART parent_id để bắt đầu từ 100004 nếu cần
 ALTER SEQUENCE parent_id_seq RESTART WITH 100004;
 INSERT INTO parent (
-  name, dob, isMale, address, phone_number, profile_img_url, last_invitation_at, created_at
+  name, dob, isMale, address, phone_number, profile_img_url, last_invitation_at, created_at, profile_updated
 )
 VALUES
-('Nguyễn Văn An',  '1980-01-01', true,  'Hà Nội', '0900000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Trần Thị Bình',  '1982-02-02', false, 'Hà Nội', '0900000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Lê Văn Cường',  '1981-03-03', true,  'Hà Nội', '0900000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Phạm Thị Dung',  '1983-04-04', false, 'Hà Nội', '0900000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Vũ Văn Em',      '1979-05-05', true,  'Hà Nội', '0900000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Hoàng Thị Gấm',  '1981-06-06', false, 'Hà Nội', '0900000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Đào Văn Hưng',   '1980-07-07', true,  'Hà Nội', '0900000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Nguyễn Thị Hòa', '1982-08-08', false, 'Hà Nội', '0900000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Bùi Văn Khoa',   '1981-09-09', true,  'Hà Nội', '0900000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Lê Thị Lan',     '1984-10-10', false, 'Hà Nội', '0900000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Phạm Văn Minh',  '1980-11-11', true,  'Hà Nội', '0900000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Võ Thị Ngọc',    '1983-12-12', false, 'Hà Nội', '0900000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Trịnh Văn Quân', '1981-01-13', true,  'Hà Nội', '0900000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Mai Thị Quỳnh',  '1984-02-14', false, 'Hà Nội', '0900000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Ngô Văn Sơn',    '1980-03-15', true,  'Hà Nội', '0900000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Đinh Thị Trang', '1983-04-16', false, 'Hà Nội', '0900000016', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Trần Văn Út',    '1979-05-17', true,  'Hà Nội', '0900000017', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Vũ Thị Vân',     '1982-06-18', false, 'Hà Nội', '0900000018', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Hoàng Văn Xuân','1980-07-19', true,  'Hà Nội', '0900000019', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Đặng Thị Yến',   '1983-08-20', false, 'Hà Nội', '0900000020', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Phan Văn Đông',  '1981-09-21', true,  'Hà Nội', '0900000021', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Nguyễn Thị Hoa', '1984-10-22', false, 'Hà Nội', '0900000022', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Bùi Văn Nam',    '1980-11-23', true,  'Hà Nội', '0900000023', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Trần Thị Hà',    '1983-12-24', false, 'Hà Nội', '0900000024', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Lê Văn Dũng',    '1981-01-25', true,  'Hà Nội', '0900000025', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Phạm Thị Oanh',  '1984-02-26', false, 'Hà Nội', '0900000026', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Nguyễn Văn Trí','1980-03-27', true,  'Hà Nội', '0900000027', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Hoàng Thị Mai',  '1983-04-28', false, 'Hà Nội', '0900000028', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Đỗ Văn Toàn',    '1981-05-29', true,  'Hà Nội', '0900000029', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59'),
-('Vũ Thị Thu',     '1984-06-30', false, 'Hà Nội', '0900000030', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59');
+('Nguyễn Văn An',  '1980-01-01', true,  'Hà Nội', '0900000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Trần Thị Bình',  '1982-02-02', false, 'Hà Nội', '0900000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Lê Văn Cường',  '1981-03-03', true,  'Hà Nội', '0900000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Phạm Thị Dung',  '1983-04-04', false, 'Hà Nội', '0900000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Vũ Văn Em',      '1979-05-05', true,  'Hà Nội', '0900000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Hoàng Thị Gấm',  '1981-06-06', false, 'Hà Nội', '0900000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Đào Văn Hưng',   '1980-07-07', true,  'Hà Nội', '0900000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Nguyễn Thị Hòa', '1982-08-08', false, 'Hà Nội', '0900000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Bùi Văn Khoa',   '1981-09-09', true,  'Hà Nội', '0900000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Lê Thị Lan',     '1984-10-10', false, 'Hà Nội', '0900000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Phạm Văn Minh',  '1980-11-11', true,  'Hà Nội', '0900000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Võ Thị Ngọc',    '1983-12-12', false, 'Hà Nội', '0900000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Trịnh Văn Quân', '1981-01-13', true,  'Hà Nội', '0900000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Mai Thị Quỳnh',  '1984-02-14', false, 'Hà Nội', '0900000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Ngô Văn Sơn',    '1980-03-15', true,  'Hà Nội', '0900000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Đinh Thị Trang', '1983-04-16', false, 'Hà Nội', '0900000016', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Trần Văn Út',    '1979-05-17', true,  'Hà Nội', '0900000017', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Vũ Thị Vân',     '1982-06-18', false, 'Hà Nội', '0900000018', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Hoàng Văn Xuân','1980-07-19', true,  'Hà Nội', '0900000019', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Đặng Thị Yến',   '1983-08-20', false, 'Hà Nội', '0900000020', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59',true),
+('Phan Văn Đông',  '1981-09-21', true,  'Hà Nội', '0900000021', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59',true),
+('Nguyễn Thị Hoa', '1984-10-22', false, 'Hà Nội', '0900000022', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59',true),
+('Bùi Văn Nam',    '1980-11-23', true,  'Hà Nội', '0900000023', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59',true),
+('Trần Thị Hà',    '1983-12-24', false, 'Hà Nội', '0900000024', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59',true),
+('Lê Văn Dũng',    '1981-01-25', true,  'Hà Nội', '0900000025', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59',true),
+('Phạm Thị Oanh',  '1984-02-26', false, 'Hà Nội', '0900000026', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59',true),
+('Nguyễn Văn Trí','1980-03-27', true,  'Hà Nội', '0900000027', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Hoàng Thị Mai',  '1983-04-28', false, 'Hà Nội', '0900000028', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Đỗ Văn Toàn',    '1981-05-29', true,  'Hà Nội', '0900000029', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true),
+('Vũ Thị Thu',     '1984-06-30', false, 'Hà Nội', '0900000030', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files/anonymous-avatar.jpg', null, '2025-06-30 23:59:59', true);
 
 
 --Student
@@ -473,7 +478,7 @@ VALUES
 
 ---------------------------------------------------------------------FLOW SEND MEDICATION REQUEST 
 -------------------------------------------------------------------------------------------------
-
+-- ENUM type for request status
 CREATE TYPE senddrugrequest_status AS ENUM (
     'PROCESSING',
     'ACCEPTED',
@@ -483,32 +488,73 @@ CREATE TYPE senddrugrequest_status AS ENUM (
     'REFUSED'
 );
 
-CREATE TABLE SendDrugRequest (
-    id SERIAL PRIMARY KEY,
-	  student_id varchar(10) references student(id), 
-	  create_by int references parent(id),
-    diagnosis TEXT NOT NULL,
-    schedule_send_date DATE,
-    receive_date DATE,
-    intake_date DATE,
-    note TEXT,
-    prescription_img_urls TEXT[],
-    status senddrugrequest_status NOT NULL
+-- ENUM type for intake time
+CREATE TYPE intake_time_enum AS ENUM (
+  'MORNING', 'MIDDAY', 'AFTERNOON'
 );
 
+-- Main drug request table
+CREATE TABLE SendDrugRequest (
+    id SERIAL PRIMARY KEY,
+    student_id VARCHAR(10) REFERENCES student(id), 
+    create_by INT REFERENCES parent(id),
+    diagnosis TEXT NOT NULL,
+    schedule_send_date DATE,
+    receive_at TIMESTAMP DEFAULT NULL,
+    start_intake_date DATE,
+    end_intake_date DATE,
+    note TEXT,
+    prescription_img_urls TEXT[],
+    status senddrugrequest_status NOT NULL,
+    create_at TIMESTAMP DEFAULT now()
+);
+
+-- Request items
+CREATE TABLE RequestItem (
+    id SERIAL PRIMARY KEY,
+    request_id INT NOT NULL REFERENCES SendDrugRequest(id) ON DELETE CASCADE,
+    name VARCHAR(255),
+    intake_templates intake_time_enum[] NOT NULL,
+    dosage_usage TEXT NOT NULL
+);
+
+-- Medication schedule (auto-generated)
+CREATE TABLE MedicationSchedule (
+    id SERIAL PRIMARY KEY,
+    request_id INT REFERENCES SendDrugRequest(id) ON DELETE CASCADE,
+    student_id VARCHAR(10) REFERENCES student(id),
+    date DATE NOT NULL,
+    intake_template intake_time_enum NOT NULL,
+    intake_time TIMESTAMP,
+    is_taken BOOLEAN DEFAULT FALSE,
+    note TEXT DEFAULT NULL
+);
+
+-- Many-to-many relationship between MedicationSchedule and RequestItem
+CREATE TABLE MedicationScheduleItem (
+    request_item_id INT REFERENCES RequestItem(id) ON DELETE CASCADE,
+    schedule_id INT REFERENCES MedicationSchedule(id) ON DELETE CASCADE,
+    PRIMARY KEY (request_item_id, schedule_id)
+);
+
+-- Sample data for SendDrugRequest
 INSERT INTO SendDrugRequest (
-    student_id, create_by, diagnosis, schedule_send_date, receive_date,
-    intake_date, note, prescription_img_urls, status
+    student_id, create_by, diagnosis, schedule_send_date, receive_at,
+    start_intake_date, end_intake_date, note, prescription_img_urls, status
 ) VALUES 
 (
-    '211000', -- student_id
-    100003,   -- create_by
+    '211000',
+    100003,
     'Viêm dạ dày cấp',
     '2025-06-10',
     NULL,
     '2025-06-11',
+    '2025-06-13',
     'Cần gửi thuốc sớm',
-    ARRAY['https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg', 'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg'],
+    ARRAY[
+      'https://luatduonggia.vn/wp-content/uploads/2025/06/quy-dinh-ve-noi-dung-ke-don-thuoc1.jpg',
+      'https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg'
+    ],
     'PROCESSING'
 ),
 (
@@ -518,6 +564,7 @@ INSERT INTO SendDrugRequest (
     '2025-06-09',
     '2025-06-10',
     '2025-06-11',
+    '2025-06-12',
     'Nhà trường giúp cháu uống thuốc đúng giờ',
     ARRAY['https://cdn.lawnet.vn//uploads/NewsThumbnail/2019/02/26/0852441417662920-thuc-pham-chuc-nang.jpg'],
     'DONE'
@@ -529,29 +576,92 @@ INSERT INTO SendDrugRequest (
     '2025-06-08',
     NULL,
     '2025-06-09',
+    '2025-06-10',
     'Gia đình muốn gửi thêm thuốc',
     ARRAY['https://static.tuoitre.vn/tto/i/s626/2011/04/12/2FiN0VCC.jpg'],
     'CANCELLED'
 );
 
+-- Sample data for RequestItem
+INSERT INTO RequestItem (request_id, name, intake_templates, dosage_usage) VALUES
+(1, 'Amoxycilin 500mg (Upanmox)', ARRAY['MORNING', 'AFTERNOON']::intake_time_enum[], 'mỗi lần 2 viên, sau ăn 30 phút'),
+(1, 'Metrodinazol 250mg/v', ARRAY['MORNING', 'AFTERNOON']::intake_time_enum[], 'mỗi lần 2 viên, trước ăn 1 tiếng'),
+(2, 'Seotalac', ARRAY['MIDDAY', 'AFTERNOON']::intake_time_enum[], 'mỗi lần 1 viên sau ăn 30 phút'),
+(2, 'Độc hoạt TKS viên (Lọ/100v)', ARRAY['MORNING', 'MIDDAY', 'AFTERNOON']::intake_time_enum[], 'mỗi lần 3 viên sau ăn 30 phút'),
+(2, 'Đại tần giao', ARRAY['MORNING', 'MIDDAY', 'AFTERNOON']::intake_time_enum[], 'mỗi lần 3 viên sau ăn 30 phút'),
+(3, 'Bimoclar', ARRAY['MORNING', 'MIDDAY']::intake_time_enum[], 'uống mỗi lần 8ml sau ăn 30 phút'),
+(3, 'Rinofil', ARRAY['MIDDAY']::intake_time_enum[], 'uống mỗi lần 5ml sau ăn 30 phút');
 
+INSERT INTO MedicationSchedule (request_id, student_id, date, intake_template) VALUES
+(1, '211000', '2025-06-11', 'MORNING'),
+(1, '211000', '2025-06-11', 'AFTERNOON'),
+(1, '211000', '2025-06-12', 'MORNING'),
+(1, '211000', '2025-06-12', 'AFTERNOON'),
+(1, '211000', '2025-06-13', 'MORNING'),
+(1, '211000', '2025-06-13', 'AFTERNOON'),
 
-CREATE TABLE RequestItem (
-    id SERIAL PRIMARY KEY,
-    request_id INT NOT NULL REFERENCES SendDrugRequest(id),
-    name VARCHAR(255),
-    intake_template_time VARCHAR(255)[] NOT NULL,
-    dosage_usage TEXT NOT NULL
-);
+(1, '211000', '2025-06-11', 'MORNING'),
+(1, '211000', '2025-06-11', 'AFTERNOON'),
+(1, '211000', '2025-06-12', 'MORNING'),
+(1, '211000', '2025-06-12', 'AFTERNOON'),
+(1, '211000', '2025-06-13', 'MORNING'),
+(1, '211000', '2025-06-13', 'AFTERNOON'),
 
-INSERT INTO RequestItem (request_id, name, intake_template_time, dosage_usage) VALUES
-(1, 'Amoxycilin 500mg (Upanmox)', ARRAY['Trước khi ăn sáng', 'Trước khi ăn tối'], 'mỗi lần 2 viên'),
-(1, 'Metrodinazol 250mg/v', ARRAY['Trước khi ăn sáng', 'Trước khi ăn tối'], 'mỗi lần 2 viên'),
-(2, 'Seotalac', ARRAY['Sau ăn trưa', 'Sau ăn tối'], 'mỗi lần 1 viên'),
-(2, 'Độc hoạt TKS viên (Lọ/100v)', ARRAY['Sau ăn sáng', 'Sau ăn trưa', 'Sau ăn tối'], 'mỗi lần 3 viên'),
-(2, 'Đại tần giao', ARRAY['Sau ăn sáng', 'Sau ăn trưa', 'Sau ăn tối'], 'mỗi lần 3 viên'),
-(3, 'Bimoclar', ARRAY['Sau ăn sáng', 'Sau ăn trưa'], 'uống mỗi lần 8ml'),
-(3, 'Rinofil', ARRAY['Sau ăn trưa'], 'uống mỗi lần 5ml');
+(2, '211002', '2025-06-11', 'MIDDAY'),
+(2, '211002', '2025-06-11', 'AFTERNOON'),
+(2, '211002', '2025-06-12', 'MIDDAY'),
+(2, '211002', '2025-06-12', 'AFTERNOON'),
+
+(2, '211002', '2025-06-11', 'MORNING'),
+(2, '211002', '2025-06-11', 'MIDDAY'),
+(2, '211002', '2025-06-11', 'AFTERNOON'),
+(2, '211002', '2025-06-12', 'MORNING'),
+(2, '211002', '2025-06-12', 'MIDDAY'),
+(2, '211002', '2025-06-12', 'AFTERNOON'),
+
+(2, '211002', '2025-06-11', 'MORNING'),
+(2, '211002', '2025-06-11', 'MIDDAY'),
+(2, '211002', '2025-06-11', 'AFTERNOON'),
+(2, '211002', '2025-06-12', 'MORNING'),
+(2, '211002', '2025-06-12', 'MIDDAY'),
+(2, '211002', '2025-06-12', 'AFTERNOON'),
+
+(3, '211001', '2025-06-09', 'MORNING'),
+(3, '211001', '2025-06-09', 'MIDDAY'),
+(3, '211001', '2025-06-10', 'MORNING'),
+(3, '211001', '2025-06-10', 'MIDDAY'),
+
+(3, '211001', '2025-06-09', 'MIDDAY'),
+(3, '211001', '2025-06-10', 'MIDDAY');
+
+-- Amoxycilin 500mg (id = 1), 6 schedule_id
+INSERT INTO MedicationScheduleItem (request_item_id, schedule_id) VALUES
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6);
+
+-- Metrodinazol 250mg/v (id = 2), 6 schedule_id
+INSERT INTO MedicationScheduleItem (request_item_id, schedule_id) VALUES
+(2, 7), (2, 8), (2, 9), (2, 10), (2, 11), (2, 12);
+
+-- Seotalac (id = 3), 4 schedule_id
+INSERT INTO MedicationScheduleItem (request_item_id, schedule_id) VALUES
+(3, 13), (3, 14), (3, 15), (3, 16);
+
+-- Độc hoạt TKS viên (id = 4), 6 schedule_id
+INSERT INTO MedicationScheduleItem (request_item_id, schedule_id) VALUES
+(4, 17), (4, 18), (4, 19), (4, 20), (4, 21), (4, 22);
+
+-- Đại tần giao (id = 5), 6 schedule_id
+INSERT INTO MedicationScheduleItem (request_item_id, schedule_id) VALUES
+(5, 23), (5, 24), (5, 25), (5, 26), (5, 27), (5, 28);
+
+-- Bimoclar (id = 6), 4 schedule_id
+INSERT INTO MedicationScheduleItem (request_item_id, schedule_id) VALUES
+(6, 29), (6, 30), (6, 31), (6, 32);
+
+-- Rinofil (id = 7), 2 schedule_id
+INSERT INTO MedicationScheduleItem (request_item_id, schedule_id) VALUES
+(7, 33), (7, 34);
+
 
 --------------------------------------------------------------------------------------------------------------------------------End FLOW SEND MEDICATION REQUEST 
 

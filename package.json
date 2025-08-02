@@ -28,6 +28,7 @@
             "path": "^0.12.7",
             "pdf-lib": "^1.17.1",
             "pg": "^8.16.0",
+            "pg-format": "^1.0.4",
             "puppeteer": "^24.11.1",
             "swagger-autogen": "^2.23.7",
             "swagger-ui-express": "^5.0.1"

@@ -951,17 +951,17 @@ export async function closeRegister(req, res) {
         //     rs.push(res.rows[0]);
         // }
 
-        if (result.rowCount === 0 ) {
+        if (result.rowCount === 0) {
             return res
                 .status(400)
                 .json({
                     error: true,
                     message: "Đóng form Register không thành công .",
                 });
-        } 
-         return res
-                .status(200)
-                .json({ error: false, message: "Đóng form Register thành công" });
+        }
+        return res
+            .status(200)
+            .json({ error: false, message: "Đóng form Register thành công" });
     } catch (err) {
         console.error("❌ Error creating Campaign ", err);
         return res
@@ -3053,7 +3053,7 @@ export async function sendMailRegister(req, res) {
 
         const campaign = check.rows;
 
-        
+
 
         const parentList = await query(`
 SELECT 
@@ -3063,10 +3063,11 @@ SELECT
     s.id AS student_id,
     s.name AS student_name
 FROM parent p
-LEFT JOIN student s 
-    ON s.mom_id = p.id OR s.dad_id = p.id
+LEFT JOIN home h ON h.mom_id = p.id OR h.dad_id = p.id
+LEFT JOIN student s ON s.home_id = h.id
 WHERE p.email IS NOT NULL
-ORDER BY p.id;`);
+ORDER BY p.id;
+`);
 
         const parent_list = parentList.rows;
 
@@ -3078,7 +3079,7 @@ ORDER BY p.id;`);
         }
 
         const result = await sendCheckupRegister(
-            parent_list 
+            parent_list
             , campaign[0].name
             , campaign[0].description
             , campaign[0].location

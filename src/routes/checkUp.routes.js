@@ -54,7 +54,7 @@ const router = express.Router();
 
 //Orther
 
-router.post('/checkup/:campaign_id/send-mail-register',sendMailRegister) // API gửi mail cho phụ huynh để thông báo có Register mới 
+router.post('/checkup/:campaign_id/send-mail-register', sendMailRegister) // API gửi mail cho phụ huynh để thông báo có Register mới 
 
 router.post('/checkup/:campaign_id/send-register', sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
 router.put('/checkup/:campaign_id/update-info', updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
@@ -129,5 +129,7 @@ router.post("/campaign/:campaign_id/upload-health-record-result", handleUploadHe
 router.get("/campaign/:campaign_id/import-health-record-form", handleRetrieveSampleImportHealthRecordForm); // trả về form gồm tất cả các record của một chiến dịch để làm smaple mẫu cho nurse cập nhật thông tin khám
 router.get("/campaign/:campaign_id/download-health-record-result", handleRetrieveHealthRecordResultByCampaignID);
 router.get("/campaign/:campaign_id/student/:student_id/download-final-report", handleDownloadFinalReportOfAStudentInCampaign); // file pdf chua all general health reccord + kham chuyen sau
+
+router.post("/register/:register_id/spe-exam/:spe_exam_id/pdf-diagnosis-urls", uploadPdfForDiagnosisUrls);
 
 export default router;

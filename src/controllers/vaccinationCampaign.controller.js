@@ -1522,11 +1522,12 @@ export async function sendMailRegister(req, res) {
 
     const result = await query(
       `
-  SELECT DISTINCT s.name AS student_name, p.name AS parent_name, p.email
-  FROM student s
-  JOIN parent p ON p.id = s.mom_id OR p.id = s.dad_id
-  WHERE s.id = ANY($1::text[]) AND p.email IS NOT NULL
-`,
+      SELECT DISTINCT s.name AS student_name, p.name AS parent_name, p.email
+      FROM student s
+      JOIN home h ON s.home_id = h.id
+      JOIN parent p ON p.id = h.mom_id OR p.id = h.dad_id
+      WHERE s.id = ANY($1::text[]) AND p.email IS NOT NULL
+      `,
       [student_ids]
     );
 

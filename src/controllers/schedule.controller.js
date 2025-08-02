@@ -25,42 +25,46 @@ export async function getSchedule(req, res) {
     // Truy vấn gộp từ vaccination_campaign_register và CheckupCampaign
     let queryText = `
       SELECT 
-        vcr.campaign_id as id,
-        vc.title AS title,
-        vc.start_date AS event_date,
-        'vaccination' AS type,
-        ARRAY_AGG(s1.id) AS child_ids
-      FROM vaccination_campaign_register vcr
-      JOIN vaccination_campaign vc ON vcr.campaign_id = vc.id
-	  JOIN (
-	  	SELECT id, name FROM student 
-	  ) AS s1 ON s1.id = vcr.student_id
-	  JOIN student s2 ON s2.id = vcr.student_id
-	  JOIN parent p ON (s2.mom_id = p.id OR s2.dad_id = p.id)  
-      WHERE p.id = $1
-	  	AND vcr.is_registered = true
-        AND vc.status IN ('PREPARING', 'ONGOING', 'COMPLETED', 'UPCOMING')
-        -- AND vc.start_date >= CURRENT_DATE
-      GROUP BY vcr.campaign_id, vc.title, vc.start_date
-      UNION ALL
-      SELECT
-        cc.id AS id,
-        cc.name AS title,
-        cc.start_date AS event_date,
-        'checkup' AS type,
-        ARRAY_AGG(s1.id) AS child_ids
-      FROM CheckupCampaign cc
-      JOIN CheckupRegister cr ON cr.campaign_id = cc.id
-	  JOIN (
-	  	SELECT id, name FROM student 
-	  ) AS s1 ON s1.id = cr.student_id
-	  JOIN student s2 ON s2.id = cr.student_id
-	  JOIN parent p ON (s2.mom_id = p.id OR s2.dad_id = p.id)  
-      WHERE p.id = $1
-        AND cc.status IN ('PREPARING', 'ONGOING', 'DONE', 'UPCOMING')
-        -- AND cc.start_date >= CURRENT_DATE
-      GROUP BY cc.id, cc.name, cc.start_date
-      ORDER BY event_date ASC
+  vcr.campaign_id AS id,
+  vc.title AS title,
+  vc.start_date AS event_date,
+  'vaccination' AS type,
+  ARRAY_AGG(s1.id) AS child_ids
+FROM vaccination_campaign_register vcr
+JOIN vaccination_campaign vc ON vcr.campaign_id = vc.id
+JOIN (
+  SELECT id, name, home_id FROM student
+) AS s1 ON s1.id = vcr.student_id
+JOIN student s2 ON s2.id = vcr.student_id
+JOIN home h ON s2.home_id = h.id
+JOIN parent p ON (h.mom_id = p.id OR h.dad_id = p.id)
+WHERE p.id = $1
+  AND vcr.is_registered = true
+  AND vc.status IN ('PREPARING', 'ONGOING', 'COMPLETED', 'UPCOMING')
+GROUP BY vcr.campaign_id, vc.title, vc.start_date
+
+UNION ALL
+
+SELECT
+  cc.id AS id,
+  cc.name AS title,
+  cc.start_date AS event_date,
+  'checkup' AS type,
+  ARRAY_AGG(s1.id) AS child_ids
+FROM CheckupCampaign cc
+JOIN CheckupRegister cr ON cr.campaign_id = cc.id
+JOIN (
+  SELECT id, name, home_id FROM student
+) AS s1 ON s1.id = cr.student_id
+JOIN student s2 ON s2.id = cr.student_id
+JOIN home h ON s2.home_id = h.id
+JOIN parent p ON (h.mom_id = p.id OR h.dad_id = p.id)
+WHERE p.id = $1
+  AND cc.status IN ('PREPARING', 'ONGOING', 'DONE', 'UPCOMING')
+GROUP BY cc.id, cc.name, cc.start_date
+
+ORDER BY event_date ASC;
+
     `;
     let queryParams = [parent_id];
 
