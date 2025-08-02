@@ -108,8 +108,7 @@ export async function insertStudent(
   profile_img_url = process.env.DEFAULT_AVATAR_URL,
   class_id,
   year_of_enrollment,
-  mom_id = null,
-  dad_id = null
+  home_id = null
 ) {
   const student_id = await generateStudentCode(year_of_enrollment);
 
@@ -117,11 +116,11 @@ export async function insertStudent(
     `
     INSERT INTO Student (
       id, supabase_uid, email, name, dob, isMale, address,
-      phone_number, profile_img_url, year_of_enrollment, class_id, mom_id, dad_id
+      phone_number, profile_img_url, year_of_enrollment, class_id, home_id
     ) 
     VALUES (
       $1, $2, $3, $4, $5, $6, $7,
-      $8, $9, $10, $11, $12, $13
+      $8, $9, $10, $11, $12
     ) RETURNING *
   `,
     [
@@ -136,8 +135,7 @@ export async function insertStudent(
       profile_img_url,
       year_of_enrollment,
       class_id,
-      mom_id,
-      dad_id,
+      home_id
     ]
   );
 
@@ -164,50 +162,56 @@ export async function getProfileOfParentByID(parent_id) {
   const result = await query(
     ` 
   SELECT 
-    p.id,
-    'parent' as role,
-    p.supabase_uid,
-    p.email,
-    p.name,
-    p.dob,
-    DATE_PART('year', AGE(p.dob)) AS age,
-    p.isMale,
-    p.address,
-    p.phone_number,
-    p.profile_img_url,
-    p.email_confirmed,
-    p.last_invitation_at,
-    p.created_at,
+  p.id,
+  'parent' as role,
+  p.supabase_uid,
+  p.email,
+  p.name,
+  p.dob,
+  DATE_PART('year', AGE(p.dob)) AS age,
+  p.isMale,
+  p.address,
+  p.phone_number,
+  p.profile_img_url,
+  p.email_confirmed,
+  p.last_invitation_at,
+  p.created_at,
+  h.id AS home_id,
+  p.profile_updated,
+  COALESCE(
+    json_agg(
+      json_build_object(
+        'id', s.id,
+        'supabase_uid', s.supabase_uid,
+        'email', s.email,
+        'name', s.name,
+        'age', DATE_PART('year', AGE(s.dob)),
+        'dob', s.dob,
+        'isMale', s.isMale,
+        'address', s.address,
+        'phone_number', s.phone_number,
+        'profile_img_url', s.profile_img_url,
+        'year_of_enrollment', s.year_of_enrollment,
+        'email_confirmed', s.email_confirmed,
+        'class_id', c.id,
+        'class_name', c.name,
+        'mom_id', h.mom_id,
+        'dad_id', h.dad_id,
+        'last_invitation_at', s.last_invitation_at,
+        'created_at', s.created_at
+      )
+    ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
+    '[]'
+  ) AS children
 
-    COALESCE(
-      json_agg(
-        json_build_object(
-          'id', s.id,
-          'supabase_uid', s.supabase_uid,
-          'email', s.email,
-          'name', s.name,
-          'age', DATE_PART('year', AGE(s.dob)),
-          'dob', s.dob,
-          'isMale', s.isMale,
-          'address', s.address,
-          'phone_number', s.phone_number,
-          'profile_img_url', s.profile_img_url,
-          'year_of_enrollment', s.year_of_enrollment,
-          'email_confirmed', s.email_confirmed,
-          'class_id', c.id,
-          'class_name', c.name,
-          'last_invitation_at', s.last_invitation_at,
-          'created_at', s.created_at
-        )
-      ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
-      '[]'
-    ) AS children
+FROM parent p
+LEFT JOIN home h ON h.mom_id = p.id OR h.dad_id = p.id
+LEFT JOIN student s ON s.home_id = h.id
+LEFT JOIN class c ON c.id = s.class_id
+WHERE p.id = $1 AND p.is_deleted = false
+GROUP BY p.id, h.id;
 
-  FROM parent p
-  LEFT JOIN student s ON s.mom_id = p.id OR s.dad_id = p.id
-  LEFT JOIN class c ON c.id = s.class_id
-  WHERE p.id = $1 and p.is_deleted = false
-  GROUP BY p.id
+
 `,
     [parent_id]
   );
@@ -235,9 +239,12 @@ SELECT
   c.name AS class_name,
   s.last_invitation_at,
   s.created_at,
+  s.home_id,
+  h.mom_id,
+  h.dad_id,
 
   CASE
-    WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
+    WHEN h.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
       'id', m.id,
       'name', m.name,
       'dob', m.dob,
@@ -250,13 +257,14 @@ SELECT
       'supabase_uid', m.supabase_uid,
       'email_confirmed', m.email_confirmed,
       'last_invitation_at', m.last_invitation_at,
-      'created_at', m.created_at
+      'created_at', m.created_at,
+      'profile_updated', m.profile_updated
     )
     ELSE NULL
   END AS mom_profile,
 
   CASE
-    WHEN s.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
+    WHEN h.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
       'id', d.id,
       'name', d.name,
       'dob', d.dob,
@@ -269,16 +277,20 @@ SELECT
       'supabase_uid', d.supabase_uid,
       'email_confirmed', d.email_confirmed,
       'last_invitation_at', d.last_invitation_at,
-      'created_at', d.created_at
+      'created_at', d.created_at,
+      'profile_updated', d.profile_updated
     )
     ELSE NULL
   END AS dad_profile
 
 FROM student s
-LEFT JOIN parent m ON m.id = s.mom_id
-LEFT JOIN parent d ON d.id = s.dad_id
+LEFT JOIN home h ON h.id = s.home_id
+LEFT JOIN parent m ON m.id = h.mom_id
+LEFT JOIN parent d ON d.id = h.dad_id
 JOIN class c ON c.id = s.class_id
 WHERE s.id = $1 AND s.is_deleted = false;
+
+
 
 `,
     [student_id]
@@ -307,130 +319,142 @@ export async function getProfileOfNurseByUUID(supabase_uid) {
 export async function getProfileOfParentByUUID(supabase_uid) {
   const result = await query(
     `SELECT 
-  'parent' AS role,
-  p_with_students.*
-FROM (
-  SELECT 
-    p.id,
-    p.supabase_uid,
-    p.email,
-    p.name,
-    p.dob,
-    DATE_PART('year', AGE(p.dob)) AS age,
-    p.isMale,
-    p.address,
-    p.phone_number,
-    p.profile_img_url,
-    p.email_confirmed,
-    p.last_invitation_at,
-    p.created_at,
+      'parent' AS role,
+      p_with_students.*
+    FROM (
+      SELECT 
+        p.id,
+        p.supabase_uid,
+        p.email,
+        p.name,
+        p.dob,
+        DATE_PART('year', AGE(p.dob)) AS age,
+        p.isMale,
+        p.address,
+        p.phone_number,
+        p.profile_img_url,
+        p.email_confirmed,
+        p.last_invitation_at,
+        p.created_at,
+        p.profile_updated,
+        h.id AS home_id,
 
-    COALESCE(
-      json_agg(
-        json_build_object(
-          'id', s.id,
-          'supabase_uid', s.supabase_uid,
-          'email', s.email,
-          'name', s.name,
-          'age', DATE_PART('year', AGE(s.dob)),
-          'dob', s.dob,
-          'isMale', s.isMale,
-          'address', s.address,
-          'phone_number', s.phone_number,
-          'profile_img_url', s.profile_img_url,
-          'year_of_enrollment', s.year_of_enrollment,
-          'email_confirmed', s.email_confirmed,
-          'class_id', c.id,
-          'class_name', c.name,
-          'last_invitation_at', s.last_invitation_at,
-          'created_at', s.created_at
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', s.id,
+              'supabase_uid', s.supabase_uid,
+              'email', s.email,
+              'name', s.name,
+              'age', DATE_PART('year', AGE(s.dob)),
+              'dob', s.dob,
+              'isMale', s.isMale,
+              'address', s.address,
+              'phone_number', s.phone_number,
+              'profile_img_url', s.profile_img_url,
+              'year_of_enrollment', s.year_of_enrollment,
+              'email_confirmed', s.email_confirmed,
+              'class_id', c.id,
+              'class_name', c.name,
+              'home_id', s.home_id,
+              'mom_id', h.mom_id,
+              'dad_id', h.dad_id,
+              'last_invitation_at', s.last_invitation_at,
+              'created_at', s.created_at
+            )
+          ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
+          '[]'
+        ) AS students
 
-        )
-      ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
-      '[]'
-    ) AS students
-
-  FROM parent p
-  LEFT JOIN student s ON (s.mom_id = p.id OR s.dad_id = p.id)
-  LEFT JOIN class c ON c.id = s.class_id
-  WHERE p.supabase_uid = $1 AND p.is_deleted = false
-  GROUP BY p.id
-) p_with_students;
-`,
+      FROM parent p
+      LEFT JOIN home h ON h.mom_id = p.id OR h.dad_id = p.id
+      LEFT JOIN student s ON s.home_id = h.id
+      LEFT JOIN class c ON c.id = s.class_id
+      WHERE p.supabase_uid = $1 AND p.is_deleted = false
+      GROUP BY p.id, h.id
+    ) p_with_students;
+    `,
     [supabase_uid]
   );
   return result.rows[0];
 }
 
+
 // Student
 export async function getProfileOfStudentByUUID(supabase_uid) {
   const result = await query(
     `SELECT 
-  'student' AS role,
-  s.id,
-  s.supabase_uid,
-  s.email,
-  s.name,
-  s.dob,
-  DATE_PART('year', AGE(s.dob)) AS age,
-  s.isMale,
-  s.address,
-  s.phone_number,
-  s.profile_img_url,
-  s.year_of_enrollment,
-  s.email_confirmed,
-  s.class_id,
-  c.name AS class_name,
-  g.name as grade_name,
-  g.id as grade_id,
-  s.last_invitation_at,
-  s.created_at,
+      'student' AS role,
+      s.id,
+      s.supabase_uid,
+      s.email,
+      s.name,
+      s.dob,
+      DATE_PART('year', AGE(s.dob)) AS age,
+      s.isMale,
+      s.address,
+      s.phone_number,
+      s.profile_img_url,
+      s.year_of_enrollment,
+      s.email_confirmed,
+      s.class_id,
+      c.name AS class_name,
+      g.name as grade_name,
+      g.id as grade_id,
+      s.home_id,
+      h.mom_id,
+      h.dad_id,
+      s.last_invitation_at,
+      s.created_at,
 
-  CASE
-    WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
-      'id', m.id,
-      'name', m.name,
-      'dob', m.dob,
-      'age', DATE_PART('year', AGE(m.dob)),
-      'email', m.email,
-      'phone_number', m.phone_number,
-      'isMale', m.isMale,
-      'address', m.address,
-      'profile_img_url', m.profile_img_url,
-      'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed,
-      'last_invitation_at', m.last_invitation_at,
-      'created_at', m.created_at
-    )
-    ELSE NULL
-  END AS mom_profile,
+      CASE
+        WHEN h.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'isMale', m.isMale,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed,
+          'last_invitation_at', m.last_invitation_at,
+          'created_at', m.created_at,
+          'profile_updated', m.profile_updated
+        )
+        ELSE NULL
+      END AS mom_profile,
 
-  CASE
-    WHEN s.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
-      'id', d.id,
-      'name', d.name,
-      'dob', d.dob,
-      'age', DATE_PART('year', AGE(d.dob)),
-      'email', d.email,
-      'phone_number', d.phone_number,
-      'isMale', d.isMale,
-      'address', d.address,
-      'profile_img_url', d.profile_img_url,
-      'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed,
-      'last_invitation_at', d.last_invitation_at,
-      'created_at', d.created_at
-    )
-    ELSE NULL
-  END AS dad_profile
+      CASE
+        WHEN h.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'isMale', d.isMale,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed,
+          'last_invitation_at', d.last_invitation_at,
+          'created_at', d.created_at,
+          'profile_updated', d.profile_updated
+        )
+        ELSE NULL
+      END AS dad_profile
 
-FROM student s
-LEFT JOIN parent m ON m.id = s.mom_id
-LEFT JOIN parent d ON d.id = s.dad_id
-JOIN class c ON c.id = s.class_id
-JOIN grade g ON g.id = c.grade_id
-WHERE s.supabase_uid = $1 AND s.is_deleted = false;
-`,
+    FROM student s
+    LEFT JOIN home h ON h.id = s.home_id
+    LEFT JOIN parent m ON m.id = h.mom_id
+    LEFT JOIN parent d ON d.id = h.dad_id
+    JOIN class c ON c.id = s.class_id
+    JOIN grade g ON g.id = c.grade_id
+    WHERE s.supabase_uid = $1 AND s.is_deleted = false;
+    `,
     [supabase_uid]
   );
   return result.rows[0];
@@ -453,56 +477,63 @@ export async function getAllNurses() {
 export async function getAllParents() {
   const result = await query(`
     SELECT 
-  row_to_json(p_with_students) AS parent_profile
-FROM (
-  SELECT 
-    p.id,
-    'parent' as role,
-    p.supabase_uid,
-    p.email,
-    p.name,
-    p.dob,
-    DATE_PART('year', AGE(p.dob)) AS age,
-    p.isMale,
-    p.address,
-    p.phone_number,
-    p.profile_img_url,
-    p.email_confirmed,
-    p.last_invitation_at,
-    p.created_at,
+      row_to_json(p_with_students) AS parent_profile
+    FROM (
+      SELECT 
+        p.id,
+        'parent' AS role,
+        p.supabase_uid,
+        p.email,
+        p.name,
+        p.dob,
+        DATE_PART('year', AGE(p.dob)) AS age,
+        p.isMale,
+        p.address,
+        p.phone_number,
+        p.profile_img_url,
+        p.email_confirmed,
+        p.last_invitation_at,
+        p.created_at,
+        p.profile_updated,
+        h.id AS home_id,
 
-    COALESCE(
-      json_agg(
-        json_build_object(
-          'id', s.id,
-          'supabase_uid', s.supabase_uid,
-          'email', s.email,
-          'name', s.name,
-          'age', DATE_PART('year', AGE(s.dob)),
-          'dob', s.dob,
-          'isMale', s.isMale,
-          'address', s.address,
-          'phone_number', s.phone_number,
-          'profile_img_url', s.profile_img_url,
-          'year_of_enrollment', s.year_of_enrollment,
-          'email_confirmed', s.email_confirmed,
-          'class_id', c.id,
-          'class_name', c.name,
-          'last_invitation_at', s.last_invitation_at,
-          'created_at', s.created_at
-        )
-      ) FILTER (WHERE s.id IS NOT NULL AND s.is_deleted = false),
-      '[]'
-    ) AS students
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', s.id,
+              'supabase_uid', s.supabase_uid,
+              'email', s.email,
+              'name', s.name,
+              'age', DATE_PART('year', AGE(s.dob)),
+              'dob', s.dob,
+              'isMale', s.isMale,
+              'address', s.address,
+              'phone_number', s.phone_number,
+              'profile_img_url', s.profile_img_url,
+              'year_of_enrollment', s.year_of_enrollment,
+              'email_confirmed', s.email_confirmed,
+              'class_id', c.id,
+              'class_name', c.name,
+              'home_id', s.home_id,
+              'mom_id', h.mom_id,
+              'dad_id', h.dad_id,
+              'last_invitation_at', s.last_invitation_at,
+              'created_at', s.created_at
+            )
+          ) FILTER (
+            WHERE s.id IS NOT NULL AND s.is_deleted = false
+          ),
+          '[]'
+        ) AS students
 
-  FROM parent p
-  LEFT JOIN student s ON (s.mom_id = p.id OR s.dad_id = p.id)
-  LEFT JOIN class c ON c.id = s.class_id
-  WHERE p.is_deleted = false
-  GROUP BY p.id
-  order by p.id
-) p_with_students;
-
+      FROM parent p
+      LEFT JOIN home h ON h.mom_id = p.id OR h.dad_id = p.id
+      LEFT JOIN student s ON s.home_id = h.id
+      LEFT JOIN class c ON c.id = s.class_id
+      WHERE p.is_deleted = false
+      GROUP BY p.id, h.id
+      ORDER BY p.id
+    ) p_with_students;
   `);
 
   return result.rows.map((row) => row.parent_profile);
@@ -511,221 +542,233 @@ FROM (
 export async function getAllStudents() {
   const result = await query(`
     SELECT json_build_object(
-  'id', s.id,
-  'role', 'student',
-  'supabase_uid', s.supabase_uid,
-  'email', s.email,
-  'name', s.name,
-  'dob', s.dob,
-  'age', DATE_PART('year', AGE(s.dob)),
-  'isMale', s.isMale,
-  'address', s.address,
-  'phone_number', s.phone_number,
-  'profile_img_url', s.profile_img_url,
-  'year_of_enrollment', s.year_of_enrollment,
-  'email_confirmed', s.email_confirmed,
-  'class_id', c.id,
-  'class_name', c.name,
-  'grade_id', g.id,
-  'grade_name', g.name,
-  'last_invitation_at', s.last_invitation_at,
-  'created_at', s.created_at,
+      'id', s.id,
+      'role', 'student',
+      'supabase_uid', s.supabase_uid,
+      'email', s.email,
+      'name', s.name,
+      'dob', s.dob,
+      'age', DATE_PART('year', AGE(s.dob)),
+      'isMale', s.isMale,
+      'address', s.address,
+      'phone_number', s.phone_number,
+      'profile_img_url', s.profile_img_url,
+      'year_of_enrollment', s.year_of_enrollment,
+      'email_confirmed', s.email_confirmed,
+      'class_id', c.id,
+      'class_name', c.name,
+      'grade_id', g.id,
+      'grade_name', g.name,
+      'home_id', h.id,
+      'mom_id', h.mom_id,
+      'dad_id', h.dad_id,
+      'last_invitation_at', s.last_invitation_at,
+      'created_at', s.created_at,
 
-  'mom_profile', CASE
-    WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
-      'id', m.id,
-      'name', m.name,
-      'dob', m.dob,
-      'age', DATE_PART('year', AGE(m.dob)),
-      'email', m.email,
-      'phone_number', m.phone_number,
-      'isMale', m.isMale,
-      'address', m.address,
-      'profile_img_url', m.profile_img_url,
-      'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed,
-      'last_invitation_at', m.last_invitation_at,
-      'created_at', m.created_at
-    )
-    ELSE NULL
-  END,
+      'mom_profile', CASE
+        WHEN h.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'isMale', m.isMale,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed,
+          'last_invitation_at', m.last_invitation_at,
+          'created_at', m.created_at,
+          'profile_updated', m.profile_updated
+        )
+        ELSE NULL
+      END,
 
-  'dad_profile', CASE
-    WHEN s.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
-      'id', d.id,
-      'name', d.name,
-      'dob', d.dob,
-      'age', DATE_PART('year', AGE(d.dob)),
-      'email', d.email,
-      'phone_number', d.phone_number,
-      'isMale', d.isMale,
-      'address', d.address,
-      'profile_img_url', d.profile_img_url,
-      'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed,
-      'last_invitation_at', d.last_invitation_at,
-      'created_at', d.created_at
-    )
-    ELSE NULL
-  END
-) AS student_profile
-FROM student s
-LEFT JOIN parent m ON m.id = s.mom_id
-LEFT JOIN parent d ON d.id = s.dad_id
-LEFT JOIN class c ON c.id = s.class_id
-LEFT JOIN grade g ON g.id = c.grade_id
-WHERE s.is_deleted = false
-ORDER BY s.id;
-
+      'dad_profile', CASE
+        WHEN h.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'isMale', d.isMale,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed,
+          'last_invitation_at', d.last_invitation_at,
+          'created_at', d.created_at,
+          'profile_updated', d.profile_updated
+        )
+        ELSE NULL
+      END
+    ) AS student_profile
+    FROM student s
+    LEFT JOIN home h ON h.id = s.home_id
+    LEFT JOIN parent m ON m.id = h.mom_id
+    LEFT JOIN parent d ON d.id = h.dad_id
+    LEFT JOIN class c ON c.id = s.class_id
+    LEFT JOIN grade g ON g.id = c.grade_id
+    WHERE s.is_deleted = false
+    ORDER BY s.id;
   `);
 
   return result.rows.map((row) => row.student_profile);
 }
 
 export async function getAllStudentsByClassID(class_id) {
-  const result = await query(
-    `
-    select json_build_object(
-  'id', s.id,
-  'role', 'student',
-  'supabase_uid', s.supabase_uid,
-  'email', s.email,
-  'name', s.name,
-  'dob', s.dob,
-  'age', DATE_PART('year', AGE(s.dob)),
-  'isMale', s.isMale,
-  'address', s.address,
-  'phone_number', s.phone_number,
-  'profile_img_url', s.profile_img_url,
-  'year_of_enrollment', s.year_of_enrollment,
-  'email_confirmed', s.email_confirmed,
-  'class_id', c.id,
-  'class_name', c.name,
-  'last_invitation_at', s.last_invitation_at,
-  'created_at', s.created_at,
+  const result = await query(`
+    SELECT json_build_object(
+      'id', s.id,
+      'role', 'student',
+      'supabase_uid', s.supabase_uid,
+      'email', s.email,
+      'name', s.name,
+      'dob', s.dob,
+      'age', DATE_PART('year', AGE(s.dob)),
+      'isMale', s.isMale,
+      'address', s.address,
+      'phone_number', s.phone_number,
+      'profile_img_url', s.profile_img_url,
+      'year_of_enrollment', s.year_of_enrollment,
+      'email_confirmed', s.email_confirmed,
+      'class_id', c.id,
+      'class_name', c.name,
+      'home_id', h.id,
+      'mom_id', h.mom_id,
+      'dad_id', h.dad_id,
+      'last_invitation_at', s.last_invitation_at,
+      'created_at', s.created_at,
 
-  'mom_profile', CASE
-    WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
-      'id', m.id,
-      'name', m.name,
-      'dob', m.dob,
-      'age', DATE_PART('year', AGE(m.dob)),
-      'email', m.email,
-      'phone_number', m.phone_number,
-      'isMale', m.isMale,
-      'address', m.address,
-      'profile_img_url', m.profile_img_url,
-      'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed,
-      'last_invitation_at', m.last_invitation_at,
-      'created_at', m.created_at
-    )
-    ELSE NULL
-  END,
+      'mom_profile', CASE
+        WHEN h.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'isMale', m.isMale,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed,
+          'last_invitation_at', m.last_invitation_at,
+          'created_at', m.created_at,
+          'profile_updated', m.profile_updated
+        )
+        ELSE NULL
+      END,
 
-  'dad_profile', CASE
-    WHEN s.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
-      'id', d.id,
-      'name', d.name,
-      'dob', d.dob,
-      'age', DATE_PART('year', AGE(d.dob)),
-      'email', d.email,
-      'phone_number', d.phone_number,
-      'isMale', d.isMale,
-      'address', d.address,
-      'profile_img_url', d.profile_img_url,
-      'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed,
-      'last_invitation_at', d.last_invitation_at,
-      'created_at', d.created_at
-    )
-    ELSE NULL
-  END
-) AS student_profile
-FROM student s
-LEFT JOIN parent m ON m.id = s.mom_id
-LEFT JOIN parent d ON d.id = s.dad_id
-LEFT JOIN class c ON c.id = s.class_id
-WHERE s.is_deleted = false AND c.id = $1
-ORDER BY s.id;
-
-  `,
-    [class_id]
-  );
+      'dad_profile', CASE
+        WHEN h.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'isMale', d.isMale,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed,
+          'last_invitation_at', d.last_invitation_at,
+          'created_at', d.created_at,
+          'profile_updated', d.profile_updated
+        )
+        ELSE NULL
+      END
+    ) AS student_profile
+    FROM student s
+    LEFT JOIN home h ON h.id = s.home_id
+    LEFT JOIN parent m ON m.id = h.mom_id
+    LEFT JOIN parent d ON d.id = h.dad_id
+    LEFT JOIN class c ON c.id = s.class_id
+    WHERE s.is_deleted = false AND c.id = $1
+    ORDER BY s.id;
+  `, [class_id]);
 
   return result.rows.map((row) => row.student_profile);
 }
 
 export async function getAllStudentsByGradeID(grade_id) {
-  const result = await query(
-    `
+  const result = await query(`
     SELECT json_build_object(
-  'id', s.id,
-  'supabase_uid', s.supabase_uid,
-  'role', 'student',
-  'email', s.email,
-  'name', s.name,
-  'dob', s.dob,
-  'age', DATE_PART('year', AGE(s.dob)),
-  'isMale', s.isMale,
-  'address', s.address,
-  'phone_number', s.phone_number,
-  'profile_img_url', s.profile_img_url,
-  'year_of_enrollment', s.year_of_enrollment,
-  'email_confirmed', s.email_confirmed,
-  'class_id', c.id,
-  'class_name', c.name,
-  'last_invitation_at', s.last_invitation_at,
-  'created_at', s.created_at,
+      'id', s.id,
+      'supabase_uid', s.supabase_uid,
+      'role', 'student',
+      'email', s.email,
+      'name', s.name,
+      'dob', s.dob,
+      'age', DATE_PART('year', AGE(s.dob)),
+      'isMale', s.isMale,
+      'address', s.address,
+      'phone_number', s.phone_number,
+      'profile_img_url', s.profile_img_url,
+      'year_of_enrollment', s.year_of_enrollment,
+      'email_confirmed', s.email_confirmed,
+      'class_id', c.id,
+      'class_name', c.name,
+      'grade_id', g.id,
+      'grade_name', g.name,
+      'home_id', h.id,
+      'mom_id', h.mom_id,
+      'dad_id', h.dad_id,
+      'last_invitation_at', s.last_invitation_at,
+      'created_at', s.created_at,
 
-  'mom_profile', CASE
-    WHEN s.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
-      'id', m.id,
-      'name', m.name,
-      'dob', m.dob,
-      'age', DATE_PART('year', AGE(m.dob)),
-      'email', m.email,
-      'phone_number', m.phone_number,
-      'isMale', m.isMale,
-      'address', m.address,
-      'profile_img_url', m.profile_img_url,
-      'supabase_uid', m.supabase_uid,
-      'email_confirmed', m.email_confirmed,
-      'last_invitation_at', m.last_invitation_at,
-      'created_at', m.created_at
-    )
-    ELSE NULL
-  END,
+      'mom_profile', CASE
+        WHEN h.mom_id IS NOT NULL AND m.is_deleted = false THEN json_build_object(
+          'id', m.id,
+          'name', m.name,
+          'dob', m.dob,
+          'age', DATE_PART('year', AGE(m.dob)),
+          'email', m.email,
+          'phone_number', m.phone_number,
+          'isMale', m.isMale,
+          'address', m.address,
+          'profile_img_url', m.profile_img_url,
+          'supabase_uid', m.supabase_uid,
+          'email_confirmed', m.email_confirmed,
+          'last_invitation_at', m.last_invitation_at,
+          'created_at', m.created_at,
+          'profile_updated', m.profile_updated
+        )
+        ELSE NULL
+      END,
 
-  'dad_profile', CASE
-    WHEN s.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
-      'id', d.id,
-      'name', d.name,
-      'dob', d.dob,
-      'age', DATE_PART('year', AGE(d.dob)),
-      'email', d.email,
-      'phone_number', d.phone_number,
-      'isMale', d.isMale,
-      'address', d.address,
-      'profile_img_url', d.profile_img_url,
-      'supabase_uid', d.supabase_uid,
-      'email_confirmed', d.email_confirmed,
-      'last_invitation_at', d.last_invitation_at,
-      'created_at', d.created_at
-    )
-    ELSE NULL
-  END
-) AS student_profile
-FROM student s
-LEFT JOIN parent m ON m.id = s.mom_id
-LEFT JOIN parent d ON d.id = s.dad_id
-LEFT JOIN class c ON c.id = s.class_id
-WHERE s.is_deleted = false AND c.grade_id = $1
-ORDER BY s.id;
-
-  `,
-    [grade_id]
-  );
+      'dad_profile', CASE
+        WHEN h.dad_id IS NOT NULL AND d.is_deleted = false THEN json_build_object(
+          'id', d.id,
+          'name', d.name,
+          'dob', d.dob,
+          'age', DATE_PART('year', AGE(d.dob)),
+          'email', d.email,
+          'phone_number', d.phone_number,
+          'isMale', d.isMale,
+          'address', d.address,
+          'profile_img_url', d.profile_img_url,
+          'supabase_uid', d.supabase_uid,
+          'email_confirmed', d.email_confirmed,
+          'last_invitation_at', d.last_invitation_at,
+          'created_at', d.created_at,
+          'profile_updated', d.profile_updated
+        )
+        ELSE NULL
+      END
+    ) AS student_profile
+    FROM student s
+    LEFT JOIN home h ON h.id = s.home_id
+    LEFT JOIN parent m ON m.id = h.mom_id
+    LEFT JOIN parent d ON d.id = h.dad_id
+    LEFT JOIN class c ON c.id = s.class_id
+    LEFT JOIN grade g ON g.id = c.grade_id
+    WHERE s.is_deleted = false AND c.grade_id = $1
+    ORDER BY s.id;
+  `, [grade_id]);
 
   return result.rows.map((row) => row.student_profile);
 }
