@@ -424,47 +424,50 @@ INSERT INTO home (mom_id, dad_id, contact_email, contact_phone_number) VALUES
 (100031, 100030, NULL, '0900000028'),
 (100033, 100032, NULL, '0900000030');
 
-
 INSERT INTO student (
   id, name, dob, isMale, address, phone_number, profile_img_url,
-  year_of_enrollment, class_id, mom_id, dad_id,
+  year_of_enrollment, class_id, home_id,
   last_invitation_at, created_at
 )
 VALUES
 -- 15 học sinh lớp 1
-('211004', 'Nguyễn An Khang', '2015-01-01', false, 'Hà Nội', '0901000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100005, 100004, NULL, '2025-06-30 23:59:59'),
-('211005', 'Trần Gia Hưng', '2015-01-02', false, 'Hà Nội', '0901000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100007, 100006, NULL, '2025-06-30 23:59:59'),
-('211006', 'Lê Ngọc Bảo', '2015-01-03', true, 'Hà Nội', '0901000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100009, 100008, NULL, '2025-06-30 23:59:59'),
-('211007', 'Phạm Nhật Minh', '2015-01-04', true, 'Hà Nội', '0901000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100011, 100010, NULL, '2025-06-30 23:59:59'),
-('211008', 'Vũ Tuệ Nhi', '2015-01-05', true, 'Hà Nội', '0901000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100013, 100012, NULL, '2025-06-30 23:59:59'),
-('211009', 'Đào Hải Đăng', '2015-01-06', true, 'Hà Nội', '0901000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100015, 100014, NULL, '2025-06-30 23:59:59'),
-('211010', 'Nguyễn Nhật Linh', '2015-01-07', true, 'Hà Nội', '0901000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100017, 100016, NULL, '2025-06-30 23:59:59'),
-('211011', 'Bùi Hoàng Long', '2015-01-08', true, 'Hà Nội', '0901000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100019, 100018, NULL, '2025-06-30 23:59:59'),
-('211012', 'Phạm Mai Chi', '2015-01-09', true, 'Hà Nội', '0901000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100021, 100020, NULL, '2025-06-30 23:59:59'),
-('211013', 'Trịnh Minh Nhật', '2015-01-10', true, 'Hà Nội', '0901000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100023, 100022, NULL, '2025-06-30 23:59:59'),
-('211014', 'Ngô Gia Bảo', '2015-01-11', true, 'Hà Nội', '0901000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100025, 100024, NULL, '2025-06-30 23:59:59'),
-('211015', 'Đinh Hồng Anh', '2015-01-12', true, 'Hà Nội', '0901000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100027, 100026, NULL, '2025-06-30 23:59:59'),
-('211016', 'Trần Quang Duy', '2015-01-13', true, 'Hà Nội', '0901000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100029, 100028, NULL, '2025-06-30 23:59:59'),
-('211017', 'Vũ Thanh Trúc', '2015-01-14', true, 'Hà Nội', '0901000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100031, 100030, NULL, '2025-06-30 23:59:59'),
-('211018', 'Hoàng Nhật Tân', '2015-01-15', true, 'Hà Nội', '0901000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100033, 100032, NULL, '2025-06-30 23:59:59'),
-
+('211004', 'Nguyễn An Khang', '2015-01-01', false, 'Hà Nội', '0901000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100002, NULL, '2025-06-30 23:59:59'),
+('211005', 'Trần Gia Hưng', '2015-01-02', false, 'Hà Nội', '0901000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100003, NULL, '2025-06-30 23:59:59'),
+('211006', 'Lê Ngọc Bảo', '2015-01-03', true,  'Hà Nội', '0901000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100004, NULL, '2025-06-30 23:59:59'),
+('211007', 'Phạm Nhật Minh', '2015-01-04', true,  'Hà Nội', '0901000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100005, NULL, '2025-06-30 23:59:59'),
+('211008', 'Vũ Tuệ Nhi',     '2015-01-05', true,  'Hà Nội', '0901000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100006, NULL, '2025-06-30 23:59:59'),
+('211009', 'Đào Hải Đăng',   '2015-01-06', true,  'Hà Nội', '0901000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100007, NULL, '2025-06-30 23:59:59'),
+('211010', 'Nguyễn Nhật Linh','2015-01-07', true, 'Hà Nội', '0901000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100008, NULL, '2025-06-30 23:59:59'),
+('211011', 'Bùi Hoàng Long', '2015-01-08', true,  'Hà Nội', '0901000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100009, NULL, '2025-06-30 23:59:59'),
+('211012', 'Phạm Mai Chi',   '2015-01-09', true,  'Hà Nội', '0901000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100010, NULL, '2025-06-30 23:59:59'),
+('211013', 'Trịnh Minh Nhật','2015-01-10', true,  'Hà Nội', '0901000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100011, NULL, '2025-06-30 23:59:59'),
+('211014', 'Ngô Gia Bảo',    '2015-01-11', true,  'Hà Nội', '0901000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100012, NULL, '2025-06-30 23:59:59'),
+('211015', 'Đinh Hồng Anh',  '2015-01-12', true,  'Hà Nội', '0901000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100013, NULL, '2025-06-30 23:59:59'),
+('211016', 'Trần Quang Duy', '2015-01-13', true,  'Hà Nội', '0901000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100014, NULL, '2025-06-30 23:59:59'),
+('211017', 'Vũ Thanh Trúc',  '2015-01-14', true,  'Hà Nội', '0901000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100015, NULL, '2025-06-30 23:59:59'),
+('211018', 'Hoàng Nhật Tân', '2015-01-15', true,  'Hà Nội', '0901000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 1, 100016, NULL, '2025-06-30 23:59:59');
 -- 15 học sinh lớp 2
-('211019', 'Trần Gia Huy', '2014-01-01', true, 'Hà Nội', '0902000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100005, 100004, NULL, '2025-06-30 23:59:59'),
-('211020', 'Vũ Hải Yến', '2014-01-02', true, 'Hà Nội', '0902000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100007, 100006, NULL, '2025-06-30 23:59:59'),
-('211021', 'Hoàng Minh Khôi', '2014-01-03', false, 'Hà Nội', '0902000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100009, 100008, NULL, '2025-06-30 23:59:59'),
-('211022', 'Đặng Ngọc Trinh', '2014-01-04', false, 'Hà Nội', '0902000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100011, 100010, NULL, '2025-06-30 23:59:59'),
-('211023', 'Phan Đức Anh', '2014-01-05', false, 'Hà Nội', '0902000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100013, 100012, NULL, '2025-06-30 23:59:59'),
-('211024', 'Nguyễn Minh Thư', '2014-01-06', false, 'Hà Nội', '0902000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100015, 100014, NULL, '2025-06-30 23:59:59'),
-('211025', 'Bùi Nhật Hào', '2014-01-07', false, 'Hà Nội', '0902000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100017, 100016, NULL, '2025-06-30 23:59:59'),
-('211026', 'Trần Khánh Vy', '2014-01-08', false, 'Hà Nội', '0902000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100019, 100018, NULL, '2025-06-30 23:59:59'),
-('211027', 'Lê Hoàng Anh', '2014-01-09', true, 'Hà Nội', '0902000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100021, 100020, NULL, '2025-06-30 23:59:59'),
-('211028', 'Phạm Thảo Nhi', '2014-01-10', true, 'Hà Nội', '0902000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100023, 100022, NULL, '2025-06-30 23:59:59'),
-('211029', 'Nguyễn Minh Hiếu', '2014-01-11', true, 'Hà Nội', '0902000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100025, 100024, NULL, '2025-06-30 23:59:59'),
-('211030', 'Trịnh Hồng Nhung', '2014-01-12', false, 'Hà Nội', '0902000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100027, 100026, NULL, '2025-06-30 23:59:59'),
-('211031', 'Hoàng Thế Anh', '2014-01-13', true, 'Hà Nội', '0902000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100029, 100028, NULL, '2025-06-30 23:59:59'),
-('211032', 'Ngô Ánh Tuyết', '2014-01-14', false, 'Hà Nội', '0902000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100031, 100030, NULL, '2025-06-30 23:59:59'),
-('211033', 'Đào Khánh Duy', '2014-01-15', true, 'Hà Nội', '0902000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100033, 100032, NULL, '2025-06-30 23:59:59');
-
+INSERT INTO student (
+  id, name, dob, isMale, address, phone_number, profile_img_url,
+  year_of_enrollment, class_id, home_id,
+  last_invitation_at, created_at
+)
+VALUES
+('211019', 'Trần Gia Huy',     '2014-01-01', true,  'Hà Nội', '0902000001', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100002, NULL, '2025-06-30 23:59:59'),
+('211020', 'Vũ Hải Yến',       '2014-01-02', true,  'Hà Nội', '0902000002', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100003, NULL, '2025-06-30 23:59:59'),
+('211021', 'Hoàng Minh Khôi',  '2014-01-03', false, 'Hà Nội', '0902000003', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100004, NULL, '2025-06-30 23:59:59'),
+('211022', 'Đặng Ngọc Trinh',  '2014-01-04', false, 'Hà Nội', '0902000004', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100005, NULL, '2025-06-30 23:59:59'),
+('211023', 'Phan Đức Anh',     '2014-01-05', false, 'Hà Nội', '0902000005', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100006, NULL, '2025-06-30 23:59:59'),
+('211024', 'Nguyễn Minh Thư',  '2014-01-06', false, 'Hà Nội', '0902000006', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100007, NULL, '2025-06-30 23:59:59'),
+('211025', 'Bùi Nhật Hào',     '2014-01-07', false, 'Hà Nội', '0902000007', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100008, NULL, '2025-06-30 23:59:59'),
+('211026', 'Trần Khánh Vy',    '2014-01-08', false, 'Hà Nội', '0902000008', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100009, NULL, '2025-06-30 23:59:59'),
+('211027', 'Lê Hoàng Anh',     '2014-01-09', true,  'Hà Nội', '0902000009', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100010, NULL, '2025-06-30 23:59:59'),
+('211028', 'Phạm Thảo Nhi',    '2014-01-10', true,  'Hà Nội', '0902000010', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100011, NULL, '2025-06-30 23:59:59'),
+('211029', 'Nguyễn Minh Hiếu', '2014-01-11', true,  'Hà Nội', '0902000011', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100012, NULL, '2025-06-30 23:59:59'),
+('211030', 'Trịnh Hồng Nhung', '2014-01-12', false, 'Hà Nội', '0902000012', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100013, NULL, '2025-06-30 23:59:59'),
+('211031', 'Hoàng Thế Anh',    '2014-01-13', true,  'Hà Nội', '0902000013', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100014, NULL, '2025-06-30 23:59:59'),
+('211032', 'Ngô Ánh Tuyết',    '2014-01-14', false, 'Hà Nội', '0902000014', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100015, NULL, '2025-06-30 23:59:59'),
+('211033', 'Đào Khánh Duy',    '2014-01-15', true,  'Hà Nội', '0902000015', 'https://mwbzaadpjjoqtwnmfrnm.supabase.co/storage/v1/object/public/public-files//anonymous-avatar.jpg', 2021, 2, 100016, NULL, '2025-06-30 23:59:59');
 
 
 
