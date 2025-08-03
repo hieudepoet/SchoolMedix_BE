@@ -44,7 +44,7 @@ import {
 } from "../services/index.js";
 
 import ExcelJS from 'exceljs';
-import { query } from "../config/database.js";
+import { pool, query } from "../config/database.js";
 import { hasUsingOTP, insertNewOTP, updateOTPHasBeenUsed, verifyOTP } from "../services/otp/index.js";
 import { updateProfileFor } from "../services/users/userUtils.js";
 
@@ -827,8 +827,10 @@ export async function handleDownloadUsers(req, res) {
                         email_confirmed: s.email_confirmed,
                         class_id: s.class_id,
                         class_name: s.class_name,
+                        mom_id: s.mom_profile?.id || '',
                         mom_name: s.mom_profile?.name || '',
                         mom_email: s.mom_profile?.email || '',
+                        dad_id: s.dad_profile?.id || '',
                         dad_name: s.dad_profile?.name || '',
                         dad_email: s.dad_profile?.email || ''
                   }));
@@ -852,7 +854,6 @@ export async function handleDownloadUsers(req, res) {
                         phone_number: p.phone_number,
                         profile_img_url: p.profile_img_url,
                         email_confirmed: p.email_confirmed,
-                        children: JSON.stringify(p.students || [])
                   }));
 
                   parentSheet.columns = Object.keys(flattenedParents[0]).map(key => ({ header: key, key }));
@@ -1166,7 +1167,9 @@ export async function handleUploadStudent(req, res) {
             const file = req.file;
             try {
                   let jsonData = await excelToJson(file.buffer, 10);
-                  jsonData = jsonData.filter(obj => Object.keys(obj).length > 0);
+                  console.log("AFTER: " + jsonData);
+
+                  console.log(jsonData);
                   await Promise.all(jsonData.map(async (user) => {
                         user.is_success = false;
                         const email = typeof user.email === "object" ? user.email.text : user.email;
@@ -1285,23 +1288,6 @@ export async function handleGetParentImportSample(req, res) {
 export async function handleGetStudentImportSample(req, res) {
       try {
             let buffer = await generateImportTemplate('import-student-template.xlsx');
-
-            const result = await query(`SELECT * FROM parent WHERE is_deleted = false`);
-            const parents = result.rows;
-
-            const parent_headers = ["id", "email", "name", "dob", "isMale", "address", "phone_number"];
-
-            const parent_rows = parents.map(parent => [
-                  parent.id,
-                  parent.email,
-                  parent.name,
-                  parent.dob,
-                  parent.ismale,
-                  parent.address,
-                  parent.phone_number,
-            ]);
-
-            buffer = await addSheetToBuffer(buffer, "CURRENT_PARENT", parent_headers, parent_rows);
 
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', 'attachment; filename=student_import_template.xlsx');
@@ -1740,5 +1726,310 @@ export async function handleUpdateAccountByAdmin(req, res) {
 
       } catch (err) {
             return res.status(500).json({ error: true, message: `Lỗi máy chủ: ${err}}` });
+      }
+}
+
+export async function getHomeInfoByID(req, res) {
+      const { id } = req.params;
+
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID."
+            });
+      }
+
+      try {
+            const result = await query(
+                  `
+      SELECT 
+        h.*,
+        row_to_json(mom) AS mom,
+        row_to_json(dad) AS dad,
+        COALESCE(json_agg(row_to_json(stu)) FILTER (WHERE stu.id IS NOT NULL), '[]') AS students
+      FROM home h 
+      LEFT JOIN parent mom ON mom.id = h.mom_id
+      LEFT JOIN parent dad ON dad.id = h.dad_id
+      LEFT JOIN student stu ON stu.home_id = h.id
+      WHERE h.id = $1
+      GROUP BY h.id, mom.id, dad.id
+      `,
+                  [id]
+            );
+
+            if (result.rows.length === 0) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không tìm thấy bản ghi home tương ứng."
+                  });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  data: result.rows[0]
+            });
+
+      } catch (err) {
+            console.error("❌ Lỗi khi lấy thông tin home:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: `Lỗi máy chủ: ${err.message}`
+            });
+      }
+}
+
+export async function getAllHomes(req, res) {
+      try {
+            const result = await query(`
+      SELECT 
+        h.*,
+        mom.name AS mom_name,
+        dad.name AS dad_name,
+		count(stu.id) as students
+      FROM home h
+      LEFT JOIN parent mom ON mom.id = h.mom_id
+      LEFT JOIN parent dad ON dad.id = h.dad_id
+	  LEFT JOIN student stu on stu.home_id = h.id
+	  group by h.id, mom.name, dad.name
+      ORDER BY h.id DESC
+    `);
+
+            return res.status(200).json({
+                  error: false,
+                  data: result.rows
+            });
+
+      } catch (err) {
+            console.error("❌ Lỗi khi lấy danh sách homes:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: `Lỗi máy chủ: ${err.message}`
+            });
+      }
+}
+
+
+
+export async function updateUsersForHome(req, res) {
+      const { id } = req.params;
+      const { mom_id, dad_id, student_ids, contact_phone_number, contact_email } = req.body;
+
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID."
+            });
+      }
+
+      if (student_ids && !Array.isArray(student_ids)) {
+            return res.status(400).json({
+                  error: true,
+                  message: "student_ids phải là một array."
+            });
+      }
+
+      const client = await pool.connect();
+
+      try {
+            await client.query("BEGIN");
+
+            // Cập nhật home
+            await client.query(`
+      UPDATE home
+      SET mom_id = $2,
+          dad_id = $3,
+          contact_phone_number = $4,
+          contact_email = $5
+      WHERE id = $1
+    `, [id, mom_id, dad_id, contact_phone_number, contact_email]);
+
+            // Gỡ liên kết tất cả học sinh khỏi home này
+            await client.query(`UPDATE student SET home_id = NULL WHERE home_id = $1`, [id]);
+
+            // Gán lại học sinh
+            for (const student_id of student_ids || []) {
+                  await client.query(`
+        UPDATE student
+        SET home_id = $1
+        WHERE id = $2
+      `, [id, student_id]);
+            }
+
+            await client.query("COMMIT");
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Cập nhật thông tin home và học sinh thành công."
+            });
+
+      } catch (err) {
+            await client.query("ROLLBACK");
+            console.error("❌ Lỗi khi cập nhật home:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi hệ thống khi cập nhật thông tin."
+            });
+
+      } finally {
+            client.release();
+      }
+}
+
+
+export async function createNewHome(req, res) {
+      const { mom_id, dad_id, student_ids, contact_phone_number, contact_email } = req.body;
+
+      if (student_ids && !Array.isArray(student_ids)) {
+            return res.status(400).json({
+                  error: true,
+                  message: "student_ids không hợp lệ."
+            });
+      }
+
+      const client = await pool.connect();
+
+      try {
+            await client.query("BEGIN");
+
+            // Tạo home mới
+            const result = await client.query(`
+      INSERT INTO home (mom_id, dad_id, contact_phone_number, contact_email)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id
+    `, [mom_id || null, dad_id || null, contact_phone_number || null, contact_email || null]);
+
+            const home_id = result.rows[0].id;
+
+            // Gán học sinh vào home mới
+            for (const student_id of student_ids) {
+                  await client.query(`
+        UPDATE student
+        SET home_id = $1
+        WHERE id = $2
+      `, [home_id, student_id]);
+            }
+
+            await client.query("COMMIT");
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Tạo home thành công.",
+                  home_id
+            });
+
+      } catch (err) {
+            await client.query("ROLLBACK");
+            console.error("❌ Lỗi khi tạo home:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi hệ thống khi tạo home."
+            });
+
+      } finally {
+            client.release();
+      }
+}
+
+export async function getStudentsWithoutHome(req, res) {
+      try {
+            const result = await query(`
+      SELECT 
+        s.*, 
+        c.name AS class_name
+      FROM student s
+      LEFT JOIN class c ON c.id = s.class_id
+      WHERE s.home_id IS NULL
+      ORDER BY s.id
+    `);
+
+            return res.status(200).json({
+                  error: false,
+                  data: result.rows
+            });
+
+      } catch (err) {
+            console.error("❌ Lỗi khi lấy học sinh chưa có home:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: `Lỗi máy chủ: ${err.message}`
+            });
+      }
+}
+
+export async function getParentsWithoutHome(req, res) {
+      try {
+            const result = await query(`
+      SELECT p.*
+      FROM parent p
+      WHERE NOT EXISTS (
+        SELECT 1 FROM home h WHERE h.mom_id = p.id OR h.dad_id = p.id
+      )
+      ORDER BY p.id
+    `);
+
+            return res.status(200).json({
+                  error: false,
+                  data: result.rows
+            });
+
+      } catch (err) {
+            console.error("❌ Lỗi khi lấy danh sách phụ huynh chưa có home:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: `Lỗi máy chủ: ${err.message}`
+            });
+      }
+}
+
+export async function deleteHome(req, res) {
+      const { id } = req.params;
+
+      if (!id) {
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu ID."
+            });
+      }
+
+      const client = await pool.connect();
+      try {
+            await client.query('BEGIN');
+
+            // Bước 1: Gỡ liên kết học sinh trước
+            await client.query(
+                  `UPDATE student SET home_id = NULL WHERE home_id = $1`,
+                  [id]
+            );
+
+            // Bước 2: Xóa home
+            const deleteRes = await client.query(
+                  `DELETE FROM home WHERE id = $1 RETURNING *`,
+                  [id]
+            );
+
+            await client.query('COMMIT');
+
+            if (deleteRes.rows.length === 0) {
+                  return res.status(404).json({
+                        error: true,
+                        message: "Không tìm thấy home để xóa."
+                  });
+            }
+
+            return res.status(200).json({
+                  error: false,
+                  message: "Đã xóa home thành công.",
+                  data: deleteRes.rows[0]
+            });
+
+      } catch (err) {
+            await client.query('ROLLBACK');
+            console.error("❌ Lỗi khi xóa home:", err);
+            return res.status(500).json({
+                  error: true,
+                  message: `Lỗi máy chủ: ${err.message}`
+            });
+      } finally {
+            client.release?.();
       }
 }

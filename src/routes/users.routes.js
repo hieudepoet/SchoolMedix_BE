@@ -25,11 +25,14 @@ import {
       handleDeleteAccountByAdmin,
       handleUpdateAccountByAdmin,
       handleCreateOTPForUpdateEmailByUser,
-      handleCheckOTPForUpdateEmailByUser,
+      handleCheckOTPForUpdateEmailByUser, getParentsWithoutHome,
       handleUpdateEmailByUser,
       handleUpdateProfileByUser,
       handleSendResetPasswordLink,
-      handleParentRegisterEmailForStudent
+      handleParentRegisterEmailForStudent,
+      getHomeInfoByID, getStudentsWithoutHome,
+      getAllHomes, updateUsersForHome,
+      createNewHome, deleteHome
 
 } from '../controllers/users.controller.js';
 
@@ -56,9 +59,9 @@ router.get("/class/:class_id/student", listStudentsByClass); // list student in 
 router.get("/grade/:grade_id/student", listStudentsByGrade); // list student in a class
 
 // link parent and student
-router.patch('/parent/connect-students', assignParents); // link mom and dad to a list of students
-router.delete("/student/:student_id/mom", removeMomFromStudent); // delete mom 
-router.delete("/student/:student_id/dad", removeDadFromStudent); // delete dad 
+// router.patch('/parent/connect-students', assignParents); // link mom and dad to a list of students
+// router.delete("/student/:student_id/mom", removeMomFromStudent); // delete mom 
+// router.delete("/student/:student_id/dad", removeDadFromStudent); // delete dad 
 
 // update thông tin cá nhân (chỉ có luồng cập nhật các trường thông tin bình thường, không cho cập nhật email)
 router.patch("/user-update-profile", handleUpdateProfileByUser); //handleUpdateProfileByUser
@@ -134,4 +137,18 @@ router.patch("/user-update-email", handleUpdateEmailByUser);
 // reset password
 router.post("/send-reset-pass-link", handleSendResetPasswordLink);
 
+
+
+// Hộ gia đình
+router.get('/home/:id', getHomeInfoByID);
+router.get('/home', getAllHomes);
+
+router.patch('/home/:id', updateUsersForHome);
+router.post('/home', createNewHome);
+
+router.get('/students/without-home', getStudentsWithoutHome);
+router.get('/parents/without-home', getParentsWithoutHome)
+
+
+router.delete('/home/:id', deleteHome);
 export default router;
