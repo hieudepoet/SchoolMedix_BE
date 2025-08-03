@@ -725,7 +725,7 @@ export async function getStudentEligibleForCampaign(req, res) {
           rec.status, 
           vac.name, 
           vac.id
-
+        ORDER BY register_status DESC
         `,
         [student.student_id, disease_id]
       );
