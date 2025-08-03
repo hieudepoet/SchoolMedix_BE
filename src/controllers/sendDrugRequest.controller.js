@@ -635,6 +635,7 @@ export async function getMedicationScheduleByDay(req, res) {
         ms.note,
         ms.intake_time,
         ms.request_id,
+        sdr.status as request_status,
         s.id AS student_id,
         s.name AS student_name,
         c.name AS class_name,
@@ -645,6 +646,7 @@ export async function getMedicationScheduleByDay(req, res) {
       JOIN class c ON s.class_id = c.id
       JOIN MedicationScheduleItem msi ON msi.schedule_id = ms.id
       JOIN RequestItem ri ON ri.id = msi.request_item_id
+      JOIN SendDrugRequest sdr on sdr.id = ms.request_id
       WHERE ms.date = $1
       ORDER BY ms.intake_template, ms.request_id, ms.id
     `, [date]);
@@ -672,6 +674,7 @@ export async function getMedicationScheduleByDay(req, res) {
                               is_taken: row.is_taken,
                               note: row.note,
                               intake_time: row.intake_time,
+                              request_status: row.request_status,
                               medications: []
                         };
                         grouped[time].push(reqGroup);
@@ -723,11 +726,15 @@ export async function getStudentMedicationScheduleByDay(req, res) {
       const { date } = req.query;
 
       if (!id || !date) {
-            return res.status(400).json({ error: true, message: "Thiếu student id hoặc date." });
+            return res.status(400).json({
+                  error: true,
+                  message: "Thiếu student id hoặc date.",
+            });
       }
 
       try {
-            const result = await query(`
+            const result = await query(
+                  `
       SELECT 
         ms.id AS medication_schedule_id,
         ms.intake_template,
@@ -741,17 +748,21 @@ export async function getStudentMedicationScheduleByDay(req, res) {
         c.name AS class_name,
 
         ri.name AS item_name,
-        ri.dosage_usage
+        ri.dosage_usage,
+
+        sdr.status AS request_status
 
       FROM MedicationSchedule ms
       JOIN Student s ON s.id = ms.student_id
       JOIN Class c ON c.id = s.class_id
       JOIN MedicationScheduleItem msi ON msi.schedule_id = ms.id
       JOIN RequestItem ri ON ri.id = msi.request_item_id
-
+      JOIN SendDrugRequest sdr ON sdr.id = ms.request_id
       WHERE ms.date = $1 AND ms.student_id = $2
       ORDER BY ms.intake_template, ms.request_id, ms.id
-    `, [date, id]);
+    `,
+                  [date, id]
+            );
 
             const grouped = { MORNING: [], MIDDAY: [], AFTERNOON: [] };
 
@@ -759,11 +770,12 @@ export async function getStudentMedicationScheduleByDay(req, res) {
                   const intake = row.intake_template;
                   if (!grouped[intake]) continue;
 
-                  let group = grouped[intake].find(g =>
-                        g.request_id === row.request_id &&
-                        g.is_taken === row.is_taken &&
-                        g.intake_time === row.intake_time &&
-                        g.note === row.note
+                  let group = grouped[intake].find(
+                        (g) =>
+                              g.request_id === row.request_id &&
+                              g.is_taken === row.is_taken &&
+                              g.intake_time === row.intake_time &&
+                              g.note === row.note
                   );
 
                   if (!group) {
@@ -775,7 +787,8 @@ export async function getStudentMedicationScheduleByDay(req, res) {
                               is_taken: row.is_taken,
                               intake_time: row.intake_time,
                               note: row.note,
-                              medications: []
+                              request_status: row.request_status,
+                              medications: [],
                         };
                         grouped[intake].push(group);
                   }
@@ -783,14 +796,16 @@ export async function getStudentMedicationScheduleByDay(req, res) {
                   group.medications.push({
                         medication_schedule_id: row.medication_schedule_id,
                         item_name: row.item_name,
-                        dosage_usage: row.dosage_usage
+                        dosage_usage: row.dosage_usage,
                   });
             }
 
             return res.status(200).json({ error: false, data: grouped });
-
       } catch (err) {
             console.error("❌ Lỗi khi lấy lịch uống thuốc theo ngày cho học sinh:", err);
-            return res.status(500).json({ error: true, message: "Lỗi server." });
+            return res.status(500).json({
+                  error: true,
+                  message: "Lỗi server.",
+            });
       }
 }

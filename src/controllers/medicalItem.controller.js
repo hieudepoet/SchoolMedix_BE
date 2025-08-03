@@ -1331,3 +1331,32 @@ export async function getAllImportTransaction(req, res) {
     });
   }
 }
+
+export async function getSupplierByName(req, res) {
+  const { name } = req.params;
+  console.log(name);
+  try {
+    const result = await query(
+      `SELECT * FROM Supplier WHERE name = $1 `,
+      [name]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(400).json({
+        error: true,
+        message: "Không tìm thấy nhà cung cấp",
+      });
+    }
+    return res.status(200).json({
+      error: false,
+      message: "Lấy thông tin nhà cung cấp thành công",
+      data: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Error getting supplier by name:", err);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi lấy thông tin nhà cung cấp",
+    });
+  }
+}

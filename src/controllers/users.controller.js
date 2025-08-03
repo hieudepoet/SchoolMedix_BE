@@ -1167,8 +1167,6 @@ export async function handleUploadStudent(req, res) {
             const file = req.file;
             try {
                   let jsonData = await excelToJson(file.buffer, 10);
-                  console.log("AFTER: " + jsonData);
-
                   console.log(jsonData);
                   await Promise.all(jsonData.map(async (user) => {
                         user.is_success = false;
@@ -1215,7 +1213,9 @@ export async function handleUploadStudent(req, res) {
                         }
                   }));
 
-                  const headers = ["id", "supabase_uid", "email", "name", "dob", "isMale", "address", "phone_number", "class_id", "year_of_enrollment", "mom_id", "dad_id", "is_success", "create_log"];
+                  console.log(jsonData);
+
+                  const headers = ["id", "supabase_uid", "email", "name", "dob", "isMale", "address", "phone_number", "class_id", "year_of_enrollment", "home_id", "is_success", "create_log"];
                   const rows = jsonData.map((user) => [
                         user.id || "",
                         user.supabase_uid || "",
@@ -1227,11 +1227,11 @@ export async function handleUploadStudent(req, res) {
                         user.phone_number || "",
                         user.class_id || "",
                         user.year_of_enrollment || "",
-                        user.mom_id || "",
-                        user.dad_id || "",
+                        user.home_id || "",
                         user.is_success ? "✅" : "❌",
                         user.create_log || "",
                   ]);
+
 
                   let buffer = await exportExcelToBuffer(headers, rows, "Student Upload Log");
 
