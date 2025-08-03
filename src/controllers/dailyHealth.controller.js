@@ -47,7 +47,8 @@ export const createDailyHealthRecord = async (req, res) => {
       // Check if there are enough quantity of medical item to use
       let is_valid_transaction_quantity = await checkAdequateQuantityForItems(
         medical_items,
-        1
+        1,
+        client
       );
       if (is_valid_transaction_quantity === false) {
         throw new Error("Các vật tư y tế/thuốc không đủ số lượng.");
@@ -107,6 +108,7 @@ export const getDailyHealthRecords = async (req, res) => {
       d.student_id,
       s.name AS student_name,
       s.class_id,
+      c.name as class_name,
       d.detect_time,
       d.record_date,
       d.diagnosis,
@@ -133,9 +135,10 @@ export const getDailyHealthRecords = async (req, res) => {
       ) AS items_usage
     FROM daily_health_record d
     JOIN student s ON d.student_id = s.id
+    JOIN class c ON c.id = s.class_id
     LEFT JOIN TransactionItems ti ON ti.transaction_id = d.transaction_id
     LEFT JOIN MedicalItem mi ON mi.id = ti.medical_item_id
-    GROUP BY d.id, s.id
+    GROUP BY d.id, s.id, c.id
     ORDER BY d.detect_time DESC;
     `
     );
