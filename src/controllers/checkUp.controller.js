@@ -468,7 +468,7 @@ export async function getALLRegisterByCampaignID(req, res) {
     if (!id) {
       return res
         .status(400)
-        .json({ error: true, message: "không lấy nhận được Campaign ID." });
+        .json({ error: true, message: "Không nhận được Campaign ID." });
     }
 
     const check = await query("SELECT * FROM checkupcampaign WHERE id = $1", [
@@ -477,36 +477,61 @@ export async function getALLRegisterByCampaignID(req, res) {
     if (check.rowCount === 0) {
       return res
         .status(400)
-        .json({ error: true, message: "không  tìm được Campaign." });
+        .json({ error: true, message: "Không tìm được Campaign." });
     }
 
     const result = await query(
       `
-            SELECT c.id as register_id, c.status as register_status, cr.status as campaign_status, c.*,cr.*, s.name as student_name, s.class_id, cla.name as class_name
-            FROM checkupregister c
-            JOIN checkupcampaign cr ON c.campaign_id = cr.id
-			join student s on s.id = c.student_id
-			join class cla on cla.id = s.class_id
-            WHERE cr.id = $1
-            ORDER BY register_status DESC`,
+      SELECT 
+        c.id as register_id,
+        c.status as register_status,
+        cr.status as campaign_status,
+        c.*,
+        cr.*,
+        s.name as student_name,
+        s.class_id,
+        cla.name as class_name,
+        json_agg(
+          json_build_object(
+            'register_id', ser.register_id,
+            'spe_exam_id', ser.spe_exam_id,
+            'specialist_name', sel.name,
+            'result', ser.result,
+            'diagnosis', ser.diagnosis,
+            'diagnosis_paper_urls', ser.diagnosis_paper_urls,
+            'is_checked', ser.is_checked,
+            'dr_name', ser.dr_name,
+            'date_record', ser.date_record,
+            'status', ser.status
+          )
+        ) as specialist_records
+      FROM checkupregister c
+      JOIN checkupcampaign cr ON c.campaign_id = cr.id
+      JOIN student s ON s.id = c.student_id
+      JOIN class cla ON cla.id = s.class_id
+      LEFT JOIN specialistexamrecord ser ON ser.register_id = c.id
+      LEFT JOIN specialistexamlist sel ON ser.spe_exam_id = sel.id
+      WHERE cr.id = $1
+      GROUP BY c.id, cr.id, s.id, cla.id
+      ORDER BY c.status DESC
+      `,
       [id]
     );
 
     if (result.rowCount === 0) {
       return res
         .status(400)
-        .json({ error: true, message: "không lấy được đơn đăng ký." });
+        .json({ error: true, message: "Không lấy được đơn đăng ký." });
     }
 
     return res.status(200).json({ error: false, data: result.rows });
   } catch (err) {
-    console.error("❌ Error creating Campaign ", err);
+    console.error("❌ Error fetching CheckUp Register list: ", err);
     return res
       .status(500)
-      .json({ error: true, message: "Lỗi Lấy Danh Sách CheckUp Register." });
+      .json({ error: true, message: "Lỗi lấy danh sách CheckUp Register." });
   }
 }
-
 //Lấy tất cả các CheckUp Register theo parent_id (KHÔNG CẦN PHẢI PENDING)
 export async function getCheckupRegisterByParentID(req, res) {
   const { id } = req.params;
