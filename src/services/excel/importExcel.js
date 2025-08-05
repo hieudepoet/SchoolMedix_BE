@@ -3,11 +3,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-export async function excelToJson(fileBuffer, colMaxNum = 100) {
+export async function excelToJson(fileBuffer, sheetName, colMaxNum = 100) {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(fileBuffer);
 
-      const worksheet = workbook.worksheets[0];
+      const worksheet = workbook.getWorksheet(sheetName);
+      console.log(worksheet);
       const headers = [];
       const data = [];
 
@@ -17,11 +18,10 @@ export async function excelToJson(fileBuffer, colMaxNum = 100) {
                   headers.push(...values);
             } else {
                   const rowData = {};
-                  values.forEach((cell, i) => {
-                        if (i < headers.length) {
-                              rowData[headers[i]] = cell;
-                        }
-                  });
+                  for (let i = 0; i < headers.length; i++) {
+                        const cellValue = values[i] !== undefined ? values[i] : null;
+                        rowData[headers[i]] = cellValue;
+                  }
                   data.push(rowData);
             }
       });
