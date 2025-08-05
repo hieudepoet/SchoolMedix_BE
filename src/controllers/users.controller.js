@@ -1169,6 +1169,9 @@ export async function handleUploadStudent(req, res) {
             if (err) return res.status(500).json({ error: true, message: "Lỗi xử lý file." });
 
             const file = req.file;
+            const templateBuffer = file.buffer;
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(templateBuffer);
             const client = await pool.connect();
             try {
                   client.query("BEGIN");
@@ -1362,107 +1365,85 @@ export async function handleUploadStudent(req, res) {
                         await client.query("COMMIT");
                   }
 
-                  const parentHeaders = [
-                        "parent_no",
-                        "id",
-                        "email",
-                        "name",
-                        "dob",
-                        "isMale",
-                        "address",
-                        "phone_number",
-                        "profile_img_url",
-                        "is_success",
-                        "create_log",
-                  ];
+                  // --- GENERATE LOG FILE (DIRECTLY WRITE TO TEMPLATE) ---
+                  const workbook = new ExcelJS.Workbook();
+                  await workbook.xlsx.load(file.buffer);
 
-                  const parentRows = [...parentMap.entries()].map(([parent_no, user]) => [
-                        parent_no || "",
-                        user.id || "",
-                        user.email || "",
-                        user.name || "",
-                        user.dob || "",
-                        user.isMale ?? "",
-                        user.address || "",
-                        user.phone_number || "",
-                        user.profile_img_url || "",
-                        user.is_success ? "✅" : "❌",
-                        user.create_log || "",
-                  ]);
+                  // Write to PARENT sheet
+                  const parentSheet = workbook.getWorksheet("PARENT");
+                  [...parentMap.entries()].forEach(([parent_no, user], i) => {
+                        const row = parentSheet.getRow(i + 2);
 
-                  const homeHeaders = [
-                        "home_no",
-                        "id",
-                        "contact_email",
-                        "contact_phone_number",
-                        "dad_no",
-                        "dad_name",
-                        "mom_no",
-                        "mom_name",
-                        "is_success",
-                        "create_log"
-                  ]
+                        row.values = [
+                              parent_no || "",
+                              user.id || "",
+                              user.email || "",
+                              user.name || "",
+                              user.dob || "",
+                              user.isMale ?? "",
+                              user.address || "",
+                              user.phone_number || "",
+                              user.profile_img_url || "",
+                              user.is_success ? "✅" : "❌",
+                              user.create_log || ""
+                        ];
+                        row.commit();
+                  });
 
-                  const homeRows = [...homeMap.entries()].map(([home_no, home_info]) => [
-                        home_no || "",
-                        home_info.id || "",
-                        home_info.contact_email || "",
-                        home_info.contact_phone_number || "",
-                        home_info.dad_no || "",
-                        home_info.dad_name ?? "",
-                        home_info.mom_no || "",
-                        home_info.mom_name || "",
-                        home_info.is_success ? "✅" : "❌",
-                        home_info.create_log || "",
-                  ]);
+                  console.log(homeMap);
+                  // Write to HOME sheet
+                  const homeSheet = workbook.getWorksheet("HOME");
+                  [...homeMap.entries()].forEach(([home_no, home], i) => {
+                        const row = homeSheet.getRow(i + 2);
+                        row.values = [
+                              home_no || "",
+                              home.id || "",
+                              home.contact_email || "",
+                              home.contact_phone_number || "",
+                              home.dad_no || "",
+                              home.dad_name,
+                              home.mom_no || "",
+                              home.mom_name || "",
+                              home.is_success ? "✅" : "❌",
+                              home.create_log || ""
+                        ];
+                        row.commit();
+                  });
 
-                  const studentHeaders = [
-                        "student_no",
-                        "id",
-                        "email",
-                        "name",
-                        "dob",
-                        "isMale",
-                        "address",
-                        "year_of_enrollment",
-                        "profile_img_url",
-                        "phone_number",
-                        "class_id",
-                        "home_no",
-                        "dad_name",
-                        "mom_name",
-                        "is_success",
-                        "create_log"
-                  ]
-                  const studentRows = [...studentMap.entries()].map(([student_no, student]) => [
-                        student_no || "",
-                        student.id || "",
-                        student.email || "",
-                        student.name || "",
-                        student.dob || "",
-                        student.isMale ?? "",
-                        student.address || "",
-                        student.year_of_enrollment || "",
-                        student.profile_img_url || "",
-                        student.phone_number || "",
-                        student.class_id || "",
-                        student.home_no || "",
-                        student.dad_name || "",
-                        student.mom_name || "",
-                        student.is_success ? "✅" : "❌",
-                        student.create_log || "",
-                  ]);
+                  // Write to STUDENT sheet
+                  const studentSheet = workbook.getWorksheet("STUDENT");
+                  [...studentMap.entries()].forEach(([student_no, student], i) => {
+                        const row = studentSheet.getRow(i + 2);
+                        row.values = [
+                              student_no || "",
+                              student.id || "",
+                              student.email || "",
+                              student.name || "",
+                              student.dob || "",
+                              student.isMale ?? "",
+                              student.address || "",
+                              student.year_of_enrollment || "",
+                              student.profile_img_url || "",
+                              student.phone_number || "",
+                              student.class_id || "",
+                              student.class_name || "",
+                              student.home_no || "",
+                              student.dad_name || "",
+                              student.mom_name || "",
+                              student.is_success ? "✅" : "❌",
+                              student.create_log || ""
+                        ];
+                        row.commit();
+                  });
 
-
-                  let buffer = await exportExcelToBuffer(parentHeaders, parentRows, "PARENT");
-                  buffer = await addSheetToBuffer(buffer, "HOME", homeHeaders, homeRows);
-                  buffer = await addSheetToBuffer(buffer, "STUDENT", studentHeaders, studentRows);
+                  const finalBuffer = await workbook.xlsx.writeBuffer();
 
                   res.setHeader("Content-Disposition", 'attachment; filename="upload_log.xlsx"');
                   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                  return res.send(buffer);
+                  return res.send(finalBuffer);
             } catch (err) {
-                  client.query("ROLLBACK");
+                  await deleteAuthUsers(auth_users);
+                  await client.query("ROLLBACK");
                   console.error("Error:", err);
                   return res.status(500).json({ error: true, message: `Lỗi hệ thống: ${err.message || err}` });
             } finally {
@@ -1513,16 +1494,44 @@ export async function handleGetParentImportSample(req, res) {
 
 export async function handleGetStudentImportSample(req, res) {
       try {
-            let buffer = await generateImportTemplate('import-student-template.xlsx');
+            const buffer = await generateImportTemplate('import-student-template.xlsx');
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(buffer);
+
+            const class_infos = await query(`
+                  SELECT 
+                  c.id AS class_id, 
+                  c.name AS class_name, 
+                  c.grade_id,
+                  g.name AS grade_name 
+                  FROM class c 
+                  JOIN grade g ON c.grade_id = g.id
+            `);
+
+            const sheet = workbook.getWorksheet('STORED_CLASS');
+            if (!sheet) throw new Error('Sheet "STORED_CLASS" not found');
+
+            class_infos.rows.forEach((info, index) => {
+                  const rowIndex = index + 2;
+                  sheet.getRow(rowIndex).values = [
+                        info.class_id,
+                        info.class_name,
+                        info.grade_id,
+                        info.grade_name,
+                  ];
+            });
+
+            const updatedBuffer = await workbook.xlsx.writeBuffer();
 
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', 'attachment; filename=student_import_template.xlsx');
-            res.status(200).send(buffer);
+            res.status(200).send(updatedBuffer);
       } catch (error) {
             console.error('Error generating student import template:', error);
             res.status(500).json({ error: true, message: 'Failed to generate import template' });
       }
 }
+
 
 
 // ---------------------------------------------------------------------------OTP
