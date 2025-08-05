@@ -16,6 +16,22 @@ export async function generateStudentCode(year) {
   return `${yy}${padded}`;
 }
 
+export async function generateStudentCodeWithClient(year, client) {
+  const yy = String(year).slice(-2);
+
+  const { rows } = await client.query(`
+    INSERT INTO student_code_counter (year_of_enrollment, last_number)
+    VALUES ($1, 1000)
+    ON CONFLICT (year_of_enrollment)
+    DO UPDATE SET last_number = student_code_counter.last_number + 1
+    RETURNING last_number;
+  `, [year]);
+
+  const num = rows[0].last_number;
+  const padded = String(num);
+  return `${yy}${padded}`;
+}
+
 export function generateRandomPassword() {
   const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const lowercase = 'abcdefghijklmnopqrstuvwxyz';
@@ -39,7 +55,7 @@ export function generateRandomPassword() {
   return password.sort(() => Math.random() - 0.5).join('');
 }
 
-// this func used to update in the same templates
+// this func used to update 0 the same templates
 export async function updateProfileFor(id, role, updates) {
   const keys = Object.keys(updates);
   const values = Object.values(updates);

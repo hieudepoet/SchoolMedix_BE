@@ -1,5 +1,5 @@
 import { query } from "../../config/database.js";
-import { generateStudentCode, updateProfileFor } from "./userUtils.js";
+import { generateStudentCode, updateProfileFor, generateStudentCodeWithClient } from "./userUtils.js";
 
 export async function insertAdmin(
   supabase_uid = null,
@@ -97,6 +97,39 @@ export async function insertParent(
   return result.rows[0];
 }
 
+export async function insertParentWithClient(
+  supabase_uid,
+  email = null,
+  name,
+  dob,
+  isMale,
+  address,
+  phone_number = null,
+  profile_img_url = process.env.DEFAULT_AVATAR_URL,
+  client
+) {
+  const result = await client.query(
+    `
+    INSERT INTO Parent (
+      supabase_uid, email, name, dob, isMale, address,
+      phone_number, profile_img_url
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+    RETURNING *
+  `,
+    [
+      supabase_uid,
+      email,
+      name,
+      dob,
+      isMale,
+      address,
+      phone_number,
+      profile_img_url,
+    ]
+  );
+  return result.rows[0];
+}
+
 export async function insertStudent(
   supabase_uid = null,
   email = null,
@@ -113,6 +146,52 @@ export async function insertStudent(
   const student_id = await generateStudentCode(year_of_enrollment);
 
   const result = await query(
+    `
+    INSERT INTO Student (
+      id, supabase_uid, email, name, dob, isMale, address,
+      phone_number, profile_img_url, year_of_enrollment, class_id, home_id
+    ) 
+    VALUES (
+      $1, $2, $3, $4, $5, $6, $7,
+      $8, $9, $10, $11, $12
+    ) RETURNING *
+  `,
+    [
+      student_id,
+      supabase_uid,
+      email,
+      name,
+      dob,
+      isMale,
+      address,
+      phone_number,
+      profile_img_url,
+      year_of_enrollment,
+      class_id,
+      home_id
+    ]
+  );
+
+  return result.rows[0];
+}
+
+export async function insertStudentWithClient(
+  client,
+  supabase_uid = null,
+  email = null,
+  name,
+  dob,
+  isMale,
+  address,
+  phone_number = null,
+  profile_img_url = process.env.DEFAULT_AVATAR_URL,
+  class_id,
+  year_of_enrollment,
+  home_id = null,
+) {
+  const student_id = await generateStudentCodeWithClient(year_of_enrollment, client);
+
+  const result = await client.query(
     `
     INSERT INTO Student (
       id, supabase_uid, email, name, dob, isMale, address,
@@ -985,6 +1064,12 @@ export async function updateLastInvitationAtByID(id, role) {
 export async function updateLastInvitationAtByUUID(supabase_uid, role) {
   const sql = `update ${role} set last_invitation_at = now() where supabase_uid = '${supabase_uid}' returning *`;
   const result = await query(sql);
+  return result.rowCount > 0;
+}
+
+export async function updateLastInvitationAtByUUIDWithClient(supabase_uid, role, client) {
+  const sql = `update ${role} set last_invitation_at = now() where supabase_uid = '${supabase_uid}' returning *`;
+  const result = await client.query(sql);
   return result.rowCount > 0;
 }
 

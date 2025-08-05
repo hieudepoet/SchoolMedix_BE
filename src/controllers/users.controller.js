@@ -38,7 +38,11 @@ import {
       createSupabaseAuthUserWithRole,
       updateEmailForSupabaseAuthUser,
       generateResetPasswordLink,
-      sendResetPassMail
+      sendResetPassMail,
+      deleteAuthUsers,
+      insertParentWithClient,
+      insertStudentWithClient,
+      updateLastInvitationAtByUUIDWithClient
 
 
 } from "../services/index.js";
@@ -1165,43 +1169,147 @@ export async function handleUploadStudent(req, res) {
             if (err) return res.status(500).json({ error: true, message: "Lỗi xử lý file." });
 
             const file = req.file;
+            const client = await pool.connect();
             try {
-                  const invited_users = []; // 
-                  // const results = await sendInviteLinkToEmails(users);
-                  // console.log(results);
+                  client.query("BEGIN");
+                  const auth_users = []; // email, name, role, supabase_uid
+                  let overall_success = true;
 
-                  // // lấy ra những user gửi thành công
-                  // const updated_last_invite_at_users = results.filter((user_res) => user_res.error === false);
-                  // console.log(updated_last_invite_at_users);
-                  // await Promise.all(
-                  //       updated_last_invite_at_users.map(({ supabase_uid, role }) =>
-                  //             updateLastInvitationAtByUUID(supabase_uid, role)
-                  //       )
-                  // );
 
                   // I. TAO PARENT trước
-
                   // xử lý dữ liệu thô trước --> chuyển thành map
                   let parentRawData = await excelToJson(file.buffer, "PARENT", 11);
                   parentRawData = parentRawData.filter(obj => Object.keys(obj).length > 0);
+
                   const parentMap = new Map();
                   parentRawData.forEach((parent) => {
                         const { parent_no, ...rest } = parent;
                         if (parent_no != null) {
-                              parentMap.set(parent_no, { ...rest });
+                              parentMap.set(parent_no, {
+                                    ...rest,
+                                    is_success: false,
+                                    create_log: "",
+                                    id: null
+                              });
                         }
                   });
 
-
-                  await Promise.all(jsonData.map(async (user) => {
+                  // tao tai khoan cho bo me
+                  await Promise.all([...parentMap.entries()].map(async ([parent_no, user]) => {
                         user.is_success = false;
-                        const email = typeof user.email === "object" ? user.email.text : user.email;
-                        user.email = email || null;
-                        if (!email) {
-                              user.create_log = `User không đăng ký email`;
+                        user.create_log = "";
+                        if (!user.email) {
+                              user.create_log += `User không đăng ký email`;
                               user.is_success = true;
                               return;
                         }
+                        const name = user?.name || "No name";
+                        const email = typeof user.email === "object" ? user.email.text : user.email;
+                        user.email = email || null;
+
+                        const { data, error } = await supabaseAdmin.createUser({
+                              email,
+                              email_confirm: false,
+                              user_metadata: {},
+                              app_metadata: { role: "parent" },
+                        });
+
+                        if (error) {
+                              user.is_success = false;
+                              user.create_log += error.message;
+                              user.supabase_uid = null;
+                              overall_success = false;
+                        } else {
+                              user.is_success = true;
+                              user.create_log = "Tạo tài khoản thành công. ";
+                              user.supabase_uid = data.user?.id;
+                              auth_users.push({ email, name, role: "parent", supabase_uid: data.user?.id });
+                        }
+                  }));
+
+                  await Promise.all([...parentMap.entries()].map(async ([parent_no, user]) => {
+                        if (!user.is_success) return;
+                        try {
+                              let { supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url } = user;
+                              profile_img_url = typeof profile_img_url === "object" ? profile_img_url.text : profile_img_url;
+                              const inserted = await insertParentWithClient(supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, client);
+                              user.id = inserted.id;
+                              user.is_success = true;
+                              user.create_log += "Tạo user trong cơ sở dữ liệu thành công. ";
+                        } catch (err) {
+                              user.supabase_uid = null;
+                              user.is_success = false;
+                              user.create_log += `Insert thất bại: ${err.message}. Không thể tạo user.`;
+                              overall_success = false;
+                        }
+                  }));
+
+                  // II. TẠO HOME
+                  // lấy dữ liệu thô trước
+                  let homeRawData = await excelToJson(file.buffer, "HOME", 10);
+                  homeRawData = homeRawData.filter(obj => Object.keys(obj).length > 0);
+
+                  const homeMap = new Map();
+                  homeRawData.forEach((home) => {
+                        const { home_no, ...rest } = home;
+                        if (home_no != null) {
+                              homeMap.set(home_no, {
+                                    ...rest,
+                                    is_success: false,
+                                    create_log: "",
+                                    id: null
+                              });
+                        }
+                  });
+
+                  await Promise.all([...homeMap.entries()].map(async ([home_no, home_info]) => {
+                        try {
+                              let { contact_email, contact_phone_number, dad_no, mom_no } = home_info;
+                              contact_email = typeof contact_email === "object" ? contact_email.text : contact_email;
+                              const inserted = await client.query(`
+                                          insert into home (contact_email, contact_phone_number, dad_id, mom_id) values
+                                          ($1, $2, $3, $4) returning *
+                                    `, [contact_email, contact_phone_number, parentMap.get(dad_no).id, parentMap.get(mom_no).id]);
+                              home_info.id = inserted.rows[0].id;
+                              home_info.is_success = true;
+                              home_info.create_log += "Tạo hộ gia đình thành công. ";
+                        } catch (err) {
+                              home_info.supabase_uid = null;
+                              home_info.is_success = false;
+                              home_info.create_log += `Insert thất bại: ${err.message}. Không thể tạo hộ gia đình. `;
+                              overall_success = false;
+                        }
+                  }));
+
+                  // III. TẠO STUDENT VÀ GẮN HOME ID VÀO
+                  let studentRawData = await excelToJson(file.buffer, "STUDENT", 16);
+                  studentRawData = studentRawData.filter(obj => Object.keys(obj).length > 0);
+
+                  const studentMap = new Map();
+                  studentRawData.forEach((student) => {
+                        const { student_no, ...rest } = student;
+                        if (student_no != null) {
+                              studentMap.set(student_no, {
+                                    ...rest,
+                                    is_success: false,
+                                    create_log: "",
+                                    id: null
+                              });
+                        }
+                  });
+
+                  // tao tai khoan cho hs
+                  await Promise.all([...studentMap.entries()].map(async ([student_no, user]) => {
+                        user.is_success = false;
+                        user.create_log = "";
+                        if (!user.email) {
+                              user.create_log += `User không đăng ký email`;
+                              user.is_success = true;
+                              return;
+                        }
+                        const name = user?.name || "No name";
+                        const email = typeof user.email === "object" ? user.email.text : user.email;
+                        user.email = email || null;
 
                         const { data, error } = await supabaseAdmin.createUser({
                               email,
@@ -1211,61 +1319,154 @@ export async function handleUploadStudent(req, res) {
                         });
 
                         if (error) {
-                              user.create_log = error.message;
+                              user.is_success = false;
+                              user.create_log += error.message;
                               user.supabase_uid = null;
+                              overall_success = false;
                         } else {
-                              user.create_log = "Tạo tài khoản thành công.";
-                              user.supabase_uid = data.user?.id;
                               user.is_success = true;
+                              user.create_log = "Tạo tài khoản thành công. ";
+                              user.supabase_uid = data.user?.id;
+                              auth_users.push({ email, name, role: "student", supabase_uid: data.user?.id });
                         }
                   }));
 
-                  await Promise.all(jsonData.map(async (user) => {
-                        user.id = null;
+                  await Promise.all([...studentMap.entries()].map(async ([student_no, user]) => {
                         if (!user.is_success) return;
                         try {
-                              const { supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, class_id, year_of_enrollment, mom_id, dad_id } = user;
-                              const inserted = await insertStudent(supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, class_id, year_of_enrollment, mom_id, dad_id);
+                              let { supabase_uid, email, name, dob, isMale, address, year_of_enrollment, class_id, phone_number, profile_img_url, home_no } = user;
+                              profile_img_url = typeof profile_img_url === "object" ? profile_img_url.text : profile_img_url;
+                              const inserted = await insertStudentWithClient(client, supabase_uid, email, name, dob, isMale, address, phone_number, profile_img_url, class_id, year_of_enrollment, homeMap.get(home_no).id);
                               user.id = inserted.id;
-                              user.create_log += " Tạo user thành công.";
+                              user.is_success = true;
+                              user.create_log += "Tạo học sinh trong cơ sở dữ liệu thành công. ";
                         } catch (err) {
-                              user.create_log += `Insert thất bại: ${err.message}. Không thể tạo user.`;
-                              user.is_success = false;
-                              if (user.supabase_uid) {
-                                    await deleteAuthUser(user.supabase_uid); // roll back xóa user trên supabase auth
-                              }
                               user.supabase_uid = null;
+                              user.is_success = false;
+                              user.create_log += `Insert thất bại: ${err.message}. Không thể tạo học sinh.`;
+                              overall_success = false;
                         }
                   }));
 
-                  console.log(jsonData);
+                  // IV. CHỐT HẠ VÀ RESPONSE
+                  if (overall_success === false) {
+                        await deleteAuthUsers(auth_users);
+                        await client.query("ROLLBACK");
+                  } else {
+                        const results = await sendInviteLinkToEmails(auth_users);
+                        // lấy ra những user gửi thành công
+                        const updated_last_invite_at_users = results.filter((user_res) => user_res.error === false);
+                        await Promise.all(updated_last_invite_at_users.map(async ({ supabase_uid, role }) =>
+                              await updateLastInvitationAtByUUIDWithClient(supabase_uid, role, client)
+                        ));
+                        await client.query("COMMIT");
+                  }
 
-                  const headers = ["id", "supabase_uid", "email", "name", "dob", "isMale", "address", "phone_number", "class_id", "year_of_enrollment", "home_id", "is_success", "create_log"];
-                  const rows = jsonData.map((user) => [
+                  const parentHeaders = [
+                        "parent_no",
+                        "id",
+                        "email",
+                        "name",
+                        "dob",
+                        "isMale",
+                        "address",
+                        "phone_number",
+                        "profile_img_url",
+                        "is_success",
+                        "create_log",
+                  ];
+
+                  const parentRows = [...parentMap.entries()].map(([parent_no, user]) => [
+                        parent_no || "",
                         user.id || "",
-                        user.supabase_uid || "",
                         user.email || "",
                         user.name || "",
                         user.dob || "",
                         user.isMale ?? "",
                         user.address || "",
                         user.phone_number || "",
-                        user.class_id || "",
-                        user.year_of_enrollment || "",
-                        user.home_id || "",
+                        user.profile_img_url || "",
                         user.is_success ? "✅" : "❌",
                         user.create_log || "",
                   ]);
 
+                  const homeHeaders = [
+                        "home_no",
+                        "id",
+                        "contact_email",
+                        "contact_phone_number",
+                        "dad_no",
+                        "dad_name",
+                        "mom_no",
+                        "mom_name",
+                        "is_success",
+                        "create_log"
+                  ]
 
-                  let buffer = await exportExcelToBuffer(headers, rows, "Student Upload Log");
+                  const homeRows = [...homeMap.entries()].map(([home_no, home_info]) => [
+                        home_no || "",
+                        home_info.id || "",
+                        home_info.contact_email || "",
+                        home_info.contact_phone_number || "",
+                        home_info.dad_no || "",
+                        home_info.dad_name ?? "",
+                        home_info.mom_no || "",
+                        home_info.mom_name || "",
+                        home_info.is_success ? "✅" : "❌",
+                        home_info.create_log || "",
+                  ]);
 
-                  res.setHeader("Content-Disposition", 'attachment; filename="student_upload_log.xlsx"');
+                  const studentHeaders = [
+                        "student_no",
+                        "id",
+                        "email",
+                        "name",
+                        "dob",
+                        "isMale",
+                        "address",
+                        "year_of_enrollment",
+                        "profile_img_url",
+                        "phone_number",
+                        "class_id",
+                        "home_no",
+                        "dad_name",
+                        "mom_name",
+                        "is_success",
+                        "create_log"
+                  ]
+                  const studentRows = [...studentMap.entries()].map(([student_no, student]) => [
+                        student_no || "",
+                        student.id || "",
+                        student.email || "",
+                        student.name || "",
+                        student.dob || "",
+                        student.isMale ?? "",
+                        student.address || "",
+                        student.year_of_enrollment || "",
+                        student.profile_img_url || "",
+                        student.phone_number || "",
+                        student.class_id || "",
+                        student.home_no || "",
+                        student.dad_name || "",
+                        student.mom_name || "",
+                        student.is_success ? "✅" : "❌",
+                        student.create_log || "",
+                  ]);
+
+
+                  let buffer = await exportExcelToBuffer(parentHeaders, parentRows, "PARENT");
+                  buffer = await addSheetToBuffer(buffer, "HOME", homeHeaders, homeRows);
+                  buffer = await addSheetToBuffer(buffer, "STUDENT", studentHeaders, studentRows);
+
+                  res.setHeader("Content-Disposition", 'attachment; filename="upload_log.xlsx"');
                   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                   return res.send(buffer);
             } catch (err) {
+                  client.query("ROLLBACK");
                   console.error("Error:", err);
                   return res.status(500).json({ error: true, message: `Lỗi hệ thống: ${err.message || err}` });
+            } finally {
+                  client.release();
             }
       });
 }

@@ -8,7 +8,6 @@ export async function excelToJson(fileBuffer, sheetName, colMaxNum = 100) {
       await workbook.xlsx.load(fileBuffer);
 
       const worksheet = workbook.getWorksheet(sheetName);
-      console.log(worksheet);
       const headers = [];
       const data = [];
 

@@ -69,8 +69,6 @@ export async function sendInviteLinkToEmails(users = []) {
                 throw new Error(`Tạo link mời thất bại: ${linkError.message}`);
             }
 
-            console.log(linkData);
-
             await sendInviteEmail(email, name, role, linkData.properties.action_link);
 
             return {
@@ -302,6 +300,28 @@ export async function deleteAuthUser(supabase_uid) {
 
     console.log('✅ Đã xóa người dùng khỏi Supabase Auth');
 }
+
+export async function deleteAuthUsers(users = []) {
+    if (!Array.isArray(users) || users.length === 0) return;
+
+    const uids = users
+        .map((u) => (typeof u === "string" ? u : u.supabase_uid))
+        .filter(Boolean);
+
+    if (uids.length === 0) return;
+
+    await Promise.allSettled(
+        uids.map(async (supabase_uid) => {
+            const { error } = await supabaseAdmin.deleteUser(supabase_uid);
+            if (error) {
+                console.error(`❌ Xóa người dùng ${supabase_uid} thất bại:`, error.message);
+            } else {
+                console.log(`✅ Đã xóa người dùng ${supabase_uid}`);
+            }
+        })
+    );
+}
+
 
 export async function generateRecoveryLink(email) {
     const { data, error } = await supabaseAdmin.generateLink({
