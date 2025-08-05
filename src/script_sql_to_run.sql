@@ -178,11 +178,20 @@ ALTER SEQUENCE parent_id_seq RESTART WITH 100000;
 
 CREATE TABLE home (
   id SERIAL PRIMARY KEY,
-  mom_id INT REFERENCES parent(id),
-  dad_id INT REFERENCES parent(id),
+  mom_id INT REFERENCES parent(id) unique,
+  dad_id INT REFERENCES parent(id) unique,
   contact_email VARCHAR(200),
-  contact_phone_number VARCHAR(20)
+  contact_phone_number VARCHAR(20),
+  CHECK (mom_id <> dad_id),
+
+  -- Tạo 2 cột sinh tự động để lưu giá trị mom & dad theo thứ tự cố định
+  min_parent_id INT GENERATED ALWAYS AS (LEAST(mom_id, dad_id)) STORED,
+  max_parent_id INT GENERATED ALWAYS AS (GREATEST(mom_id, dad_id)) STORED,
+
+  -- Đánh unique trên cặp đã chuẩn hóa thứ tự
+  UNIQUE (min_parent_id, max_parent_id)
 );
+
 
 ALTER SEQUENCE home_id_seq RESTART WITH 100000;
 

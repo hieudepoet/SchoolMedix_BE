@@ -1166,8 +1166,33 @@ export async function handleUploadStudent(req, res) {
 
             const file = req.file;
             try {
-                  let jsonData = await excelToJson(file.buffer, 10);
-                  console.log(jsonData);
+                  const invited_users = []; // 
+                  // const results = await sendInviteLinkToEmails(users);
+                  // console.log(results);
+
+                  // // lấy ra những user gửi thành công
+                  // const updated_last_invite_at_users = results.filter((user_res) => user_res.error === false);
+                  // console.log(updated_last_invite_at_users);
+                  // await Promise.all(
+                  //       updated_last_invite_at_users.map(({ supabase_uid, role }) =>
+                  //             updateLastInvitationAtByUUID(supabase_uid, role)
+                  //       )
+                  // );
+
+                  // I. TAO PARENT trước
+
+                  // xử lý dữ liệu thô trước --> chuyển thành map
+                  let parentRawData = await excelToJson(file.buffer, "PARENT", 11);
+                  parentRawData = parentRawData.filter(obj => Object.keys(obj).length > 0);
+                  const parentMap = new Map();
+                  parentRawData.forEach((parent) => {
+                        const { parent_no, ...rest } = parent;
+                        if (parent_no != null) {
+                              parentMap.set(parent_no, { ...rest });
+                        }
+                  });
+
+
                   await Promise.all(jsonData.map(async (user) => {
                         user.is_success = false;
                         const email = typeof user.email === "object" ? user.email.text : user.email;
@@ -1297,7 +1322,6 @@ export async function handleGetStudentImportSample(req, res) {
             res.status(500).json({ error: true, message: 'Failed to generate import template' });
       }
 }
-
 
 
 // ---------------------------------------------------------------------------OTP
