@@ -8,8 +8,10 @@ export async function getMedicalItemById(req, res) {
         SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        WHERE MI.ID = $1 and mi.is_deleted = false
+		    LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
+        WHERE MI.ID = $1 and mi.is_deleted = false and it.is_deleted = false
         GROUP BY mi.id
+
       `,
       [id]
     );
@@ -35,7 +37,8 @@ export async function getAllMedicalItems(req, res) {
         SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        where mi.is_deleted = false
+		    LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
+        where mi.is_deleted = false and it.is_deleted = false
         GROUP BY mi.id
         ORDER BY mi.id desc
       `);
@@ -60,7 +63,8 @@ export async function getAllMedicalSupplies(req, res) {
       await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        WHERE mi.category = 'MEDICAL_SUPPLY' and mi.is_deleted = false
+        LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
+        WHERE mi.category = 'MEDICAL_SUPPLY' and mi.is_deleted = false and it.is_deleted = false
         GROUP BY mi.id
         ORDER BY mi.id desc`);
     return res
@@ -80,7 +84,8 @@ export async function getAllMedications(req, res) {
       await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
         FROM MedicalItem mi
         LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        WHERE mi.category = 'MEDICATION' and mi.is_deleted = false
+        LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
+        WHERE mi.category = 'MEDICATION' and mi.is_deleted = false and it.is_deleted = false
         GROUP BY mi.id
         ORDER BY mi.id desc`);
     return res
@@ -267,7 +272,7 @@ export async function getSupplierById(req, res) {
     if (result.rowCount === 0) {
       return res.status(400).json({
         error: true,
-        message: "Không tìm thấy nhà cung cấp",
+        message: "Không tìm thấy nhà cung cấp hoặc đã bị xóa.",
       });
     }
 
@@ -1333,7 +1338,7 @@ export async function getAllImportTransaction(req, res) {
 }
 
 export async function getSupplierByName(req, res) {
-  const { name } = req.params;
+  const { name } = req.query;
   console.log(name);
   try {
     const result = await query(

@@ -29,7 +29,8 @@ import {
      getAllImportTransactionPurpose,
      getAllExportTransaction,
      deletePermanentlyATransaction,
-     restoreTransactionFromSoftDelete
+     restoreTransactionFromSoftDelete,
+     getSupplierByName
 } from "../controllers/medicalItem.controller.js";
 
 const router = express.Router();

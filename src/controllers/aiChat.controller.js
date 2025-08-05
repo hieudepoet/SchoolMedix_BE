@@ -386,7 +386,7 @@ export async function getResponseFromAI(req, res) {
     const api_response_text = `API_RESPONSE: ĐÂY LÀ KẾT QUẢ TRẢ VỀ TỪ CÁC API. DÙ KẾT QUẢ RA SAO, TÔi SẼ TRẢ LỜI NGƯỜI DÙNG DỰA TRÊN NỘI DUNG NÀY. NẾU BỊ LỖI, HÃY BÁO RÕ LÝ DO. NẾU KHÔNG CÓ DỮ LIỆU, HÃY NÓI RÕ KHÔNG CÓ THÔNG TIN: ${responses.join("\n\n")}`;
 
     const api_response_content = {
-        role: "function",
+        role: "model",
         parts: [
             { text: api_response_text }
         ]

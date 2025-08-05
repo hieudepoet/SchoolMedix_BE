@@ -72,7 +72,7 @@ export async function createAdmin(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!isMale) {
+            if (isMale == null) {
                   return res.status(400).json({
                         error: true,
                         message: "Thiếu giới tính.",
@@ -125,7 +125,7 @@ export async function createNurse(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!isMale) {
+            if (isMale == null) {
                   return res.status(400).json({
                         error: true,
                         message: "Thiếu giới tính.",
@@ -178,7 +178,7 @@ export async function createParent(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!isMale) {
+            if (isMale == null) {
                   return res.status(400).json({
                         error: true,
                         message: "Thiếu giới tính.",
@@ -235,7 +235,7 @@ export async function createStudent(req, res) {
             if (!dob) {
                   return res.status(400).json({ error: true, message: "Thiếu ngày sinh." });
             }
-            if (!isMale) {
+            if (isMale == null) {
                   return res.status(400).json({
                         error: true,
                         message: "Thiếu giới tính.",
@@ -1977,16 +1977,38 @@ export async function getHomeInfoByID(req, res) {
             const result = await query(
                   `
       SELECT 
-        h.*,
-        row_to_json(mom) AS mom,
-        row_to_json(dad) AS dad,
-        COALESCE(json_agg(row_to_json(stu)) FILTER (WHERE stu.id IS NOT NULL), '[]') AS students
-      FROM home h 
-      LEFT JOIN parent mom ON mom.id = h.mom_id
-      LEFT JOIN parent dad ON dad.id = h.dad_id
-      LEFT JOIN student stu ON stu.home_id = h.id
-      WHERE h.id = $1
-      GROUP BY h.id, mom.id, dad.id
+  h.*,
+  row_to_json(mom) AS mom,
+  row_to_json(dad) AS dad,
+  COALESCE(
+    json_agg(
+      json_build_object(
+        'id', stu.id,
+        'name', stu.name,
+        'email', stu.email,
+        'dob', stu.dob,
+        'isMale', stu.isMale,
+        'address', stu.address,
+        'phone_number', stu.phone_number,
+        'profile_img_url', stu.profile_img_url,
+        'year_of_enrollment', stu.year_of_enrollment,
+        'supabase_uid', stu.supabase_uid,
+        'home_id', stu.home_id,
+        'class_id', stu.class_id,
+        'class_name', cls.name
+      )
+    ) FILTER (WHERE stu.id IS NOT NULL),
+    '[]'
+  ) AS students
+FROM home h
+LEFT JOIN parent mom ON mom.id = h.mom_id
+LEFT JOIN parent dad ON dad.id = h.dad_id
+LEFT JOIN student stu ON stu.home_id = h.id
+LEFT JOIN class cls ON cls.id = stu.class_id
+WHERE h.id = $1
+GROUP BY h.id, mom.id, dad.id;
+
+
       `,
                   [id]
             );
