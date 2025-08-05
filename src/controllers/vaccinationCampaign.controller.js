@@ -1239,6 +1239,7 @@ export async function getAllRegisteredRecords(req, res) {
     const records = await query(
       `
         SELECT 
+        s.name as student_name,
         s.id AS student_id,
         s.supabase_uid as supabase_uid,
         rec.id AS record_id,
