@@ -589,7 +589,7 @@ export async function createNewTransaction(
   }
 }
 
-export async function eraseAllTransactionItemsByTransactionID(
+export async function eraseAllTransactionItemsByTransactionIDWithClient(
   transaction_id,
   client
 ) {
@@ -600,6 +600,17 @@ export async function eraseAllTransactionItemsByTransactionID(
     [transaction_id]
   );
   client.query("COMMIT");
+}
+
+export async function eraseAllTransactionItemsByTransactionID(
+  transaction_id
+) {
+  console.log("ERASE: eraseAllTransactionItemsByTransactionID");
+
+  const result = await query(
+    `DELETE FROM TransactionItems WHERE transaction_id = $1`,
+    [transaction_id]
+  );
 }
 
 export async function createNewMedicalItemsForTransaction(
@@ -642,7 +653,6 @@ export async function createNewMedicalItemsForTransaction(
 export async function restoreMedicalItemsForTransaction(
   transaction_id,
   old_medical_items,
-  client
 ) {
   console.log("Restore: restoreMedicalItemsForTransaction");
   const values = [];
@@ -660,10 +670,9 @@ export async function restoreMedicalItemsForTransaction(
         VALUES ${placeholders.join(", ")}
       `;
 
-    await client.query(insert_items_query, values);
+    await query(insert_items_query, values);
   }
 
-  client.query("COMMIT");
 }
 
 export async function getAllInventoryTransactions(req, res) {
@@ -1014,8 +1023,11 @@ export async function updateInventoryTransaction(req, res) {
   try {
     await client.query("BEGIN");
 
+    const old_medical_items = await getMedicalItemsByTransactionID(id);
+    console.log(old_medical_items);
+
     // Xóa hết các vật tư cũ trong giao dịch
-    await eraseAllTransactionItemsByTransactionID(id, client);
+    await eraseAllTransactionItemsByTransactionID(id, old_medical_items, client);
 
     // Kiểm tra số lượng tồn kho
     const is_valid = await checkAdequateQuantityForItems(
@@ -1024,6 +1036,7 @@ export async function updateInventoryTransaction(req, res) {
       client
     );
     if (!is_valid) {
+      await restoreMedicalItemsForTransaction(id, old_medical_items, client);
       await client.query("ROLLBACK");
       return res.status(400).json({
         error: true,
