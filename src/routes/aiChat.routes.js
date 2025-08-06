@@ -5,8 +5,7 @@ import { verifyAndAuthorize } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// router.post('/ai-response', verifyAndAuthorize(["student", "parent"]), getResponseFromAI);
-router.post('/ai-response', getResponseFromAI);
+router.post('/ai-response', verifyAndAuthorize(["student", "parent"]), getResponseFromAI);
 
 export default router;
 

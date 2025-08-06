@@ -2,234 +2,234 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 
 const functionDeclarations = [
-  {
-    name: "getAllBlogs",
-    description:
-      "Lấy toàn bộ thông tin các bài blog chia sẻ thông tin y tế học đường. Sử dụng khi người dùng hỏi về thông tin y tế, tin tức, bài viết chia sẻ",
-    parameters: {
-      type: "object",
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: "getClassByStudentID",
-    description:
-      "Lấy thông tin của lớp mà học sinh đang học, bao gồm tên lớp, tên khối, tổng số lượng học sinh. Sử dụng khi người dùng hỏi về lớp học, thông tin lớp, bạn bè cùng lớp",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: {
-          type: "string",
-          description: "ID của học sinh hoặc con của phụ huynh",
+    {
+        name: "getAllBlogs",
+        description:
+            "Lấy toàn bộ thông tin các bài blog chia sẻ thông tin y tế học đường. Sử dụng khi người dùng hỏi về thông tin y tế, tin tức, bài viết chia sẻ",
+        parameters: {
+            type: "object",
+            properties: {},
+            required: [],
         },
-      },
-      required: ["student_id"],
     },
-  },
-  {
-    name: "getHealthRecordOfStudent",
-    description:
-      "Lấy toàn bộ thông tin sức khỏe của học sinh trong các đợt khám định kỳ. Sử dụng khi người dùng hỏi về kết quả khám sức khỏe, tình trạng sức khỏe, chiều cao cân nặng",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: {
-          type: "string",
-          description: "ID của học sinh hoặc con của phụ huynh",
+    {
+        name: "getClassByStudentID",
+        description:
+            "Lấy thông tin của lớp mà học sinh đang học, bao gồm tên lớp, tên khối, tổng số lượng học sinh. Sử dụng khi người dùng hỏi về lớp học, thông tin lớp, bạn bè cùng lớp",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: {
+                    type: "string",
+                    description: "ID của học sinh hoặc con của phụ huynh",
+                },
+            },
+            required: ["student_id"],
         },
-      },
-      required: ["student_id"],
     },
-  },
-  {
-    name: "getAllCheckupCampaignInfo",
-    description:
-      "Lấy toàn bộ thông tin về các đợt khám định kỳ cùng với danh sách các bệnh khám chuyên khoa. Sử dụng khi người dùng hỏi về lịch khám, chiến dịch khám sức khỏe, đăng ký khám",
-    parameters: {
-      type: "object",
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: "getAllSpecialistExamsInfo",
-    description:
-      "Lấy toàn bộ thông tin về các chuyên khoa của nhà trường hiện có để khám. Sử dụng khi người dùng hỏi về chuyên khoa, loại khám chuyên khoa, bác sĩ chuyên khoa",
-    parameters: {
-      type: "object",
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: "getFullHealthAndSpecialRecordsOfAStudent",
-    description:
-      "Lấy toàn bộ thông tin về các chiến dịch khám chuyên khoa, khám sức khỏe tổng quát mà học sinh đã tham gia. Sử dụng khi người dùng hỏi về lịch sử khám bệnh, tất cả hồ sơ y tế",
-    parameters: {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-          description: "ID của học sinh hoặc con của phụ huynh",
+    {
+        name: "getHealthRecordOfStudent",
+        description:
+            "Lấy toàn bộ thông tin sức khỏe của học sinh trong các đợt khám định kỳ. Sử dụng khi người dùng hỏi về kết quả khám sức khỏe, tình trạng sức khỏe, chiều cao cân nặng",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: {
+                    type: "string",
+                    description: "ID của học sinh hoặc con của phụ huynh",
+                },
+            },
+            required: ["student_id"],
         },
-      },
-      required: ["id"],
     },
-  },
-  {
-    name: "getStudentProfile",
-    description:
-      "Lấy thông tin chi tiết của học sinh bao gồm thông tin cá nhân và thông tin phụ huynh bao gồm cả bố và mẹ. Sử dụng khi người dùng hỏi về thông tin cá nhân, thông tin gia đình, thông tin liên lạc",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: { type: "string", description: "ID của học sinh" },
-      },
-      required: ["student_id"],
-    },
-  },
-  {
-    name: "getParentProfile",
-    description:
-      "Lấy thông tin chi tiết của phụ huynh bao gồm thông tin cá nhân và danh sách con. Sử dụng khi người dùng hỏi về thông tin phụ huynh, danh sách con, thông tin gia đình",
-    parameters: {
-      type: "object",
-      properties: {
-        parent_id: { type: "string", description: "ID của phụ huynh" },
-      },
-      required: ["parent_id"],
-    },
-  },
-  {
-    name: "getAllVaccinationCampaigns",
-    description:
-      "Lấy toàn bộ thông tin về các chiến dịch tiêm chủng. Sử dụng khi người dùng hỏi về lịch tiêm chủng, chiến dịch tiêm, đăng ký tiêm chủng",
-    parameters: {
-      type: "object",
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: "getVaccinationRecordsOfStudent",
-    description:
-      "Lấy lịch sử tiêm chủng của học sinh. Sử dụng khi người dùng hỏi về mũi tiêm đã tiêm, lịch sử tiêm chủng, sổ tiêm chủng",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: { type: "string", description: "ID của học sinh" },
-      },
-      required: ["student_id"],
-    },
-  },
-  {
-    name: "getDiseaseRecordsOfStudent",
-    description:
-      "Lấy thông tin về các bệnh mãn tính và truyền nhiễm của học sinh. Sử dụng khi người dùng hỏi về bệnh tật, tiền sử bệnh, bệnh mãn tính, bệnh truyền nhiễm",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: { type: "string", description: "ID của học sinh" },
-      },
-      required: ["student_id"],
-    },
-  },
-  {
-    name: "getSendDrugRequestsOfStudent",
-    description:
-      "Lấy danh sách các yêu cầu gửi thuốc của học sinh. Sử dụng khi người dùng hỏi về đơn thuốc, gửi thuốc, nhận thuốc, tình trạng đơn thuốc",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: { type: "string", description: "ID của học sinh" },
-      },
-      required: ["student_id"],
-    },
-  },
-  {
-    name: "getDailyHealthRecordsOfStudent",
-    description:
-      "Lấy các sự kiện y tế hàng ngày của học sinh. Sử dụng khi người dùng hỏi về sự cố y tế, tai nạn, bệnh đột xuất, ghi nhận sức khỏe hàng ngày",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: { type: "string", description: "ID của học sinh" },
-      },
-      required: ["student_id"],
-    },
-  },
-  {
-    name: "getParentDashboardStats",
-    description:
-      "Lấy thống kê tổng quan cho phụ huynh về tình hình sức khỏe của con. Sử dụng khi người dùng hỏi về tổng quan sức khỏe, thống kê, báo cáo sức khỏe",
-    parameters: {
-      type: "object",
-      properties: {
-        student_id: { type: "string", description: "ID của học sinh" },
-      },
-      required: ["student_id"],
-    },
-  },
-  {
-    name: "getVaccinationCampaignDetail",
-    description:
-      "Lấy thông tin chi tiết của một chiến dịch tiêm chủng cụ thể. Sử dụng khi người dùng hỏi về chi tiết chiến dịch tiêm, thông tin cụ thể về một đợt tiêm",
-    parameters: {
-      type: "object",
-      properties: {
-        campaign_id: {
-          type: "string",
-          description: "ID của chiến dịch tiêm chủng",
+    {
+        name: "getAllCheckupCampaignInfo",
+        description:
+            "Lấy toàn bộ thông tin về các đợt khám định kỳ cùng với danh sách các bệnh khám chuyên khoa. Sử dụng khi người dùng hỏi về lịch khám, chiến dịch khám sức khỏe, đăng ký khám",
+        parameters: {
+            type: "object",
+            properties: {},
+            required: [],
         },
-      },
-      required: ["campaign_id"],
     },
-  },
+    {
+        name: "getAllSpecialistExamsInfo",
+        description:
+            "Lấy toàn bộ thông tin về các chuyên khoa của nhà trường hiện có để khám. Sử dụng khi người dùng hỏi về chuyên khoa, loại khám chuyên khoa, bác sĩ chuyên khoa",
+        parameters: {
+            type: "object",
+            properties: {},
+            required: [],
+        },
+    },
+    {
+        name: "getFullHealthAndSpecialRecordsOfAStudent",
+        description:
+            "Lấy toàn bộ thông tin về các chiến dịch khám chuyên khoa, khám sức khỏe tổng quát mà học sinh đã tham gia. Sử dụng khi người dùng hỏi về lịch sử khám bệnh, tất cả hồ sơ y tế",
+        parameters: {
+            type: "object",
+            properties: {
+                id: {
+                    type: "string",
+                    description: "ID của học sinh hoặc con của phụ huynh",
+                },
+            },
+            required: ["id"],
+        },
+    },
+    {
+        name: "getStudentProfile",
+        description:
+            "Lấy thông tin chi tiết của học sinh bao gồm thông tin cá nhân và thông tin phụ huynh bao gồm cả bố và mẹ. Sử dụng khi người dùng hỏi về thông tin cá nhân, thông tin gia đình, thông tin liên lạc",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: { type: "string", description: "ID của học sinh" },
+            },
+            required: ["student_id"],
+        },
+    },
+    {
+        name: "getParentProfile",
+        description:
+            "Lấy thông tin chi tiết của phụ huynh bao gồm thông tin cá nhân và danh sách con. Sử dụng khi người dùng hỏi về thông tin phụ huynh, danh sách con, thông tin gia đình",
+        parameters: {
+            type: "object",
+            properties: {
+                parent_id: { type: "string", description: "ID của phụ huynh" },
+            },
+            required: ["parent_id"],
+        },
+    },
+    {
+        name: "getAllVaccinationCampaigns",
+        description:
+            "Lấy toàn bộ thông tin về các chiến dịch tiêm chủng. Sử dụng khi người dùng hỏi về lịch tiêm chủng, chiến dịch tiêm, đăng ký tiêm chủng",
+        parameters: {
+            type: "object",
+            properties: {},
+            required: [],
+        },
+    },
+    {
+        name: "getVaccinationRecordsOfStudent",
+        description:
+            "Lấy lịch sử tiêm chủng của học sinh. Sử dụng khi người dùng hỏi về mũi tiêm đã tiêm, lịch sử tiêm chủng, sổ tiêm chủng",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: { type: "string", description: "ID của học sinh" },
+            },
+            required: ["student_id"],
+        },
+    },
+    {
+        name: "getDiseaseRecordsOfStudent",
+        description:
+            "Lấy thông tin về các bệnh mãn tính và truyền nhiễm của học sinh. Sử dụng khi người dùng hỏi về bệnh tật, tiền sử bệnh, bệnh mãn tính, bệnh truyền nhiễm",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: { type: "string", description: "ID của học sinh" },
+            },
+            required: ["student_id"],
+        },
+    },
+    {
+        name: "getSendDrugRequestsOfStudent",
+        description:
+            "Lấy danh sách các yêu cầu gửi thuốc của học sinh. Sử dụng khi người dùng hỏi về đơn thuốc, gửi thuốc, nhận thuốc, tình trạng đơn thuốc",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: { type: "string", description: "ID của học sinh" },
+            },
+            required: ["student_id"],
+        },
+    },
+    {
+        name: "getDailyHealthRecordsOfStudent",
+        description:
+            "Lấy các sự kiện y tế hàng ngày của học sinh. Sử dụng khi người dùng hỏi về sự cố y tế, tai nạn, bệnh đột xuất, ghi nhận sức khỏe hàng ngày",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: { type: "string", description: "ID của học sinh" },
+            },
+            required: ["student_id"],
+        },
+    },
+    {
+        name: "getParentDashboardStats",
+        description:
+            "Lấy thống kê tổng quan cho phụ huynh về tình hình sức khỏe của con. Sử dụng khi người dùng hỏi về tổng quan sức khỏe, thống kê, báo cáo sức khỏe",
+        parameters: {
+            type: "object",
+            properties: {
+                student_id: { type: "string", description: "ID của học sinh" },
+            },
+            required: ["student_id"],
+        },
+    },
+    {
+        name: "getVaccinationCampaignDetail",
+        description:
+            "Lấy thông tin chi tiết của một chiến dịch tiêm chủng cụ thể. Sử dụng khi người dùng hỏi về chi tiết chiến dịch tiêm, thông tin cụ thể về một đợt tiêm",
+        parameters: {
+            type: "object",
+            properties: {
+                campaign_id: {
+                    type: "string",
+                    description: "ID của chiến dịch tiêm chủng",
+                },
+            },
+            required: ["campaign_id"],
+        },
+    },
 ];
 
 const apiMap = {
-  getAllBlogs: "/blog",
-  getClassByStudentID: "/student/:student_id/class",
-  getHealthRecordOfStudent: "/health-record/:student_id",
-  getAllCheckupCampaignInfo: "/checkup-campaign",
-  getAllSpecialistExamsInfo: "/special-exam",
-  getFullHealthAndSpecialRecordsOfAStudent: "/student/:id/full-record",
-  getStudentProfile: "/student/:student_id",
-  getParentProfile: "/parent/:parent_id",
-  getAllVaccinationCampaigns: "/vaccination-campaign",
-  getVaccinationRecordsOfStudent: "/student/:student_id/vaccination-record",
-  getDiseaseRecordsOfStudent: "/student/:student_id/disease-record",
-  getSendDrugRequestsOfStudent: "/student/:student_id/send-drug-request",
-  getDailyHealthRecordsOfStudent: "/:student_id/daily-health-record",
-  getParentDashboardStats: "/dashboard/:student_id/parent-dashboard",
-  getVaccinationCampaignDetail: "/vaccination-campaign/:campaign_id",
-  getVaccinationRecordMergeByDiseases:
-    "/student/:student_id/vnvc/completed-doses",
+    getAllBlogs: "/blog",
+    getClassByStudentID: "/student/:student_id/class",
+    getHealthRecordOfStudent: "/health-record/:student_id",
+    getAllCheckupCampaignInfo: "/checkup-campaign",
+    getAllSpecialistExamsInfo: "/special-exam",
+    getFullHealthAndSpecialRecordsOfAStudent: "/student/:id/full-record",
+    getStudentProfile: "/student/:student_id",
+    getParentProfile: "/parent/:parent_id",
+    getAllVaccinationCampaigns: "/vaccination-campaign",
+    getVaccinationRecordsOfStudent: "/student/:student_id/vaccination-record",
+    getDiseaseRecordsOfStudent: "/student/:student_id/disease-record",
+    getSendDrugRequestsOfStudent: "/student/:student_id/send-drug-request",
+    getDailyHealthRecordsOfStudent: "/:student_id/daily-health-record",
+    getParentDashboardStats: "/dashboard/:student_id/parent-dashboard",
+    getVaccinationCampaignDetail: "/vaccination-campaign/:campaign_id",
+    getVaccinationRecordMergeByDiseases:
+        "/student/:student_id/vnvc/completed-doses",
 };
 
 const prompt = (current_user_role) => {
-  const current_user =
-    current_user_role === "parent"
-      ? "phụ huynh"
-      : current_user_role === "admin"
-      ? "quản trị viên"
-      : current_user_role === "nurse"
-      ? "y tá"
-      : "học sinh";
-  const xung_ho =
-    current_user_role === "parent"
-      ? "phụ huynh hoặc anh chị"
-      : current_user_role === "admin"
-      ? "quản trị viên"
-      : current_user_role === "nurse"
-      ? "y tá"
-      : "bạn";
-  return {
-    role: "user",
-    parts: [
-      {
-        text: `
+    const current_user =
+        current_user_role === "parent"
+            ? "phụ huynh"
+            : current_user_role === "admin"
+                ? "quản trị viên"
+                : current_user_role === "nurse"
+                    ? "y tá"
+                    : "học sinh";
+    const xung_ho =
+        current_user_role === "parent"
+            ? "phụ huynh hoặc anh chị"
+            : current_user_role === "admin"
+                ? "quản trị viên"
+                : current_user_role === "nurse"
+                    ? "y tá"
+                    : "bạn";
+    return {
+        role: "user",
+        parts: [
+            {
+                text: `
         Bạn là trợ lý AI chuyên nghiệp của hệ thống SchoolMedix - nền tảng quản lý y tế học đường hàng đầu. Chúng tôi rất vinh dự được hỗ trợ quý ${current_user} với thái độ lịch sự, kiên nhẫn và thấu hiểu, đặc biệt chú trọng đến tính nhạy cảm của thông tin y tế học sinh.
 
         Rất mong quý ${current_user} yên tâm rằng thông tin của bạn luôn được bảo mật tuyệt đối. Người bạn đang trò chuyện là ${current_user}, vì thế xin hãy điều chỉnh cách giao tiếp phù hợp nhé.
@@ -253,27 +253,6 @@ const prompt = (current_user_role) => {
         - Không cần chào lại nếu đã chào nhau trước đó.
 
         HƯỚNG DẪN SỬ DỤNG API:
-        Rất mong quý ${current_user} cho phép tôi hỗ trợ bằng cách gọi API khi cần thiết. Xin vui lòng yêu cầu tôi thực hiện các API sau khi hỏi về:
-        - Thông tin cá nhân → getStudentProfile/getParentProfile
-        - Lớp học → getClassByStudentID
-        - Khám sức khỏe → getHealthRecordOfStudent + getAllCheckupCampaignInfo + getCheckupCampaignDetail
-        - Tiêm chủng → getVaccinationRecordsOfStudent + getAllVaccinationCampaigns + getVaccinationRecordMergeByDiseases
-        - Bệnh tật → getDiseaseRecordsOfStudent
-        - Gửi thuốc → getSendDrugRequestsOfStudent
-        - Sự kiện y tế → getDailyHealthRecordsOfStudent
-        - Thống kê → getParentDashboardStats
-        - Blog → getAllBlogs
-        - Chuyên khoa → getAllSpecialistExamsInfo
-        - Tổng hợp hồ sơ → getFullHealthAndSpecialRecordsOfAStudent
-
-        Đặc biệt, khi quý ${current_user} hỏi về mũi tiêm của học sinh (ví dụ: lịch sử tiêm, mũi tiêm đã tiêm, hoặc lịch tiêm sắp tới), xin vui lòng:
-        - Gọi tất cả các API liên quan: getVaccinationRecordsOfStudent, getAllVaccinationCampaigns, và getVaccinationCampaignDetail.
-        - Sau khi lấy dữ liệu, hãy phân tích dựa trên lịch tiêm chủng khuyến nghị từ https://vnvc.vn/lich-tiem-chung-day-du-nhat-cho-tre-theo-tung-thang-tuoi/. So sánh lịch sử tiêm chủng của học sinh với lịch khuyến nghị, và cung cấp gợi ý lịch tiêm còn thiếu (nếu có) một cách nhẹ nhàng và chuyên nghiệp.
-
-        Ngoài ra, tùy thuộc vào vai trò:
-        - Với **quản trị viên (admin)**: Hỗ trợ quản lý toàn diện, bao gồm tạo chiến dịch tiêm chủng, khám sức khỏe, gửi thuốc, và xem thống kê. Xin gọi API như getAllVaccinationCampaigns, getAllCheckupCampaignInfo để hỗ trợ quản lý.
-        - Với **y tá (nurse)**: Hỗ trợ ghi nhận và cập nhật thông tin y tế, như tiêm chủng, khám sức khỏe, và sự kiện y tế hàng ngày. Xin gọi API như getVaccinationRecordsOfStudent, getHealthRecordOfStudent để hỗ trợ công việc.
-
         Những lưu ý khi thiếu thông tin để gọi API:
         - Xin vui lòng hỏi thêm để lấy thông tin cần thiết. Cụ thể:
             + Nếu cần campaign_id, xin hỏi tên chiến dịch cụ thể.
@@ -291,12 +270,12 @@ const prompt = (current_user_role) => {
         - "Tôi muốn xem thông tin lớp của con" → getClassByStudentID
         - "Kết quả khám sức khỏe của con thế nào?" → getHealthRecordOfStudent
         - "Lịch sử tiêm chủng của con ra sao?" → getVaccinationRecordsOfStudent + getAllVaccinationCampaigns + getVaccinationCampaignDetail + getVaccinationRecordMergeByDiseases (với phân tích từ VNVC)
-        - "Con có bệnh gì không?" → getDiseaseRecordsOfStudent
+        - "Con tôi có bệnh gì không?" → getDiseaseRecordsOfStudent
         - "Đơn thuốc của con thế nào?" → getSendDrugRequestsOfStudent
         - "Thống kê sức khỏe của con?" → getParentDashboardStats
         - "Chiến dịch tiêm chủng sắp tới?" → getAllVaccinationCampaigns
         - "Lịch khám sức khỏe?" → getAllCheckupCampaignInfo
-        - "Tôi đang bị bệnh gì thế" → getParentDashboardStats + getHealthRecordOfStudent + getDiseaseRecordsOfStudent + getVaccinationRecordsOfStudent
+        - "Con tôi đang bị bệnh gì thế" → getParentDashboardStats + getHealthRecordOfStudent + getDiseaseRecordsOfStudent + getVaccinationRecordsOfStudent
         - "Danh sách chiến dịch tiêm chủng hiện tại" (admin) → getAllVaccinationCampaigns
         - "Cập nhật hồ sơ tiêm cho học sinh" (nurse) → getVaccinationRecordsOfStudent
 
@@ -364,146 +343,153 @@ const prompt = (current_user_role) => {
         - Xin hỏi thêm xem quý ${current_user} có cần hỗ trợ gì khác không.
         - Chúc sức khỏe và cảm ơn ${xung_ho} đã sử dụng dịch vụ của chúng tôi.
         `,
-      },
-    ],
-  };
+            },
+        ],
+    };
 };
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function getResponseFromAI(req, res) {
-  const {
-    current_user_role,
-    chat_history,
-    new_message,
-    student_info,
-    parent_info,
-  } = req.body;
-  const temperature = current_user_role === "parent" ? 0.2 : 0.7;
+    const {
+        current_user_role,
+        chat_history,
+        new_message,
+        student_info,
+        parent_info,
+        token
+    } = req.body;
+    const temperature = current_user_role === "parent" ? 0.2 : 0.7;
 
-  const request_content = {
-    role: "user",
-    parts: [
-      {
-        text:
-          "Bạn không cần phản hồi lại thông tin học sinh và phụ huynh này đâu, chỉ cần lưu lại là được (không cần chào, không cần phản hồi, không cần thông báo là bạn đã lưu lại thông tin hay gì hết). Thông tin hiện tại của học sinh: " +
-          JSON.stringify(student_info) +
-          "thông tin hiện tại của phụ huynh: " +
-          JSON.stringify(parent_info),
-      },
-      { text: "Nhưng bạn phải phản hồi tin này: " + new_message },
-    ],
-  };
-
-  const result = await model.generateContent({
-    contents: [
-      prompt(current_user_role),
-      ...(chat_history || []),
-      request_content,
-    ],
-    tools: [{ functionDeclarations }],
-    generationConfig: {
-      candidateCount: 8,
-      temperature,
-    },
-  });
-
-  const candidates = result.response.candidates;
-
-  let try_number = 1;
-  const chosen = candidates.find((c) => {
-    console.log("Lần thử thứ: " + try_number++);
-    console.log(c.content.parts);
-    try {
-      return hasFunctionCallInArray(c.content.parts);
-    } catch {
-      return false;
-    }
-  });
-
-  if (!chosen) {
-    console.log(candidates[0].content.parts);
-    return res.json({ new_contents: [candidates[0].content] });
-  }
-
-  console.log(chosen.content.parts);
-  const calls = filterFunctionCallInArray(chosen.content.parts);
-  console.log(calls);
-  const responses = await Promise.all(
-    calls.map((call) => {
-      console.log(call);
-      return callAPIFromAI(call).then((data) => JSON.stringify(data));
-    })
-  );
-
-  const api_response_text = `API_RESPONSE: ĐÂY LÀ KẾT QUẢ TRẢ VỀ TỪ CÁC API. DÙ KẾT QUẢ RA SAO, TÔi SẼ TRẢ LỜI NGƯỜI DÙNG DỰA TRÊN NỘI DUNG NÀY. NẾU BỊ LỖI, HÃY BÁO RÕ LÝ DO. NẾU KHÔNG CÓ DỮ LIỆU, HÃY NÓI RÕ KHÔNG CÓ THÔNG TIN: ${responses.join(
-    "\n\n"
-  )}`;
-
-  const api_response_content = {
-    role: "model",
-    parts: [{ text: api_response_text }],
-  };
-
-  console.log(api_response_content.parts[0]);
-
-  const followup = await model.generateContent({
-    contents: [
-      prompt(current_user_role),
-      ...(chat_history || []),
-      request_content,
-      api_response_content,
-      {
+    const request_content = {
         role: "user",
         parts: [
-          {
-            text: "Hãy phản hồi người dùng bằng tiếng Việt dựa trên kết quả API ở trên. Trình bày bằng HTML sạch sẽ. Nếu lỗi thì giải thích lý do. Nếu không có dữ liệu, hãy thông báo không có dữ liệu. Cuối cùng, hỏi thêm xem họ có cần hỗ trợ gì khác không. Bạn đừng trả lời ngay trong API_RESPONSE nhé, hãy trả lời ngay bên dưới đây nè! ",
-          },
+            {
+                text:
+                    "Bạn không cần phản hồi lại thông tin học sinh và phụ huynh này đâu, chỉ cần lưu lại là được (không cần chào, không cần phản hồi, không cần thông báo là bạn đã lưu lại thông tin hay gì hết). Thông tin hiện tại của học sinh: " +
+                    JSON.stringify(student_info) +
+                    "thông tin hiện tại của phụ huynh: " +
+                    JSON.stringify(parent_info),
+            },
+            { text: "Nhưng bạn phải phản hồi tin này: " + new_message },
         ],
-      },
-    ],
-    generationConfig: {
-      temperature,
-    },
-  });
+    };
 
-  const apiReply = await followup.response;
-  return res.json({
-    new_contents: [api_response_content, apiReply.candidates[0].content],
-  });
-}
+    const result = await model.generateContent({
+        contents: [
+            prompt(current_user_role),
+            ...(chat_history || []),
+            request_content,
+        ],
+        tools: [{ functionDeclarations }],
+        generationConfig: {
+            candidateCount: 8,
+            temperature,
+        },
+    });
 
-async function callAPIFromAI(call) {
-  try {
-    const { name, args } = call;
-    const api = apiMap[name];
-    if (!api) throw new Error(`Không tìm thấy API cho function tên: ${name}`);
+    const candidates = result.response.candidates;
 
-    let finalURL = api;
-    for (const key in args) {
-      finalURL = finalURL.replace(`:${key}`, encodeURIComponent(args[key]));
+    let try_number = 1;
+    const chosen = candidates.find((c) => {
+        console.log("Lần thử thứ: " + try_number++);
+        console.log(c.content.parts);
+        try {
+            return hasFunctionCallInArray(c.content.parts);
+        } catch {
+            return false;
+        }
+    });
+
+    if (!chosen) {
+        console.log(candidates[0].content.parts);
+        return res.json({ new_contents: [candidates[0].content] });
     }
 
-    const fullURL = `${process.env.RAILWAY_BE_DEPLOYING_URL}/api${finalURL}`;
-    console.log("URL here:", fullURL);
+    console.log(chosen.content.parts);
+    const calls = filterFunctionCallInArray(chosen.content.parts);
+    console.log(calls);
+    const responses = await Promise.all(
+        calls.map((call) => {
+            console.log(call);
+            return callAPIFromAI(call, token).then((data) => JSON.stringify(data));
+        })
+    );
 
-    const res = await axios.get(fullURL);
-    return res.data;
-  } catch (error) {
-    console.error("❌ callAPIFromAI error:", error.message);
-    return "Không thể lấy thông tin từ api";
-  }
+    const api_response_text = `API_RESPONSE: ĐÂY LÀ KẾT QUẢ TRẢ VỀ TỪ CÁC API. DÙ KẾT QUẢ RA SAO, TÔi SẼ TRẢ LỜI NGƯỜI DÙNG DỰA TRÊN NỘI DUNG NÀY. NẾU BỊ LỖI, HÃY BÁO RÕ LÝ DO. NẾU KHÔNG CÓ DỮ LIỆU, HÃY NÓI RÕ KHÔNG CÓ THÔNG TIN: ${responses.join(
+        "\n\n"
+    )}`;
+
+    const api_response_content = {
+        role: "model",
+        parts: [{ text: api_response_text }],
+    };
+
+    console.log(api_response_content.parts[0]);
+
+    const followup = await model.generateContent({
+        contents: [
+            prompt(current_user_role),
+            ...(chat_history || []),
+            request_content,
+            api_response_content,
+            {
+                role: "user",
+                parts: [
+                    {
+                        text: "Hãy phản hồi người dùng bằng tiếng Việt dựa trên kết quả API ở trên. Trình bày bằng HTML sạch sẽ. Nếu lỗi thì giải thích lý do. Nếu không có dữ liệu, hãy thông báo không có dữ liệu. Cuối cùng, hỏi thêm xem họ có cần hỗ trợ gì khác không. Bạn đừng trả lời ngay trong API_RESPONSE nhé, hãy trả lời ngay bên dưới đây nè! ",
+                    },
+                ],
+            },
+        ],
+        generationConfig: {
+            temperature,
+        },
+    });
+
+    const apiReply = await followup.response;
+    return res.json({
+        new_contents: [api_response_content, apiReply.candidates[0].content],
+    });
 }
 
+async function callAPIFromAI(call, token) {
+    try {
+        const { name, args } = call;
+        const api = apiMap[name];
+        if (!api) throw new Error(`Không tìm thấy API cho function tên: ${name}`);
+
+        let finalURL = api;
+        for (const key in args) {
+            finalURL = finalURL.replace(`:${key}`, encodeURIComponent(args[key]));
+        }
+
+        const fullURL = `${process.env.RAILWAY_BE_DEPLOYING_URL}/api${finalURL}`;
+        console.log("URL here:", fullURL);
+
+        const res = await axios.get(fullURL, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return res.data;
+    } catch (error) {
+        console.error("❌ callAPIFromAI error:", error.message);
+        return "Không thể lấy thông tin từ api";
+    }
+}
+
+
 function hasFunctionCallInArray(arr) {
-  return Array.isArray(arr) && arr.some((item) => item.functionCall != null);
+    return Array.isArray(arr) && arr.some((item) => item.functionCall != null);
 }
 
 function filterFunctionCallInArray(arr) {
-  return Array.isArray(arr)
-    ? arr
-        .filter((item) => item.functionCall != null)
-        .map((item) => item.functionCall)
-    : [];
+    return Array.isArray(arr)
+        ? arr
+            .filter((item) => item.functionCall != null)
+            .map((item) => item.functionCall)
+        : [];
 }

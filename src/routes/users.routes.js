@@ -35,6 +35,7 @@ import {
       createNewHome, deleteHome
 
 } from '../controllers/users.controller.js';
+import { isParentOfStudentOrStudent, verifyAndAuthorize } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -48,7 +49,7 @@ router.get("/user/:supabase_uid/role/:role/profile", getUserProfileByUUID);
 router.get("/admin/:admin_id", getAdminProfileByID);
 router.get("/nurse/:nurse_id", getNurseProfileByID);
 router.get('/parent/:parent_id', getParentProfileByID); // contains self-info and array of their children's profiles
-router.get('/student/:student_id', getStudentProfileByID); // contains self-info and array of their parent's profiles
+router.get('/student/:student_id', verifyAndAuthorize(["admin", "nurse", "parent", "student"]), isParentOfStudentOrStudent(), getStudentProfileByID); // contains self-info and array of their parent's profiles
 
 // list all admin, user, or parent,...
 router.get("/admin", listAdmins);

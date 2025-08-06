@@ -48,16 +48,17 @@ import {
   uploadPdfForDiagnosisUrls,
   sendMailRegister
 } from "../controllers/checkUp.controller.js";
+import { isParentOfStudentOrStudent, verifyAndAuthorize } from "../middleware/auth.middleware.js";
 
 const upload = multer();
 const router = express.Router();
 
 //Orther
 
-router.post('/checkup/:campaign_id/send-mail-register', sendMailRegister) // API gửi mail cho phụ huynh để thông báo có Register mới 
+router.post('/checkup/:campaign_id/send-mail-register', verifyAndAuthorize(["admin"]), sendMailRegister) // API gửi mail cho phụ huynh để thông báo có Register mới 
 
-router.post('/checkup/:campaign_id/send-register', sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
-router.put('/checkup/:campaign_id/update-info', updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
+router.post('/checkup/:campaign_id/send-register', verifyAndAuthorize(["admin"]), sendRegister);//Truyền vào ID Campaign để gửi Register cho phụ huynh
+router.put('/checkup/:campaign_id/update-info', verifyAndAuthorize(["admin"]), updateCampaign);//Truyền vào ID Campaign để Update thông tin Campaign
 
 router.get('/health-record/:student_id', getAllHealthRecordOfStudent); //Truyền vào Student_id lấy tất cả ds healthrecord của Student
 
@@ -71,7 +72,7 @@ router.get("/special-record", getALLSpeciaListExamRecord); //Lấy tất cả Sp
 router.get("/health-record/campaign/:campaign_id", getALLHealthRecordOfACampaign); // Lấy tất cả DS Health Record có status DONE // bỏ cái check done đi anh ui
 router.patch("/health-record/:id/done", completeAHealthRecordForStudent)
 
-router.get("/checkup-register/campaign/:campaign_id/student/:student_id/status", getCheckupRegisterStatus);
+router.get("/checkup-register/campaign/:campaign_id/student/:student_id/status", verifyAndAuthorize(["admin", "nurse", "parent", "student"]), isParentOfStudentOrStudent(), getCheckupRegisterStatus);
 router.get('/checkup-register/:id', getALLRegisterByCampaignID);//Lấy tất cả các CheckUp register cần tuyền vào campaign_id 
 
 router.get('/checkup-register/parent/:id', getCheckupRegisterByParentID);   //Lấy các CheckUpRegister và speciallistexamrecord từ parent_id
@@ -98,7 +99,7 @@ router.patch("/checkup-register/:id/submit", submitRegister); // Parent submit f
 
 router.get("/student/:id/checkup-health-record", getHealthRecordsOfAStudent); // duy khanh
 router.get("/student/:id/specialist-record", getSpecialRecordsOfAStudent); // duy khanh
-router.get("/student/:id/full-record", getFullHealthAndSpecialRecordsOfAStudent); // duy khanh
+router.get("/student/:id/full-record", verifyAndAuthorize(["admin", "nurse", "parent", "student"]), isParentOfStudentOrStudent(), getFullHealthAndSpecialRecordsOfAStudent); // duy khanh
 router.get("/checkup-health-record/detail", getHealthRecordParentDetails); //Parenet xem chi tiết Health Record của Student truyền vào health_reocd_id
 
 router.get("/checkup-special-record", getSpecialRecordParent); // Parent xem tất cả Special Record của Student truyền vào body Student_id
@@ -129,7 +130,5 @@ router.post("/campaign/:campaign_id/upload-health-record-result", handleUploadHe
 router.get("/campaign/:campaign_id/import-health-record-form", handleRetrieveSampleImportHealthRecordForm); // trả về form gồm tất cả các record của một chiến dịch để làm smaple mẫu cho nurse cập nhật thông tin khám
 router.get("/campaign/:campaign_id/download-health-record-result", handleRetrieveHealthRecordResultByCampaignID);
 router.get("/campaign/:campaign_id/student/:student_id/download-final-report", handleDownloadFinalReportOfAStudentInCampaign); // file pdf chua all general health reccord + kham chuyen sau
-
-router.post("/register/:register_id/spe-exam/:spe_exam_id/pdf-diagnosis-urls", uploadPdfForDiagnosisUrls);
 
 export default router;
