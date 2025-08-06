@@ -203,6 +203,7 @@ export async function getAllChronicDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
+      dr.status,
         dr.id,
         dr.student_id,
         s.name as student_name,
@@ -262,6 +263,7 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
+        dr.status,
         dr.id,
         dr.student_id,
         s.name as student_name,
@@ -757,7 +759,7 @@ export async function getDiseaseRecordById(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE dr.id = $1 AND (dr.pending IS NULL OR dr.pending = 'DONE')
+      WHERE dr.id = $1
       ORDER BY dr.created_at DESC
     `,
       [id]
