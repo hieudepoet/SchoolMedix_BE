@@ -203,6 +203,7 @@ export async function getAllChronicDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
+      dr.status,
         dr.id,
         dr.student_id,
         s.name as student_name,
@@ -262,6 +263,7 @@ export async function getAllInfectiousDiseaseRecords(req, res) {
   try {
     const result = await query(`
       SELECT 
+        dr.status,
         dr.id,
         dr.student_id,
         s.name as student_name,

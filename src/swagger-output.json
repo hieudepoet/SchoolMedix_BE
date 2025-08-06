@@ -3115,6 +3115,57 @@
         }
       }
     },
+    "/admin/student/{student_id}/disease-record": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "disease_id": {
+                  "example": "any"
+                },
+                "diagnosis": {
+                  "example": "any"
+                },
+                "detect_date": {
+                  "example": "any"
+                },
+                "cure_date": {
+                  "example": "any"
+                },
+                "location_cure": {
+                  "example": "any"
+                },
+                "transferred_to": {
+                  "example": "any"
+                },
+                "status": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/disease-record/{id}/accept": {
       "patch": {
         "description": "",
@@ -3251,6 +3302,57 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/student/{id}/disease-record": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "diagnosis": {
+                  "example": "any"
+                },
+                "detect_date": {
+                  "example": "any"
+                },
+                "cure_date": {
+                  "example": "any"
+                },
+                "location_cure": {
+                  "example": "any"
+                },
+                "transferred_to": {
+                  "example": "any"
+                },
+                "status": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
