@@ -556,7 +556,7 @@ export async function createNewMedicalItemsForTransaction(
   purpose_id,
   client
 ) {
-  console.log("Create: createNewMedicalItemsForTransaction");
+  console.log("Create: createNewMedicalItemsForTransaction: ", transaction_id);
   const purpose_result = await client.query(
     `SELECT multiply_for FROM transactionpurpose WHERE id = $1`,
     [purpose_id]
@@ -1341,10 +1341,9 @@ export async function getSupplierByName(req, res) {
   const { name } = req.query;
   console.log(name);
   try {
-    const result = await query(
-      `SELECT * FROM Supplier WHERE name = $1 `,
-      [name]
-    );
+    const result = await query(`SELECT * FROM Supplier WHERE name = $1 `, [
+      name,
+    ]);
 
     if (result.rowCount === 0) {
       return res.status(400).json({
