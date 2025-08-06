@@ -230,7 +230,7 @@ export async function getAllChronicDiseaseRecords(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
-      WHERE d.disease_category = 'Bệnh mãn tính'
+      WHERE d.disease_category = 'Bệnh mãn tính' AND (pending IS NULL OR pending = 'DONE')
       ORDER BY dr.created_at DESC
     `);
 
@@ -351,6 +351,7 @@ export async function getAllDiseaseRecords(req, res) {
         student s ON dr.student_id = s.id
       JOIN 
         class c ON s.class_id = c.id
+      WHERE pending IS NULL OR pending = 'DONE'
       ORDER BY dr.created_at DESC
     `);
 
