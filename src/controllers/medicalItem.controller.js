@@ -115,21 +115,21 @@ export async function getAllMedications(req, res) {
       await query(`
         SELECT 
   mi.*, 
-  COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+  COALESCE(SUM(CASE WHEN it.is_deleted = false THEN ti.transaction_quantity ELSE 0 END), 0) AS quantity
 FROM 
   MedicalItem mi
 LEFT JOIN 
   TransactionItems ti ON mi.id = ti.medical_item_id
 LEFT JOIN 
-  InventoryTransaction it ON it.id = ti.transaction_id AND it.is_deleted = false
+  InventoryTransaction it ON it.id = ti.transaction_id
 WHERE 
   mi.category = 'MEDICATION' 
   AND mi.is_deleted = false
-  AND it.is_deleted = false
 GROUP BY 
   mi.id
 ORDER BY 
   mi.id DESC;
+
 
         `
       );
