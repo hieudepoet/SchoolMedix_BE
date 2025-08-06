@@ -5,12 +5,19 @@ export async function getMedicalItemById(req, res) {
   try {
     const result = await query(
       `
-        SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
-        FROM MedicalItem mi
-        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-		    LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
-        WHERE MI.ID = $1 and mi.is_deleted = false and it.is_deleted = false
-        GROUP BY mi.id
+        SELECT 
+  mi.*, 
+  COALESCE(SUM(CASE WHEN it.is_deleted = false THEN ti.transaction_quantity ELSE 0 END), 0) AS quantity
+FROM 
+  MedicalItem mi
+LEFT JOIN 
+  TransactionItems ti ON mi.id = ti.medical_item_id
+LEFT JOIN 
+  InventoryTransaction it ON it.id = ti.transaction_id
+WHERE 
+  mi.id = $1 AND mi.is_deleted = false
+GROUP BY 
+  mi.id;
 
       `,
       [id]
@@ -34,13 +41,23 @@ export async function getMedicalItemById(req, res) {
 export async function getAllMedicalItems(req, res) {
   try {
     const result = await query(`
-        SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
-        FROM MedicalItem mi
-        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-		    LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
-        where mi.is_deleted = false and it.is_deleted = false
-        GROUP BY mi.id
-        ORDER BY mi.id desc
+        SELECT 
+  mi.*, 
+  COALESCE(SUM(CASE WHEN it.is_deleted = false THEN ti.transaction_quantity ELSE 0 END), 0) AS quantity
+FROM 
+  MedicalItem mi
+LEFT JOIN 
+  TransactionItems ti ON mi.id = ti.medical_item_id
+LEFT JOIN 
+  InventoryTransaction it ON it.id = ti.transaction_id
+WHERE 
+  mi.is_deleted = false
+GROUP BY 
+  mi.id
+ORDER BY 
+  mi.id DESC;
+
+
       `);
     if (result.rowCount === 0) {
       return res
@@ -60,13 +77,27 @@ export async function getAllMedicalItems(req, res) {
 export async function getAllMedicalSupplies(req, res) {
   try {
     const result =
-      await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
-        FROM MedicalItem mi
-        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
-        WHERE mi.category = 'MEDICAL_SUPPLY' and mi.is_deleted = false and it.is_deleted = false
-        GROUP BY mi.id
-        ORDER BY mi.id desc`);
+      await query(`
+        SELECT 
+  mi.*, 
+  COALESCE(SUM(CASE WHEN it.is_deleted = false THEN ti.transaction_quantity ELSE 0 END), 0) AS quantity
+FROM 
+  MedicalItem mi
+LEFT JOIN 
+  TransactionItems ti ON mi.id = ti.medical_item_id
+LEFT JOIN 
+  InventoryTransaction it ON it.id = ti.transaction_id
+WHERE 
+  mi.category = 'MEDICAL_SUPPLY' 
+  AND mi.is_deleted = false
+GROUP BY 
+  mi.id
+ORDER BY 
+  mi.id DESC;
+
+
+        `
+      );
     return res
       .status(200)
       .json({ error: false, message: "ok", data: result.rows });
@@ -81,13 +112,27 @@ export async function getAllMedicalSupplies(req, res) {
 export async function getAllMedications(req, res) {
   try {
     const result =
-      await query(`SELECT mi.*, COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
-        FROM MedicalItem mi
-        LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-        LEFT JOIN InventoryTransaction it on it.id = ti.transaction_id
-        WHERE mi.category = 'MEDICATION' and mi.is_deleted = false and it.is_deleted = false
-        GROUP BY mi.id
-        ORDER BY mi.id desc`);
+      await query(`
+        SELECT 
+  mi.*, 
+  COALESCE(SUM(CASE WHEN it.is_deleted = false THEN ti.transaction_quantity ELSE 0 END), 0) AS quantity
+FROM 
+  MedicalItem mi
+LEFT JOIN 
+  TransactionItems ti ON mi.id = ti.medical_item_id
+LEFT JOIN 
+  InventoryTransaction it ON it.id = ti.transaction_id
+WHERE 
+  mi.category = 'MEDICATION' 
+  AND mi.is_deleted = false
+GROUP BY 
+  mi.id
+ORDER BY 
+  mi.id DESC;
+
+
+        `
+      );
     return res
       .status(200)
       .json({ error: false, message: "ok", data: result.rows });
@@ -431,35 +476,42 @@ export async function checkAdequateQuantityForItems(
 
   if (incoming_medical_items.length !== 0) {
     const purpose_result = await client.query(
-      `select multiply_for from transactionpurpose where id = $1`,
+      `SELECT multiply_for FROM transactionpurpose WHERE id = $1`,
       [purpose_id]
     );
-    const multiply_for = purpose_result.rows[0].multiply_for;
-    console.log(multiply_for);
+    const multiply_for = parseInt(purpose_result.rows[0].multiply_for);
+    console.log("multiply_for:", multiply_for);
 
-    const current_items_quantity = await getCurrentItems();
+    const current_items_quantity = (await getCurrentItems()).map((item) => ({
+      id: parseInt(item.id),
+      quantity: parseInt(item.quantity),
+    }));
 
     const quantity_map = new Map();
-
     for (const row of current_items_quantity) {
       quantity_map.set(row.id, row.quantity);
-      console.log(row.id, row.quantity);
+      console.log("Current item:", row.id, row.quantity);
     }
-    console.log(incoming_medical_items);
-    for (const item of incoming_medical_items) {
-      const current_quantity = quantity_map.get(Number(item.id)) ?? 0;
-      if (!current_quantity || current_quantity === 0) {
-        is_adequate_all = false;
-        break;
-      }
+
+    console.log("Incoming items:", incoming_medical_items);
+    for (const rawItem of incoming_medical_items) {
+      const item = {
+        id: parseInt(rawItem.id),
+        quantity: parseInt(rawItem.quantity),
+      };
+
+      const current_quantity = quantity_map.get(item.id) ?? 0;
+
       if (current_quantity + multiply_for * item.quantity < 0) {
         is_adequate_all = false;
         break;
       }
     }
   }
+
   return is_adequate_all;
 }
+
 
 export async function getMedicalItemsByTransactionID(transaction_id) {
   const result = await query(
@@ -481,16 +533,16 @@ export async function getMedicalItemsByTransactionID(transaction_id) {
 
 export async function getCurrentItems() {
   const result = await query(`
-    SELECT 
-      mi.*, 
-      COALESCE(SUM(ti.transaction_quantity), 0)::integer AS quantity
-    FROM MedicalItem mi
-    LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
-    LEFT JOIN InventoryTransaction it ON it.id = ti.transaction_id
-    WHERE mi.is_deleted = false AND it.is_deleted = false
-    GROUP BY mi.id
-    ORDER BY mi.id;
-
+SELECT 
+  mi.*, 
+  COALESCE(SUM(ti.transaction_quantity), 0)::integer AS quantity
+FROM MedicalItem mi
+LEFT JOIN TransactionItems ti ON mi.id = ti.medical_item_id
+LEFT JOIN InventoryTransaction it 
+  ON it.id = ti.transaction_id AND it.is_deleted = false
+WHERE mi.is_deleted = false
+GROUP BY mi.id
+ORDER BY mi.id;
   `);
   return result.rows;
 }
@@ -556,7 +608,7 @@ export async function createNewMedicalItemsForTransaction(
   purpose_id,
   client
 ) {
-  console.log("Create: createNewMedicalItemsForTransaction");
+  console.log("Create: createNewMedicalItemsForTransaction: ", transaction_id);
   const purpose_result = await client.query(
     `SELECT multiply_for FROM transactionpurpose WHERE id = $1`,
     [purpose_id]
@@ -1341,10 +1393,9 @@ export async function getSupplierByName(req, res) {
   const { name } = req.query;
   console.log(name);
   try {
-    const result = await query(
-      `SELECT * FROM Supplier WHERE name = $1 `,
-      [name]
-    );
+    const result = await query(`SELECT * FROM Supplier WHERE name = $1 `, [
+      name,
+    ]);
 
     if (result.rowCount === 0) {
       return res.status(400).json({

@@ -300,7 +300,9 @@ export const updateDailyHealthRecordById = async (req, res) => {
       .json({ error: true, message: "Missing required field: Diagnosis" });
   }
 
-  //console.log("update: ", medical_items);
+  console.log("update: ", transaction_id);
+
+  let new_transaction_id = transaction_id;
 
   const client = await pool.connect();
   try {
@@ -327,12 +329,24 @@ export const updateDailyHealthRecordById = async (req, res) => {
       client
     );
     if (is_valid_transaction_quantity === true) {
-      await createNewMedicalItemsForTransaction(
-        transaction_id,
-        medical_items,
-        1,
-        client
-      );
+      if (transaction_id !== null)
+        await createNewMedicalItemsForTransaction(
+          transaction_id,
+          medical_items,
+          1,
+          client
+        );
+      else {
+        const record_date = new Date();
+        new_transaction_id = await createNewTransaction(
+          1,
+          "Sử dụng thuốc/vật tư cho học sinh",
+          record_date,
+          medical_items,
+          null,
+          client
+        );
+      }
     } else {
       await restoreMedicalItemsForTransaction(
         transaction_id,
@@ -350,8 +364,9 @@ export const updateDailyHealthRecordById = async (req, res) => {
           transferred_to = $3, 
           items_usage = $4, 
           status = $5,
-          detect_time = $6 
-      WHERE id = $7 
+          detect_time = $6,
+          transaction_id = $7
+      WHERE id = $8
       RETURNING *;
     `;
     console.log("UPDATE");
@@ -362,6 +377,7 @@ export const updateDailyHealthRecordById = async (req, res) => {
       items_usage || null,
       status || null,
       detect_time || null,
+      new_transaction_id,
       id,
     ];
     const result = await client.query(updateQuery, values);
