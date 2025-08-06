@@ -15,6 +15,7 @@ import {
   getDiseaseDeclarationsHistoryByStudentID,
   getDiseaseDeclarationsHistory,
   getDiseaseRecordById,
+  createDiseaseRecordForAdmin,
 } from "../controllers/diseaseRecord.controller.js";
 
 const router = express.Router();
@@ -33,6 +34,8 @@ router.get("/:student_id/disease-record", getDiseaseRecordsOfStudent); // parent
 router.get("/disease-record", getAllDiseaseRecords); // lấy toàn bộ danh sách bệnh của tất cả học sinh
 
 router.post("/student/:student_id/disease-record", createDiseaseRecord); // tạo mới bệnh cho cả truyền nhiễm và mãn tính
+router.post("/admin/student/:student_id/disease-record", createDiseaseRecordForAdmin); // tạo mới bệnh cho cả truyền nhiễm và mãn tính
+
 router.patch("/disease-record/:id/accept", acceptDiseaseRecord);
 router.patch("/disease-record/:id/refuse", refuseDiseaseRecord);
 router.get("/disease-record/requests", getAllDiseaseRecordsRequested); // Lấy ra tất cả các khai báo bệnh chưa được duyệt
@@ -53,6 +56,6 @@ router.get(
 
 router.get("/disease-record/:id", getDiseaseRecordById); // lấy thông tin bệnh theo id
 
-// router.patch("/student/:id/disease-record", updateDiseaseRecord); // update disease record
+router.patch("/student/:id/disease-record", updateDiseaseRecord); // update disease record
 
 export default router;

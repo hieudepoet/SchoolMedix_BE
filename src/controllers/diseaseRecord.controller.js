@@ -435,6 +435,62 @@ export async function createDiseaseRecord(req, res) {
   }
 }
 
+export async function createDiseaseRecordForAdmin(req, res) {
+  const { student_id } = req.params;
+  const {
+    disease_id,
+    diagnosis,
+    detect_date,
+    cure_date,
+    location_cure,
+    transferred_to,
+    status,
+  } = req.body;
+
+  try {
+    const result = await query(
+      `
+      INSERT INTO disease_record (
+        student_id,
+        disease_id,
+        diagnosis,
+        detect_date,
+        cure_date,
+        location_cure,
+        transferred_to,
+        status,
+        pending
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING *
+      `,
+      [
+        student_id,
+        disease_id,
+        diagnosis,
+        detect_date,
+        cure_date,
+        location_cure,
+        transferred_to,
+        status,
+        "DONE",
+      ]
+    );
+
+    return res.status(201).json({
+      error: false,
+      message: "Ghi nhận bệnh cho học sinh thành công",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error recording disease:", error);
+    return res.status(500).json({
+      error: true,
+      message: "Lỗi server khi ghi nhận bệnh",
+    });
+  }
+}
+
 export async function acceptDiseaseRecord(req, res) {
   const { id } = req.params;
 
@@ -673,6 +729,7 @@ export async function getDiseaseRecordById(req, res) {
     const result = await query(
       `
       SELECT 
+        dr.transferred_to,
         dr.id,
         dr.student_id,
         s.name as student_name,
