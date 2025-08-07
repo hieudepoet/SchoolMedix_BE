@@ -76,8 +76,7 @@ ORDER BY
 
 export async function getAllMedicalSupplies(req, res) {
   try {
-    const result =
-      await query(`
+    const result = await query(`
         SELECT 
   mi.*, 
   COALESCE(SUM(CASE WHEN it.is_deleted = false THEN ti.transaction_quantity ELSE 0 END), 0) AS quantity
@@ -96,8 +95,7 @@ ORDER BY
   mi.id DESC;
 
 
-        `
-      );
+        `);
     return res
       .status(200)
       .json({ error: false, message: "ok", data: result.rows });
@@ -111,28 +109,26 @@ ORDER BY
 
 export async function getAllMedications(req, res) {
   try {
-    const result =
-      await query(`
+    const result = await query(`
         SELECT 
   mi.*, 
-  COALESCE(SUM(ti.transaction_quantity), 0) AS quantity
+  COALESCE(SUM(CASE WHEN it.is_deleted = false THEN ti.transaction_quantity ELSE 0 END), 0) AS quantity
 FROM 
   MedicalItem mi
 LEFT JOIN 
   TransactionItems ti ON mi.id = ti.medical_item_id
 LEFT JOIN 
-  InventoryTransaction it ON it.id = ti.transaction_id AND it.is_deleted = false
+  InventoryTransaction it ON it.id = ti.transaction_id
 WHERE 
   mi.category = 'MEDICATION' 
   AND mi.is_deleted = false
-  AND it.is_deleted = false
 GROUP BY 
   mi.id
 ORDER BY 
   mi.id DESC;
 
-        `
-      );
+
+        `);
     return res
       .status(200)
       .json({ error: false, message: "ok", data: result.rows });
@@ -512,7 +508,6 @@ export async function checkAdequateQuantityForItems(
   return is_adequate_all;
 }
 
-
 export async function getMedicalItemsByTransactionID(transaction_id) {
   const result = await query(
     `SELECT 
@@ -589,7 +584,7 @@ export async function createNewTransaction(
   }
 }
 
-export async function eraseAllTransactionItemsByTransactionID(
+export async function eraseAllTransactionItemsByTransactionIDWithClient(
   transaction_id,
   client
 ) {
@@ -600,6 +595,15 @@ export async function eraseAllTransactionItemsByTransactionID(
     [transaction_id]
   );
   client.query("COMMIT");
+}
+
+export async function eraseAllTransactionItemsByTransactionID(transaction_id) {
+  console.log("ERASE: eraseAllTransactionItemsByTransactionID");
+
+  const result = await query(
+    `DELETE FROM TransactionItems WHERE transaction_id = $1`,
+    [transaction_id]
+  );
 }
 
 export async function createNewMedicalItemsForTransaction(
@@ -641,8 +645,7 @@ export async function createNewMedicalItemsForTransaction(
 
 export async function restoreMedicalItemsForTransaction(
   transaction_id,
-  old_medical_items,
-  client
+  old_medical_items
 ) {
   console.log("Restore: restoreMedicalItemsForTransaction");
   const values = [];
@@ -660,10 +663,8 @@ export async function restoreMedicalItemsForTransaction(
         VALUES ${placeholders.join(", ")}
       `;
 
-    await client.query(insert_items_query, values);
+    await query(insert_items_query, values);
   }
-
-  client.query("COMMIT");
 }
 
 export async function getAllInventoryTransactions(req, res) {
@@ -1014,8 +1015,15 @@ export async function updateInventoryTransaction(req, res) {
   try {
     await client.query("BEGIN");
 
+    const old_medical_items = await getMedicalItemsByTransactionID(id);
+    console.log(old_medical_items);
+
     // Xóa hết các vật tư cũ trong giao dịch
-    await eraseAllTransactionItemsByTransactionID(id, client);
+    await eraseAllTransactionItemsByTransactionID(
+      id,
+      old_medical_items,
+      client
+    );
 
     // Kiểm tra số lượng tồn kho
     const is_valid = await checkAdequateQuantityForItems(
@@ -1024,6 +1032,7 @@ export async function updateInventoryTransaction(req, res) {
       client
     );
     if (!is_valid) {
+      await restoreMedicalItemsForTransaction(id, old_medical_items, client);
       await client.query("ROLLBACK");
       return res.status(400).json({
         error: true,

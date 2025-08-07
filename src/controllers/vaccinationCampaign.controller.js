@@ -1029,10 +1029,22 @@ export async function getAllRegistersOfAStudentWithCampaignID(req, res) {
       [student_id, campaign_id]
     );
 
+    const disease_id_fetch = await query(
+      `
+      SELECT disease_id FROM vaccination_campaign WHERE id = $1`,
+      [campaign_id]
+    );
+    const disease_id = disease_id_fetch.rows[0];
+    const doses = await getCompletedDosesMergedByDiseaseID(
+      student_id,
+      disease_id
+    );
+
     return res.status(200).json({
       error: false,
       message: "Lấy danh sách đăng ký thành công",
       data: result.rows,
+      doses: doses,
     });
   } catch (error) {
     console.error("Error fetching register info:", error);
@@ -1561,5 +1573,45 @@ export async function sendMailRegister(req, res) {
       message: "Lỗi khi gửi mail",
       detail: err.message,
     });
+  }
+}
+
+async function getCompletedDosesMergedByDiseaseID(student_id, disease_id) {
+  // const { student_id, disease_id } = req.params;
+
+  try {
+    // 2. Lấy danh sách bệnh, số liều đã tiêm (COMPLETED), và tổng số liều cần tiêm
+    console.log(student_id);
+    console.log(disease_id.disease_id);
+    const dosesQuery = await query(
+      `
+      SELECT 
+        vd.disease_id,
+        STRING_AGG(DISTINCT d.name, ', ') AS disease_name,
+        (
+          SELECT COUNT(*) 
+          FROM vaccination_record vr_sub
+          WHERE 
+            vr_sub.student_id = $1 AND
+            vr_sub.disease_id = vd.disease_id AND
+            vr_sub.status = 'COMPLETED'
+        ) AS completed_doses,
+        vd.dose_quantity
+      FROM vaccine_disease vd
+      LEFT JOIN disease d ON d.id = ANY(vd.disease_id)
+      WHERE vd.disease_id = $2
+      GROUP BY vd.disease_id, vd.dose_quantity
+      ORDER BY vd.disease_id
+    `,
+      [student_id, disease_id.disease_id]
+    );
+
+    return (
+      dosesQuery.rows[0].completed_doses +
+      "/" +
+      dosesQuery.rows[0].dose_quantity
+    );
+  } catch (err) {
+    return "Error";
   }
 }
