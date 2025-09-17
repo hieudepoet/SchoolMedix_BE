@@ -80,5 +80,5 @@ The project is organized into a root folder with two main components:
 ## Contributing
 
 - Feel free to contribute by submitting issues or pull requests. Please follow the project's coding standards.
-- If find this repository usefull, please give us a Github Star.
+- If find this repository usefull, please give us a Github Star ⭐.
 
