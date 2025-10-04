@@ -1,6 +1,5 @@
 # SchoolMedix Project
-
-Welcome to the SchoolMedix project, a comprehensive health management system designed for schools. This README provides step-by-step instructions to set up and run the project locally. Explore the live version at [https://schoolmedix.web.app/](https://schoolmedix.web.app/). Use the following credentials for testing:
+Welcome to the SchoolMedix project, a comprehensive health management system designed for schools. SchoolMedix project, a comprehensive health management system designed for schools. With modern features such as management dashboard, tracking, scheduling... user-friendly. Helps medical management in the school environment become more accurate, modern and convenient. Medical staff can more easily perform medical information storage operations. Parents can also monitor their children's health development or medical conditions. This README provides step-by-step instructions to set up and run the project locally. Explore the live version at [https://schoolmedix.web.app/](https://schoolmedix.web.app/). Use the following credentials for testing:
 
 - **Admin**: Username: `mndkhanh@gmail.com`, Password: `12345678`
 - **Nurse**: Username: `mndkhanh3@gmail.com`, Password: `12345678`
